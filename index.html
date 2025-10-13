@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Innov AI STREEM - Compra en nuestra tienda online</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta name="description" content="Tienda de servicios digitales: ChatGPT Plus, Netflix Premium, Canva Pro y más. Entrega inmediata por WhatsApp." />
+
+  <!-- Favicon -->
+  <link href="img/favicon.ico" rel="icon">
+
+  <!-- Google Web Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Libraries Stylesheet -->
+  <link href="lib/animate/animate.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+  <!-- Customized Bootstrap Stylesheet -->
+  <link href="css/style.css" rel="stylesheet">
+
+  <!-- ===========================
+       ESTILOS EXTRA + VARIABLES
+       =========================== -->
+  <style>
+    /* =========================================================
+       🔧 EDITABLE: Variables de marca y componentes
+       ========================================================= */
+    :root{
+      /* Marca */
+      --brand-primary: #0d6efd;
+      --brand-secondary: #6c757d;
+      --brand-accent: #22d3ee;
+
+      /* WhatsApp FAB */
+      --wa-size: 64px;
+      --wa-bg: #00ff5e;
+      --wa-fg: #ffffff;
+      --wa-shadow: 0 10px 22px rgba(0,0,0,.28);
+
+      /* Rastro RGB del “fly-to-cart” */
+      --trail-c1: #ff0000;
+      --trail-c2: #00e5ff;
+      --trail-c3: #7cff00;
+
+      /* Carrito */
+      --cart-badge-bg: #343a40;
+      --cart-badge-fg: #ffffff;
+
+      /* Animaciones generales */
+      --fly-duration: 1050ms;
+      --trail-duration: 650ms;
+      --wa-attention: 1.1s;
+    }
+
+    /* Afinado accesible */
+    @media (prefers-reduced-motion: reduce){
+      :root{
+        --fly-duration: 0ms;
+        --trail-duration: 0ms;
+        --wa-attention: 0s;
+      }
+      *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration: .01ms !important; scroll-behavior:auto !important;}
+    }
+
+    /* ======================
+       Sticky header (NUEVO)
+       ====================== */
+    .site-header.sticky-top{
+      z-index: 1045;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+
+    /* WhatsApp FAB */
+    .whatsapp-fab{
+      position:fixed;right:18px;bottom:18px;
+      width:var(--wa-size);height:var(--wa-size);
+      border-radius:50%;
+      background:var(--wa-bg);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--wa-fg);
+      box-shadow:var(--wa-shadow);
+      z-index:1200;
+      transition:transform .18s, box-shadow .18s, filter .18s;
+      isolation:isolate;
+      overflow:visible;
+    }
+    .whatsapp-fab i{font-size:calc(var(--wa-size) * .45);line-height:1}
+    .whatsapp-fab:hover{transform:translateY(-3px); filter:saturate(1.1) brightness(1.05);}
+    .whatsapp-fab:active{transform:translateY(0);}
+
+    /* Anillo de atención suave */
+    .whatsapp-fab::after{
+      content:""; position:absolute; inset:-8px;
+      border-radius:inherit;
+      box-shadow:0 0 0 0 rgba(37,211,102,.30);
+      animation:wa-pulse var(--wa-attention) infinite ease-out;
+      z-index:-1;
+    }
+    @keyframes wa-pulse{
+      0%{ box-shadow:0 0 0 0 rgba(37,211,102,.33); }
+      70%{ box-shadow:0 0 0 18px rgba(37,211,102,0); }
+      100%{ box-shadow:0 0 0 0 rgba(37,211,102,0); }
+    }
+
+    .whatsapp-badge{
+      position:absolute;top:-4px;right:-2px;
+      min-width:18px;height:18px;padding:0 4px;border-radius:10px;
+      background:#e0190f;color:#fff;font-size:11px;font-weight:700;
+      display:inline-flex;align-items:center;justify-content:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+      animation:pulse 1.6s infinite;
+    }
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+    /* Partículas del rastro */
+    .trail{
+      position:fixed; pointer-events:none; width:10px; height:10px;
+      border-radius:50%;
+      filter:blur(0.5px) drop-shadow(0 0 8px currentColor);
+      opacity:.9;
+      animation:trailfade var(--trail-duration) ease-out forwards;
+      z-index:1400;
+    }
+    @keyframes trailfade{ to { transform:scale(0.6); opacity:0; } }
+
+    /* Emoticon/imagen que vuela */
+    .fly-ghost{
+      position:fixed; width:40px; height:40px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:24px; border-radius:50%;
+      background:#0b0b0b; color:#fff;
+      box-shadow:0 8px 18px rgba(0,0,0,.25), inset 0 0 22px rgba(255,255,255,.07);
+      z-index:1500; will-change: transform, opacity;
+      overflow:hidden;
+    }
+    .fly-ghost.is-img{ background:#111; }
+    .fly-ghost.is-img > img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    /* Destacar carrito al llegar */
+    .cart-badge-pop{
+      animation:pop .45s cubic-bezier(.2,.7,.2,1.2);
+      background: var(--cart-badge-bg) !important;
+      color: var(--cart-badge-fg) !important;
+    }
+    @keyframes pop{ 0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)} }
+
+    /* ============ NUEVO: chip de precio & ficha en Carousel ============ */
+    .price-chip{
+      display:inline-flex;align-items:center;gap:.4rem;
+      padding:.25rem .75rem;border-radius:999px;
+      font-weight:700;letter-spacing:.2px;
+      border:1px solid rgba(255,255,255,.3);
+      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.55));
+      backdrop-filter:blur(6px);
+      box-shadow:0 6px 18px rgba(0,0,0,.25);
+    }
+    .price-chip .fa{opacity:.9}
+
+    .caption-actions{
+      display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;align-items:center;
+    }
+    .hero-features{
+      margin-top:.5rem;
+      background:rgba(0,0,0,.55);border-radius:10px;padding:.75rem 1rem;color:#fff;
+      border:1px solid rgba(255,255,255,.15);
+    }
+    .hero-features li{ margin:.15rem 0; }
+
+    /* NUEVO: botones pequeños para “oferta” lateral */
+    .offer-text .btn{ margin-right:.35rem; }
+    .offer-features{
+      margin-top:.5rem;padding:.6rem .75rem;border-radius:10px;
+      background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.15);
+    }
+
+    /* Featured boxes más compactos en móvil */
+    @media (max-width: 576px){
+      .feature-tight{ padding:18px !important; }
+      .feature-tight h5{ font-size:1rem; }
+      .feature-tight h1.fa,.feature-tight h1.fas{ font-size:1.4rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ========== HEADER PEGADO (Sticky) – NUEVO WRAPPER ========== -->
+  <header id="siteHeader" class="site-header sticky-top">
+    <!-- Topbar Start -->
+    <div class="container-fluid">
+      <div class="row bg-secondary py-1 px-xl-5">
+        <div class="col-lg-6 d-none d-lg-block">
+          <div class="d-inline-flex align-items-center h-100">
+            <a class="text-body mr-3" href="acerca.html">Acerca de</a>
+            <a class="text-body mr-3" href="contact.html">Contacto</a>
+            <a class="text-body mr-3" href="ayuda.html">Ayuda</a>
+            <a class="text-body mr-3" href="faq.html">Preguntas frecuentes</a>
+          </div>
+        </div>
+        <div class="col-lg-6 text-center text-lg-right">
+          <div class="d-inline-flex align-items-center">
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Mi cuenta</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="login.html">Ingresar</a>
+                <a class="dropdown-item" href="register.html">Registrarse</a>
+              </div>
+            </div>
+            <div class="btn-group mx-2">
+              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Soles</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <button class="dropdown-item" type="button">USD</button>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">ES</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="?lang=en">EN</a>
+              </div>
+            </div>
+          </div>
+          <div class="d-inline-flex align-items-center d-block d-lg-none">
+            <a href="favoritos.html" class="btn px-0 ml-2" aria-label="Favoritos">
+              <i class="fas fa-heart text-dark"></i>
+              <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
+            </a>
+            <a href="cart.html" class="btn px-0 ml-2" aria-label="Carrito">
+              <i class="fas fa-shopping-cart text-dark"></i>
+              <span id="headerCartBadgeSm" class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
+        <div class="col-lg-4">
+          <a href="index.html" class="text-decoration-none">
+            <span class="h1 text-uppercase text-primary bg-dark px-2">INNOV</span>
+            <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">TIENDA</span>
+          </a>
+        </div>
+        <div class="col-lg-4 col-6 text-left">
+          <form action="buscar.html">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Buscar productos">
+              <div class="input-group-append">
+                <button class="input-group-text bg-transparent text-primary" type="submit">
+                  <i class="fa fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-lg-4 col-6 text-right">
+          <p class="m-0">Servicio al cliente</p>
+          <h5 class="m-0"><a href="tel:+51991564053" class="text-dark">+51 991564053</a></h5>
+        </div>
+      </div>
+    </div>
+    <!-- Topbar End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid bg-dark">
+      <div class="row px-xl-5">
+        <div class="col-lg-3 d-none d-lg-block">
+          <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#navbar-vertical" style="height:65px;padding:0 30px;">
+            <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>Categorías</h6>
+            <i class="fa fa-angle-down text-dark"></i>
+          </a>
+          <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical" style="width:calc(100% - 30px);z-index:999;">
+            <div class="navbar-nav w-100">
+              <!-- NUEVO: más categorías -->
+              <a href="shop.html#chatgpt-plus" class="nav-item nav-link">ChatGPT Plus</a>
+              <a href="shop.html#gemini-pro" class="nav-item nav-link">Gemini Pro</a>
+              <a href="shop.html#perplexity" class="nav-item nav-link">Perplexity</a>
+              <a href="shop.html#netflix-premium" class="nav-item nav-link">Netflix Premium</a>
+              <a href="shop.html#disney-premium" class="nav-item nav-link">Disney+ Premium</a>
+              <a href="shop.html#prime-video" class="nav-item nav-link">Prime Video</a>
+              <a href="shop.html#hbo-max" class="nav-item nav-link">HBO Max</a>
+              <a href="shop.html#directv" class="nav-item nav-link">DirecTV</a>
+              <a href="shop.html#spotify-premium" class="nav-item nav-link">Spotify Premium</a>
+              <a href="shop.html#youtube-premium" class="nav-item nav-link">YouTube Premium</a>
+              <a href="shop.html#capcut-pro" class="nav-item nav-link">CapCut Pro</a>
+              <a href="shop.html#canva-pro" class="nav-item nav-link">Canva Pro</a>
+              <a href="shop.html#crunchyroll" class="nav-item nav-link">Crunchyroll</a>
+              <a href="shop.html#movistar-play" class="nav-item nav-link">Movistar Play</a>
+            </div>
+          </nav>
+        </div>
+        <div class="col-lg-9">
+          <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
+            <a href="index.html" class="text-decoration-none d-block d-lg-none">
+              <span class="h1 text-uppercase text-dark bg-light px-2">Innov AI</span>
+              <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">Tienda</span>
+            </a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+              <div class="navbar-nav mr-auto py-0">
+                <a href="index.html" class="nav-item nav-link active">Inicio</a>
+                <a href="shop.html" class="nav-item nav-link">Tienda</a>
+                <a href="detail.html" class="nav-item nav-link">Detalle de la tienda</a>
+                <div class="nav-item dropdown">
+                  <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Páginas <i class="fa fa-angle-down mt-1"></i></a>
+                  <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
+                    <a href="cart.html" class="dropdown-item">Carrito</a>
+                    <a href="checkout.html" class="dropdown-item">Pagar</a>
+                  </div>
+                </div>
+                <a href="contact.html" class="nav-item nav-link">Contacto</a>
+              </div>
+              <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
+                <a href="favoritos.html" class="btn px-0" aria-label="Favoritos">
+                  <i class="fas fa-heart text-primary"></i>
+                  <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
+                </a>
+                <a href="cart.html" class="btn px-0 ml-3" aria-label="Carrito">
+                  <i class="fas fa-shopping-cart text-primary"></i>
+                  <span id="headerCartBadge" class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
+                </a>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <!-- Navbar End -->
+  </header>
+  <!-- ========== /HEADER PEGADO ========== -->
+
+  <!-- Carousel Start -->
+  <div class="container-fluid mb-3">
+    <div class="row px-xl-5">
+      <div class="col-lg-8">
+        <div id="header-carousel" class="carousel slide carousel-fade mb-30 mb-lg-0" data-ride="carousel">
+          <ol class="carousel-indicators">
+            <li data-target="#header-carousel" data-slide-to="0" class="active"></li>
+            <li data-target="#header-carousel" data-slide-to="1"></li>
+            <li data-target="#header-carousel" data-slide-to="2"></li>
+          </ol>
+          <div class="carousel-inner">
+
+            <!-- Slide 1: ChatGPT Plus (NUEVO: chip precio + acciones + “qué ofrece”) -->
+            <div class="carousel-item position-relative active" style="height:430px;">
+              <img class="position-absolute w-100 h-100" src="img/carousel-1.jpg" style="object-fit:cover;" alt="ChatGPT Plus">
+              <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                <div class="p-3 text-center" style="max-width:700px;">
+                  <h1 class="display-4 text-white mb-2 animate__animated animate__fadeInDown">ChatGPT Plus</h1>
+                  <p class="mx-md-5 px-4 animate__animated animate__fadeInUp">Velocidad premium y acceso prioritario.</p>
+
+                  <!-- NUEVO: Chip de precio dinámico -->
+                  <div class="price-chip text-white mt-2" title="Precio dinámico desde la categoría ChatGPT">
+                    <i class="fa fa-tag"></i>S/8 mensual
+                  </div>
+
+                  <!-- Acciones -->
+                  <div class="caption-actions mt-3">
+                    <a href="#" class="btn btn-outline-light py-2 px-4 hero-buy"
+                       data-sku="chatgpt-plus" data-name="ChatGPT Plus" data-emoji="🤖"
+                       title="Comprar ahora">Comprar ahora</a>
+                    <a class="btn btn-light py-2 px-3" data-toggle="collapse" href="#feat-chatgpt" role="button" aria-expanded="false" aria-controls="feat-chatgpt">
+                      ¿Qué ofrece?
+                    </a>
+                  </div>
+
+                  <!-- Ficha “¿Qué ofrece?” -->
+                  <div class="collapse hero-features text-left" id="feat-chatgpt">
+                    <ul class="mb-0 pl-3">
+                      <li>Respuestas rápidas con prioridad de uso.</li>
+                      <li>Acceso a funciones avanzadas y nuevas capacidades antes.</li>
+                      <li>Soporte multi-dispositivo (PC, móvil).</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 2: Gemini Pro -->
+            <div class="carousel-item position-relative" style="height:430px;">
+              <img class="position-absolute w-100 h-100" src="img/carousel-2.jpg" style="object-fit:cover;" alt="Gemini Pro">
+              <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                <div class="p-3 text-center" style="max-width:700px;">
+                  <h1 class="display-4 text-white mb-2 animate__animated animate__fadeInDown">Gemini Pro +2 Teras</h1>
+                  <p class="mx-md-5 px-4 animate__animated animate__fadeInUp">IA multimodal de alta calidad para texto e imágenes.</p>
+
+                  <div class="price-chip text-white mt-2">
+                    <i class="fa fa-tag"></i> S/ 10 <small class="text-white-50 ml-1">al mes</small>
+                  </div>
+
+                  <div class="caption-actions mt-3">
+                    <a href="#" class="btn btn-outline-light py-2 px-4 hero-buy"
+                       data-sku="gemini-pro" data-name="Gemini Pro — 1 mes" data-price="10" data-img="img/carousel-2.jpg" data-emoji="✨">
+                       Comprar ahora
+                    </a>
+                    <a class="btn btn-light py-2 px-3" data-toggle="collapse" href="#feat-gemini" role="button" aria-expanded="false" aria-controls="feat-gemini">¿Qué ofrece?</a>
+                  </div>
+                  <div class="collapse hero-features text-left" id="feat-gemini">
+                    <ul class="mb-0 pl-3">
+                      <li>Textos creativos, análisis y ayuda para imágenes.</li>
+                      <li>Ideal para marketing, estudio y prototipos.</li>
+                      <li>Soporte y entrega inmediata.</li>
+                      <li>+2 TERAS DE ALMACENAMIENTO</li>
+                      <li>A tu propio correo</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 3: Perplexity (antes Canva Pro) -->
+            <div class="carousel-item position-relative" style="height:430px;">
+              <img class="position-absolute w-100 h-100" src="img/carousel-3.jpg" style="object-fit:cover;" alt="Perplexity">
+              <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                <div class="p-3 text-center" style="max-width:700px;">
+                  <h1 class="display-4 text-white mb-2 animate__animated animate__fadeInDown">Perplexity</h1>
+                  <p class="mx-md-5 px-4 animate__animated animate__fadeInUp">“Intuición” artificial para buscar y citar con precisión.</p>
+
+                  <div class="price-chip text-white mt-2">
+                    <i class="fa fa-tag"></i> S/ 10 <small class="text-white-50 ml-1">al mes</small>
+                  </div>
+
+                  <div class="caption-actions mt-3">
+                    <a href="#" class="btn btn-outline-light py-2 px-4 hero-buy"
+                       data-sku="perplexity" data-name="Perplexity — 1 mes" data-price="10" data-img="img/carousel-3.jpg" data-emoji="🔎">
+                       Comprar ahora
+                    </a>
+                    <a class="btn btn-light py-2 px-3" data-toggle="collapse" href="#feat-perplexity" role="button" aria-expanded="false" aria-controls="feat-perplexity">¿Qué ofrece?</a>
+                  </div>
+                  <div class="collapse hero-features text-left" id="feat-perplexity">
+                    <ul class="mb-0 pl-3">
+                      <li>Búsquedas con IA + fuentes citadas.</li>
+                      <li>Perfecto para investigar rápido y con confianza.</li>
+                      <li>Directamente a tu correo propio.</li>
+                      <li>Acceso inmediato y soporte.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /.carousel-inner -->
+        </div>
+      </div><!-- /col-lg-8 -->
+
+      <!-- Ofertas laterales (NUEVO: Netflix + Disney) -->
+      <div class="col-lg-4">
+        <!-- Oferta 1: Netflix -->
+        <div class="product-offer mb-30 position-relative" style="height:200px;">
+          <img class="img-fluid" src="img/offer-1.jpg" alt="Netflix">
+          <div class="offer-text">
+            <h6 class="text-white text-uppercase">Netflix</h6>
+            <h3 class="text-white mb-2">Oferta Especial</h3>
+            <div class="price-chip text-white mb-2"><i class="fa fa-tag"></i> S/ 10</div>
+            <div>
+              <a href="#" class="btn btn-primary offer-buy"
+                 data-id="netflix" data-name="Netflix Premium — 1 mes" data-price="10" data-img="img/product-4.jpg" data-emoji="🎬">
+                 Comprar ya
+              </a>
+              <a class="btn btn-light" data-toggle="collapse" href="#offer-feat-netflix" role="button" aria-expanded="false" aria-controls="offer-feat-netflix">¿Qué ofrece?</a>
+            </div>
+            <div class="collapse offer-features" id="offer-feat-netflix">
+              <ul class="mb-0 pl-3">
+                <li>Netflix Premium 1 mes.</li>
+                <li>Perfil propio, soporte 24/7</li>          
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Oferta 2: Disney -->
+        <div class="product-offer mb-30 position-relative" style="height:200px;">
+          <img class="img-fluid" src="img/offer-2.jpg" alt="Disney+">
+          <div class="offer-text">
+            <h6 class="text-white text-uppercase">Disney+</h6>
+            <h3 class="text-white mb-2">Oferta Especial</h3>
+            <div class="price-chip text-white mb-2"><i class="fa fa-tag"></i> S/ 8</div>
+            <div>
+              <a href="#" class="btn btn-primary offer-buy"
+                 data-id="disney" data-name="Disney+ Premium — 1 mes" data-price="10" data-img="img/cat-3.jpg" data-emoji="🎞️">
+                 Comprar ya
+              </a>
+              <a class="btn btn-light" data-toggle="collapse" href="#offer-feat-disney" role="button" aria-expanded="false" aria-controls="offer-feat-disney">¿Qué ofrece?</a>
+            </div>
+            <div class="collapse offer-features" id="offer-feat-disney">
+              <ul class="mb-0 pl-3">
+                <li>Acceso Premium 1 mes.</li>
+                <li>Perfil propio, soporte 24/7</li>                
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div><!-- /col-lg-4 -->
+    </div>
+  </div>
+  <!-- Carousel End -->
+
+  <!-- Featured Start -->
+  <div class="container-fluid pt-5">
+    <div class="row px-xl-5 pb-3">
+      <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+        <div class="d-flex align-items-center bg-light mb-4 feature-tight" style="padding:30px;">
+          <h1 class="fa fa-check text-primary m-0 mr-3"></h1>
+          <h5 class="font-weight-semi-bold m-0">Productos de calidad</h5>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+        <div class="d-flex align-items-center bg-light mb-4 feature-tight" style="padding:30px;">
+          <h1 class="fa fa-shipping-fast text-primary m-0 mr-2"></h1>
+          <h5 class="font-weight-semi-bold m-0">Entrega inmediata</h5>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+        <div class="d-flex align-items-center bg-light mb-4 feature-tight" style="padding:30px;">
+          <h1 class="fas fa-exchange-alt text-primary m-0 mr-3"></h1>
+          <h5 class="font-weight-semi-bold m-0">Rembolsos activos</h5>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+        <div class="d-flex align-items-center bg-light mb-4 feature-tight" style="padding:30px;">
+          <h1 class="fa fa-phone-volume text-primary m-0 mr-3"></h1>
+          <h5 class="font-weight-semi-bold m-0">Soporte 24/7</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Featured End -->
+
+  <!-- Categories Start (NUEVAS CATEGORÍAS) -->
+  <div class="container-fluid pt-5">
+    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Categorías</span></h2>
+    <div class="row px-xl-5 pb-3">
+      <!-- Ejemplos: enlazan a secciones del shop -->
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <a class="text-decoration-none" href="shop.html#chatgpt-plus">
+          <div class="cat-item d-flex align-items-center mb-4">
+            <div class="overflow-hidden" style="width:100px;height:100px;"><img class="img-fluid" src="img/cat-1.jpg" alt=""></div>
+            <div class="flex-fill pl-3"><h6>ChatGPT Plus</h6><small class="text-body">50 Cupos</small></div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <a class="text-decoration-none" href="shop.html#perplexity">
+          <div class="cat-item img-zoom d-flex align-items-center mb-4">
+            <div class="overflow-hidden" style="width:100px;height:100px;"><img class="img-fluid" src="img/cat-2.jpg" alt=""></div>
+            <div class="flex-fill pl-3"><h6>Perplexity</h6><small class="text-body">30 Cupos</small></div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <a class="text-decoration-none" href="shop.html#disney-premium">
+          <div class="cat-item img-zoom d-flex align-items-center mb-4">
+            <div class="overflow-hidden" style="width:100px;height:100px;"><img class="img-fluid" src="img/cat-3.jpg" alt=""></div>
+            <div class="flex-fill pl-3"><h6>Disney+</h6><small class="text-body">28 Cupos</small></div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <a class="text-decoration-none" href="shop.html#youtube-premium">
+          <div class="cat-item img-zoom d-flex align-items-center mb-4">
+            <div class="overflow-hidden" style="width:100px;height:100px;"><img class="img-fluid" src="img/cat-4.jpg" alt=""></div>
+            <div class="flex-fill pl-3"><h6>YouTube Premium</h6><small class="text-body">30 Cupos</small></div>
+          </div>
+        </a>
+      </div>
+
+      <!-- NUEVAS -->
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <a class="text-decoration-none" href="shop.html#gemini-pro">
+          <div class="cat-item img-zoom d-flex align-items-center mb-4">
+            <div class="overflow-hidden" style="width:100px;height:100px;"><img class="img-fluid" src="img/cat-gemini.jpg" alt=""></div>
+            <div class="flex-fill pl-3"><h6>Gemini Pro</h6><small class="text-body">40 Cupos</small></div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <a class="text-decoration-none" href="shop.html#netflix-premium">
+          <div class="cat-item img-zoom d-flex align-items-center mb-4">
+            <div class="overflow-hidden" style="width:100px;height:100px;"><img class="img-fluid" src="img/cat-netflix.jpg" alt=""></div>
+            <div class="flex-fill pl-3"><h6>Netflix Premium</h6><small class="text-body">50 Cupos</small></div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <a class="text-decoration-none" href="shop.html#spotify-premium">
+          <div class="cat-item img-zoom d-flex align-items-center mb-4">
+            <div class="overflow-hidden" style="width:100px;height:100px;"><img class="img-fluid" src="img/cat-spotify.jpg" alt=""></div>
+            <div class="flex-fill pl-3"><h6>Spotify Premium</h6><small class="text-body">45 Cupos</small></div>
+          </div>
+        </a>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <a class="text-decoration-none" href="shop.html#capcut-pro">
+          <div class="cat-item img-zoom d-flex align-items-center mb-4">
+            <div class="overflow-hidden" style="width:100px;height:100px;"><img class="img-fluid" src="img/cat-capcut.jpg" alt=""></div>
+            <div class="flex-fill pl-3"><h6>CapCut Pro</h6><small class="text-body">35 Cupos</small></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Categories End -->
+
+  <!-- Productos destacados Start -->
+  <div class="container-fluid pt-5 pb-3">
+    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Productos destacados</span></h2>
+    <div class="row px-xl-5">
+      <!-- Card 1 -->
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <div class="product-item bg-light mb-4"
+             data-id="chatgpt-pc"
+             data-name="ChatGPT Plus — PC/Laptop (1 mes)"
+             data-price="18.00"
+             data-image="img/product-1.jpg"
+             data-emoji="🤖">
+          <div class="product-img position-relative overflow-hidden">
+            <img class="img-fluid w-100" src="img/product-1.jpg" alt="ChatGPT Plus PC">
+            <div class="product-action">
+              <a class="btn btn-outline-dark btn-square btn-add" href="#" title="Añadir al carrito"><i class="fa fa-shopping-cart"></i></a>
+              <a class="btn btn-outline-dark btn-square btn-buy" href="#" title="Comprar ahora"><i class="fa fa-bolt"></i></a>
+              <a class="btn btn-outline-dark btn-square" href="detail.html?id=chatgpt-pc" title="Ver detalle"><i class="fa fa-search"></i></a>
+            </div>
+          </div>
+          <div class="text-center py-4">
+            <a class="h6 text-decoration-none text-truncate" href="detail.html?id=chatgpt-pc">ChatGPT Plus Para PC, Laptop</a>
+            <div class="d-flex align-items-center justify-content-center mt-2">
+              <h5>S/ 18.00</h5><h6 class="text-muted ml-2"><del>S/ 20.00</del></h6>
+            </div>
+            <div class="d-flex align-items-center justify-content-center mb-1">
+              <small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small>
+              <small>(45)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <div class="product-item bg-light mb-4"
+             data-id="chatgpt-mob"
+             data-name="ChatGPT Plus — Celular/Tablet (1 mes)"
+             data-price="12.00"
+             data-image="img/product-2.jpg"
+             data-emoji="📱">
+          <div class="product-img position-relative overflow-hidden">
+            <img class="img-fluid w-100" src="img/product-2.jpg" alt="ChatGPT Plus Móvil">
+            <div class="product-action">
+              <a class="btn btn-outline-dark btn-square btn-add" href="#" title="Añadir al carrito"><i class="fa fa-shopping-cart"></i></a>
+              <a class="btn btn-outline-dark btn-square btn-buy" href="#" title="Comprar ahora"><i class="fa fa-bolt"></i></a>
+              <a class="btn btn-outline-dark btn-square" href="detail.html?id=chatgpt-mob" title="Ver detalle"><i class="fa fa-search"></i></a>
+            </div>
+          </div>
+          <div class="text-center py-4">
+            <a class="h6 text-decoration-none text-truncate" href="detail.html?id=chatgpt-mob">ChatGPT Plus Para Celular, Tablet.</a>
+            <div class="d-flex align-items-center justify-content-center mt-2">
+              <h5>S/ 12.00</h5><h6 class="text-muted ml-2"><del>S/ 14.00</del></h6>
+            </div>
+            <div class="d-flex align-items-center justify-content-center mb-1">
+              <small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star-half-alt text-primary mr-1"></small>
+              <small>(60)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <div class="product-item bg-light mb-4"
+             data-id="combo-remate"
+             data-name="ChatGPT Plus — Remate (ambos disp.)"
+             data-price="8.00"
+             data-image="img/product-3.jpg"
+             data-emoji="🧩">
+          <div class="product-img position-relative overflow-hidden">
+            <img class="img-fluid w-100" src="img/product-3.jpg" alt="ChatGPT Plus Remate">
+            <div class="product-action">
+              <a class="btn btn-outline-dark btn-square btn-add" href="#" title="Añadir al carrito"><i class="fa fa-shopping-cart"></i></a>
+              <a class="btn btn-outline-dark btn-square btn-buy" href="#" title="Comprar ahora"><i class="fa fa-bolt"></i></a>
+              <a class="btn btn-outline-dark btn-square" href="detail.html?id=combo-remate" title="Ver detalle"><i class="fa fa-search"></i></a>
+            </div>
+          </div>
+          <div class="text-center py-4">
+            <a class="h6 text-decoration-none text-truncate" href="detail.html?id=combo-remate">ChatGPT Plus Remate</a>
+            <div class="d-flex align-items-center justify-content-center mt-2">
+              <h5>S/ 8.00</h5><h6 class="text-muted ml-2"><del>S/ 10.00</del></h6>
+            </div>
+            <div class="d-flex align-items-center justify-content-center mb-1">
+              <small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star-half-alt text-primary mr-1"></small><small class="far fa-star text-primary mr-1"></small>
+              <small>(68)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <div class="product-item bg-light mb-4"
+             data-id="netflix"
+             data-name="Netflix Premium — 1 mes"
+             data-price="10.00"
+             data-image="img/product-4.jpg"
+             data-emoji="🎬">
+          <div class="product-img position-relative overflow-hidden">
+            <img class="img-fluid w-100" src="img/product-4.jpg" alt="Netflix Premium">
+            <div class="product-action">
+              <a class="btn btn-outline-dark btn-square btn-add" href="#" title="Añadir al carrito"><i class="fa fa-shopping-cart"></i></a>
+              <a class="btn btn-outline-dark btn-square btn-buy" href="#" title="Comprar ahora"><i class="fa fa-bolt"></i></a>
+              <a class="btn btn-outline-dark btn-square" href="detail.html?id=netflix" title="Ver detalle"><i class="fa fa-search"></i></a>
+            </div>
+          </div>
+          <div class="text-center py-4">
+            <a class="h6 text-decoration-none text-truncate" href="detail.html?id=netflix">Netflix Premium</a>
+            <div class="d-flex align-items-center justify-content-center mt-2">
+              <h5>S/ 10.00</h5><h6 class="text-muted ml-2"><del>S/ 12.00</del></h6>
+            </div>
+            <div class="d-flex align-items-center justify-content-center mb-1">
+              <small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="fa fa-star text-primary mr-1"></small><small class="far fa-star text-primary mr-1"></small><small class="far fa-star text-primary mr-1"></small>
+              <small>(70)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ... agrega más si quieres -->
+    </div>
+  </div>
+  <!-- Productos destacados End -->
+
+  <!-- Vendor Start -->
+  <div class="container-fluid py-5">
+    <div class="row px-xl-5">
+      <div class="col">
+        <div class="owl-carousel vendor-carousel">
+          <div class="bg-light p-4"><img src="img/vendor-1.jpg" alt=""></div>
+          <div class="bg-light p-4"><img src="img/vendor-2.jpg" alt=""></div>
+          <div class="bg-light p-4"><img src="img/vendor-3.jpg" alt=""></div>
+          <div class="bg-light p-4"><img src="img/vendor-4.jpg" alt=""></div>
+          <div class="bg-light p-4"><img src="img/vendor-5.jpg" alt=""></div>
+          <div class="bg-light p-4"><img src="img/vendor-6.jpg" alt=""></div>
+          <div class="bg-light p-4"><img src="img/vendor-7.jpg" alt=""></div>
+          <div class="bg-light p-4"><img src="img/vendor-8.jpg" alt=""></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Vendor End -->
+
+  <!-- Footer Start -->
+  <div class="container-fluid bg-dark text-secondary mt-5 pt-5">
+    <div class="row px-xl-5 pt-5">
+      <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
+        <h5 class="text-secondary text-uppercase mb-4">Contáctanos</h5>
+        <p class="mb-4">Somos una plataforma digital con entrega inmediata y soporte por WhatsApp.</p>
+        <p class="mb-2"><i class="fa fa-map-marker-alt text-primary mr-3"></i>Lima — San Isidro — Perú</p>
+        <p class="mb-2"><i class="fa fa-envelope text-primary mr-3"></i><a href="mailto:ainnov611@gmail.com" class="text-secondary">ainnov611@gmail.com</a></p>
+        <p class="mb-0"><i class="fa fa-phone-alt text-primary mr-3"></i><a href="tel:+51991564053" class="text-secondary">+51 991564053</a></p>
+      </div>
+      <div class="col-lg-8 col-md-12">
+        <div class="row">
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Compra rápida</h5>
+            <div class="d-flex flex-column justify-content-start">
+              <a class="text-secondary mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Inicio</a>
+              <a class="text-secondary mb-2" href="shop.html"><i class="fa fa-angle-right mr-2"></i>Tienda</a>
+              <a class="text-secondary mb-2" href="detail.html"><i class="fa fa-angle-right mr-2"></i>Detalle</a>
+              <a class="text-secondary mb-2" href="cart.html"><i class="fa fa-angle-right mr-2"></i>Carrito</a>
+              <a class="text-secondary mb-2" href="checkout.html"><i class="fa fa-angle-right mr-2"></i>Pagar</a>
+              <a class="text-secondary" href="contact.html"><i class="fa fa-angle-right mr-2"></i>Contacto</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Mi cuenta</h5>
+            <div class="d-flex flex-column justify-content-start">
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Iniciar sesión</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Crear cuenta</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Pedidos</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Favoritos</a>
+              <a class="text-secondary" href="#"><i class="fa fa-angle-right mr-2"></i>Soporte</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Hoja informativa</h5>
+            <p>✔️ Precios accesibles · ✔️ Entrega inmediata · ✔️ Soporte garantizado</p>
+            <form action="#">
+              <div class="input-group">
+                <input type="email" class="form-control" placeholder="Tu correo">
+                <div class="input-group-append">
+                  <button class="btn btn-primary">Inscribirse</button>
+                </div>
+              </div>
+            </form>
+            <h6 class="text-secondary text-uppercase mt-4 mb-3">Síguenos</h6>
+            <div class="d-flex">
+              <a class="btn btn-primary btn-square mr-2" href="#"><i class="fab fa-twitter"></i></a>
+              <a class="btn btn-primary btn-square mr-2" href="#"><i class="fab fa-facebook-f"></i></a>
+              <a class="btn btn-primary btn-square mr-2" href="#"><i class="fab fa-linkedin-in"></i></a>
+              <a class="btn btn-primary btn-square" href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row border-top mx-xl-5 py-4" style="border-color:rgba(256,256,256,.1)!important;">
+      <div class="col-md-6 px-xl-0">
+        <p class="mb-md-0 text-center text-md-left text-secondary">
+          &copy; <a class="text-primary" href="#">Innov AI Tienda</a>. Todos los derechos reservados. Base:
+          <a class="text-primary" href="https://htmlcodex.com" target="_blank" rel="noopener">HTML Codex</a>
+        </p>
+      </div>
+      <div class="col-md-6 px-xl-0 text-center text-md-right">
+        <img class="img-fluid" src="img/payments.png" alt="Pagos">
+      </div>
+    </div>
+  </div>
+  <!-- Footer End -->
+
+  <!-- Back to Top -->
+  <a href="#" class="btn btn-primary back-to-top" aria-label="Subir"><i class="fa fa-angle-double-up"></i></a>
+
+  <!-- WhatsApp FAB -->
+  <a id="whatsappFab" class="whatsapp-fab" href="https://wa.me/51991564053" target="_blank" rel="noopener" aria-label="Abrir WhatsApp">
+    <i class="fab fa-whatsapp" aria-hidden="true"></i>
+    <span id="whatsappBadge" class="whatsapp-badge" aria-hidden="true">1</span>
+  </a>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+  <script src="lib/easing/easing.min.js"></script>
+  <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- ==========================================================
+       Núcleo del carrito + Fly-to-cart + Config rápida
+       + Integraciones nuevas (carousel/offer)  (NUEVO)
+       ========================================================== -->
+  <script>
+    (function(){
+      /* ========================
+         🔧 EDITABLE (JS)
+         ======================== */
+      const SETTINGS = {
+        currency: 'S/',
+        flyDurationMs: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--fly-duration')) || 1050,
+        trailDurationMs: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-duration')) || 650,
+        trailDensity: 26,
+        trailSize: 200,
+        useEmojiFirst: false,          // ← usa IMAGEN por defecto para el vuelo (más vistoso)
+        cartRedirectDelay: 1050,
+      };
+
+      /* =============== UTILIDADES CARRITO =============== */
+      const CART_KEY = 'innov_cart_v1';
+      const money = n => SETTINGS.currency + ' ' + (Number(n)||0).toFixed(2);
+      const read = () => { try { return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); } catch(e){ return []; } };
+      const write = (arr) => localStorage.setItem(CART_KEY, JSON.stringify(arr));
+
+      window.Cart = window.Cart || {
+        add: (item) => {
+          const items = read();
+          const idx = items.findIndex(i => i.id === item.id);
+          if (idx > -1) { items[idx].qty += (item.qty || 1); }
+          else { items.push({ id:item.id, nombre:item.nombre, precio:Number(item.precio), imagen:item.imagen||'', qty:item.qty||1 }); }
+          write(items);
+          return items;
+        },
+        items: ()=> read(),
+        count: ()=> read().reduce((a,b)=>a+b.qty,0),
+        subtotal: ()=> read().reduce((a,b)=>a+(b.precio*b.qty),0),
+        clear: ()=> write([])
+      };
+
+      function syncHeaderBadges(){
+        const c = Cart.count();
+        const b1 = document.getElementById('headerCartBadge');
+        const b2 = document.getElementById('headerCartBadgeSm');
+        [b1,b2].forEach(b=>{ if(b) b.textContent = c; });
+      }
+
+      /* =============== FLY-TO-CART =============== */
+      function pageOffsetRect(el){
+        const r = el.getBoundingClientRect();
+        return { x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height };
+      }
+
+      function findCartBadge(){
+        const d = document.getElementById('headerCartBadge');
+        const m = document.getElementById('headerCartBadgeSm');
+        const inViewport = (el) => el && !!(el.offsetParent || el.getClientRects().length);
+        return inViewport(d) ? d : (m || d);
+      }
+
+      function bezier(t, p0, p1, p2){
+        const u = 1 - t;
+        return { x: u*u*p0.x + 2*u*t*p1.x + t*t*p2.x, y: u*u*p0.y + 2*u*t*p1.y + t*t*p2.y };
+      }
+
+      function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+      function spawnTrail(x,y,idx){
+        const dot = document.createElement('div');
+        dot.className = 'trail';
+        const mod = idx % 3;
+        dot.style.color = mod===0 ? getComputedStyle(document.documentElement).getPropertyValue('--trail-c1').trim()
+                         : mod===1 ? getComputedStyle(document.documentElement).getPropertyValue('--trail-c2').trim()
+                                   : getComputedStyle(document.documentElement).getPropertyValue('--trail-c3').trim();
+        dot.style.left = (x - SETTINGS.trailSize/2) + 'px';
+        dot.style.top = (y - SETTINGS.trailSize/2) + 'px';
+        dot.style.width = dot.style.height = (SETTINGS.trailSize + Math.random()*4) + 'px';
+        document.body.appendChild(dot);
+        setTimeout(()=> dot.remove(), SETTINGS.trailDurationMs);
+      }
+
+      function makeGhost(fromEl, emoji, imgUrl){
+        const g = document.createElement('div');
+        g.className = 'fly-ghost';
+        const from = pageOffsetRect(fromEl);
+        g.style.left = (from.x + from.w/2 - 20) + 'px';
+        g.style.top  = (from.y + from.h/2 - 20) + 'px';
+        if(emoji){
+          g.textContent = emoji;
+        }else if(imgUrl){
+          g.classList.add('is-img');
+          const im = document.createElement('img');
+          im.src = imgUrl; im.alt = ''; g.appendChild(im);
+        }else{
+          g.textContent = '🛒';
+        }
+        document.body.appendChild(g);
+        return g;
+      }
+
+      function highlightCart(cartBadgeEl){
+        if(!cartBadgeEl) return;
+        cartBadgeEl.classList.add('cart-badge-pop');
+        setTimeout(()=>cartBadgeEl.classList.remove('cart-badge-pop'), 480);
+      }
+
+      function flyToCart({ originEl, emoji, imgUrl, onEnd }){
+        const cartBadge = findCartBadge();
+        if(!cartBadge || window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+          onEnd && onEnd();
+          return;
+        }
+        const ghost = makeGhost(originEl, emoji, imgUrl);
+        const start = pageOffsetRect(originEl);
+        const end = pageOffsetRect(cartBadge);
+
+        const p0 = { x: start.x + start.w/2, y: start.y + start.h/2 };
+        const p2 = { x: end.x + end.w/2,     y: end.y + end.h/2 };
+        const ctrlY = Math.min(p0.y, p2.y) - 120;
+        const p1 = { x: (p0.x + p2.x)/2, y: ctrlY };
+
+        const t0 = performance.now();
+        let lastTrail = -9999, idx=0;
+
+        function frame(now){
+          const dt = now - t0;
+          const t = Math.min(1, dt / SETTINGS.flyDurationMs);
+          const et = easeOutCubic(t);
+          const pos = bezier(et, p0, p1, p2);
+          ghost.style.transform = `translate(${pos.x - (start.x + start.w/2)}px, ${pos.y - (start.y + start.h/2)}px) scale(${1 - et*0.3}) rotate(${et*20}deg)`;
+          if(dt - lastTrail > SETTINGS.flyDurationMs / SETTINGS.trailDensity){
+            spawnTrail(pos.x, pos.y, idx++);
+            lastTrail = dt;
+          }
+          if(t < 1){ requestAnimationFrame(frame); }
+          else{ ghost.remove(); highlightCart(cartBadge); onEnd && onEnd(); }
+        }
+        requestAnimationFrame(frame);
+      }
+
+      /* =============== ENLACE TARJETAS =============== */
+      function bindProductCards(){
+        document.querySelectorAll('.product-item').forEach(card=>{
+          const id = card.getAttribute('data-id');
+          const nombre = card.getAttribute('data-name');
+          const precio = parseFloat(card.getAttribute('data-price')||0);
+          const imagen = card.getAttribute('data-image') || '';
+          const emoji  = card.getAttribute('data-emoji') || '';
+
+          const addBtn = card.querySelector('.btn-add');
+          const buyBtn = card.querySelector('.btn-buy');
+
+          function addAndAnimate(btn){
+            Cart.add({ id, nombre, precio, imagen, qty:1 });
+            syncHeaderBadges();
+            btn && btn.classList.add('active');
+            setTimeout(()=>btn && btn.classList.remove('active'), 250);
+            flyToCart({
+              originEl: card.querySelector('.product-img img') || btn,
+              emoji: SETTINGS.useEmojiFirst && emoji ? emoji : '',
+              imgUrl: (!SETTINGS.useEmojiFirst && imagen) ? imagen : ''
+            });
+          }
+
+          if(addBtn){
+            addBtn.addEventListener('click', e=>{
+              e.preventDefault();
+              addAndAnimate(addBtn);
+            });
+          }
+          if(buyBtn){
+            buyBtn.addEventListener('click', e=>{
+              e.preventDefault();
+              addAndAnimate(buyBtn);
+              setTimeout(()=>{ window.location.href = 'checkout.html'; }, SETTINGS.cartRedirectDelay);
+            });
+          }
+        });
+      }
+
+      /* =============== HERO (Carousel) -> Comprar ahora =============== */
+      function getMinChatgptPrice(){
+        // Busca el menor precio entre “chatgpt-” (excluye combo-remate para evitar confundir)
+        const items = Array.from(document.querySelectorAll('.product-item'))
+          .map(c=>({
+            id: c.getAttribute('data-id'),
+            nombre: c.getAttribute('data-name'),
+            precio: parseFloat(c.getAttribute('data-price')||0),
+            imagen: c.getAttribute('data-image') || ''
+          }))
+          .filter(o=>/^chatgpt-/.test(o.id));
+        if(!items.length) return null;
+        return items.reduce((min,cur)=> cur.precio < min.precio ? cur : min, items[0]);
+      }
+
+      function updateHeroPrice(){
+        const chat = getMinChatgptPrice();
+        const el = document.getElementById('heroPriceChatgpt');
+        if(el){
+          if(chat){ el.textContent = money(chat.precio).replace(SETTINGS.currency+' ', SETTINGS.currency+' '); }
+          else{ el.textContent = 'S/ --'; }
+        }
+      }
+
+      function bindHeroBuys(){
+        document.querySelectorAll('.hero-buy').forEach(btn=>{
+          btn.addEventListener('click', e=>{
+            e.preventDefault();
+            const sku = btn.getAttribute('data-sku');
+
+            let item;
+            if(sku === 'chatgpt-plus'){
+              const m = getMinChatgptPrice();
+              // fallback si no hay tarjetas
+              item = m || { id:'chatgpt-mob', nombre:'ChatGPT Plus — 1 mes', precio:12, imagen:'img/product-2.jpg' };
+            }else if(sku === 'gemini-pro'){
+              item = {
+                id: 'gemini', nombre: btn.getAttribute('data-name') || 'Gemini Pro — 1 mes',
+                precio: parseFloat(btn.getAttribute('data-price')||10),
+                imagen: btn.getAttribute('data-img') || 'img/carousel-2.jpg'
+              };
+            }else if(sku === 'perplexity'){
+              item = {
+                id: 'perplexity', nombre: btn.getAttribute('data-name') || 'Perplexity — 1 mes',
+                precio: parseFloat(btn.getAttribute('data-price')||10),
+                imagen: btn.getAttribute('data-img') || 'img/carousel-3.jpg'
+              };
+            }else{
+              return;
+            }
+
+            Cart.add({ id:item.id, nombre:item.nombre, precio:item.precio, imagen:item.imagen, qty:1 });
+            syncHeaderBadges();
+
+            // Volar desde la imagen del slide activo
+            const activeImg = document.querySelector('#header-carousel .carousel-item.active img');
+            flyToCart({
+              originEl: activeImg || btn,
+              emoji: btn.getAttribute('data-emoji') || '',
+              imgUrl: (!SETTINGS.useEmojiFirst && (btn.getAttribute('data-img') || (activeImg && activeImg.src))) ? (btn.getAttribute('data-img') || (activeImg && activeImg.src)) : ''
+            });
+
+            setTimeout(()=>{ window.location.href = 'checkout.html'; }, SETTINGS.cartRedirectDelay);
+          });
+        });
+      }
+
+      /* =============== Ofertas laterales: Comprar ya =============== */
+      function bindOfferBuys(){
+        document.querySelectorAll('.offer-buy').forEach(btn=>{
+          btn.addEventListener('click', e=>{
+            e.preventDefault();
+            const id = btn.getAttribute('data-id');
+            const nombre = btn.getAttribute('data-name') || 'Producto';
+            const precio = parseFloat(btn.getAttribute('data-price') || 0);
+            const imagen = btn.getAttribute('data-img') || '';
+            const emoji = btn.getAttribute('data-emoji') || '';
+
+            Cart.add({ id, nombre, precio, imagen, qty:1 });
+            syncHeaderBadges();
+
+            const card = btn.closest('.product-offer') || btn;
+            const img = card.querySelector('img');
+            flyToCart({
+              originEl: img || btn,
+              emoji: SETTINGS.useEmojiFirst ? emoji : '',
+              imgUrl: (!SETTINGS.useEmojiFirst && imagen) ? imagen : ''
+            });
+
+            setTimeout(()=>{ window.location.href = 'checkout.html'; }, SETTINGS.cartRedirectDelay);
+          });
+        });
+      }
+
+      /* =============== WHATSAPP BADGE =============== */
+      (function(){
+        var btn = document.getElementById('whatsappFab');
+        var badge = document.getElementById('whatsappBadge');
+        try { if (sessionStorage.getItem('waBadgeHidden')==='1') { badge && (badge.style.display='none'); } } catch(e){}
+        if(btn && badge){
+          btn.addEventListener('click', function(){
+            badge.style.display='none';
+            try { sessionStorage.setItem('waBadgeHidden','1'); } catch(e){}
+          });
+        }
+      })();
+
+      /* =============== BACK TO TOP SUAVE =============== */
+      (function(){
+        const back = document.querySelector('.back-to-top');
+        if(!back) return;
+        back.addEventListener('click', e=>{
+          e.preventDefault();
+          window.scrollTo({ top:0, behavior:'smooth' });
+        });
+      })();
+
+      /* =============== INIT + STORAGE SYNC =============== */
+      bindProductCards();
+      bindHeroBuys();
+      bindOfferBuys();
+      updateHeroPrice();
+      syncHeaderBadges();
+      window.addEventListener('storage', function(e){
+        if(e.key===CART_KEY){ syncHeaderBadges(); }
+      });
+    })();
+  </script>
+</body>
+</html>

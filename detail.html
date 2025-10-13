@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Innov AI Tienda - Detalle de producto</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="Servicios digitales, Streaming, IA, ChatGPT Plus, Netflix Premium, Canva Pro" name="keywords">
+  <meta content="Compra servicios digitales con entrega inmediata y soporte 24/7 en Innov AI Tienda." name="description">
+
+  <!-- Favicon -->
+  <link href="img/favicon.ico" rel="icon">
+
+  <!-- Google Web Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Libraries Stylesheet -->
+  <link href="lib/animate/animate.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+  <!-- Customized Bootstrap Stylesheet -->
+  <link href="css/style.css" rel="stylesheet">
+
+  <!-- ===========================
+       ESTILOS EXTRA + VARIABLES
+       =========================== -->
+  <style>
+    /* =========================================================
+       🔧 EDITABLE: Variables de marca y componentes
+       ========================================================= */
+    :root{
+      /* Marca */
+      --brand-primary: #0d6efd;
+      --brand-secondary: #6c757d;
+
+      /* WhatsApp FAB */
+      --wa-size: 64px;              /* Tamaño del botón */
+      --wa-bg: #25D366;             /* Color de fondo */
+      --wa-fg: #ffffff;             /* Color del ícono */
+      --wa-shadow: 0 10px 22px rgba(0,0,0,.28);
+      --wa-attention: 3.2s;         /* Periodo del pulso */
+
+      /* Rastro RGB fly-to-cart */
+      --trail-c1: #ff0040;
+      --trail-c2: #00e5ff;
+      --trail-c3: #7cff00;
+
+      /* Animaciones */
+      --fly-duration: 1050ms;       /* Vuelo fantasma */
+      --trail-duration: 650ms;      /* Desvanecer partícula */
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      :root{ --fly-duration:0ms; --trail-duration:0ms; --wa-attention:0s; }
+      *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+    }
+
+    /* ===== WhatsApp FAB ===== */
+    .whatsapp-fab{
+      position:fixed; right:18px; bottom:18px;
+      width:var(--wa-size); height:var(--wa-size);
+      border-radius:50%;
+      background:var(--wa-bg); color:var(--wa-fg);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:var(--wa-shadow);
+      z-index:1200; transition:transform .18s, box-shadow .18s, filter .18s;
+      isolation:isolate;
+    }
+    .whatsapp-fab i{ font-size:calc(var(--wa-size) * .45); line-height:1; }
+    .whatsapp-fab:hover{ transform:translateY(-3px); filter:saturate(1.08) brightness(1.03); }
+    .whatsapp-fab::after{
+      content:""; position:absolute; inset:-8px; border-radius:inherit;
+      box-shadow:0 0 0 0 rgba(37,211,102,.30);
+      animation:wa-pulse var(--wa-attention) infinite ease-out; z-index:-1;
+    }
+    @keyframes wa-pulse{
+      0%{ box-shadow:0 0 0 0 rgba(37,211,102,.33); }
+      70%{ box-shadow:0 0 0 18px rgba(37,211,102,0); }
+      100%{ box-shadow:0 0 0 0 rgba(37,211,102,0); }
+    }
+    .whatsapp-badge{
+      position:absolute; top:-4px; right:-2px; min-width:18px; height:18px; padding:0 4px;
+      border-radius:10px; background:#ff3b30; color:#fff; font-size:11px; font-weight:700;
+      display:inline-flex; align-items:center; justify-content:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.25); animation:pulse 1.6s infinite;
+    }
+    @keyframes pulse{ 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
+
+    /* ===== Fly-to-cart ===== */
+    .trail{
+      position:fixed; pointer-events:none; width:10px; height:10px; border-radius:50%;
+      filter:blur(.5px) drop-shadow(0 0 8px currentColor);
+      opacity:.9; animation:trailfade var(--trail-duration) ease-out forwards; z-index:1400;
+    }
+    @keyframes trailfade{ to{ transform:scale(.6); opacity:0; } }
+
+    .fly-ghost{
+      position:fixed; width:42px; height:42px; display:flex; align-items:center; justify-content:center;
+      font-size:24px; border-radius:50%;
+      background:#0b0b0b; color:#fff;
+      box-shadow:0 8px 18px rgba(0,0,0,.25), inset 0 0 22px rgba(255,255,255,.07);
+      z-index:1500; will-change: transform, opacity; overflow:hidden;
+    }
+    .fly-ghost.is-img{ background:#111; }
+    .fly-ghost.is-img > img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .cart-badge-pop{ animation:pop .45s cubic-bezier(.2,.7,.2,1.2); }
+    @keyframes pop{ 0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)} }
+  </style>
+</head>
+
+<body>
+  <!-- Topbar Start -->
+  <div class="container-fluid">
+    <div class="row bg-secondary py-1 px-xl-5">
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="d-inline-flex align-items-center h-100">
+          <a class="text-body mr-3" href="acerca.html">Acerca de</a>
+          <a class="text-body mr-3" href="contact.html">Contacto</a>
+          <a class="text-body mr-3" href="ayuda.html">Ayuda</a>
+          <a class="text-body mr-3" href="faq.html">Preguntas frecuentes</a>
+        </div>
+      </div>
+      <div class="col-lg-6 text-center text-lg-right">
+        <div class="d-inline-flex align-items-center">
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Mi cuenta</button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <a class="dropdown-item" href="login.html">Ingresar</a>
+              <a class="dropdown-item" href="register.html">Registrarse</a>
+            </div>
+          </div>
+          <div class="btn-group mx-2">
+            <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Soles</button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <button class="dropdown-item" type="button">USD</button>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">ES</button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <a class="dropdown-item" href="?lang=en">EN</a>
+            </div>
+          </div>
+        </div>
+        <div class="d-inline-flex align-items-center d-block d-lg-none">
+          <a href="favoritos.html" class="btn px-0 ml-2" aria-label="Favoritos">
+            <i class="fas fa-heart text-dark"></i>
+            <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
+          </a>
+          <a href="cart.html" class="btn px-0 ml-2" aria-label="Carrito">
+            <i class="fas fa-shopping-cart text-dark"></i>
+            <span id="headerCartBadgeSm" class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
+      <div class="col-lg-4">
+        <a href="index.html" class="text-decoration-none">
+          <span class="h1 text-uppercase text-primary bg-dark px-2">INNOV</span>
+          <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">TIENDA</span>
+        </a>
+      </div>
+      <div class="col-lg-4 col-6 text-left">
+        <form action="buscar.html">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Buscar productos" aria-label="Buscar productos">
+            <div class="input-group-append">
+              <button class="input-group-text bg-transparent text-primary" type="submit" aria-label="Buscar">
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-lg-4 col-6 text-right">
+        <p class="m-0">Servicio al cliente</p>
+        <h5 class="m-0"><a href="tel:+51991564053" class="text-dark">+51 991564053</a></h5>
+      </div>
+    </div>
+  </div>
+  <!-- Topbar End -->
+
+  <!-- Navbar Start -->
+  <div class="container-fluid bg-dark mb-30">
+    <div class="row px-xl-5">
+      <div class="col-lg-3 d-none d-lg-block">
+        <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#navbar-vertical" style="height:65px;padding:0 30px;">
+          <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>Categorías</h6>
+          <i class="fa fa-angle-down text-dark"></i>
+        </a>
+        <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical" style="width:calc(100% - 30px);z-index:999;">
+          <div class="navbar-nav w-100">
+            <a href="shop.html#chatgpt-plus" class="nav-item nav-link">ChatGPT Plus</a>
+            <a href="shop.html#netflix-premium" class="nav-item nav-link">Netflix Premium</a>
+            <a href="shop.html#canva-pro" class="nav-item nav-link">Canva Pro</a>
+            <a href="shop.html#capcut-pro" class="nav-item nav-link">CapCut Pro</a>
+            <a href="shop.html#turnitin" class="nav-item nav-link">Turnitin</a>
+            <a href="shop.html#youtube-premium" class="nav-item nav-link">YouTube Premium</a>
+            <a href="shop.html#disney-premium" class="nav-item nav-link">Disney Premium</a>
+            <a href="shop.html#crunchyroll" class="nav-item nav-link">Crunchyroll</a>
+            <a href="shop.html#movistar-play" class="nav-item nav-link">Movistar Play</a>
+          </div>
+        </nav>
+      </div>
+      <div class="col-lg-9">
+        <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
+          <a href="index.html" class="text-decoration-none d-block d-lg-none">
+            <span class="h1 text-uppercase text-dark bg-light px-2">INNOV</span>
+            <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">TIENDA</span>
+          </a>
+          <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+            <div class="navbar-nav mr-auto py-0">
+              <a href="index.html" class="nav-item nav-link">Inicio</a>
+              <a href="shop.html" class="nav-item nav-link">Tienda</a>
+              <a href="detail.html" class="nav-item nav-link active">Detalle de la tienda</a>
+              <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Páginas <i class="fa fa-angle-down mt-1"></i></a>
+                <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
+                  <a href="cart.html" class="dropdown-item">Carrito</a>
+                  <a href="checkout.html" class="dropdown-item">Pagar</a>
+                </div>
+              </div>
+              <a href="contact.html" class="nav-item nav-link">Contacto</a>
+            </div>
+            <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
+              <a href="favoritos.html" class="btn px-0" aria-label="Favoritos">
+                <i class="fas fa-heart text-primary"></i>
+                <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
+              </a>
+              <a href="cart.html" class="btn px-0 ml-3" aria-label="Carrito">
+                <i class="fas fa-shopping-cart text-primary"></i>
+                <span id="headerCartBadge" class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
+              </a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <!-- Navbar End -->
+
+  <!-- Breadcrumb Start -->
+  <div class="container-fluid">
+    <div class="row px-xl-5">
+      <div class="col-12">
+        <nav class="breadcrumb bg-light mb-30">
+          <a class="breadcrumb-item text-dark" href="index.html">Inicio</a>
+          <a class="breadcrumb-item text-dark" href="shop.html">Tienda</a>
+          <span class="breadcrumb-item active">Detalle de la tienda</span>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <!-- Breadcrumb End -->
+
+  <!-- Shop Detail Start -->
+  <div class="container-fluid pb-5">
+    <div class="row px-xl-5">
+      <div class="col-lg-5 mb-30">
+        <div id="product-carousel" class="carousel slide" data-ride="carousel">
+          <div class="carousel-inner bg-light">
+            <div class="carousel-item active">
+              <img class="w-100 h-100" src="img/product-1.jpg" alt="ChatGPT Plus para PC - Imagen 1">
+            </div>
+            <div class="carousel-item">
+              <img class="w-100 h-100" src="img/product-2.jpg" alt="ChatGPT Plus para PC - Imagen 2">
+            </div>
+            <div class="carousel-item">
+              <img class="w-100 h-100" src="img/product-3.jpg" alt="ChatGPT Plus para PC - Imagen 3">
+            </div>
+            <div class="carousel-item">
+              <img class="w-100 h-100" src="img/product-4.jpg" alt="ChatGPT Plus para PC - Imagen 4">
+            </div>
+          </div>
+          <a class="carousel-control-prev" href="#product-carousel" data-slide="prev" aria-label="Anterior">
+            <i class="fa fa-2x fa-angle-left text-dark"></i>
+          </a>
+          <a class="carousel-control-next" href="#product-carousel" data-slide="next" aria-label="Siguiente">
+            <i class="fa fa-2x fa-angle-right text-dark"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Datos del producto: usa data-* para unificar con el carrito -->
+      <div class="col-lg-7 h-auto mb-30">
+        <div class="h-100 bg-light p-30 product-detail"
+             data-id="chatgpt-pc"
+             data-name="ChatGPT Plus — PC/Laptop (1 mes)"
+             data-price="18.00"
+             data-image="img/product-1.jpg"
+             data-emoji="🤖">
+          <h3>ChatGPT Plus para PC y Laptop</h3>
+          <div class="d-flex mb-3">
+            <div class="text-primary mr-2" aria-label="Valoración: 4.5 de 5" role="img">
+              <small class="fas fa-star"></small>
+              <small class="fas fa-star"></small>
+              <small class="fas fa-star"></small>
+              <small class="fas fa-star-half-alt"></small>
+              <small class="far fa-star"></small>
+            </div>
+            <small class="pt-1">(45 reseñas)</small>
+          </div>
+          <h3 class="font-weight-semi-bold mb-4">S/ 18.00</h3>
+          <p class="mb-4">Accede a velocidad premium y estabilidad mejorada. Entrega inmediata y soporte 24/7 por WhatsApp. Ideal para PC y laptop.</p>
+
+          <div class="d-flex align-items-center mb-4 pt-2">
+            <div class="input-group quantity mr-3" style="width:130px;">
+              <div class="input-group-btn">
+                <button class="btn btn-primary btn-minus" type="button" aria-label="Restar">
+                  <i class="fa fa-minus"></i>
+                </button>
+              </div>
+              <input id="qtyInput" type="text" inputmode="numeric" pattern="[0-9]*" class="form-control bg-secondary border-0 text-center" value="1" aria-label="Cantidad">
+              <div class="input-group-btn">
+                <button class="btn btn-primary btn-plus" type="button" aria-label="Sumar">
+                  <i class="fa fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <button id="btnAdd" class="btn btn-primary px-3" type="button"><i class="fa fa-shopping-cart mr-1"></i> Agregar al carrito</button>
+            <button id="btnBuy" class="btn btn-outline-dark px-3 ml-2" type="button"><i class="fa fa-bolt mr-1"></i> Comprar ahora</button>
+          </div>
+
+          <div class="d-flex pt-2">
+            <strong class="text-dark mr-2">Compartir:</strong>
+            <div class="d-inline-flex">
+              <a class="text-dark px-2" href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a class="text-dark px-2" href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+              <a class="text-dark px-2" href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              <a class="text-dark px-2" href="#" aria-label="Pinterest"><i class="fab fa-pinterest"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="row px-xl-5">
+      <div class="col">
+        <div class="bg-light p-30">
+          <div class="nav nav-tabs mb-4">
+            <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-pane-1">Descripción</a>
+            <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-2">Información</a>
+            <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-3">Opiniones (0)</a>
+          </div>
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-pane-1">
+              <h4 class="mb-3">Detalle del producto</h4>
+              <p>ChatGPT Plus con acceso prioritario, mayor velocidad y estabilidad. Entrega inmediata tras la compra y soporte por WhatsApp.</p>
+              <ul>
+                <li>Entrega: inmediata</li>
+                <li>Soporte: 24/7</li>
+                <li>Dispositivos: PC y Laptop</li>
+              </ul>
+            </div>
+            <div class="tab-pane fade" id="tab-pane-2">
+              <h4 class="mb-3">Información adicional</h4>
+              <div class="row">
+                <div class="col-md-6">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0">Moneda: Soles (PEN)</li>
+                    <li class="list-group-item px-0">Entrega por WhatsApp y correo</li>
+                    <li class="list-group-item px-0">Garantía de activación</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0">Factura/Boleta: consultar</li>
+                    <li class="list-group-item px-0">Términos de uso aplican</li>
+                    <li class="list-group-item px-0">No afiliado a marcas</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="tab-pane-3">
+              <div class="row">
+                <div class="col-md-6">
+                  <h4 class="mb-4">Aún no hay opiniones</h4>
+                  <p>¡Sé el primero en opinar!</p>
+                </div>
+                <div class="col-md-6">
+                  <h4 class="mb-4">Deja tu opinión</h4>
+                  <small>Tu correo no será publicado. Campos obligatorios *</small>
+                  <form>
+                    <div class="form-group">
+                      <label for="message">Tu reseña *</label>
+                      <textarea id="message" cols="30" rows="5" class="form-control" required></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label for="name">Tu nombre *</label>
+                      <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="email">Tu correo *</label>
+                      <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="form-group mb-0">
+                      <input type="submit" value="Enviar opinión" class="btn btn-primary px-3">
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div><!-- /tab-content -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Shop Detail End -->
+
+  <!-- Products Start -->
+  <div class="container-fluid py-5">
+    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">También te puede interesar</span></h2>
+    <div class="row px-xl-5">
+      <div class="col">
+        <div class="owl-carousel related-carousel">
+          <!-- Ítem 1 -->
+          <div class="product-item bg-light"
+               data-id="chatgpt-mob"
+               data-name="ChatGPT Plus — Celular/Tablet (1 mes)"
+               data-price="12.00"
+               data-image="img/product-2.jpg"
+               data-emoji="📱">
+            <div class="product-img position-relative overflow-hidden">
+              <img class="img-fluid w-100" src="img/product-2.jpg" alt="ChatGPT Plus móvil">
+              <div class="product-action">
+                <a class="btn btn-outline-dark btn-square btn-add" href="#"><i class="fa fa-shopping-cart"></i></a>
+                <a class="btn btn-outline-dark btn-square btn-buy" href="#"><i class="fa fa-bolt"></i></a>
+                <a class="btn btn-outline-dark btn-square" href="detail.html?id=chatgpt-mob"><i class="fa fa-search"></i></a>
+              </div>
+            </div>
+            <div class="text-center py-4">
+              <a class="h6 text-decoration-none text-truncate" href="detail.html?id=chatgpt-mob">ChatGPT Plus para móvil</a>
+              <div class="d-flex align-items-center justify-content-center mt-2">
+                <h5>S/ 12.00</h5><h6 class="text-muted ml-2"><del>S/ 14.00</del></h6>
+              </div>
+              <div class="d-flex align-items-center justify-content-center mb-1">
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small>(60)</small>
+              </div>
+            </div>
+          </div>
+          <!-- Ítem 2 -->
+          <div class="product-item bg-light"
+               data-id="netflix"
+               data-name="Netflix Premium — 1 mes"
+               data-price="10.00"
+               data-image="img/product-4.jpg"
+               data-emoji="🎬">
+            <div class="product-img position-relative overflow-hidden">
+              <img class="img-fluid w-100" src="img/product-4.jpg" alt="Netflix Premium">
+              <div class="product-action">
+                <a class="btn btn-outline-dark btn-square btn-add" href="#"><i class="fa fa-shopping-cart"></i></a>
+                <a class="btn btn-outline-dark btn-square btn-buy" href="#"><i class="fa fa-bolt"></i></a>
+                <a class="btn btn-outline-dark btn-square" href="detail.html?id=netflix"><i class="fa fa-search"></i></a>
+              </div>
+            </div>
+            <div class="text-center py-4">
+              <a class="h6 text-decoration-none text-truncate" href="detail.html?id=netflix">Netflix Premium</a>
+              <div class="d-flex align-items-center justify-content-center mt-2">
+                <h5>S/ 10.00</h5><h6 class="text-muted ml-2"><del>S/ 12.00</del></h6>
+              </div>
+              <div class="d-flex align-items-center justify-content-center mb-1">
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small class="fa fa-star text-primary mr-1"></small>
+                <small>(70)</small>
+              </div>
+            </div>
+          </div>
+          <!-- Agrega más ítems según necesites -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Products End -->
+
+  <!-- Footer Start -->
+  <div class="container-fluid bg-dark text-secondary mt-5 pt-5">
+    <div class="row px-xl-5 pt-5">
+      <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
+        <h5 class="text-secondary text-uppercase mb-4">Contáctanos</h5>
+        <p class="mb-4">Somos una tienda tecnológica que cree en el poder de la innovación para transformar tu día a día. Conectamos personas con soluciones que inspiran, facilitan y hacen posible el futuro.</p>
+        <p class="mb-2"><i class="fa fa-map-marker-alt text-primary mr-3"></i>Lima — San Isidro — Perú</p>
+        <p class="mb-2"><i class="fa fa-envelope text-primary mr-3"></i><a href="mailto:ainnov611@gmail.com" class="text-secondary">ainnov611@gmail.com</a></p>
+        <p class="mb-0"><i class="fa fa-phone-alt text-primary mr-3"></i><a href="tel:+51991564053" class="text-secondary">+51 991564053</a></p>
+      </div>
+      <div class="col-lg-8 col-md-12">
+        <div class="row">
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Compra rápida</h5>
+            <div class="d-flex flex-column justify-content-start">
+              <a class="text-secondary mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Inicio</a>
+              <a class="text-secondary mb-2" href="shop.html"><i class="fa fa-angle-right mr-2"></i>Tienda</a>
+              <a class="text-secondary mb-2" href="detail.html"><i class="fa fa-angle-right mr-2"></i>Detalle</a>
+              <a class="text-secondary mb-2" href="cart.html"><i class="fa fa-angle-right mr-2"></i>Carrito</a>
+              <a class="text-secondary mb-2" href="checkout.html"><i class="fa fa-angle-right mr-2"></i>Pagar</a>
+              <a class="text-secondary" href="contact.html"><i class="fa fa-angle-right mr-2"></i>Contacto</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Mi cuenta</h5>
+            <div class="d-flex flex-column justify-content-start">
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Iniciar sesión</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Crear cuenta</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Pedidos</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Favoritos</a>
+              <a class="text-secondary" href="#"><i class="fa fa-angle-right mr-2"></i>Soporte</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Boletín</h5>
+            <p>Recibe ofertas y novedades.</p>
+            <form action="#">
+              <div class="input-group">
+                <input type="email" class="form-control" placeholder="Tu correo electrónico">
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="button">Inscribirse</button>
+                </div>
+              </div>
+            </form>
+            <h6 class="text-secondary text-uppercase mt-4 mb-3">Síguenos</h6>
+            <div class="d-flex">
+              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              <a class="btn btn-primary btn-square" href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row border-top mx-xl-5 py-4" style="border-color:rgba(256,256,256,.1)!important;">
+      <div class="col-md-6 px-xl-0">
+        <p class="mb-md-0 text-center text-md-left text-secondary">
+          &copy; <a class="text-primary" href="#">Innov AI Tienda</a>. Todos los derechos reservados. Base:
+          <a class="text-primary" href="https://htmlcodex.com" rel="noopener" target="_blank">HTML Codex</a>
+        </p>
+      </div>
+      <div class="col-md-6 px-xl-0 text-center text-md-right">
+        <img class="img-fluid" src="img/payments.png" alt="Métodos de pago">
+      </div>
+    </div>
+  </div>
+  <!-- Footer End -->
+
+  <!-- Back to Top -->
+  <a href="#" class="btn btn-primary back-to-top" aria-label="Volver arriba"><i class="fa fa-angle-double-up"></i></a>
+
+  <!-- Botón flotante de WhatsApp -->
+  <a id="whatsappFab" class="whatsapp-fab" href="https://wa.me/message/QVACXXZM5RP7A1" target="_blank" rel="noopener" aria-label="Abrir WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+    <span id="whatsappBadge" class="whatsapp-badge" aria-hidden="true">1</span>
+  </a>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+  <script src="lib/easing/easing.min.js"></script>
+  <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- ==========================================================
+       Núcleo del carrito + Fly-to-cart + Integraciones detalle
+       ========================================================== -->
+  <script>
+    (function(){
+      /* ============== 🔧 EDITABLE (JS) ============== */
+      const SETTINGS = {
+        currency: 'S/',
+        flyDurationMs: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--fly-duration')) || 1050,
+        trailDurationMs: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-duration')) || 650,
+        trailDensity: 26,
+        trailSize: 10,
+        useEmojiFirst: true,
+        cartRedirectDelay: 350
+      };
+
+      /* ============== Carrito API (compartida) ============== */
+      const CART_KEY = 'innov_cart_v1';
+      const read = () => { try { return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); } catch(e){ return []; } };
+      const write = (arr) => localStorage.setItem(CART_KEY, JSON.stringify(arr));
+      window.Cart = window.Cart || {
+        add: (item) => {
+          const items = read();
+          const idx = items.findIndex(i => i.id === item.id);
+          if (idx > -1) { items[idx].qty += (item.qty || 1); }
+          else { items.push({ id:item.id, nombre:item.nombre, precio:Number(item.precio), imagen:item.imagen||'', qty:item.qty||1 }); }
+          write(items); return items;
+        },
+        items: ()=> read(),
+        count: ()=> read().reduce((a,b)=>a+b.qty,0),
+        subtotal: ()=> read().reduce((a,b)=>a+(b.precio*b.qty),0),
+        clear: ()=> write([])
+      };
+      function syncHeaderBadges(){
+        const c = Cart.count();
+        const b1 = document.getElementById('headerCartBadge');
+        const b2 = document.getElementById('headerCartBadgeSm');
+        [b1,b2].forEach(b=>{ if(b) b.textContent = c; });
+      }
+
+      /* ============== Fly-to-cart motor ============== */
+      function pageOffsetRect(el){
+        const r = el.getBoundingClientRect();
+        return { x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height };
+      }
+      function findCartBadge(){
+        const d = document.getElementById('headerCartBadge');
+        const m = document.getElementById('headerCartBadgeSm');
+        const inViewport = (el) => el && !!(el.offsetParent || el.getClientRects().length);
+        return inViewport(d) ? d : (m || d);
+      }
+      function bezier(t, p0, p1, p2){ const u=1-t; return { x:u*u*p0.x + 2*u*t*p1.x + t*t*p2.x, y:u*u*p0.y + 2*u*t*p1.y + t*t*p2.y }; }
+      const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+      function spawnTrail(x,y,idx){
+        const dot = document.createElement('div');
+        dot.className = 'trail';
+        const cs = getComputedStyle(document.documentElement);
+        dot.style.color = [cs.getPropertyValue('--trail-c1'), cs.getPropertyValue('--trail-c2'), cs.getPropertyValue('--trail-c3')][idx%3].trim();
+        dot.style.left = (x - SETTINGS.trailSize/2) + 'px';
+        dot.style.top  = (y - SETTINGS.trailSize/2) + 'px';
+        dot.style.width = dot.style.height = (SETTINGS.trailSize + Math.random()*4) + 'px';
+        document.body.appendChild(dot);
+        setTimeout(()=> dot.remove(), SETTINGS.trailDurationMs);
+      }
+      function makeGhost(fromEl, emoji, imgUrl){
+        const g = document.createElement('div'); g.className = 'fly-ghost';
+        const from = pageOffsetRect(fromEl);
+        g.style.left = (from.x + from.w/2 - 21) + 'px';
+        g.style.top  = (from.y + from.h/2 - 21) + 'px';
+        if(emoji){ g.textContent = emoji; }
+        else if(imgUrl){ g.classList.add('is-img'); const im=document.createElement('img'); im.src=imgUrl; g.appendChild(im); }
+        else{ g.textContent = '🛒'; }
+        document.body.appendChild(g); return g;
+      }
+      function highlightCart(cartBadgeEl){
+        if(!cartBadgeEl) return;
+        cartBadgeEl.classList.add('cart-badge-pop');
+        setTimeout(()=>cartBadgeEl.classList.remove('cart-badge-pop'), 480);
+      }
+      function flyToCart({ originEl, emoji, imgUrl, onEnd }){
+        const cartBadge = findCartBadge();
+        if(!cartBadge || window.matchMedia('(prefers-reduced-motion: reduce)').matches){ onEnd && onEnd(); return; }
+        const ghost = makeGhost(originEl, emoji, imgUrl);
+        const start = pageOffsetRect(originEl);
+        const end = pageOffsetRect(cartBadge);
+        const p0 = { x: start.x + start.w/2, y: start.y + start.h/2 };
+        const p2 = { x: end.x + end.w/2,   y: end.y + end.h/2 };
+        const p1 = { x: (p0.x + p2.x)/2,   y: Math.min(p0.y, p2.y) - 120 }; // sube
+        const t0 = performance.now(); let lastTrail=-1e9, idx=0;
+        function frame(now){
+          const dt = now - t0; const t = Math.min(1, dt / SETTINGS.flyDurationMs); const et = easeOutCubic(t);
+          const pos = bezier(et, p0, p1, p2);
+          ghost.style.transform = `translate(${pos.x - p0.x}px, ${pos.y - p0.y}px) scale(${1 - et*0.3}) rotate(${et*20}deg)`;
+          if(dt - lastTrail > SETTINGS.flyDurationMs / SETTINGS.trailDensity){ spawnTrail(pos.x,pos.y,idx++); lastTrail = dt; }
+          if(t < 1){ requestAnimationFrame(frame); } else { ghost.remove(); highlightCart(cartBadge); onEnd && onEnd(); }
+        }
+        requestAnimationFrame(frame);
+      }
+
+      /* ============== Bind detalle (cantidad / add / buy) ============== */
+      function bindDetail(){
+        const box = document.querySelector('.product-detail'); if(!box) return;
+        const id = box.getAttribute('data-id');
+        const nombre = box.getAttribute('data-name');
+        const precio = parseFloat(box.getAttribute('data-price')||0);
+        const imagen = box.getAttribute('data-image')||'';
+        const emoji  = box.getAttribute('data-emoji')||'';
+        const qtyInput = document.getElementById('qtyInput');
+        const btnAdd = document.getElementById('btnAdd');
+        const btnBuy = document.getElementById('btnBuy');
+        const imgOrigin = document.querySelector('#product-carousel .carousel-item.active img') || document.querySelector('#product-carousel img');
+
+        function normQty(){ let q = parseInt(qtyInput.value.replace(/\D/g,'')) || 1; if(q<1) q=1; if(q>99) q=99; qtyInput.value = String(q); return q; }
+
+        box.querySelector('.btn-minus').addEventListener('click', ()=>{ qtyInput.value = Math.max(1, (parseInt(qtyInput.value)||1) - 1); });
+        box.querySelector('.btn-plus').addEventListener('click', ()=>{ qtyInput.value = Math.min(99, (parseInt(qtyInput.value)||1) + 1); });
+        qtyInput.addEventListener('input', normQty);
+        qtyInput.addEventListener('blur', normQty);
+
+        function addWithQty(){
+          const qty = normQty();
+          Cart.add({ id, nombre, precio, imagen, qty });
+          syncHeaderBadges();
+          flyToCart({
+            originEl: imgOrigin || btnAdd,
+            emoji: (SETTINGS.useEmojiFirst && emoji) ? emoji : '',
+            imgUrl: (!emoji && imagen) ? imagen : ''
+          });
+        }
+
+        if(btnAdd){ btnAdd.addEventListener('click', ()=> addWithQty()); }
+        if(btnBuy){
+          btnBuy.addEventListener('click', ()=>{
+            addWithQty();
+            setTimeout(()=>{ window.location.href = 'checkout.html'; }, SETTINGS.cartRedirectDelay);
+          });
+        }
+      }
+
+      /* ============== Bind carrusel relacionados ============== */
+      function bindRelated(){
+        document.querySelectorAll('.related-carousel .product-item').forEach(card=>{
+          const id = card.getAttribute('data-id');
+          const nombre = card.getAttribute('data-name');
+          const precio = parseFloat(card.getAttribute('data-price')||0);
+          const imagen = card.getAttribute('data-image')||'';
+          const emoji  = card.getAttribute('data-emoji')||'';
+          const imgEl  = card.querySelector('.product-img img');
+          const addBtn = card.querySelector('.btn-add');
+          const buyBtn = card.querySelector('.btn-buy');
+
+          function addAndAnimate(btn){
+            Cart.add({ id, nombre, precio, imagen, qty:1 });
+            syncHeaderBadges();
+            if(btn){ btn.classList.add('active'); setTimeout(()=>btn.classList.remove('active'), 250); }
+            flyToCart({ originEl: imgEl || btn, emoji: (SETTINGS.useEmojiFirst && emoji)?emoji:'', imgUrl: (!emoji && imagen)?imagen:'' });
+          }
+
+          if(addBtn){ addBtn.addEventListener('click', e=>{ e.preventDefault(); addAndAnimate(addBtn); }); }
+          if(buyBtn){ buyBtn.addEventListener('click', e=>{ e.preventDefault(); addAndAnimate(buyBtn); setTimeout(()=>{ window.location.href='checkout.html'; }, SETTINGS.cartRedirectDelay); }); }
+        });
+      }
+
+      /* ============== WhatsApp FAB badge persistencia ============== */
+      (function(){
+        var btn = document.getElementById('whatsappFab');
+        var badge = document.getElementById('whatsappBadge');
+        try { if (sessionStorage.getItem('waBadgeHidden')==='1') { badge && (badge.style.display='none'); } } catch(e){}
+        if(btn && badge){
+          btn.addEventListener('click', function(){
+            badge.style.display='none';
+            try { sessionStorage.setItem('waBadgeHidden','1'); } catch(e){}
+          });
+        }
+      })();
+
+      /* ============== Back to top suave ============== */
+      (function(){
+        const back = document.querySelector('.back-to-top');
+        if(!back) return;
+        back.addEventListener('click', e=>{
+          e.preventDefault();
+          window.scrollTo({ top:0, behavior:'smooth' });
+        });
+      })();
+
+      /* ============== INIT ============== */
+      bindDetail();
+      bindRelated();
+      syncHeaderBadges();
+      window.addEventListener('storage', (e)=>{ if(e.key==='innov_cart_v1') syncHeaderBadges(); });
+    })();
+  </script>
+</body>
+</html>

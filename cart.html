@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Innov AI Tienda — Carrito</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="img/favicon.ico" rel="icon">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="lib/animate/animate.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .whatsapp-fab{position:fixed;right:18px;bottom:18px;z-index:9999;display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:#25D366;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.2);}
+    .whatsapp-fab:hover{color:#fff;text-decoration:none;transform:translateY(-1px);} 
+    .wa-badge{position:absolute;top:-4px;right:-4px;background:#ff3b30;color:#fff;border-radius:999px;padding:2px 6px;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+    .table td,.table th{vertical-align:middle}
+  </style>
+</head>
+<body>
+  <!-- Topbar / Navbar (usa tu mismo header) -->
+  <!-- ... copia tu Topbar / Navbar aquí ... -->
+
+  <!-- Breadcrumb -->
+  <div class="container-fluid">
+    <div class="row px-xl-5">
+      <div class="col-12">
+        <nav class="breadcrumb bg-light mb-30">
+          <a class="breadcrumb-item text-dark" href="index.html">Inicio</a>
+          <a class="breadcrumb-item text-dark" href="shop.html">Tienda</a>
+          <span class="breadcrumb-item active">Carrito de compras</span>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carrito -->
+  <div class="container-fluid">
+    <div class="row px-xl-5">
+      <div class="col-lg-8 table-responsive mb-5">
+        <table class="table table-light table-borderless table-hover text-center mb-0" id="cartTable">
+          <thead class="thead-dark">
+            <tr>
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Cantidad</th>
+              <th>Total</th>
+              <th>Quitar</th>
+            </tr>
+          </thead>
+          <tbody class="align-middle" id="cartBody">
+            <!-- Filas del carrito dinámicas -->
+          </tbody>
+        </table>
+        <div id="cartEmpty" class="text-center py-5 d-none">
+          <h5>Tu carrito está vacío</h5>
+          <a href="shop.html" class="btn btn-primary mt-3">Ir a la tienda</a>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <form class="mb-30" id="couponForm">
+          <div class="input-group">
+            <input type="text" class="form-control border-0 p-4" placeholder="Código de cupón" id="couponInput">
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="submit">Aplicar</button>
+            </div>
+          </div>
+        </form>
+        <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Resumen</span></h5>
+        <div class="bg-light p-30 mb-5" id="summaryBox">
+          <div class="border-bottom pb-2">
+            <div class="d-flex justify-content-between mb-3">
+              <h6>Subtotal</h6>
+              <h6 id="subtotalText">S/ 0.00</h6>
+            </div>
+            <div class="d-flex justify-content-between">
+              <h6 class="font-weight-medium">Envío</h6>
+              <h6 class="font-weight-medium" id="shippingText">Digital (gratis)</h6>
+            </div>
+            <div class="d-flex justify-content-between" id="discountRow" style="display:none;">
+              <h6 class="font-weight-medium">Descuento</h6>
+              <h6 class="font-weight-medium" id="discountText">- S/ 0.00</h6>
+            </div>
+          </div>
+          <div class="pt-2">
+            <div class="d-flex justify-content-between mt-2">
+              <h5>Total</h5>
+              <h5 id="totalText">S/ 0.00</h5>
+            </div>
+            <a href="checkout.html" class="btn btn-block btn-primary font-weight-bold my-3 py-3" id="toCheckout">Proceder al pago</a>
+            <button class="btn btn-outline-success btn-block py-3" id="toWhatsApp">Finalizar por WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB WhatsApp -->
+  <a href="https://wa.me/message/QVACXXZM5RP7A1" class="whatsapp-fab" id="whatsappFab" target="_blank" aria-label="Abrir WhatsApp">
+    <i class="fab fa-whatsapp fa-lg"></i>
+    <span class="wa-badge" id="whatsappBadge">1</span>
+  </a>
+
+  <!-- Footer (usa tu mismo footer) -->
+  <!-- ... copia tu footer aquí ... -->
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+  <script src="lib/easing/easing.min.js"></script>
+  <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+  <script>
+    /**
+     * Núcleo de carrito compartido entre páginas
+     * Usa localStorage bajo la clave CART_KEY.
+     * Estructura de item: { id, nombre, precio, imagen, qty }
+     */
+    const CART_KEY = 'innov_cart_v1';
+    const CURRENCY = 'S/';
+    const WHATSAPP_NUM = '51991564053'; // sin +
+
+    function readCart(){
+      try{ return JSON.parse(localStorage.getItem(CART_KEY)) || []; }catch(e){ return []; }
+    }
+    function writeCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+    function formatMoney(n){ return `${CURRENCY} ${Number(n).toFixed(2)}`; }
+
+    // API pública para otras páginas
+    window.Cart = {
+      add(item){
+        const cart = readCart();
+        const idx = cart.findIndex(x => x.id === item.id);
+        if(idx >= 0){ cart[idx].qty += (item.qty||1); }
+        else{ cart.push({ id:item.id, nombre:item.nombre, precio:item.precio, imagen:item.imagen||'img/product-1.jpg', qty:item.qty||1 }); }
+        writeCart(cart);
+      },
+      remove(id){ const cart = readCart().filter(x=>x.id!==id); writeCart(cart); },
+      updateQty(id, qty){ const cart = readCart(); const it = cart.find(x=>x.id===id); if(it){ it.qty=Math.max(1, qty); writeCart(cart);} },
+      clear(){ writeCart([]); },
+      items(){ return readCart(); }
+    };
+
+    // Render del carrito en esta página
+    function renderCart(){
+      const tbody = document.getElementById('cartBody');
+      const empty = document.getElementById('cartEmpty');
+      const cart = readCart();
+      tbody.innerHTML = '';
+
+      if(cart.length===0){
+        empty.classList.remove('d-none');
+        document.getElementById('subtotalText').textContent = formatMoney(0);
+        document.getElementById('totalText').textContent = formatMoney(0);
+        return;
+      } else {
+        empty.classList.add('d-none');
+      }
+
+      let subtotal = 0;
+      cart.forEach(item => {
+        const total = item.precio * item.qty;
+        subtotal += total;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="align-middle text-left">
+            <img src="${item.imagen}" alt="${item.nombre}" style="width:50px;"> ${item.nombre}
+          </td>
+          <td class="align-middle">${formatMoney(item.precio)}</td>
+          <td class="align-middle">
+            <div class="input-group quantity mx-auto" style="width: 120px;">
+              <div class="input-group-btn">
+                <button class="btn btn-sm btn-primary btn-minus" data-id="${item.id}"><i class="fa fa-minus"></i></button>
+              </div>
+              <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center qty-input" data-id="${item.id}" value="${item.qty}">
+              <div class="input-group-btn">
+                <button class="btn btn-sm btn-primary btn-plus" data-id="${item.id}"><i class="fa fa-plus"></i></button>
+              </div>
+            </div>
+          </td>
+          <td class="align-middle">${formatMoney(total)}</td>
+          <td class="align-middle"><button class="btn btn-sm btn-danger btn-remove" data-id="${item.id}"><i class="fa fa-times"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('subtotalText').textContent = formatMoney(subtotal);
+      // Envío digital gratis => total = subtotal
+      document.getElementById('totalText').textContent = formatMoney(subtotal);
+    }
+
+    // Delegación de eventos para +, -, input qty y remove
+    document.addEventListener('click', function(e){
+      const target = e.target.closest('button');
+      if(!target) return;
+      const id = target.getAttribute('data-id');
+      if(target.classList.contains('btn-plus')){
+        const cart = readCart();
+        const it = cart.find(x=>x.id===id); if(!it) return;
+        it.qty += 1; writeCart(cart); renderCart();
+      }
+      if(target.classList.contains('btn-minus')){
+        const cart = readCart();
+        const it = cart.find(x=>x.id===id); if(!it) return;
+        it.qty = Math.max(1, it.qty - 1); writeCart(cart); renderCart();
+      }
+      if(target.classList.contains('btn-remove')){
+        const cart = readCart().filter(x=>x.id!==id); writeCart(cart); renderCart();
+      }
+    });
+
+    document.addEventListener('input', function(e){
+      const el = e.target;
+      if(el.classList.contains('qty-input')){
+        const id = el.getAttribute('data-id');
+        const qty = Math.max(1, parseInt(el.value||'1',10));
+        window.Cart.updateQty(id, qty);
+        renderCart();
+      }
+    });
+
+    // Cupón demo (10% OFF con INNOV10)
+    document.getElementById('couponForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const code = (document.getElementById('couponInput').value||'').trim().toUpperCase();
+      const cart = readCart();
+      const subtotal = cart.reduce((s,i)=>s+i.precio*i.qty,0);
+      if(code === 'INNOV10' && subtotal>0){
+        const discount = subtotal * 0.10;
+        document.getElementById('discountText').textContent = `- ${formatMoney(discount).replace(CURRENCY+' ', '')}`;
+        document.getElementById('discountRow').style.display = '';
+        document.getElementById('totalText').textContent = formatMoney(subtotal - discount);
+      }else{
+        alert('Cupón inválido o carrito vacío');
+      }
+    });
+
+    // Checkout por WhatsApp desde el carrito
+    document.getElementById('toWhatsApp').addEventListener('click', function(e){
+      e.preventDefault();
+      const cart = readCart();
+      if(cart.length===0){ alert('Tu carrito está vacío'); return; }
+      const subtotalTxt = document.getElementById('subtotalText').textContent;
+      const totalTxt = document.getElementById('totalText').textContent;
+      const lines = [];
+      lines.push('Hola, quiero completar mi compra en *Innov AI Tienda*');
+      lines.push('');
+      lines.push('*Productos:*');
+      cart.forEach(i=> lines.push(`- ${i.nombre} x${i.qty} (${formatMoney(i.precio*i.qty)})`));
+      lines.push('');
+      lines.push(`Subtotal: ${subtotalTxt}`);
+      lines.push(`Total: ${totalTxt}`);
+      lines.push('');
+      lines.push('Método de pago: por definir');
+      lines.push('Gracias.');
+      const url = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(lines.join('\n'))}`;
+      window.open(url, '_blank');
+    });
+
+    // FAB badge hide-on-click
+    (function(){
+      var btn = document.getElementById('whatsappFab');
+      var badge = document.getElementById('whatsappBadge');
+      try{ if(sessionStorage.getItem('waBadgeHidden')==='1'){ badge.style.display='none'; } }catch(e){}
+      btn.addEventListener('click', function(){
+        badge.style.display='none';
+        try{ sessionStorage.setItem('waBadgeHidden','1'); }catch(e){}
+      });
+    })();
+
+    // Inicializar
+    renderCart();
+  </script>
+</body>

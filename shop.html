@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Innov AI Tienda — Tienda</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta name="description" content="Explora Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp." />
+  <meta name="keywords" content="Innov AI Tienda, tienda, shop, servicios digitales, Perú, ChatGPT Plus, Netflix, Canva Pro" />
+
+  <!-- Favicon -->
+  <link href="img/favicon.ico" rel="icon" />
+
+  <!-- Google Web Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet" />
+
+  <!-- Libraries Stylesheet -->
+  <link href="lib/animate/animate.min.css" rel="stylesheet" />
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
+
+  <!-- Customized Bootstrap Stylesheet -->
+  <link href="css/style.css" rel="stylesheet" />
+
+  <!-- ===========================
+       ESTILOS EXTRA + VARIABLES
+       =========================== -->
+  <style>
+    :root{
+      --brand-primary:#0d6efd;
+      --brand-secondary:#6c757d;
+
+      /* WhatsApp FABs (mismo tamaño) */
+      --wa-size:64px;
+      --wa-bg:#25D366;
+      --wa-fg:#fff;
+      --wa-shadow:0 10px 22px rgba(0,0,0,.28);
+      --wa-attention:3.2s;
+
+      /* Fly-to-cart */
+      --trail-c1:#ff0040;
+      --trail-c2:#00e5ff;
+      --trail-c3:#7cff00;
+      --fly-duration:1050ms;
+      --trail-duration:650ms;
+
+      /* Toast */
+      --toast-bg:rgba(0,0,0,.86);
+      --toast-fg:#fff;
+    }
+    @media (prefers-reduced-motion: reduce){
+      :root{ --fly-duration:0ms; --trail-duration:0ms; --wa-attention:0s; }
+      *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+    }
+
+    /* Header pegado */
+    .site-header.sticky-top{ z-index:1045; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+
+    /* UI toques */
+    .section-title > span{ box-shadow:inset 0 -2px 0 var(--brand-primary); }
+    .product-item:hover{ transform:translateY(-2px); transition:transform .2s; }
+    .product-item .product-action .btn{margin:0 2px}
+    .product-img{ background:linear-gradient(180deg,#fff,#f3f5f7); }
+
+    /* WhatsApp FABs (mismo tamaño + neón + llamadita) */
+    .whatsapp-fab,
+    .whatsapp-fab-2{
+      position:fixed; right:18px; width:var(--wa-size); height:var(--wa-size);
+      border-radius:50%; background:var(--wa-bg); color:var(--wa-fg);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:var(--wa-shadow); z-index:1200; transition:transform .18s, filter .18s;
+      isolation:isolate; animation:float-y 5.4s ease-in-out infinite;
+    }
+    .whatsapp-fab{ bottom:18px; }
+    .whatsapp-fab-2{ bottom:98px; }
+    .whatsapp-fab i, .whatsapp-fab-2 i{ font-size:calc(var(--wa-size)*.45); line-height:1; }
+    .whatsapp-fab:hover, .whatsapp-fab-2:hover{ transform:translateY(-3px); filter:saturate(1.08) brightness(1.04); }
+
+    /* Llamadita / anillos */
+    .whatsapp-fab::after, .whatsapp-fab-2::after{
+      content:""; position:absolute; inset:-10px; border-radius:inherit;
+      box-shadow:0 0 0 0 rgba(37,211,102,.30);
+      animation:wa-pulse var(--wa-attention) infinite ease-out; z-index:-1;
+    }
+    @keyframes wa-pulse{
+      0%{ box-shadow:0 0 0 0 rgba(37,211,102,.33); }
+      70%{ box-shadow:0 0 0 20px rgba(37,211,102,0); }
+      100%{ box-shadow:0 0 0 0 rgba(37,211,102,0); }
+    }
+
+    /* Brillos neón laterales */
+    .whatsapp-fab::before, .whatsapp-fab-2::before{
+      content:""; position:absolute; width:6px; height:70%; top:15%;
+      border-radius:3px; filter:blur(5px); opacity:.85;
+      background:linear-gradient(180deg,rgba(37,211,102,0),rgba(37,211,102,.9),rgba(37,211,102,0));
+      left:-10px;
+    }
+    .whatsapp-fab-2::before{ left:auto; right:-10px; }
+
+    /* Notificación roja */
+    .whatsapp-badge{
+      position:absolute; top:-4px; right:-2px; min-width:18px; height:18px; padding:0 4px;
+      border-radius:10px; background:#ff3b30; color:#fff; font-size:11px; font-weight:700;
+      display:inline-flex; align-items:center; justify-content:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.25); animation:pulse 1.6s infinite;
+    }
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+    @keyframes float-y{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+    /* Fly-to-cart */
+    .trail{
+      position:fixed; pointer-events:none; width:10px; height:10px; border-radius:50%;
+      filter:blur(.5px) drop-shadow(0 0 8px currentColor);
+      opacity:.9; animation:trailfade var(--trail-duration) ease-out forwards; z-index:1400;
+    }
+    @keyframes trailfade{ to{ transform:scale(.6); opacity:0; } }
+    .fly-ghost{
+      position:fixed; width:42px; height:42px; display:flex; align-items:center; justify-content:center;
+      font-size:24px; border-radius:50%; background:#0b0b0b; color:#fff;
+      box-shadow:0 8px 18px rgba(0,0,0,.25), inset 0 0 22px rgba(255,255,255,.07);
+      z-index:1500; will-change:transform,opacity; overflow:hidden;
+    }
+    .fly-ghost.is-img{ background:#111; }
+    .fly-ghost.is-img > img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .cart-badge-pop{ animation:pop .45s cubic-bezier(.2,.7,.2,1.2); }
+    @keyframes pop{ 0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)} }
+
+    /* Toast */
+    .toast-mini{
+      position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(20px);
+      background:var(--toast-bg); color:var(--toast-fg); padding:10px 14px; border-radius:10px;
+      font-size:14px; z-index:1600; opacity:0; transition:opacity .2s, transform .2s;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .toast-mini.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+    .toast-mini i{ opacity:.9; }
+
+    /* Chip precio en modal */
+    .price-chip{
+      display:inline-flex; align-items:center; gap:.35rem;
+      padding:.25rem .6rem; border-radius:999px;
+      border:1px solid rgba(0,0,0,.1); background:#f6f7f9; font-weight:700;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ===== HEADER PEGADO ===== -->
+  <header class="site-header sticky-top">
+    <!-- Topbar -->
+    <div class="container-fluid">
+      <div class="row bg-secondary py-1 px-xl-5">
+        <div class="col-lg-6 d-none d-lg-block">
+          <div class="d-inline-flex align-items-center h-100">
+            <a class="text-body mr-3" href="acerca.html">Acerca de</a>
+            <a class="text-body mr-3" href="contact.html">Contacto</a>
+            <a class="text-body mr-3" href="ayuda.html">Ayuda</a>
+            <a class="text-body mr-3" href="faq.html">Preguntas frecuentes</a>
+          </div>
+        </div>
+        <div class="col-lg-6 text-center text-lg-right">
+          <div class="d-inline-flex align-items-center">
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Mi cuenta</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="login.html">Ingresar</a>
+                <a class="dropdown-item" href="register.html">Registrarse</a>
+              </div>
+            </div>
+
+            <!-- Moneda -->
+            <div class="btn-group mx-2">
+              <button id="currencyBtn" type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Soles</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <button class="dropdown-item js-set-currency" data-currency="PEN" type="button">Soles</button>
+                <button class="dropdown-item js-set-currency" data-currency="USD" type="button">USD</button>
+              </div>
+            </div>
+
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">ES</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="?lang=en">EN</a>
+              </div>
+            </div>
+          </div>
+          <div class="d-inline-flex align-items-center d-block d-lg-none">
+            <a href="favoritos.html" class="btn px-0 ml-2" aria-label="Favoritos">
+              <i class="fas fa-heart text-dark"></i>
+              <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
+            </a>
+            <a href="cart.html" class="btn px-0 ml-2" aria-label="Carrito">
+              <i class="fas fa-shopping-cart text-dark"></i>
+              <span id="headerCartBadgeSm" class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Branding + search -->
+      <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
+        <div class="col-lg-4">
+          <a href="index.html" class="text-decoration-none">
+            <span class="h1 text-uppercase text-primary bg-dark px-2">INNOV</span>
+            <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">TIENDA</span>
+          </a>
+        </div>
+        <div class="col-lg-4 col-6 text-left">
+          <form action="buscar.html">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Buscar productos" aria-label="Buscar productos" />
+              <div class="input-group-append">
+                <button class="input-group-text bg-transparent text-primary" aria-label="Buscar" type="submit">
+                  <i class="fa fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-lg-4 col-6 text-right">
+          <p class="m-0">Servicio al cliente</p>
+          <h5 class="m-0"><a href="tel:+51991564053" class="text-dark">+51 991564053</a></h5>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navbar -->
+    <div class="container-fluid bg-dark">
+      <div class="row px-xl-5">
+        <div class="col-lg-3 d-none d-lg-block">
+          <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#navbar-vertical" style="height:65px;padding:0 30px;">
+            <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>Categorías</h6>
+            <i class="fa fa-angle-down text-dark"></i>
+          </a>
+          <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical" style="width:calc(100% - 30px);z-index:999;">
+            <div class="navbar-nav w-100">
+              <a href="#cat-ai" class="nav-item nav-link">IA (ChatGPT, Gemini, Perplexity)</a>
+              <a href="#cat-streaming" class="nav-item nav-link">Streaming (Netflix, Disney, etc.)</a>
+              <a href="#cat-musica" class="nav-item nav-link">Música y Video</a>
+              <a href="#cat-gaming" class="nav-item nav-link">Gaming</a>
+              <a href="#cat-otros" class="nav-item nav-link">Otros</a>
+            </div>
+          </nav>
+        </div>
+        <div class="col-lg-9">
+          <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
+            <a href="index.html" class="text-decoration-none d-block d-lg-none">
+              <span class="h1 text-uppercase text-dark bg-light px-2">INNOV</span>
+              <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">TIENDA</span>
+            </a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+              <div class="navbar-nav mr-auto py-0">
+                <a href="index.html" class="nav-item nav-link">Inicio</a>
+                <a href="shop.html" class="nav-item nav-link active">Tienda</a>
+                <a href="detail.html" class="nav-item nav-link">Detalle</a>
+                <div class="nav-item dropdown">
+                  <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Páginas <i class="fa fa-angle-down mt-1"></i></a>
+                  <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
+                    <a href="cart.html" class="dropdown-item">Carrito</a>
+                    <a href="checkout.html" class="dropdown-item">Pagar</a>
+                  </div>
+                </div>
+                <a href="contact.html" class="nav-item nav-link">Contacto</a>
+              </div>
+              <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
+                <a href="favoritos.html" class="btn px-0" aria-label="Favoritos">
+                  <i class="fas fa-heart text-primary"></i>
+                  <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
+                </a>
+                <a href="cart.html" class="btn px-0 ml-3" aria-label="Carrito">
+                  <i class="fas fa-shopping-cart text-primary"></i>
+                  <span id="headerCartBadge" class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
+                </a>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- ===== /HEADER PEGADO ===== -->
+
+  <!-- Breadcrumb -->
+  <div class="container-fluid">
+    <div class="row px-xl-5">
+      <div class="col-12">
+        <nav class="breadcrumb bg-light mb-30">
+          <a class="breadcrumb-item text-dark" href="index.html">Inicio</a>
+          <span class="breadcrumb-item active">Tienda</span>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop -->
+  <div class="container-fluid">
+    <div class="row px-xl-5">
+      <!-- Sidebar Filtros -->
+      <aside class="col-lg-3 col-md-4">
+
+        <!-- Tipo de venta -->
+        <h5 class="section-title position-relative text-uppercase mb-3">
+          <span class="bg-secondary pr-3">Tipo de venta</span>
+        </h5>
+        <div class="bg-light p-3 mb-30">
+          <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+            <label id="modeRetailBtn" class="btn btn-sm btn-outline-dark active flex-fill">
+              <input type="radio" name="mode" value="retail" checked> Por menor
+            </label>
+            <label id="modeWholesaleBtn" class="btn btn-sm btn-outline-dark flex-fill">
+              <input type="radio" name="mode" value="wholesale"> Cuentas completas
+            </label>
+          </div>
+          <small class="d-block mt-2 text-muted">“Cuentas completas” es el apartado para proveedores.</small>
+        </div>
+
+        <!-- Rango de precio -->
+        <h5 class="section-title position-relative text-uppercase mb-3">
+          <span class="bg-secondary pr-3">Rango de precio</span>
+        </h5>
+        <div class="bg-light p-3 mb-30">
+          <div class="form-group mb-2">
+            <label class="small mb-1" id="priceLabel">Rango (S/ 0–100)</label>
+            <div class="d-flex align-items-center">
+              <input id="minPrice" type="number" class="form-control form-control-sm mr-2" min="0" step="0.1" value="0" style="max-width:120px">
+              <span class="mx-1">–</span>
+              <input id="maxPrice" type="number" class="form-control form-control-sm ml-2" min="0" step="0.1" value="30" style="max-width:120px">
+            </div>
+          </div>
+          <div class="d-flex">
+            <button id="applyFilters" class="btn btn-sm btn-primary mr-2">Aplicar</button>
+            <button id="clearFilters" class="btn btn-sm btn-outline-secondary">Limpiar</button>
+          </div>
+          <small class="d-block mt-2 text-muted">* Se adapta a la moneda seleccionada</small>
+        </div>
+
+        <!-- Categorías -->
+        <h5 class="section-title position-relative text-uppercase mb-3">
+          <span class="bg-secondary pr-3">Filtrar por categoría</span>
+        </h5>
+        <div class="bg-light p-3 mb-30">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input js-cat" id="fc-ai" value="ai" checked>
+            <label class="custom-control-label" for="fc-ai">IA</label>
+          </div>
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input js-cat" id="fc-stream" value="streaming" checked>
+            <label class="custom-control-label" for="fc-stream">Streaming</label>
+          </div>
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input js-cat" id="fc-music" value="musica" checked>
+            <label class="custom-control-label" for="fc-music">Música/Video</label>
+          </div>
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input js-cat" id="fc-gaming" value="gaming" checked>
+            <label class="custom-control-label" for="fc-gaming">Gaming</label>
+          </div>
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input js-cat" id="fc-otros" value="otros" checked>
+            <label class="custom-control-label" for="fc-otros">Otros</label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Productos -->
+      <main class="col-lg-9 col-md-8">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 id="sectionTitle" class="mb-0">Productos</h5>
+          <div class="d-flex align-items-center">
+            <label class="mb-0 mr-2 small text-muted">Ordenar:</label>
+            <select id="sortSelect" class="custom-select custom-select-sm" style="max-width:210px">
+              <option value="relevance">Relevancia</option>
+              <option value="price-asc">Precio: menor a mayor</option>
+              <option value="price-desc">Precio: mayor a menor</option>
+              <option value="name-asc">Nombre: A-Z</option>
+              <option value="name-desc">Nombre: Z-A</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="productsGrid" class="row pb-3"><!-- Grilla dinámica --></div>
+
+        <!-- Paginación -->
+        <div class="col-12">
+          <nav>
+            <ul id="pagination" class="pagination justify-content-center"><!-- dinámico --></ul>
+          </nav>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="container-fluid bg-dark text-secondary mt-5 pt-5">
+    <div class="row px-xl-5 pt-5">
+      <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
+        <h5 class="text-secondary text-uppercase mb-4">Contáctanos</h5>
+        <p class="mb-4">Somos una tienda tecnológica que cree en el poder de la innovación para transformar tu día a día.</p>
+        <p class="mb-2"><i class="fa fa-map-marker-alt text-primary mr-3"></i>Lima — San Isidro — Perú</p>
+        <p class="mb-2"><i class="fa fa-envelope text-primary mr-3"></i><a href="mailto:ainnov611@gmail.com" class="text-secondary">ainnov611@gmail.com</a></p>
+        <p class="mb-0"><i class="fa fa-phone-alt text-primary mr-3"></i><a href="tel:+51991564053" class="text-secondary">+51 991564053</a></p>
+      </div>
+      <div class="col-lg-8 col-md-12">
+        <div class="row">
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Compra rápida</h5>
+            <div class="d-flex flex-column justify-content-start">
+              <a class="text-secondary mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Inicio</a>
+              <a class="text-secondary mb-2" href="shop.html"><i class="fa fa-angle-right mr-2"></i>Tienda</a>
+              <a class="text-secondary mb-2" href="detail.html"><i class="fa fa-angle-right mr-2"></i>Detalle</a>
+              <a class="text-secondary mb-2" href="cart.html"><i class="fa fa-angle-right mr-2"></i>Carrito</a>
+              <a class="text-secondary mb-2" href="checkout.html"><i class="fa fa-angle-right mr-2"></i>Pagar</a>
+              <a class="text-secondary" href="contact.html"><i class="fa fa-angle-right mr-2"></i>Contacto</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Mi cuenta</h5>
+            <div class="d-flex flex-column justify-content-start">
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Iniciar sesión</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Crear cuenta</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Pedidos</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Favoritos</a>
+              <a class="text-secondary" href="#"><i class="fa fa-angle-right mr-2"></i>Soporte</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Boletín</h5>
+            <p>Recibe ofertas y novedades.</p>
+            <form action="/suscribirse" method="post">
+              <div class="input-group">
+                <input type="email" class="form-control" placeholder="Tu correo" required />
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit">Inscribirse</button>
+                </div>
+              </div>
+            </form>
+            <h6 class="text-secondary text-uppercase mt-4 mb-3">Síguenos</h6>
+            <div class="d-flex">
+              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              <a class="btn btn-primary btn-square" href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
+      <div class="col-md-6 px-xl-0">
+        <p class="mb-md-0 text-center text-md-left text-secondary">
+          &copy; <a class="text-primary" href="#">Innov AI Tienda</a>. Todos los derechos reservados.
+        </p>
+      </div>
+      <div class="col-md-6 px-xl-0 text-center text-md-right">
+        <img class="img-fluid" src="img/payments.png" alt="Métodos de pago" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Top -->
+  <a href="#" class="btn btn-primary back-to-top" aria-label="Volver arriba"><i class="fa fa-angle-double-up"></i></a>
+
+  <!-- WhatsApp FABs (mismo tamaño + badge en ambos) -->
+  <a id="whatsappFab" class="whatsapp-fab" href="https://wa.me/51930264550?text=¡Hola!%20👋%20Vengo%20de%20su%20página%20y%20me%20gustaría%20más%20información%20sobre%20los%20servicios%20✨" target="_blank" rel="noopener" aria-label="WhatsApp principal">
+    <i class="fab fa-whatsapp"></i>
+    <span id="whatsappBadge" class="whatsapp-badge" aria-hidden="true">1</span>
+  </a>
+  <a id="whatsappFab2" class="whatsapp-fab-2" href="https://wa.me/51991564053?text=¡Hola!%20👋%20Vengo%20de%20su%20página%20web%20y%20me%20gustaría%20más%20información%20😊" target="_blank" rel="noopener" aria-label="WhatsApp secundario">
+    <i class="fab fa-whatsapp"></i>
+    <span id="whatsappBadge2" class="whatsapp-badge" aria-hidden="true">1</span>
+  </a>
+
+  <!-- Micro-toast -->
+  <div id="toastMini" class="toast-mini" role="status" aria-live="polite" aria-atomic="true">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastText">Añadido al carrito</span>
+  </div>
+
+  <!-- Modal Detalle -->
+  <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="productModalLabel" class="modal-title">Detalle del producto</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-5">
+              <img id="modalImg" src="img/placeholder.jpg" alt="" class="img-fluid rounded mb-3">
+              <div class="price-chip"><i class="fa fa-tag"></i> <span id="modalPrice">S/ --</span></div>
+              <small id="modalUsd" class="text-muted d-block mt-1"></small>
+            </div>
+            <div class="col-md-7">
+              <h5 id="modalTitle" class="mb-2"></h5>
+              <p id="modalDesc" class="mb-3"></p>
+              <ul id="modalBenefits" class="mb-3 pl-3"></ul>
+              <div class="alert alert-light border">
+                <strong>¿Por qué me conviene?</strong>
+                <div id="modalWhy" class="mt-1"></div>
+              </div>
+              <div class="d-flex">
+                <button id="modalAdd" class="btn btn-outline-dark mr-2"><i class="fa fa-shopping-cart"></i> Añadir</button>
+                <button id="modalBuy" class="btn btn-dark"><i class="fas fa-bolt"></i> Comprar ahora</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer small text-muted">
+          Cierra con la <strong>X</strong> o haciendo clic fuera del recuadro.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS libraries -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+  <script src="lib/easing/easing.min.js"></script>
+  <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- ==========================================================
+       Núcleo Tienda + Carrito + Modal + Filtros + Modo Mayorista
+       ========================================================== -->
+  <script>
+  (function(){
+    /* ============== Config rápida ============== */
+    const FX = 3.70;              // 1 USD = 3.70 S/
+    const PAGE_SIZE = 12;
+    const MAX_PEN = 180;           // Rango fijo de 0 a 30 soles (pedido)
+    const SETTINGS = {
+      currency: localStorage.getItem('innov_currency') || 'PEN', // 'PEN' | 'USD'
+      currencySymbol: () => (state.currency==='USD' ? '$' : 'S/'),
+      flyDurationMs: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--fly-duration')) || 1050,
+      trailDurationMs: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-duration')) || 650,
+      trailDensity: 26,
+      trailSize: 10,
+      useEmojiFirst: true,
+      cartRedirectDelay: 350,
+      toastTime: 1300
+    };
+
+    /* ============== Estado de tienda ============== */
+    const state = {
+      currency: SETTINGS.currency,
+      mode: 'retail', // 'retail' | 'wholesale'
+      page: 1,
+      sort: 'relevance',
+      cats: new Set(['ai','streaming','musica','gaming','otros']),
+      min: 0,
+      max: MAX_PEN,
+      lastRendered: []
+    };
+
+    /* ============== Carrito compartido ============== */
+    const CART_KEY = 'innov_cart_v1';
+    const read = () => { try { return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); } catch(e){ return []; } };
+    const write = (arr) => localStorage.setItem(CART_KEY, JSON.stringify(arr));
+    window.Cart = window.Cart || {
+      add: (item) => {
+        const items = read();
+        const idx = items.findIndex(i => i.id === item.id);
+        if(idx>-1){ items[idx].qty += (item.qty||1); }
+        else { items.push({ id:item.id, nombre:item.nombre, precio:Number(item.precio), imagen:item.imagen||'', qty:item.qty||1 }); }
+        write(items); return items;
+      },
+      items: ()=> read(),
+      count: ()=> read().reduce((a,b)=>a+b.qty,0),
+      subtotal: ()=> read().reduce((a,b)=>a+(b.precio*b.qty),0)
+    };
+    function syncHeaderBadges(){
+      const c = Cart.count();
+      const b1 = document.getElementById('headerCartBadge');
+      const b2 = document.getElementById('headerCartBadgeSm');
+      [b1,b2].forEach(b=>{ if(b) b.textContent = c; });
+    }
+
+    /* ============== Utilidades moneda ============== */
+    function penToUsd(pen){ return pen / FX; }
+    function formatMoneyPen(n){ return 'S/ ' + (Number(n)||0).toFixed(2); }
+    function formatMoneyUsd(n){ return '$ ' + (Number(n)||0).toFixed(2); }
+    function fmt(nPen){
+      if(nPen==null) return 'Consultar';
+      return state.currency==='USD' ? formatMoneyUsd(penToUsd(nPen)) : formatMoneyPen(nPen);
+    }
+
+    /* ============== Catálogo POR MENOR (30) ============== */
+    // Imágenes sistematizadas: img/svr1.jpg ... img/svr30.jpg
+    const CATALOG = [
+      {id:'serv-01', name:'ChatGPT Plus — 1 mes', price:8,  cat:'ai', image:'img/svr1.jpg', emoji:'🤖',
+        desc:'ChatGPT Plus con uso de imágenes. Móvil y PC.',
+        benefits:['Respuestas rápidas','Ideal para estudio','Compatible para celular y pc', 'Tiene mas usuarios'],
+        why:'Mejor relación costo/beneficio.'},
+      {id:'serv-02', name:'Netflix Premium — 1 mes', price:10, cat:'streaming', image:'img/svr2.jpg', emoji:'🎬',
+        desc:'Perfil propio con PIN. Soporte 24/7.',
+        benefits:['Perfil dedicado','HD/4K','Entrega inmediata'],
+        why:'Disfruta contenido premium sin complicaciones.'},
+      {id:'serv-03', name:'Gemini Pro — 1 año', price:10, cat:'ai', image:'img/svr3.jpg', emoji:'✨',
+        desc:'IA exelente para generacion de imagenes y videos por un año.',
+        benefits:['Generación de videos y imagenes 4k','2 Teras de almacenamiento a tu correo','Activación a tu propio corre'],
+        why:'Un año de IA al precio de un mes común.'},
+      {id:'serv-04', name:'Disney+ Premium — 1 mes', price:8, cat:'streaming', image:'img/svr4.jpg', emoji:'🪄',
+        desc:'Películas y series para toda la familia.',
+        benefits:['Catálogo familiar','Entrega inmediata','Soporte WhatsApp','Perfil propio', 'PIN propio'],
+        why:'Ideal para maratones de series.'},
+      {id:'serv-05', name:'YouTube Premium — 1 mes', price:5, cat:'musica', image:'img/svr5.jpg', emoji:'▶️',
+        desc:'YouTube sin anuncios + YouTube Music.',
+        benefits:['Sin anuncios','Segundo plano','Descargas'],
+        why:'Mejora tu experiencia móvil y de música.'},
+      {id:'serv-06', name:'ChatGPT Plus — Celular', price:12, cat:'ai', image:'img/svr6.jpg', emoji:'📱',
+        desc:'Sin problemas de saturación.',
+        benefits:['Rápido y estable en móvil','Ideal para tareas y exámenes','Soporte 24/7', 'Solo para Celular o Tablet' ],
+        why:'Gran rendimiento en móvil, tablet; para estudio, examenes y trabajo.'},
+      {id:'serv-07', name:'ChatGPT Plus — PC/Laptop (1 mes)', price:18, cat:'ai', image:'img/svr7.jpg', emoji:'💻',
+        desc:'Plan premium PC/Laptop. Incluye extras (CapCut, Perplexity, Gemini, Canva).',
+        benefits:['Más estabilidad','Multi‑dispositivo PC/Laptop','Herramientas extra','Solo para PC Windoms 10, 11 o macOS' ],
+        why:'Máxima estabilidad y herramientas adicionales.'},
+      {id:'serv-08', name:'Canva Pro — 1 mes', price:5, cat:'otros', image:'img/svr8.jpg', emoji:'🎨',
+        desc:'Acceso Pro en tu correo.',
+        benefits:['Plantillas premium','Entrega al correo'],
+        why:'Diseño profesional a bajo costo.'},
+      {id:'serv-09', name:'Canva Pro — 1 año', price:14, cat:'otros', image:'img/svr9.jpg', emoji:'🖌️',
+        desc:'Canva Pro por un año.',
+        benefits:['Ahorro anual','Recursos ilimitados','Soporte y garantía'],
+        why:'Costo mensual < S/1.20 aprox.'},
+      {id:'serv-10', name:'HBO Max — 1 mes', price:6, cat:'streaming', image:'img/svr10.jpg', emoji:'📺',
+        desc:'Series y películas exclusivas.',
+        benefits:['Catálogo premium','Activación al instante','Soporte'],
+        why:'Contenido top sin líos.'},
+      {id:'serv-11', name:'Prime Video — 1 mes', price:6, cat:'streaming', image:'img/svr11.jpg', emoji:'🎞️',
+        desc:'Estrenos y clásicos.',
+        benefits:['Amplio catálogo','Buena calidad','Soporte 24/7'],
+        why:'Alternativa económica y variada.'},
+      {id:'serv-12', name:'Perplexity', price:5, cat:'ai', image:'img/svr12.jpg', emoji:'🕹️',
+        desc:'Búsqueda conversacional con fuentes y contexto en tiempo real.',
+        benefits:['Citas y enlaces verificables','Resúmenes rápidos y claros','Contexto conversacional continuo','Comparación de fuentes','Exploración web en tiempo real'],
+        why:'Obtén respuestas confiables y útiles sin perder tiempo.'},
+      {id:'serv-14', name:'Spotify Premium — 1 mes', price:6, cat:'musica', image:'img/svr13.jpg', emoji:'🎧',
+        desc:'Acceso total a Spotify sin anuncios y con descargas offline.',
+        benefits:['Reproducción sin interrupciones','Audio de alta calidad','Modo offline para tus playlists','Sin límites de saltos','Escucha en cualquier dispositivo'],
+        why:'Disfruta de tu música favorita sin restricciones durante todo el mes.'},
+      {id:'serv-14', name:'DirecTV — 1 mes', price:8, cat:'streaming', image:'img/svr14.jpg', emoji:'📡',
+        desc:'Acceso a canales en vivo, películas y deportes premium.',
+        benefits:['Señal HD estable y fluida','Gran variedad de canales internacionales','Eventos deportivos en vivo','Acceso a contenido On Demand','Soporte técnico confiable'],
+        why:'Disfruta entretenimiento completo y en alta calidad durante todo el mes.'},
+      {id:'serv-15', name:'Crunchyroll — 1 mes', price:7, cat:'streaming', image:'img/svr15.jpg', emoji:'🍥',
+        desc:'Acceso ilimitado al mejor anime en HD y sin anuncios.',
+        benefits:['Episodios simulcast poco después de Japón','Calidad Full HD y 4K disponible','Amplio catálogo de anime y doblajes','Visualización sin anuncios','Soporte para múltiples dispositivos'],
+        why:'Ideal para disfrutar tus animes favoritos con la mejor calidad y sin esperas.'},
+      {id:'serv-16', name:'Movistar Play — 1 mes', price:6, cat:'streaming', image:'img/svr16.jpg', emoji:'📱',
+      desc:'Series, películas y canales en vivo desde cualquier dispositivo.',
+      benefits:['Amplio catálogo de contenidos nacionales e internacionales','App estable y fácil de usar','Acceso a canales en vivo y On Demand','Compatible con Smart TV y móviles','Soporte técnico disponible'],
+      why:'Disfruta entretenimiento variado y flexible al mejor precio.'},
+      {id:'serv-17', name:'YouTube Music — 1 mes', price:5, cat:'musica', image:'img/svr17.jpg', emoji:'🎵',
+        desc:'Todo YouTube Music sin anuncios.',
+        benefits:['Audio en 2° plano','Descargas','Recomendaciones'],
+        why:'Música sin límites.'},
+      {id:'serv-18', name:'Disney Bundle', price:10, cat:'streaming', image:'img/svr18.jpg', emoji:'🎬',
+        desc:'Paquete especial (consultar regiones).',
+        benefits:['Mayor catálogo','Mejor precio por combo','Soporte'],
+        why:'Ahorro frente a comprar por separado.'},
+      {id:'serv-19', name:'Perplexity — 1 mes', price:10, cat:'ai', image:'img/svr19.jpg', emoji:'🔎',
+        desc:'Buscador con IA y citas.',
+        benefits:['Fuentes citadas','Ideal para investigar','Entrega inmediata'],
+        why:'Investiga mejor y más rápido.'},
+
+      // Personalizables 20..30
+      ...Array.from({length:11}, (_,i)=>({
+        id:`serv-${20+i}`, name:`Producto personalizable ${20+i}`, price:9, cat:'otros',
+        image:`img/svr${20+i}.jpg`, emoji:'🧩',
+        desc:'Servicio listo para personalizar. Cambia nombre, precio e imagen.',
+        benefits:['Configurable','Entrega inmediata','Soporte'],
+        why:'Adáptalo a tu necesidad.'
+      }))
+    ];
+
+    /* ============== Catálogo CUENTAS COMPLETAS (Proveedor) ============== */
+    // Precios según indicaste. Los no especificados quedan en "Consultar".
+    const WHOLESALE = [
+      {id:'wh-01', name:'ChatGPT Plus', price:40, cat:'ai', image:'img/svr7.jpg', emoji:'🤖',
+        desc:'Acceso directo a cuenta completa de ChatGPT. Tú administras la cuenta.',
+        benefits:['Cuenta 100% tuya','Control total de credenciales','Soporte a proveedores'],
+        why:'Independencia total y menos incidencias.'},
+      {id:'wh-02', name:'Perplexity — método de activación', price:40, cat:'ai', image:'img/svr12.jpg', emoji:'🧠',
+        desc:'Servicio profesional que entrega una cuenta mensual de Perplexity mediante un proceso seguro y administrado.',
+        benefits:[
+          'Metodo para activacion de Perplexiti',
+          'Configuración segura y control de credenciales',
+          'Guía de uso y buenas prácticas para el mes',],
+        why:'Metodo para que saques cuenta de perplexiti mensual, para que vendas a tu precio.'},
+      {id:'wh-03', name:'Netflix Premium', price:30, cat:'streaming', image:'img/svr2.jpg', emoji:'🎬',
+        desc:'Cuenta completa. Crea tu PIN y perfiles a tu gusto.',
+        benefits:['Titularidad completa','PIN propio y control total','Soporte y garantía'],
+        why:'Flexibilidad total para tu hogar o negocio.'},
+      {id:'wh-04', name:'Gemini Pro Metodo', price:40, cat:'ai', image:'img/svr3.jpg', emoji:'✨',
+        desc:'Podras dar acceso hasta 5 usuarios',
+        benefits:['Texto+imágenes','Escala de uso','Podras dar 2 teras de almacenamiento a tus usuarios', 'Acompañamiento técnico'],
+        why:'Podras gestionar tus clientes.'},
+      {id:'wh-05', name:'Disney Premium', price:25, cat:'streaming', image:'img/svr4.jpg', emoji:'🪄',
+        desc:'Cuenta completa con perfiles y control parental.',
+        benefits:['Catálogo familiar','PIN y perfiles a medida','Soporte al proveedor'],
+        why:'Perfecto para familias y revendedores.'},
+      {id:'wh-06', name:'YouTube Premium', price:9, cat:'musica', image:'img/svr5.jpg', emoji:'▶️',
+        desc:'Cuenta completa sin anuncios + Music.',
+        benefits:['Sin anuncios','Reproducción en segundo plano','No renobables', 'Descargas'],
+        why:'Experiencia sin interrupciones para tus clientes.'},
+      {id:'wh-07', name:'HBO Max', price:16, cat:'streaming', image:'img/svr10.jpg', emoji:'📺',
+        desc:'Cuenta completa con acceso total.',
+        benefits:['Contenido exclusivo','Control de perfiles','Soporte 24/7'],
+        why:'Catálogo premium con garantía.'},
+      {id:'wh-08', name:'Prime Video', price:16, cat:'streaming', image:'img/svr11.jpg', emoji:'🎞️',
+        desc:'Cuenta completa y estable.',
+        benefits:['Amplio catálogo','Control de credenciales','Asesoría de operación'],
+        why:'Variedad para todos los gustos.'},
+      {id:'wh-09', name:'Crunchyroll', price:10, cat:'streaming', image:'img/svr15.jpg', emoji:'🍥',
+        desc:'Cuenta completa para anime sin límites.',
+        benefits:['Estrenos rápidos','HD/4K según plan','Soporte continuo'],
+        why:'El mejor anime con control total.'},
+      {id:'wh-10', name:'IPTV', price:null, cat:'streaming', image:'img/svrp1.jpg', emoji:'📡',
+        desc:'Acceso a IPTV. Consulta opciones, regiones y compatibilidades.',
+        benefits:['Gran variedad de canales','Asesoría técnica','Ajuste según región'],
+        why:'Flexible según tus necesidades (precio a consultar).'},
+      {id:'wh-11', name:'Programa — Recordatorio de pago', price:10, cat:'otros', image:'img/svrp11.jpg', emoji:'🔔',
+        desc:'Herramienta para organizar y recordar cobros a tus clientes.',
+        benefits:['Recordatorios semiautomáticos','Historial y notas por cliente','Centraliza cuentas y correos'],
+        why:'Mantén tus cobros ordenados al menor costo (S/ 10).'}
+    ];
+
+    /* ============== Helpers de dataset ============== */
+    function currentCatalog(){ return state.mode==='retail' ? CATALOG : WHOLESALE; }
+
+    /* ============== Render / Filtro / Orden / Página ============== */
+    const grid = document.getElementById('productsGrid');
+    const pag = document.getElementById('pagination');
+    const sectionTitle = document.getElementById('sectionTitle');
+
+    function byCats(items){
+      return items.filter(it => state.cats.has(it.cat));
+    }
+    function byPrice(items){
+      // Elementos "sin precio" (null) no se filtran por rango: siempre visibles
+      if(state.min==null && state.max==null) return items;
+      const minPen = toPen(state.min);
+      const maxPen = toPen(state.max);
+      return items.filter(it => {
+        if(it.price==null) return true;
+        const p = it.price;
+        if(state.min!=null && p < minPen) return false;
+        if(state.max!=null && p > maxPen) return false;
+        return true;
+      });
+    }
+    function priceForSort(v,dir){ // null al final en asc, al principio en desc
+      if(v==null) return dir==='desc' ? -Infinity : Infinity;
+      return v;
+    }
+    function sortItems(items){
+      const arr = [...items];
+      const s = state.sort;
+      if(s==='price-asc') arr.sort((a,b)=> priceForSort(a.price,'asc') - priceForSort(b.price,'asc'));
+      else if(s==='price-desc') arr.sort((a,b)=> priceForSort(b.price,'desc') - priceForSort(a.price,'desc'));
+      else if(s==='name-asc') arr.sort((a,b)=>a.name.localeCompare(b.name));
+      else if(s==='name-desc') arr.sort((a,b)=>b.name.localeCompare(a.name));
+      return arr;
+    }
+    function toPen(val){ // si la UI está en USD, convierto a PEN
+      if(val==null) return null;
+      return state.currency==='USD' ? (Number(val) * FX) : Number(val);
+    }
+    function fromPen(valPen){ // para mostrar inputs al usuario
+      return state.currency==='USD' ? (valPen/FX) : valPen;
+    }
+
+    function render(){
+      // Título según modo
+      if(state.mode==='retail'){
+        sectionTitle.innerHTML = 'Productos <small class="text-muted">cuentas por menor</small>';
+      }else{
+        sectionTitle.innerHTML = 'Cuentas completas <small class="text-muted">productos para proveedores</small>';
+      }
+
+      // pipeline
+      const BASE = currentCatalog();
+      const filtered = byPrice(byCats(BASE));
+      const sorted = sortItems(filtered);
+      const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+      if(state.page > totalPages) state.page = totalPages;
+      const start = (state.page-1)*PAGE_SIZE;
+      const pageItems = sorted.slice(start, start+PAGE_SIZE);
+
+      grid.innerHTML = pageItems.map(cardHTML).join('');
+      state.lastRendered = pageItems;
+      bindCards(); // acciones add/buy/detail
+
+      // paginación
+      renderPagination(totalPages);
+
+      // sincroniza precios en tarjeta (moneda actual)
+      document.querySelectorAll('[data-price-pen]').forEach(el=>{
+        const pen = el.getAttribute('data-price-pen');
+        el.textContent = pen==='null' ? 'Consultar' : fmt(parseFloat(pen));
+      });
+    }
+
+    function cardHTML(it){
+      const penAttr = (it.price==null) ? 'null' : String(it.price);
+      return `
+      <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+        <div class="product-item bg-light mb-4"
+             data-id="${it.id}" data-name="${it.name}"
+             data-price="${it.price==null?0:it.price}" data-image="${it.image}" data-emoji="${it.emoji || ''}">
+          <div class="product-img position-relative overflow-hidden">
+            <img class="img-fluid w-100" src="${it.image}" alt="${it.name}">
+            <div class="product-action">
+              <button class="btn btn-outline-dark btn-square btn-add" title="Agregar al carrito"><i class="fa fa-shopping-cart"></i></button>
+              <button class="btn btn-outline-dark btn-square btn-detail" title="Ver detalle"><i class="fa fa-search"></i></button>
+              <button class="btn btn-outline-dark btn-square btn-buy" title="Comprar ahora"><i class="fas fa-bolt"></i></button>
+            </div>
+          </div>
+          <div class="text-center py-4">
+            <a class="h6 text-decoration-none text-truncate" href="#">${it.name}</a>
+            <div class="d-flex align-items-center justify-content-center mt-2">
+              <h5 data-price-pen="${penAttr}">${it.price==null?'Consultar':fmt(it.price)}</h5>
+            </div>
+            <div class="d-flex align-items-center justify-content-center mb-1">
+              <small class="fa fa-star text-primary mr-1"></small>
+              <small class="fa fa-star text-primary mr-1"></small>
+              <small class="fa fa-star text-primary mr-1"></small>
+              <small class="fa fa-star text-primary mr-1"></small>
+              <small class="fa fa-star-half-alt text-primary mr-1"></small>
+              <small>(${Math.floor(50+Math.random()*120)})</small>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function renderPagination(totalPages){
+      let html = '';
+      html += `<li class="page-item ${state.page===1?'disabled':''}"><a class="page-link js-page" data-page="${state.page-1}" href="#">Anterior</a></li>`;
+      for(let p=1;p<=totalPages;p++){
+        html += `<li class="page-item ${state.page===p?'active':''}"><a class="page-link js-page" data-page="${p}" href="#">${p}</a></li>`;
+      }
+      html += `<li class="page-item ${state.page===totalPages?'disabled':''}"><a class="page-link js-page" data-page="${state.page+1}" href="#">Siguiente</a></li>`;
+      pag.innerHTML = html;
+      pag.querySelectorAll('.js-page').forEach(a=>{
+        a.addEventListener('click', e=>{
+          e.preventDefault();
+          const p = Number(a.getAttribute('data-page'));
+          if(!isNaN(p) && p>=1 && p<=totalPages){ state.page = p; render(); window.scrollTo({top:0, behavior:'smooth'}); }
+        });
+      });
+    }
+
+    /* ============== Acciones tarjetas ============== */
+    function bindCards(){
+      document.querySelectorAll('.product-item').forEach(card=>{
+        const id = card.getAttribute('data-id');
+        const nombre = card.getAttribute('data-name');
+        const precio = parseFloat(card.getAttribute('data-price')||0); // si era "Consultar" llega 0
+        const imagen = card.getAttribute('data-image')||'';
+        const emoji  = card.getAttribute('data-emoji')||'';
+        const imgEl  = card.querySelector('.product-img img');
+        const addBtn = card.querySelector('.btn-add');
+        const buyBtn = card.querySelector('.btn-buy');
+        const detBtn = card.querySelector('.btn-detail');
+
+        function addAndAnimate(btn){
+          Cart.add({ id, nombre, precio, imagen, qty:1 });
+          syncHeaderBadges();
+          if(btn){ btn.classList.add('active'); setTimeout(()=>btn.classList.remove('active'), 250); }
+          flyToCart({ originEl: imgEl || btn, emoji: (SETTINGS.useEmojiFirst && emoji)?emoji:'', imgUrl: (!emoji && imagen)?imagen:'' });
+          showToast('Añadido: ' + nombre);
+        }
+
+        if(addBtn){ addBtn.addEventListener('click', e=>{ e.preventDefault(); addAndAnimate(addBtn); }); }
+        if(buyBtn){ buyBtn.addEventListener('click', e=>{ e.preventDefault(); addAndAnimate(buyBtn); setTimeout(()=>{ window.location.href='checkout.html'; }, SETTINGS.cartRedirectDelay); }); }
+        if(detBtn){ detBtn.addEventListener('click', e=>{ e.preventDefault(); openDetail(id); }); }
+      });
+    }
+
+    /* ============== Detalle (Modal) ============== */
+    const $modal = $('#productModal');
+    const elTitle = document.getElementById('modalTitle');
+    const elImg   = document.getElementById('modalImg');
+    const elPrice = document.getElementById('modalPrice');
+    const elUsd   = document.getElementById('modalUsd');
+    const elDesc  = document.getElementById('modalDesc');
+    const elBen   = document.getElementById('modalBenefits');
+    const elWhy   = document.getElementById('modalWhy');
+    const btnAdd  = document.getElementById('modalAdd');
+    const btnBuy  = document.getElementById('modalBuy');
+    let modalItem = null;
+
+    function openDetail(id){
+      const it = [...CATALOG, ...WHOLESALE].find(x=>x.id===id);
+      if(!it) return;
+      modalItem = it;
+      document.getElementById('productModalLabel').textContent = it.name;
+      elTitle.textContent = it.name;
+      elImg.src = it.image;
+      elPrice.textContent = fmt(it.price);
+      if(it.price==null){
+        elUsd.textContent = 'Precio a consultar';
+      }else{
+        elUsd.textContent = state.currency==='USD' ? `≈ ${formatMoneyPen(it.price)} en S/` : `≈ ${formatMoneyUsd(penToUsd(it.price))} en USD`;
+      }
+      elDesc.textContent = it.desc || 'Servicio digital con entrega inmediata por WhatsApp.';
+      elBen.innerHTML = (it.benefits||[]).map(b=>`<li>${b}</li>`).join('');
+      elWhy.textContent = it.why || 'Precio competitivo, soporte y garantía 24/7.';
+      $modal.modal('show');
+    }
+    btnAdd.addEventListener('click', ()=>{
+      if(!modalItem) return;
+      Cart.add({ id: modalItem.id, nombre: modalItem.name, precio: modalItem.price||0, imagen: modalItem.image, qty:1 });
+      syncHeaderBadges();
+      flyFromModalImg();
+      showToast('Añadido: ' + modalItem.name);
+    });
+    btnBuy.addEventListener('click', ()=>{
+      if(!modalItem) return;
+      Cart.add({ id: modalItem.id, nombre: modalItem.name, precio: modalItem.price||0, imagen: modalItem.image, qty:1 });
+      syncHeaderBadges();
+      flyFromModalImg();
+      setTimeout(()=>{ window.location.href='checkout.html'; }, SETTINGS.cartRedirectDelay);
+    });
+    function flyFromModalImg(){
+      const img = document.getElementById('modalImg');
+      flyToCart({ originEl: img, emoji:'', imgUrl: img.src });
+    }
+
+    /* ============== Filtros UI ============== */
+    const minI = document.getElementById('minPrice');
+    const maxI = document.getElementById('maxPrice');
+    const priceLabel = document.getElementById('priceLabel');
+    function updatePriceLabel(){
+      if(state.currency==='USD'){
+        priceLabel.textContent = `Rango (USD ${ (0/FX).toFixed(2) }–${ (MAX_PEN/FX).toFixed(2) })`;
+      }else{
+        priceLabel.textContent = `Rango (S/ 0–${MAX_PEN})`;
+      }
+    }
+    document.getElementById('applyFilters').addEventListener('click', ()=>{
+      const min = minI.value.trim()===''?null:Number(minI.value);
+      const max = maxI.value.trim()===''?null:Number(maxI.value);
+      state.min = isNaN(min)?null:min;
+      state.max = isNaN(max)?null:max;
+      state.page = 1;
+      render();
+    });
+    document.getElementById('clearFilters').addEventListener('click', ()=>{
+      minI.value = state.currency==='USD' ? (0).toFixed(2) : '0';
+      maxI.value = state.currency==='USD' ? (MAX_PEN/FX).toFixed(2) : String(MAX_PEN);
+      state.min=0; state.max=MAX_PEN;
+      state.page=1;
+      render();
+    });
+    document.querySelectorAll('.js-cat').forEach(chk=>{
+      chk.addEventListener('change', ()=>{
+        if(chk.checked) state.cats.add(chk.value);
+        else state.cats.delete(chk.value);
+        state.page=1; render();
+      });
+    });
+    document.getElementById('sortSelect').addEventListener('change', e=>{
+      state.sort = e.target.value;
+      state.page = 1;
+      render();
+    });
+
+    /* ============== Tipo de venta (por menor / cuentas completas) ============== */
+    const modeRetailBtn = document.getElementById('modeRetailBtn');
+    const modeWholesaleBtn = document.getElementById('modeWholesaleBtn');
+    modeRetailBtn.addEventListener('click', ()=>{
+      state.mode='retail'; state.page=1; render();
+      modeRetailBtn.classList.add('active'); modeWholesaleBtn.classList.remove('active');
+    });
+    modeWholesaleBtn.addEventListener('click', ()=>{
+      state.mode='wholesale'; state.page=1; render();
+      modeWholesaleBtn.classList.add('active'); modeRetailBtn.classList.remove('active');
+    });
+
+    /* ============== Moneda UI (Soles/USD) ============== */
+    const currencyBtn = document.getElementById('currencyBtn');
+    document.querySelectorAll('.js-set-currency').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const cur = btn.getAttribute('data-currency');
+        setCurrency(cur);
+      });
+    });
+    function setCurrency(cur){
+      state.currency = cur;
+      localStorage.setItem('innov_currency', cur);
+      currencyBtn.textContent = (cur==='USD'?'USD':'Soles');
+
+      // actualizar inputs a 0–30 (o su equivalente en USD)
+      minI.value = cur==='USD' ? (0).toFixed(2) : '0';
+      maxI.value = cur==='USD' ? (MAX_PEN/FX).toFixed(2) : String(MAX_PEN);
+      updatePriceLabel();
+      render();
+    }
+
+    /* ============== Fly-to-cart motor ============== */
+    function pageOffsetRect(el){
+      const r = el.getBoundingClientRect();
+      return { x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height };
+    }
+    function findCartBadge(){
+      const d = document.getElementById('headerCartBadge');
+      const m = document.getElementById('headerCartBadgeSm');
+      const inViewport = (el) => el && !!(el.offsetParent || el.getClientRects().length);
+      return inViewport(d) ? d : (m || d);
+    }
+    function bezier(t, p0, p1, p2){ const u=1-t; return { x:u*u*p0.x + 2*u*t*p1.x + t*t*p2.x, y:u*u*p0.y + 2*u*t*p1.y + t*t*p2.y }; }
+    const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+    function spawnTrail(x,y,idx){
+      const dot = document.createElement('div');
+      dot.className = 'trail';
+      const cs = getComputedStyle(document.documentElement);
+      dot.style.color = [cs.getPropertyValue('--trail-c1'), cs.getPropertyValue('--trail-c2'), cs.getPropertyValue('--trail-c3')][idx%3].trim();
+      dot.style.left = (x - SETTINGS.trailSize/2) + 'px';
+      dot.style.top  = (y - SETTINGS.trailSize/2) + 'px';
+      dot.style.width = dot.style.height = (SETTINGS.trailSize + Math.random()*4) + 'px';
+      document.body.appendChild(dot);
+      setTimeout(()=> dot.remove(), SETTINGS.trailDurationMs);
+    }
+    function makeGhost(fromEl, emoji, imgUrl){
+      const g = document.createElement('div'); g.className = 'fly-ghost';
+      const from = pageOffsetRect(fromEl);
+      g.style.left = (from.x + from.w/2 - 21) + 'px';
+      g.style.top  = (from.y + from.h/2 - 21) + 'px';
+      if(emoji){ g.textContent = emoji; }
+      else if(imgUrl){ g.classList.add('is-img'); const im=document.createElement('img'); im.src=imgUrl; g.appendChild(im); }
+      else{ g.textContent = '🛒'; }
+      document.body.appendChild(g); return g;
+    }
+    function highlightCart(cartBadgeEl){
+      if(!cartBadgeEl) return;
+      cartBadgeEl.classList.add('cart-badge-pop');
+      setTimeout(()=>cartBadgeEl.classList.remove('cart-badge-pop'), 480);
+    }
+    function flyToCart({ originEl, emoji, imgUrl, onEnd }){
+      const cartBadge = findCartBadge();
+      if(!cartBadge || window.matchMedia('(prefers-reduced-motion: reduce)').matches){ onEnd && onEnd(); return; }
+      const ghost = makeGhost(originEl, emoji, imgUrl);
+      const start = pageOffsetRect(originEl);
+      const end = pageOffsetRect(cartBadge);
+      const p0 = { x: start.x + start.w/2, y: start.y + start.h/2 };
+      const p2 = { x: end.x + end.w/2,   y: end.y + end.h/2 };
+      const p1 = { x: (p0.x + p2.x)/2,   y: Math.min(p0.y, p2.y) - 120 };
+      const t0 = performance.now(); let lastTrail=-1e9, idx=0;
+      function frame(now){
+        const dt = now - t0; const t = Math.min(1, dt / SETTINGS.flyDurationMs); const et = easeOutCubic(t);
+        const pos = bezier(et, p0, p1, p2);
+        ghost.style.transform = `translate(${pos.x - p0.x}px, ${pos.y - p0.y}px) scale(${1 - et*0.3}) rotate(${et*20}deg)`;
+        if(dt - lastTrail > SETTINGS.flyDurationMs / SETTINGS.trailDensity){ spawnTrail(pos.x,pos.y,idx++); lastTrail = dt; }
+        if(t < 1){ requestAnimationFrame(frame); } else { ghost.remove(); highlightCart(cartBadge); onEnd && onEnd(); }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    /* ============== Toast y utilidades UI ============== */
+    const toast = document.getElementById('toastMini');
+    const toastText = document.getElementById('toastText');
+    let toastTimer = null;
+    function showToast(msg='Añadido al carrito'){
+      if(!toast) return;
+      toastText.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> toast.classList.remove('show'), SETTINGS.toastTime);
+    }
+    (function(){
+      const back = document.querySelector('.back-to-top');
+      if(!back) return; back.addEventListener('click', e=>{ e.preventDefault(); window.scrollTo({ top:0, behavior:'smooth' }); });
+    })();
+    (function(){
+      // Ocultar badge al click (ambos)
+      var btn1 = document.getElementById('whatsappFab');
+      var badge1 = document.getElementById('whatsappBadge');
+      var btn2 = document.getElementById('whatsappFab2');
+      var badge2 = document.getElementById('whatsappBadge2');
+      try {
+        if (sessionStorage.getItem('waBadgeHidden')==='1') { badge1 && (badge1.style.display='none'); }
+        if (sessionStorage.getItem('waBadge2Hidden')==='1') { badge2 && (badge2.style.display='none'); }
+      } catch(e){}
+      if(btn1 && badge1){ btn1.addEventListener('click', function(){ badge1.style.display='none'; try { sessionStorage.setItem('waBadgeHidden','1'); } catch(e){} }); }
+      if(btn2 && badge2){ btn2.addEventListener('click', function(){ badge2.style.display='none'; try { sessionStorage.setItem('waBadge2Hidden','1'); } catch(e){} }); }
+    })();
+
+    /* ============== INIT ============== */
+    // Moneda inicial (y etiqueta 0–30)
+    setCurrency(state.currency);
+    updatePriceLabel();
+    // Inputs 0–30 por defecto
+    document.getElementById('minPrice').value = state.currency==='USD' ? (0).toFixed(2) : '0';
+    document.getElementById('maxPrice').value = state.currency==='USD' ? (MAX_PEN/FX).toFixed(2) : String(MAX_PEN);
+
+    // Render inicial
+    render();
+    // Orden inicial
+    document.getElementById('sortSelect').value = state.sort;
+    // Sync cart
+    syncHeaderBadges();
+    window.addEventListener('storage', function(e){
+      if(e.key===CART_KEY){ syncHeaderBadges(); }
+      if(e.key==='innov_currency'){ setCurrency(localStorage.getItem('innov_currency')||'PEN'); }
+    });
+
+  })();
+  </script>
+</body>
+</html>

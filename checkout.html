@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Innov AI Tienda — Pagar</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta name="description" content="Finaliza tu compra en Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp." />
+  <meta name="keywords" content="Innov AI Tienda, checkout, pagar, compra, servicios digitales, Perú, ChatGPT Plus, Netflix" />
+
+  <!-- Favicon -->
+  <link href="img/favicon.ico" rel="icon" />
+
+  <!-- Google Web Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome (actualizado para TikTok) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
+  <!-- Libraries Stylesheet -->
+  <link href="lib/animate/animate.min.css" rel="stylesheet" />
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
+
+  <!-- Customized Bootstrap Stylesheet -->
+  <link href="css/style.css" rel="stylesheet" />
+
+  <!-- Estilos + sticky header + redes + pagos -->
+  <style>
+    :root{
+      --wa-size:56px;
+      --wa-bg:#25D366;
+      --wa-fg:#fff;
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+    }
+    /* Header pegado */
+    .site-header.sticky-top{ z-index:1045; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+
+    /* WhatsApp FAB */
+    .whatsapp-fab{
+      position:fixed;right:18px;bottom:18px;width:var(--wa-size);height:var(--wa-size);
+      border-radius:50%;background:var(--wa-bg);display:flex;align-items:center;justify-content:center;
+      color:var(--wa-fg);box-shadow:0 8px 18px rgba(0,0,0,.25);z-index:1200;transition:transform .15s,box-shadow .15s
+    }
+    .whatsapp-fab:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.28)}
+    .whatsapp-fab i{font-size:26px;line-height:1}
+    .whatsapp-badge{position:absolute;top:-4px;right:-2px;min-width:18px;height:18px;padding:0 4px;border-radius:10px;background:#ff3b30;color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25);animation:pulse 1.6s infinite}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+    .text-right .text-dark{white-space:nowrap}
+    .small-muted{font-size:.9rem;color:#6c757d}
+
+    /* Etiquetas de pago (iconos) */
+    .pay-icon{display:inline-flex;align-items:center;gap:.4rem}
+    .pay-icon img{height:18px;width:auto;display:inline-block}
+    .pay-icon .fab{font-size:20px}
+
+    /* Redes footer: mismo estilo cuadrado, sin Twitter, con TikTok */
+    .btn-square{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center}
+  </style>
+</head>
+
+<body>
+  <!-- ===== HEADER PEGADO ===== -->
+  <header class="site-header sticky-top">
+    <!-- Topbar Start -->
+    <div class="container-fluid">
+      <div class="row bg-secondary py-1 px-xl-5">
+        <div class="col-lg-6 d-none d-lg-block">
+          <div class="d-inline-flex align-items-center h-100">
+            <a class="text-body mr-3" href="acerca.html">Acerca de</a>
+            <a class="text-body mr-3" href="contact.html">Contacto</a>
+            <a class="text-body mr-3" href="ayuda.html">Ayuda</a>
+            <a class="text-body mr-3" href="faq.html">Preguntas frecuentes</a>
+          </div>
+        </div>
+        <div class="col-lg-6 text-center text-lg-right">
+          <div class="d-inline-flex align-items-center">
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Mi cuenta</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="login.html">Ingresar</a>
+                <a class="dropdown-item" href="register.html">Registrarse</a>
+              </div>
+            </div>
+            <div class="btn-group mx-2">
+              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Soles</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <button class="dropdown-item" type="button">USD</button>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">ES</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="?lang=en">EN</a>
+              </div>
+            </div>
+          </div>
+          <div class="d-inline-flex align-items-center d-block d-lg-none">
+            <a href="favoritos.html" class="btn px-0 ml-2" aria-label="Favoritos">
+              <i class="fas fa-heart text-dark"></i>
+              <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
+            </a>
+            <a href="cart.html" class="btn px-0 ml-2" aria-label="Carrito">
+              <i class="fas fa-shopping-cart text-dark"></i>
+              <span id="headerCartBadgeSm" class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
+        <div class="col-lg-4">
+          <a href="index.html" class="text-decoration-none">
+            <span class="h1 text-uppercase text-primary bg-dark px-2">INNOV</span>
+            <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">TIENDA</span>
+          </a>
+        </div>
+        <div class="col-lg-4 col-6 text-left">
+          <form action="buscar.html">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Buscar productos" aria-label="Buscar productos" />
+              <div class="input-group-append">
+                <button class="input-group-text bg-transparent text-primary" aria-label="Buscar" type="submit">
+                  <i class="fa fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-lg-4 col-6 text-right">
+          <p class="m-0">Servicio al cliente</p>
+          <h5 class="m-0"><a href="tel:+51991564053" class="text-dark">+51 991564053</a></h5>
+        </div>
+      </div>
+    </div>
+    <!-- Topbar End -->
+
+    <!-- Navbar Start -->
+    <div class="container-fluid bg-dark">
+      <div class="row px-xl-5">
+        <div class="col-lg-3 d-none d-lg-block">
+          <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#navbar-vertical" style="height:65px;padding:0 30px;">
+            <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>Categorías</h6>
+            <i class="fa fa-angle-down text-dark"></i>
+          </a>
+          <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical" style="width:calc(100% - 30px);z-index:999;">
+            <div class="navbar-nav w-100">
+              <a href="shop.html#chatgpt-plus" class="nav-item nav-link">ChatGPT Plus</a>
+              <a href="shop.html#netflix-premium" class="nav-item nav-link">Netflix Premium</a>
+              <a href="shop.html#canva-pro" class="nav-item nav-link">Canva Pro</a>
+              <a href="shop.html#capcut-pro" class="nav-item nav-link">CapCut Pro</a>
+              <a href="shop.html#youtube-premium" class="nav-item nav-link">YouTube Premium</a>
+              <a href="shop.html#disney-premium" class="nav-item nav-link">Disney Premium</a>
+              <a href="shop.html#crunchyroll" class="nav-item nav-link">Crunchyroll</a>
+              <a href="shop.html#movistar-play" class="nav-item nav-link">Movistar Play</a>
+            </div>
+          </nav>
+        </div>
+        <div class="col-lg-9">
+          <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
+            <a href="index.html" class="text-decoration-none d-block d-lg-none">
+              <span class="h1 text-uppercase text-dark bg-light px-2">INNOV</span>
+              <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">TIENDA</span>
+            </a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+              <div class="navbar-nav mr-auto py-0">
+                <a href="index.html" class="nav-item nav-link">Inicio</a>
+                <a href="shop.html" class="nav-item nav-link">Tienda</a>
+                <a href="detail.html" class="nav-item nav-link">Detalle de la tienda</a>
+                <div class="nav-item dropdown">
+                  <a href="#" class="nav-link dropdown-toggle active" data-toggle="dropdown">Páginas <i class="fa fa-angle-down mt-1"></i></a>
+                  <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
+                    <a href="cart.html" class="dropdown-item">Carrito</a>
+                    <a href="checkout.html" class="dropdown-item active">Pagar</a>
+                  </div>
+                </div>
+                <a href="contact.html" class="nav-item nav-link">Contacto</a>
+              </div>
+              <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
+                <a href="favoritos.html" class="btn px-0" aria-label="Favoritos">
+                  <i class="fas fa-heart text-primary"></i>
+                  <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
+                </a>
+                <a href="cart.html" class="btn px-0 ml-3" aria-label="Carrito">
+                  <i class="fas fa-shopping-cart text-primary"></i>
+                  <span id="headerCartBadge" class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
+                </a>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <!-- Navbar End -->
+  </header>
+  <!-- ===== /HEADER PEGADO ===== -->
+
+  <!-- Breadcrumb Start -->
+  <div class="container-fluid">
+    <div class="row px-xl-5">
+      <div class="col-12">
+        <nav class="breadcrumb bg-light mb-30">
+          <a class="breadcrumb-item text-dark" href="index.html">Inicio</a>
+          <a class="breadcrumb-item text-dark" href="shop.html">Tienda</a>
+          <span class="breadcrumb-item active">Pagar</span>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <!-- Breadcrumb End -->
+
+  <!-- Checkout Start -->
+  <div class="container-fluid">
+    <div class="row px-xl-5">
+      <div class="col-lg-8">
+        <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Datos de facturación</span></h5>
+        <div class="bg-light p-30 mb-5">
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label>Nombres</label>
+              <input id="firstName" class="form-control" type="text" placeholder="Juan" required>
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Apellidos</label>
+              <input id="lastName" class="form-control" type="text" placeholder="Pérez" required>
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Correo electrónico <span class="text-muted">(opcional)</span></label>
+              <input id="email" class="form-control" type="email" placeholder="tu@gmail.com (recomendado)">
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Celular (WhatsApp)</label>
+              <input id="phone" class="form-control" type="tel" placeholder="+51 999 999 999" required>
+            </div>
+            <!-- Documento eliminado -->
+            <div class="col-md-6 form-group">
+              <label>País</label>
+              <select id="country" class="custom-select" required>
+                <option value="PE" selected>Perú</option>
+                <option value="AR">Argentina</option>
+                <option value="BO">Bolivia</option>
+                <option value="BR">Brasil</option>
+                <option value="CL">Chile</option>
+                <option value="CO">Colombia</option>
+                <option value="CR">Costa Rica</option>
+                <option value="DO">República Dominicana</option>
+                <option value="EC">Ecuador</option>
+                <option value="SV">El Salvador</option>
+                <option value="GT">Guatemala</option>
+                <option value="HN">Honduras</option>
+                <option value="MX">México</option>
+                <option value="NI">Nicaragua</option>
+                <option value="PA">Panamá</option>
+                <option value="PY">Paraguay</option>
+                <option value="PR">Puerto Rico</option>
+                <option value="UY">Uruguay</option>
+                <option value="VE">Venezuela</option>
+                <option value="ES">España</option>
+                <option value="US">Estados Unidos</option>
+              </select>
+            </div>
+            <div class="col-md-12 form-group">
+              <label>Entrega</label>
+              <select id="deliveryMethod" class="custom-select" required>
+                <option selected>WhatsApp (recomendado)</option>
+                <option>Correo electrónico</option>
+              </select>
+              <small class="form-text text-muted">Los accesos se envían de forma inmediata tras el pago.</small>
+            </div>
+            <div class="col-md-12">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="terms" required>
+                <label class="custom-control-label" for="terms">
+                  Acepto los
+                  <a href="#" data-toggle="modal" data-target="#termsModal">Términos y Condiciones</a>
+                  y la
+                  <a href="#" data-toggle="modal" data-target="#privacyModal">Política de Privacidad</a>.
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Resumen del pedido</span></h5>
+        <div id="checkoutBox" class="bg-light p-30 mb-5">
+          <div id="checkoutProducts" class="border-bottom">
+            <h6 class="mb-3">Productos</h6>
+            <!-- Items dinámicos -->
+          </div>
+          <div class="border-bottom pt-3 pb-2">
+            <div class="d-flex justify-content-between mb-3">
+              <h6>Subtotal</h6>
+              <h6 id="subtotal">S/ 0.00</h6>
+            </div>
+            <div class="d-flex justify-content-between">
+              <h6 class="font-weight-medium">Envío</h6>
+              <h6 class="font-weight-medium">Digital (gratis)</h6>
+            </div>
+          </div>
+          <div class="pt-2">
+            <div class="d-flex justify-content-between mt-2">
+              <h5>Total</h5>
+              <h5 id="total">S/ 0.00</h5>
+            </div>
+          </div>
+          <div id="emptyNote" class="small-muted mt-2" style="display:none;">Tu carrito está vacío. <a href="shop.html">Ir a la tienda</a></div>
+        </div>
+
+        <div class="mb-5">
+          <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Pago</span></h5>
+          <div class="bg-light p-30">
+            <div class="form-group">
+              <div class="custom-control custom-radio">
+                <input type="radio" class="custom-control-input" name="payment" id="yape" checked>
+                <label class="custom-control-label" for="yape">
+                  <span class="pay-icon">
+                    <!-- opcional: agrega tus logos -->
+                    <img src="img/yape.svg" alt="Yape" onerror="this.style.display='none'">
+                    <img src="img/plin.svg" alt="Plin" onerror="this.style.display='none'">
+                  </span>
+                  Yape / Plin
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="custom-control custom-radio">
+                <input type="radio" class="custom-control-input" name="payment" id="tarjeta">
+                <label class="custom-control-label" for="tarjeta">
+                  <span class="pay-icon">
+                    <i class="fab fa-cc-visa" aria-hidden="true"></i>
+                    <i class="fab fa-cc-mastercard" aria-hidden="true"></i>
+                  </span>
+                  Tarjeta (Visa/Mastercard)
+                </label>
+              </div>
+            </div>
+            <div class="form-group mb-4">
+              <div class="custom-control custom-radio">
+                <input type="radio" class="custom-control-input" name="payment" id="transferencia">
+                <label class="custom-control-label" for="transferencia">Transferencia bancaria</label>
+              </div>
+            </div>
+            <button class="btn btn-block btn-primary font-weight-bold py-3" id="placeOrder">Confirmar pedido</button>
+            <small class="d-block mt-2 text-muted">Al confirmar, recibirás tus accesos por el método de entrega elegido.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Checkout End -->
+
+  <!-- Footer Start -->
+  <div class="container-fluid bg-dark text-secondary mt-5 pt-5">
+    <div class="row px-xl-5 pt-5">
+      <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
+        <h5 class="text-secondary text-uppercase mb-4">Contáctanos</h5>
+        <p class="mb-4">Somos una tienda tecnológica que cree en la innovación para transformar tu día a día; conectamos personas con soluciones que inspiran y facilitan.</p>
+        <p class="mb-2"><i class="fa fa-map-marker-alt text-primary mr-3"></i>Lima — San Isidro — Perú</p>
+        <p class="mb-2"><i class="fa fa-envelope text-primary mr-3"></i><a href="mailto:ainnov611@gmail.com" class="text-secondary">ainnov611@gmail.com</a></p>
+        <p class="mb-0"><i class="fa fa-phone-alt text-primary mr-3"></i><a href="tel:+51991564053" class="text-secondary">+51 991564053</a></p>
+      </div>
+      <div class="col-lg-8 col-md-12">
+        <div class="row">
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Compra rápida</h5>
+            <div class="d-flex flex-column justify-content-start">
+              <a class="text-secondary mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Inicio</a>
+              <a class="text-secondary mb-2" href="shop.html"><i class="fa fa-angle-right mr-2"></i>Tienda</a>
+              <a class="text-secondary mb-2" href="detail.html"><i class="fa fa-angle-right mr-2"></i>Detalle</a>
+              <a class="text-secondary mb-2" href="cart.html"><i class="fa fa-angle-right mr-2"></i>Carrito</a>
+              <a class="text-secondary mb-2" href="checkout.html"><i class="fa fa-angle-right mr-2"></i>Pagar</a>
+              <a class="text-secondary" href="contact.html"><i class="fa fa-angle-right mr-2"></i>Contacto</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Mi cuenta</h5>
+            <div class="d-flex flex-column justify-content-start">
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Iniciar sesión</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Crear cuenta</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Pedidos</a>
+              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Favoritos</a>
+              <a class="text-secondary" href="#"><i class="fa fa-angle-right mr-2"></i>Soporte</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-5">
+            <h5 class="text-secondary text-uppercase mb-4">Síguenos</h5>
+            <div class="d-flex">
+              <!-- Twitter removido -->
+              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+              <a class="btn btn-primary btn-square" href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
+      <div class="col-md-6 px-xl-0">
+        <p class="mb-md-0 text-center text-md-left text-secondary">
+          &copy; <a class="text-primary" href="#">Innov AI Tienda</a>. Todos los derechos reservados. Diseño base de
+          <a class="text-primary" href="https://htmlcodex.com" rel="noopener" target="_blank">HTML Codex</a>
+        </p>
+      </div>
+      <div class="col-md-6 px-xl-0 text-center text-md-right">
+        <img class="img-fluid" src="img/payments.png" alt="Métodos de pago" />
+      </div>
+    </div>
+  </div>
+  <!-- Footer End -->
+
+  <!-- Back to Top -->
+  <a href="#" class="btn btn-primary back-to-top" aria-label="Volver arriba"><i class="fa fa-angle-double-up"></i></a>
+
+  <!-- Botón flotante de WhatsApp -->
+  <a id="whatsappFab" class="whatsapp-fab" href="https://wa.me/message/QVACXXZM5RP7A1" target="_blank" rel="noopener" aria-label="Abrir WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+    <span id="whatsappBadge" class="whatsapp-badge" aria-hidden="true">1</span>
+  </a>
+
+  <!-- Modales: Términos y Condiciones -->
+  <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="termsTitle" class="modal-title">Términos y Condiciones</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>1. Identificación del proveedor.</strong> Innov AI Tienda ofrece <em>servicios digitales</em> (suscripciones, accesos y cuentas) con entrega digital y soporte por WhatsApp/Correo.</p>
+          <p><strong>2. Naturaleza del servicio.</strong> Algunos productos pueden funcionar con <em>perfiles o cuentas por menor</em> (acceso compartido con perfil propio) y otros son <em>cuentas completas</em> (titularidad para el cliente/proveedor). No estamos afiliados ni somos representantes de las marcas mencionadas.</p>
+          <p><strong>3. Precios y moneda.</strong> Los precios se muestran en Soles (o USD si se selecciona). Pueden variar sin previo aviso hasta confirmar el pedido.</p>
+          <p><strong>4. Entrega y activación.</strong> La entrega es digital (WhatsApp o correo) tras confirmar el pago. Si hay incidencias de activación, brindamos soporte y reemplazo razonable.</p>
+          <p><strong>5. Soporte y garantía.</strong> Si durante el período contratado el servicio falla por causas atribuibles a la cuenta entregada y no puede solucionarse, podremos reemplazar la cuenta o emitir un reembolso proporcional. No somos responsables por caídas globales, cambios de políticas o mantenimientos de plataformas externas.</p>
+          <p><strong>6. Uso adecuado.</strong> Prohibido el uso ilícito, el abuso de contraseñas o la reventa no autorizada. En cuentas por menor, no modificar datos del titular ni compartir fuera de lo contratado.</p>
+          <p><strong>7. Protección al consumidor.</strong> Estos términos se interpretan conforme al <em>Código de Protección y Defensa del Consumidor (Ley 29571)</em>. Tus derechos como consumidor se mantienen vigentes. Puedes usar nuestro <a href="/libro-de-reclamaciones" target="_blank" rel="noopener">Libro de Reclamaciones</a>.</p>
+          <p><strong>8. Datos personales.</strong> Tratamos tus datos conforme a la <em>Ley 29733</em> y su Reglamento. Finalidades: gestionar compras, soporte, facturación y comunicaciones. Puedes ejercer derechos ARCO escribiendo a <a href="mailto:ainnov611@gmail.com">ainnov611@gmail.com</a>.</p>
+          <p><strong>9. Limitación de responsabilidad.</strong> No asumimos responsabilidad por: (i) interrupciones de servicios de terceros, (ii) bloqueos por incumplimiento de términos de las plataformas, (iii) uso indebido por parte del cliente.</p>
+          <p><strong>10. Modificaciones.</strong> Podremos actualizar estos términos; la versión vigente aplica al momento de la compra.</p>
+          <p class="text-muted small">*Este texto es una plantilla. Te recomendamos revisión legal para tu actividad específica en Perú.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modales: Política de Privacidad -->
+  <div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-labelledby="privacyTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="privacyTitle" class="modal-title">Política de Privacidad</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Responsable:</strong> Innov AI Tienda. Contacto: <a href="mailto:ainnov611@gmail.com">ainnov611@gmail.com</a>.</p>
+          <p><strong>Datos tratados:</strong> nombre, apellidos, país, celular (WhatsApp), email (opcional), detalles del pedido, evidencias de pago y comunicaciones.</p>
+          <p><strong>Finalidades:</strong> gestionar compras y entregas, soporte 24/7, prevención de fraude, atención de reclamos, y (con consentimiento) envíos comerciales.</p>
+          <p><strong>Base legal:</strong> ejecución de la relación contractual; cumplimiento de obligaciones legales; consentimiento para marketing.</p>
+          <p><strong>Derechos ARCO:</strong> acceso, rectificación, cancelación y oposición. Solicítalos escribiendo a nuestro correo con asunto “Derechos ARCO”.</p>
+          <p><strong>Transferencias/Encargos:</strong> servicios de pago (Yape/Plin/bancos), mensajería (WhatsApp/Email) y hosting. Todos bajo medidas de seguridad adecuadas.</p>
+          <p><strong>Conservación:</strong> datos de facturación y soporte por el tiempo necesario para la relación y obligaciones legales; marketing hasta revocar consentimiento.</p>
+          <p><strong>Seguridad:</strong> aplicamos medidas técnicas y organizativas razonables. Evita compartir credenciales fuera de los canales oficiales.</p>
+          <p><strong>Reclamos:</strong> puedes usar nuestro <a href="/libro-de-reclamaciones" target="_blank" rel="noopener">Libro de Reclamaciones</a> o acudir a Indecopi.</p>
+          <p class="text-muted small">Tratamos tus datos conforme a la <em>Ley 29733</em> y su Reglamento. Recomendamos revisar periódicamente esta política.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+  <script src="lib/easing/easing.min.js"></script>
+  <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+  <!-- Template Javascript -->
+  <script src="js/main.js"></script>
+
+  <!-- Núcleo compartido (carrito) + render del checkout + WhatsApp -->
+  <script>
+    (function(){
+      const CART_KEY = 'innov_cart_v1';
+      const CURRENCY = 'S/';
+
+      const money = n => CURRENCY + ' ' + (Number(n)||0).toFixed(2);
+      const read = () => { try { return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); } catch(e){ return []; } };
+      const write = (arr) => localStorage.setItem(CART_KEY, JSON.stringify(arr));
+
+      // API global (misma que shop.html/cart.html)
+      window.Cart = window.Cart || {
+        add: (item) => {
+          const items = read();
+          const idx = items.findIndex(i => i.id === item.id);
+          if(idx>-1){ items[idx].qty += (item.qty||1); }
+          else { items.push({ id:item.id, nombre:item.nombre, precio:Number(item.precio), imagen:item.imagen||'', qty:item.qty||1 }); }
+          write(items);
+          return items;
+        },
+        items: ()=> read(),
+        count: ()=> read().reduce((a,b)=>a+b.qty,0),
+        subtotal: ()=> read().reduce((a,b)=>a+(b.precio*b.qty),0),
+        clear: ()=> write([])
+      };
+
+      function syncHeaderBadges(){
+        const c = Cart.count();
+        const b1 = document.getElementById('headerCartBadge');
+        const b2 = document.getElementById('headerCartBadgeSm');
+        [b1,b2].forEach(b=>{ if(b) b.textContent = c; });
+      }
+
+      // Renderizar productos del carrito en el resumen
+      function renderCheckout(){
+        const cont = document.getElementById('checkoutProducts');
+        const emptyNote = document.getElementById('emptyNote');
+        cont.querySelectorAll('.checkout-item').forEach(n=>n.remove());
+
+        const items = Cart.items();
+        emptyNote.style.display = items.length===0 ? 'block' : 'none';
+
+        items.forEach(it=>{
+          const row = document.createElement('div');
+          row.className = 'd-flex justify-content-between checkout-item';
+          row.innerHTML = `
+            <p>${it.nombre} <span class="text-muted">× ${it.qty}</span></p>
+            <p>${money(it.precio * it.qty)}</p>
+          `;
+          cont.appendChild(row);
+        });
+
+        const sub = Cart.subtotal();
+        document.getElementById('subtotal').textContent = money(sub);
+        document.getElementById('total').textContent = money(sub); // envío digital gratis
+      }
+
+      // WhatsApp FAB badge persistencia
+      (function(){
+        var btn = document.getElementById('whatsappFab');
+        var badge = document.getElementById('whatsappBadge');
+        try { if (sessionStorage.getItem('waBadgeHidden')==='1') { badge && (badge.style.display='none'); } } catch(e){}
+        if(btn && badge){
+          btn.addEventListener('click', function(){
+            badge.style.display='none';
+            try { sessionStorage.setItem('waBadgeHidden','1'); } catch(e){}
+          });
+        }
+      })();
+
+      // Confirmar pedido -> WhatsApp
+      const placeBtn = document.getElementById('placeOrder');
+      placeBtn && placeBtn.addEventListener('click', function(ev){
+        ev.preventDefault();
+
+        const items = Cart.items();
+        if(items.length===0){
+          alert('Tu carrito está vacío. Agrega productos para continuar.');
+          window.location.href = 'shop.html';
+          return;
+        }
+
+        const firstName = document.getElementById('firstName')?.value?.trim() || '';
+        const lastName  = document.getElementById('lastName')?.value?.trim() || '';
+        const email     = document.getElementById('email')?.value?.trim() || '';
+        const celular   = document.getElementById('phone')?.value?.trim() || '';
+        const entrega   = document.getElementById('deliveryMethod')?.value || 'WhatsApp';
+        const payLabel  = document.querySelector('input[name="payment"]:checked')?.nextElementSibling?.textContent?.trim() || 'Por definir';
+        const termsOk   = document.getElementById('terms')?.checked;
+
+        if (!firstName || !lastName || !celular || !termsOk) {
+          alert('Completa Nombres, Apellidos, Celular y acepta los Términos para continuar.');
+          return;
+        }
+
+        const lineas = [];
+        lineas.push('Hola, quiero completar mi compra en *Innov AI Tienda*');
+        lineas.push('');
+        lineas.push('*Productos:*');
+        items.forEach(p => lineas.push(`- ${p.nombre} × ${p.qty} (${money(p.precio)} c/u)`));
+        lineas.push(`Subtotal: ${money(Cart.subtotal())}`);
+        lineas.push(`Total: ${money(Cart.subtotal())}`);
+        lineas.push('');
+        lineas.push(`*Método de pago:* ${payLabel}`);
+        lineas.push(`*Entrega:* ${entrega}`);
+        lineas.push('');
+        lineas.push('*Datos:*');
+        lineas.push(`- Nombre: ${firstName} ${lastName}`);
+        if(email){ lineas.push(`- Email: ${email}`); } // opcional
+        lineas.push(`- Celular: ${celular}`);
+        lineas.push('');
+        lineas.push('Gracias.');
+
+        const mensaje = encodeURIComponent(lineas.join('\n'));
+        const phone = '51991564053'; // sin '+'
+        const url = 'https://wa.me/' + phone + '?text=' + mensaje;
+        window.open(url, '_blank');
+      });
+
+      // Init
+      renderCheckout();
+      syncHeaderBadges();
+
+      // Si el carrito cambia en otra pestaña
+      window.addEventListener('storage', function(e){
+        if(e.key===CART_KEY){ renderCheckout(); syncHeaderBadges(); }
+      });
+    })();
+  </script>
+</body>
+</html>
