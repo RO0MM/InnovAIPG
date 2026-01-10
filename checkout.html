@@ -1,71 +1,358 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="utf-8" />
   <title>Innov AI Tienda — Pagar</title>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Finaliza tu compra en Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp." />
   <meta name="keywords" content="Innov AI Tienda, checkout, pagar, compra, servicios digitales, Perú, ChatGPT Plus, Netflix" />
 
-  <!-- Favicon -->
   <link href="img/favicon.ico" rel="icon" />
 
-  <!-- Google Web Fonts -->
+  <!-- Fonts (cómico como el carrito) -->
   <link rel="preconnect" href="https://fonts.gstatic.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Comic+Neue:wght@400;700&family=Bangers&display=swap" rel="stylesheet" />
 
-  <!-- Font Awesome (actualizado para TikTok) -->
+  <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
 
-  <!-- Libraries Stylesheet -->
+  <!-- Libraries -->
   <link href="lib/animate/animate.min.css" rel="stylesheet" />
   <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
 
-  <!-- Customized Bootstrap Stylesheet -->
+  <!-- Bootstrap template stylesheet -->
   <link href="css/style.css" rel="stylesheet" />
 
-  <!-- Estilos + sticky header + redes + pagos -->
   <style>
     :root{
-      --wa-size:56px;
+      --brand-primary:#0d6efd;
+      --brand-secondary:#6c757d;
+
+      --sticky-offset:110px; /* header sticky + margen */
+      --toast-bg:rgba(0,0,0,.86);
+      --toast-fg:#fff;
+
+      --wa-size:64px;
       --wa-bg:#25D366;
       --wa-fg:#fff;
+      --wa-shadow:0 10px 22px rgba(0,0,0,.28);
+      --wa-attention:3.2s;
+    }
+    @media (min-width: 992px){
+      :root{ --sticky-offset:180px; }
     }
     @media (prefers-reduced-motion: reduce){
+      :root{ --wa-attention:0s; }
       *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
     }
-    /* Header pegado */
+
+    /* Comic skin */
+    body{
+      font-family:'Comic Neue','Roboto',sans-serif;
+      background:
+        radial-gradient(circle at 10px 10px, rgba(0,0,0,.04) 2px, transparent 2.2px) 0 0/22px 22px,
+        #fff;
+    }
+    h1,h2,h3,.h1,.h2,.h3{
+      font-family:'Bangers','Comic Neue',cursive;
+      letter-spacing:.6px;
+    }
+
+    /* Header sticky */
     .site-header.sticky-top{ z-index:1045; box-shadow:0 2px 8px rgba(0,0,0,.15); }
 
-    /* WhatsApp FAB */
-    .whatsapp-fab{
-      position:fixed;right:18px;bottom:18px;width:var(--wa-size);height:var(--wa-size);
-      border-radius:50%;background:var(--wa-bg);display:flex;align-items:center;justify-content:center;
-      color:var(--wa-fg);box-shadow:0 8px 18px rgba(0,0,0,.25);z-index:1200;transition:transform .15s,box-shadow .15s
+    /* Buttons / inputs (cómico) */
+    .btn, .custom-select, .form-control{ border-width:2px; }
+    .btn{ box-shadow:3px 3px 0 rgba(0,0,0,.20); }
+    .btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 rgba(0,0,0,.20); }
+
+    /* Steps */
+    .steps{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.5rem;
+      align-items:center;
+      padding:.75rem 1rem;
+      background:#fff;
+      border:2px solid rgba(0,0,0,.12);
+      border-radius:16px;
+      box-shadow:6px 6px 0 rgba(0,0,0,.06);
+      margin-bottom:1rem;
     }
-    .whatsapp-fab:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.28)}
-    .whatsapp-fab i{font-size:26px;line-height:1}
-    .whatsapp-badge{position:absolute;top:-4px;right:-2px;min-width:18px;height:18px;padding:0 4px;border-radius:10px;background:#ff3b30;color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25);animation:pulse 1.6s infinite}
+    .step-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      padding:.35rem .75rem;
+      border-radius:999px;
+      border:2px dashed rgba(0,0,0,.18);
+      background:#fff;
+      font-weight:900;
+      font-size:13px;
+      box-shadow:4px 4px 0 rgba(0,0,0,.06);
+    }
+    .step-pill.active{
+      border-style:solid;
+      background:rgba(13,110,253,.12);
+    }
+
+    /* Cards */
+    .comic-card{
+      background:#fff;
+      border:2px solid rgba(0,0,0,.12);
+      border-radius:16px;
+      box-shadow:8px 8px 0 rgba(0,0,0,.08);
+      overflow:hidden;
+    }
+    .comic-card .card-head{
+      padding:.9rem 1rem;
+      background:rgba(13,110,253,.10);
+      border-bottom:2px solid rgba(0,0,0,.08);
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.75rem;
+    }
+    .comic-card .card-body{
+      padding:1rem;
+    }
+
+    /* Sticky right column */
+    .sticky-col{
+      position: sticky;
+      top: calc(var(--sticky-offset) + 10px);
+    }
+    @media (max-width: 991.98px){
+      .sticky-col{ position: static; top:auto; }
+    }
+
+    /* Order list */
+    .order-list{
+      max-height: 260px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+    .order-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.75rem;
+      padding:.5rem 0;
+      border-bottom:1px dashed rgba(0,0,0,.16);
+    }
+    .order-item:last-child{ border-bottom:0; }
+    .order-left{
+      display:flex;
+      align-items:center;
+      gap:.65rem;
+      min-width:0;
+    }
+    .order-thumb{
+      width:42px; height:42px;
+      border-radius:12px;
+      border:2px solid rgba(0,0,0,.10);
+      box-shadow:3px 3px 0 rgba(0,0,0,.06);
+      overflow:hidden;
+      background:#fff;
+      flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .order-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      padding:7px;
+    }
+    .order-name{
+      font-weight:900;
+      line-height:1.1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 240px;
+    }
+    .order-qty{
+      font-size:12px;
+      color:rgba(0,0,0,.55);
+      margin-top:2px;
+      font-weight:700;
+    }
+
+    .sum-row{
+      display:flex;
+      justify-content:space-between;
+      gap:.75rem;
+      padding:.35rem 0;
+      border-bottom:1px dashed rgba(0,0,0,.16);
+    }
+    .sum-row:last-child{ border-bottom:0; }
+    .sum-total{
+      display:flex;
+      justify-content:space-between;
+      gap:.75rem;
+      padding-top:.6rem;
+      font-size:1.15rem;
+      font-weight:900;
+    }
+
+    /* Payment cards */
+    .pay-grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:.6rem;
+    }
+    .pay-card{
+      border:2px solid rgba(0,0,0,.12);
+      border-radius:14px;
+      background:#fff;
+      box-shadow:4px 4px 0 rgba(0,0,0,.06);
+      overflow:hidden;
+      cursor:pointer;
+      transition:transform .15s ease;
+      display:block;
+    }
+    .pay-card:hover{ transform:translateY(-1px); }
+    .pay-card input{ display:none; }
+    .pay-card .pay-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.75rem;
+      padding:.75rem .9rem;
+    }
+    .pay-card .pay-title{
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      gap:.55rem;
+    }
+    .pay-icons{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      opacity:.95;
+    }
+    .pay-icons img{ height:18px; width:auto; display:inline-block; }
+    .pay-icons .fab{ font-size:20px; }
+
+    .pay-card .pay-body{
+      padding: .75rem .9rem;
+      border-top:1px dashed rgba(0,0,0,.15);
+      display:none;
+      color:rgba(0,0,0,.75);
+      font-size:14px;
+    }
+    .pay-card.selected{
+      border-color: rgba(13,110,253,.55);
+      background: rgba(13,110,253,.06);
+    }
+    .pay-card.selected .pay-body{ display:block; }
+
+    .hint-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.45rem;
+      padding:.35rem .6rem;
+      border-radius:999px;
+      border:2px dashed rgba(0,0,0,.18);
+      background:#fff;
+      font-size:12px;
+      font-weight:900;
+      box-shadow:4px 4px 0 rgba(0,0,0,.06);
+      margin-top:.7rem;
+    }
+
+    /* Toast */
+    .toast-mini{
+      position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(20px);
+      background:var(--toast-bg); color:var(--toast-fg);
+      padding:10px 14px; border-radius:12px;
+      font-size:14px; z-index:1600; opacity:0;
+      transition:opacity .2s, transform .2s;
+      display:flex; align-items:center; gap:.5rem;
+      max-width:min(92vw,520px);
+      box-shadow:10px 10px 0 rgba(0,0,0,.18);
+    }
+    .toast-mini.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* Footer (igual que carrito) */
+    .footer-wrap{
+      background:
+        radial-gradient(circle at 20% 0%, rgba(13,110,253,.22), transparent 55%),
+        radial-gradient(circle at 85% 100%, rgba(37,211,102,.16), transparent 55%),
+        #0f1115;
+    }
+    .footer-title{ font-family:'Bangers','Comic Neue',cursive; letter-spacing:.7px; }
+    .footer-links a{ color: rgba(255,255,255,.70); text-decoration:none; }
+    .footer-links a:hover{ color:#fff; text-decoration: underline; }
+    .social-btn{
+      width:44px; height:44px;
+      display:inline-flex; align-items:center; justify-content:center;
+      border-radius:12px;
+      border:2px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      margin-right:.5rem;
+      box-shadow:4px 4px 0 rgba(0,0,0,.35);
+      transition:transform .15s, background .15s, border-color .15s;
+    }
+    .social-btn:hover{
+      transform:translateY(-2px) rotate(-1deg);
+      background:rgba(13,110,253,.22);
+      border-color:rgba(255,255,255,.30);
+      color:#fff;
+      text-decoration:none;
+    }
+    .social-btn i{ font-size:18px; }
+    .tiktok-svg{ width:18px; height:18px; fill: currentColor; display:block; }
+
+    /* WhatsApp FABs (2) */
+    .whatsapp-fab,
+    .whatsapp-fab-2{
+      position:fixed; right:18px; width:var(--wa-size); height:var(--wa-size);
+      border-radius:50%; background:var(--wa-bg); color:var(--wa-fg);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:var(--wa-shadow); z-index:1200; transition:transform .18s, filter .18s;
+      isolation:isolate;
+      animation:float-y 5.4s ease-in-out infinite;
+    }
+    .whatsapp-fab{ bottom:18px; }
+    .whatsapp-fab-2{ bottom:98px; }
+    .whatsapp-fab i, .whatsapp-fab-2 i{ font-size:calc(var(--wa-size)*.45); line-height:1; }
+    .whatsapp-fab:hover, .whatsapp-fab-2:hover{ transform:translateY(-3px); filter:saturate(1.08) brightness(1.04); }
+    .whatsapp-fab::after, .whatsapp-fab-2::after{
+      content:""; position:absolute; inset:-10px; border-radius:inherit;
+      box-shadow:0 0 0 0 rgba(37,211,102,.30);
+      animation:wa-pulse var(--wa-attention) infinite ease-out; z-index:-1;
+    }
+    @keyframes wa-pulse{
+      0%{ box-shadow:0 0 0 0 rgba(37,211,102,.33); }
+      70%{ box-shadow:0 0 0 20px rgba(37,211,102,0); }
+      100%{ box-shadow:0 0 0 0 rgba(37,211,102,0); }
+    }
+    .whatsapp-badge{
+      position:absolute; top:-4px; right:-2px; min-width:18px; height:18px; padding:0 4px;
+      border-radius:10px; background:#ff3b30; color:#fff; font-size:11px; font-weight:900;
+      display:inline-flex; align-items:center; justify-content:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+      animation:pulse 1.6s infinite;
+    }
     @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+    @keyframes float-y{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
-    .text-right .text-dark{white-space:nowrap}
-    .small-muted{font-size:.9rem;color:#6c757d}
-
-    /* Etiquetas de pago (iconos) */
-    .pay-icon{display:inline-flex;align-items:center;gap:.4rem}
-    .pay-icon img{height:18px;width:auto;display:inline-block}
-    .pay-icon .fab{font-size:20px}
-
-    /* Redes footer: mismo estilo cuadrado, sin Twitter, con TikTok */
-    .btn-square{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center}
+    /* Tiny helper */
+    .small-muted{ font-size:.92rem; color:#6c757d; }
+    .req{ color:#dc3545; font-weight:900; }
   </style>
 </head>
 
 <body>
-  <!-- ===== HEADER PEGADO ===== -->
+
+  <!-- ===== HEADER (mismo que carrito) ===== -->
   <header class="site-header sticky-top">
-    <!-- Topbar Start -->
     <div class="container-fluid">
       <div class="row bg-secondary py-1 px-xl-5">
         <div class="col-lg-6 d-none d-lg-block">
@@ -76,6 +363,7 @@
             <a class="text-body mr-3" href="faq.html">Preguntas frecuentes</a>
           </div>
         </div>
+
         <div class="col-lg-6 text-center text-lg-right">
           <div class="d-inline-flex align-items-center">
             <div class="btn-group">
@@ -85,12 +373,15 @@
                 <a class="dropdown-item" href="register.html">Registrarse</a>
               </div>
             </div>
+
             <div class="btn-group mx-2">
-              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Soles</button>
+              <button id="currencyBtn" type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Soles</button>
               <div class="dropdown-menu dropdown-menu-right">
-                <button class="dropdown-item" type="button">USD</button>
+                <button class="dropdown-item js-set-currency" data-currency="PEN" type="button">Soles</button>
+                <button class="dropdown-item js-set-currency" data-currency="USD" type="button">USD</button>
               </div>
             </div>
+
             <div class="btn-group">
               <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">ES</button>
               <div class="dropdown-menu dropdown-menu-right">
@@ -98,6 +389,7 @@
               </div>
             </div>
           </div>
+
           <div class="d-inline-flex align-items-center d-block d-lg-none">
             <a href="favoritos.html" class="btn px-0 ml-2" aria-label="Favoritos">
               <i class="fas fa-heart text-dark"></i>
@@ -110,6 +402,7 @@
           </div>
         </div>
       </div>
+
       <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
         <div class="col-lg-4">
           <a href="index.html" class="text-decoration-none">
@@ -117,6 +410,7 @@
             <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">TIENDA</span>
           </a>
         </div>
+
         <div class="col-lg-4 col-6 text-left">
           <form action="buscar.html">
             <div class="input-group">
@@ -129,15 +423,14 @@
             </div>
           </form>
         </div>
+
         <div class="col-lg-4 col-6 text-right">
           <p class="m-0">Servicio al cliente</p>
           <h5 class="m-0"><a href="tel:+51991564053" class="text-dark">+51 991564053</a></h5>
         </div>
       </div>
     </div>
-    <!-- Topbar End -->
 
-    <!-- Navbar Start -->
     <div class="container-fluid bg-dark">
       <div class="row px-xl-5">
         <div class="col-lg-3 d-none d-lg-block">
@@ -147,17 +440,14 @@
           </a>
           <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical" style="width:calc(100% - 30px);z-index:999;">
             <div class="navbar-nav w-100">
-              <a href="shop.html#chatgpt-plus" class="nav-item nav-link">ChatGPT Plus</a>
-              <a href="shop.html#netflix-premium" class="nav-item nav-link">Netflix Premium</a>
-              <a href="shop.html#canva-pro" class="nav-item nav-link">Canva Pro</a>
-              <a href="shop.html#capcut-pro" class="nav-item nav-link">CapCut Pro</a>
-              <a href="shop.html#youtube-premium" class="nav-item nav-link">YouTube Premium</a>
-              <a href="shop.html#disney-premium" class="nav-item nav-link">Disney Premium</a>
-              <a href="shop.html#crunchyroll" class="nav-item nav-link">Crunchyroll</a>
-              <a href="shop.html#movistar-play" class="nav-item nav-link">Movistar Play</a>
+              <a href="shop.html" class="nav-item nav-link"><i class="fas fa-robot mr-2"></i>IA</a>
+              <a href="shop.html" class="nav-item nav-link"><i class="fas fa-tv mr-2"></i>Streaming</a>
+              <a href="shop.html" class="nav-item nav-link"><i class="fas fa-film mr-2"></i>Edición / Video</a>
+              <a href="shop.html" class="nav-item nav-link"><i class="fas fa-cubes mr-2"></i>Herramientas</a>
             </div>
           </nav>
         </div>
+
         <div class="col-lg-9">
           <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
             <a href="index.html" class="text-decoration-none d-block d-lg-none">
@@ -167,11 +457,11 @@
             <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
               <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
               <div class="navbar-nav mr-auto py-0">
                 <a href="index.html" class="nav-item nav-link">Inicio</a>
                 <a href="shop.html" class="nav-item nav-link">Tienda</a>
-                <a href="detail.html" class="nav-item nav-link">Detalle de la tienda</a>
                 <div class="nav-item dropdown">
                   <a href="#" class="nav-link dropdown-toggle active" data-toggle="dropdown">Páginas <i class="fa fa-angle-down mt-1"></i></a>
                   <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
@@ -181,6 +471,7 @@
                 </div>
                 <a href="contact.html" class="nav-item nav-link">Contacto</a>
               </div>
+
               <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
                 <a href="favoritos.html" class="btn px-0" aria-label="Favoritos">
                   <i class="fas fa-heart text-primary"></i>
@@ -196,11 +487,10 @@
         </div>
       </div>
     </div>
-    <!-- Navbar End -->
   </header>
-  <!-- ===== /HEADER PEGADO ===== -->
+  <!-- ===== /HEADER ===== -->
 
-  <!-- Breadcrumb Start -->
+  <!-- Breadcrumb -->
   <div class="container-fluid">
     <div class="row px-xl-5">
       <div class="col-12">
@@ -212,219 +502,366 @@
       </div>
     </div>
   </div>
-  <!-- Breadcrumb End -->
 
-  <!-- Checkout Start -->
+  <!-- Content -->
   <div class="container-fluid">
     <div class="row px-xl-5">
-      <div class="col-lg-8">
-        <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Datos de facturación</span></h5>
-        <div class="bg-light p-30 mb-5">
-          <div class="row">
-            <div class="col-md-6 form-group">
-              <label>Nombres</label>
-              <input id="firstName" class="form-control" type="text" placeholder="Juan" required>
-            </div>
-            <div class="col-md-6 form-group">
-              <label>Apellidos</label>
-              <input id="lastName" class="form-control" type="text" placeholder="Pérez" required>
-            </div>
-            <div class="col-md-6 form-group">
-              <label>Correo electrónico <span class="text-muted">(opcional)</span></label>
-              <input id="email" class="form-control" type="email" placeholder="tu@gmail.com (recomendado)">
-            </div>
-            <div class="col-md-6 form-group">
-              <label>Celular (WhatsApp)</label>
-              <input id="phone" class="form-control" type="tel" placeholder="+51 999 999 999" required>
-            </div>
-            <!-- Documento eliminado -->
-            <div class="col-md-6 form-group">
-              <label>País</label>
-              <select id="country" class="custom-select" required>
-                <option value="PE" selected>Perú</option>
-                <option value="AR">Argentina</option>
-                <option value="BO">Bolivia</option>
-                <option value="BR">Brasil</option>
-                <option value="CL">Chile</option>
-                <option value="CO">Colombia</option>
-                <option value="CR">Costa Rica</option>
-                <option value="DO">República Dominicana</option>
-                <option value="EC">Ecuador</option>
-                <option value="SV">El Salvador</option>
-                <option value="GT">Guatemala</option>
-                <option value="HN">Honduras</option>
-                <option value="MX">México</option>
-                <option value="NI">Nicaragua</option>
-                <option value="PA">Panamá</option>
-                <option value="PY">Paraguay</option>
-                <option value="PR">Puerto Rico</option>
-                <option value="UY">Uruguay</option>
-                <option value="VE">Venezuela</option>
-                <option value="ES">España</option>
-                <option value="US">Estados Unidos</option>
-              </select>
-            </div>
-            <div class="col-md-12 form-group">
-              <label>Entrega</label>
-              <select id="deliveryMethod" class="custom-select" required>
-                <option selected>WhatsApp (recomendado)</option>
-                <option>Correo electrónico</option>
-              </select>
-              <small class="form-text text-muted">Los accesos se envían de forma inmediata tras el pago.</small>
-            </div>
-            <div class="col-md-12">
-              <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="terms" required>
-                <label class="custom-control-label" for="terms">
-                  Acepto los
-                  <a href="#" data-toggle="modal" data-target="#termsModal">Términos y Condiciones</a>
-                  y la
-                  <a href="#" data-toggle="modal" data-target="#privacyModal">Política de Privacidad</a>.
-                </label>
+
+      <div class="col-12">
+        <div class="steps">
+          <span class="step-pill"><i class="fa fa-shopping-cart"></i> 1) Carrito</span>
+          <span class="step-pill active"><i class="fa fa-credit-card"></i> 2) Pagar</span>
+          <span class="step-pill"><i class="fab fa-whatsapp"></i> 3) Confirmación</span>
+
+          <span class="ml-auto small-muted">
+            <i class="fa fa-shield-alt mr-1"></i>
+            Compra rápida • Entrega digital
+          </span>
+        </div>
+      </div>
+
+      <!-- LEFT: Billing -->
+      <div class="col-lg-8 mb-4">
+        <div class="comic-card">
+          <div class="card-head">
+            <span>🧾 Datos de facturación</span>
+            <span class="small-muted">Campos con <span class="req">*</span> son obligatorios</span>
+          </div>
+
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Nombres <span class="req">*</span></label>
+                <input id="firstName" class="form-control" type="text" placeholder="Juan" autocomplete="given-name" required>
+              </div>
+
+              <div class="col-md-6 form-group">
+                <label>Apellidos <span class="req">*</span></label>
+                <input id="lastName" class="form-control" type="text" placeholder="Pérez" autocomplete="family-name" required>
+              </div>
+
+              <div class="col-md-6 form-group">
+                <label>Correo electrónico <span class="text-muted">(opcional)</span></label>
+                <input id="email" class="form-control" type="email" placeholder="tu@gmail.com (recomendado)" autocomplete="email">
+                <small class="form-text text-muted">Si eliges entrega por correo, este campo se vuelve necesario.</small>
+              </div>
+
+              <div class="col-md-6 form-group">
+                <label>Celular (WhatsApp) <span class="req">*</span></label>
+                <input id="phone" class="form-control" type="tel" placeholder="+51 999 999 999" autocomplete="tel" required>
+                <small class="form-text text-muted">Aquí te enviamos la entrega y soporte.</small>
+              </div>
+
+              <div class="col-md-6 form-group">
+                <label>País</label>
+                <select id="country" class="custom-select">
+                  <option value="PE" selected>Perú</option>
+                  <option value="AR">Argentina</option>
+                  <option value="BO">Bolivia</option>
+                  <option value="BR">Brasil</option>
+                  <option value="CL">Chile</option>
+                  <option value="CO">Colombia</option>
+                  <option value="CR">Costa Rica</option>
+                  <option value="DO">República Dominicana</option>
+                  <option value="EC">Ecuador</option>
+                  <option value="SV">El Salvador</option>
+                  <option value="GT">Guatemala</option>
+                  <option value="HN">Honduras</option>
+                  <option value="MX">México</option>
+                  <option value="NI">Nicaragua</option>
+                  <option value="PA">Panamá</option>
+                  <option value="PY">Paraguay</option>
+                  <option value="PR">Puerto Rico</option>
+                  <option value="UY">Uruguay</option>
+                  <option value="VE">Venezuela</option>
+                  <option value="ES">España</option>
+                  <option value="US">Estados Unidos</option>
+                </select>
+              </div>
+
+              <div class="col-md-6 form-group">
+                <label>Entrega <span class="req">*</span></label>
+                <select id="deliveryMethod" class="custom-select" required>
+                  <option value="WhatsApp" selected>WhatsApp (recomendado)</option>
+                  <option value="Correo">Correo electrónico</option>
+                </select>
+                <small class="form-text text-muted">Los accesos se envían tras confirmar el pago.</small>
+              </div>
+
+              <div class="col-md-12">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="terms" required>
+                  <label class="custom-control-label" for="terms">
+                    Acepto los
+                    <a href="#" data-toggle="modal" data-target="#termsModal">Términos y Condiciones</a>
+                    y la
+                    <a href="#" data-toggle="modal" data-target="#privacyModal">Política de Privacidad</a>.
+                    <span class="req">*</span>
+                  </label>
+                </div>
+
+                <div class="hint-pill">
+                  <i class="fa fa-info-circle"></i>
+                  Tip: Si quieres, escribe tu correo para respaldo de entrega.
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-4">
-        <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Resumen del pedido</span></h5>
-        <div id="checkoutBox" class="bg-light p-30 mb-5">
-          <div id="checkoutProducts" class="border-bottom">
-            <h6 class="mb-3">Productos</h6>
-            <!-- Items dinámicos -->
-          </div>
-          <div class="border-bottom pt-3 pb-2">
-            <div class="d-flex justify-content-between mb-3">
-              <h6>Subtotal</h6>
-              <h6 id="subtotal">S/ 0.00</h6>
-            </div>
-            <div class="d-flex justify-content-between">
-              <h6 class="font-weight-medium">Envío</h6>
-              <h6 class="font-weight-medium">Digital (gratis)</h6>
-            </div>
-          </div>
-          <div class="pt-2">
-            <div class="d-flex justify-content-between mt-2">
-              <h5>Total</h5>
-              <h5 id="total">S/ 0.00</h5>
-            </div>
-          </div>
-          <div id="emptyNote" class="small-muted mt-2" style="display:none;">Tu carrito está vacío. <a href="shop.html">Ir a la tienda</a></div>
-        </div>
+      <!-- RIGHT: Summary + Payment (sticky) -->
+      <div class="col-lg-4 mb-4">
+        <div class="sticky-col">
 
-        <div class="mb-5">
-          <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Pago</span></h5>
-          <div class="bg-light p-30">
-            <div class="form-group">
-              <div class="custom-control custom-radio">
-                <input type="radio" class="custom-control-input" name="payment" id="yape" checked>
-                <label class="custom-control-label" for="yape">
-                  <span class="pay-icon">
-                    <!-- opcional: agrega tus logos -->
-                    <img src="img/yape.svg" alt="Yape" onerror="this.style.display='none'">
-                    <img src="img/plin.svg" alt="Plin" onerror="this.style.display='none'">
-                  </span>
-                  Yape / Plin
-                </label>
+          <!-- Summary -->
+          <div class="comic-card mb-4">
+            <div class="card-head">
+              <span>📦 Resumen del pedido</span>
+              <span class="small-muted" id="itemsCountText">0 items</span>
+            </div>
+
+            <div class="card-body">
+              <div id="emptyNote" class="small-muted mb-3" style="display:none;">
+                Tu carrito está vacío. <a href="shop.html">Ir a la tienda</a>
+              </div>
+
+              <div id="checkoutProducts" class="order-list">
+                <!-- Items dinámicos -->
+              </div>
+
+              <div class="mt-3">
+                <div class="sum-row">
+                  <div><strong>Subtotal</strong></div>
+                  <div id="subtotalText">S/ 0.00</div>
+                </div>
+                <div class="sum-row">
+                  <div><strong>Envío</strong></div>
+                  <div>Digital (gratis)</div>
+                </div>
+                <div class="sum-total">
+                  <div>Total</div>
+                  <div id="totalText">S/ 0.00</div>
+                </div>
+                <small class="d-block mt-2 text-muted">*Los precios se calculan desde el carrito.</small>
               </div>
             </div>
-            <div class="form-group">
-              <div class="custom-control custom-radio">
-                <input type="radio" class="custom-control-input" name="payment" id="tarjeta">
-                <label class="custom-control-label" for="tarjeta">
-                  <span class="pay-icon">
-                    <i class="fab fa-cc-visa" aria-hidden="true"></i>
-                    <i class="fab fa-cc-mastercard" aria-hidden="true"></i>
-                  </span>
-                  Tarjeta (Visa/Mastercard)
-                </label>
-              </div>
-            </div>
-            <div class="form-group mb-4">
-              <div class="custom-control custom-radio">
-                <input type="radio" class="custom-control-input" name="payment" id="transferencia">
-                <label class="custom-control-label" for="transferencia">Transferencia bancaria</label>
-              </div>
-            </div>
-            <button class="btn btn-block btn-primary font-weight-bold py-3" id="placeOrder">Confirmar pedido</button>
-            <small class="d-block mt-2 text-muted">Al confirmar, recibirás tus accesos por el método de entrega elegido.</small>
           </div>
+
+          <!-- Payment -->
+          <div class="comic-card">
+            <div class="card-head">
+              <span>💳 Pago</span>
+              <span class="small-muted">elige uno</span>
+            </div>
+
+            <div class="card-body">
+              <div class="pay-grid" id="payGrid">
+
+                <label class="pay-card selected" data-method="yape_plin">
+                  <input type="radio" name="payment" value="yape_plin" checked>
+                  <div class="pay-head">
+                    <div class="pay-title">
+                      <i class="fas fa-qrcode"></i> Yape / Plin
+                    </div>
+                    <div class="pay-icons" aria-hidden="true">
+                      <img src="img/yape.svg" alt="Yape" onerror="this.style.display='none'">
+                      <img src="img/plin.svg" alt="Plin" onerror="this.style.display='none'">
+                    </div>
+                  </div>
+                  <div class="pay-body">
+                    <div><strong>Cómo pagar:</strong></div>
+                    <ol class="mb-2">
+                      <li>Te abrimos WhatsApp con tu pedido listo ✅</li>
+                      <li>Te enviamos el QR / número de pago</li>
+                      <li>Mandas tu comprobante y se entrega rápido</li>
+                    </ol>
+                    <div class="small text-muted">Recomendado para entrega inmediata.</div>
+                  </div>
+                </label>
+
+                <label class="pay-card" data-method="tarjeta">
+                  <input type="radio" name="payment" value="tarjeta">
+                  <div class="pay-head">
+                    <div class="pay-title">
+                      <i class="far fa-credit-card"></i> Tarjeta
+                    </div>
+                    <div class="pay-icons" aria-hidden="true">
+                      <i class="fab fa-cc-visa"></i>
+                      <i class="fab fa-cc-mastercard"></i>
+                    </div>
+                  </div>
+                  <div class="pay-body">
+                    <div><strong>Tarjeta:</strong></div>
+                    <div class="small text-muted">
+                      Coordinamos el cobro por mensaje (según disponibilidad). Si prefieres, elige Yape/Plin para más rapidez.
+                    </div>
+                  </div>
+                </label>
+
+                <label class="pay-card" data-method="transferencia">
+                  <input type="radio" name="payment" value="transferencia">
+                  <div class="pay-head">
+                    <div class="pay-title">
+                      <i class="fas fa-university"></i> Transferencia
+                    </div>
+                    <div class="pay-icons" aria-hidden="true">
+                      <i class="fas fa-exchange-alt"></i>
+                    </div>
+                  </div>
+                  <div class="pay-body">
+                    <div><strong>Transferencia:</strong></div>
+                    <div class="small text-muted">
+                      Te enviamos los datos bancarios por WhatsApp. Luego mandas el comprobante para activar tu servicio.
+                    </div>
+                  </div>
+                </label>
+
+              </div>
+
+              <button class="btn btn-block btn-primary font-weight-bold py-3 mt-3" id="placeOrder">
+                <i class="fab fa-whatsapp mr-1"></i> Confirmar pedido por WhatsApp
+              </button>
+
+              <small class="d-block mt-2 text-muted">
+                Al confirmar, se abrirá WhatsApp con tu pedido listo para pagar y coordinar entrega.
+              </small>
+
+              <button class="btn btn-outline-success btn-block py-3 mt-2 d-none" id="markPaid">
+                <i class="fa fa-check-circle mr-1"></i> Ya pagué (limpiar carrito)
+              </button>
+
+              <div class="hint-pill">
+                <i class="fa fa-shield-alt"></i>
+                Tu carrito no se guarda (solo sesión).
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
+
     </div>
   </div>
-  <!-- Checkout End -->
 
-  <!-- Footer Start -->
-  <div class="container-fluid bg-dark text-secondary mt-5 pt-5">
-    <div class="row px-xl-5 pt-5">
+  <!-- Toast -->
+  <div id="toastMini" class="toast-mini" role="status" aria-live="polite" aria-atomic="true">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastText">Listo</span>
+  </div>
+
+  <!-- WhatsApp FABs -->
+  <a id="whatsappFab" class="whatsapp-fab"
+     href="https://wa.me/51930264550?text=¡Hola!%20👋%20Estoy%20en%20la%20página%20de%20pago%20y%20necesito%20ayuda%20✅"
+     target="_blank" rel="noopener" aria-label="WhatsApp principal">
+    <i class="fab fa-whatsapp"></i>
+    <span id="whatsappBadge" class="whatsapp-badge" aria-hidden="true">1</span>
+  </a>
+
+  <a id="whatsappFab2" class="whatsapp-fab-2"
+     href="https://wa.me/51991564053?text=¡Hola!%20👋%20Quiero%20finalizar%20mi%20compra%20en%20Innov%20AI%20Tienda%20🛒"
+     target="_blank" rel="noopener" aria-label="WhatsApp secundario">
+    <i class="fab fa-whatsapp"></i>
+    <span id="whatsappBadge2" class="whatsapp-badge" aria-hidden="true">1</span>
+  </a>
+
+  <!-- Footer mejorado + redes reales -->
+  <footer class="container-fluid footer-wrap text-secondary mt-5 pt-5">
+    <div class="row px-xl-5 pt-4">
       <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
-        <h5 class="text-secondary text-uppercase mb-4">Contáctanos</h5>
-        <p class="mb-4">Somos una tienda tecnológica que cree en la innovación para transformar tu día a día; conectamos personas con soluciones que inspiran y facilitan.</p>
-        <p class="mb-2"><i class="fa fa-map-marker-alt text-primary mr-3"></i>Lima — San Isidro — Perú</p>
-        <p class="mb-2"><i class="fa fa-envelope text-primary mr-3"></i><a href="mailto:ainnov611@gmail.com" class="text-secondary">ainnov611@gmail.com</a></p>
-        <p class="mb-0"><i class="fa fa-phone-alt text-primary mr-3"></i><a href="tel:+51991564053" class="text-secondary">+51 991564053</a></p>
+        <h4 class="footer-title text-light mb-3">Innov AI Tienda</h4>
+        <p class="mb-3" style="color: rgba(255,255,255,.72);">
+          Servicios digitales con entrega rápida y soporte por WhatsApp.
+        </p>
+
+        <div class="p-3" style="background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.10); border-radius:14px; box-shadow:6px 6px 0 rgba(0,0,0,.25);">
+          <p class="mb-2" style="color: rgba(255,255,255,.72);"><i class="fa fa-map-marker-alt text-primary mr-2"></i>Lima — San Isidro — Perú</p>
+          <p class="mb-2"><i class="fa fa-envelope text-primary mr-2"></i><a href="mailto:ainnov611@gmail.com" class="text-light">ainnov611@gmail.com</a></p>
+          <p class="mb-0"><i class="fa fa-phone-alt text-primary mr-2"></i><a href="tel:+51991564053" class="text-light">+51 991564053</a></p>
+
+          <hr style="border-color: rgba(255,255,255,.10);" />
+
+          <div>
+            <div class="small mb-2" style="color: rgba(255,255,255,.70); font-weight:900;">Síguenos</div>
+
+            <a class="social-btn" href="https://www.facebook.com/profile.php?id=61585560703359" target="_blank" rel="noopener" aria-label="Facebook">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+
+            <a class="social-btn" href="https://www.instagram.com/innov_iaa/" target="_blank" rel="noopener" aria-label="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+
+            <a class="social-btn" href="https://www.tiktok.com/@innoovia" target="_blank" rel="noopener" aria-label="TikTok">
+              <svg class="tiktok-svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M17.5 3c.6 2.7 2.6 4.9 5.2 5.6v3.4c-2.2 0-4.2-.7-5.9-2v6.3c0 4-3.2 7.2-7.2 7.2S2.4 20.3 2.4 16.3c0-4 3.2-7.2 7.2-7.2.4 0 .8 0 1.2.1v3.8c-.4-.2-.8-.3-1.2-.3-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5V1.9h3.2c.1.4.2.7.3 1.1z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
       </div>
+
       <div class="col-lg-8 col-md-12">
         <div class="row">
-          <div class="col-md-4 mb-5">
-            <h5 class="text-secondary text-uppercase mb-4">Compra rápida</h5>
+          <div class="col-md-4 mb-5 footer-links">
+            <h5 class="footer-title text-light mb-3">Compra rápida</h5>
             <div class="d-flex flex-column justify-content-start">
-              <a class="text-secondary mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Inicio</a>
-              <a class="text-secondary mb-2" href="shop.html"><i class="fa fa-angle-right mr-2"></i>Tienda</a>
-              <a class="text-secondary mb-2" href="detail.html"><i class="fa fa-angle-right mr-2"></i>Detalle</a>
-              <a class="text-secondary mb-2" href="cart.html"><i class="fa fa-angle-right mr-2"></i>Carrito</a>
-              <a class="text-secondary mb-2" href="checkout.html"><i class="fa fa-angle-right mr-2"></i>Pagar</a>
-              <a class="text-secondary" href="contact.html"><i class="fa fa-angle-right mr-2"></i>Contacto</a>
+              <a class="mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Inicio</a>
+              <a class="mb-2" href="shop.html"><i class="fa fa-angle-right mr-2"></i>Tienda</a>
+              <a class="mb-2" href="cart.html"><i class="fa fa-angle-right mr-2"></i>Carrito</a>
+              <a class="mb-2" href="checkout.html"><i class="fa fa-angle-right mr-2"></i>Pagar</a>
+              <a href="contact.html"><i class="fa fa-angle-right mr-2"></i>Contacto</a>
             </div>
           </div>
-          <div class="col-md-4 mb-5">
-            <h5 class="text-secondary text-uppercase mb-4">Mi cuenta</h5>
+
+          <div class="col-md-4 mb-5 footer-links">
+            <h5 class="footer-title text-light mb-3">Soporte</h5>
             <div class="d-flex flex-column justify-content-start">
-              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Iniciar sesión</a>
-              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Crear cuenta</a>
-              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Pedidos</a>
-              <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Favoritos</a>
-              <a class="text-secondary" href="#"><i class="fa fa-angle-right mr-2"></i>Soporte</a>
+              <a class="mb-2" href="faq.html"><i class="fa fa-angle-right mr-2"></i>Preguntas frecuentes</a>
+              <a class="mb-2" href="ayuda.html"><i class="fa fa-angle-right mr-2"></i>Ayuda</a>
+              <a class="mb-2" href="contact.html"><i class="fa fa-angle-right mr-2"></i>Soporte</a>
+            </div>
+            <div class="mt-3 p-3" style="background: rgba(255,255,255,.06); border:2px dashed rgba(255,255,255,.16); border-radius:14px;">
+              <div class="text-light" style="font-weight:900;">Entrega inmediata</div>
+              <div style="color: rgba(255,255,255,.70);">Te atendemos rápido por WhatsApp.</div>
             </div>
           </div>
+
           <div class="col-md-4 mb-5">
-            <h5 class="text-secondary text-uppercase mb-4">Síguenos</h5>
-            <div class="d-flex">
-              <!-- Twitter removido -->
-              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-              <a class="btn btn-primary btn-square mr-2" href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-              <a class="btn btn-primary btn-square" href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <h5 class="footer-title text-light mb-3">Boletín</h5>
+            <p style="color: rgba(255,255,255,.70);">Recibe ofertas y novedades.</p>
+            <form action="/suscribirse" method="post">
+              <div class="input-group">
+                <input type="email" class="form-control" placeholder="Tu correo" required />
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit">Inscribirse</button>
+                </div>
+              </div>
+            </form>
+
+            <div class="mt-4 p-3" style="background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.10); border-radius:14px;">
+              <div class="small" style="color: rgba(255,255,255,.70);">
+                <strong class="text-light">Tip:</strong> Luego de pagar, toca <strong class="text-light">“Ya pagué”</strong> para limpiar el carrito.
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
       <div class="col-md-6 px-xl-0">
-        <p class="mb-md-0 text-center text-md-left text-secondary">
-          &copy; <a class="text-primary" href="#">Innov AI Tienda</a>. Todos los derechos reservados. Diseño base de
-          <a class="text-primary" href="https://htmlcodex.com" rel="noopener" target="_blank">HTML Codex</a>
+        <p class="mb-md-0 text-center text-md-left" style="color: rgba(255,255,255,.70);">
+          &copy; <a class="text-primary" href="#">Innov AI Tienda</a>. Todos los derechos reservados.
         </p>
       </div>
       <div class="col-md-6 px-xl-0 text-center text-md-right">
         <img class="img-fluid" src="img/payments.png" alt="Métodos de pago" />
       </div>
     </div>
-  </div>
-  <!-- Footer End -->
+  </footer>
 
-  <!-- Back to Top -->
-  <a href="#" class="btn btn-primary back-to-top" aria-label="Volver arriba"><i class="fa fa-angle-double-up"></i></a>
-
-  <!-- Botón flotante de WhatsApp -->
-  <a id="whatsappFab" class="whatsapp-fab" href="https://wa.me/message/QVACXXZM5RP7A1" target="_blank" rel="noopener" aria-label="Abrir WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-    <span id="whatsappBadge" class="whatsapp-badge" aria-hidden="true">1</span>
-  </a>
-
-  <!-- Modales: Términos y Condiciones -->
+  <!-- Modal: Términos -->
   <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
       <div class="modal-content">
@@ -434,16 +871,10 @@
         </div>
         <div class="modal-body">
           <p><strong>1. Identificación del proveedor.</strong> Innov AI Tienda ofrece <em>servicios digitales</em> (suscripciones, accesos y cuentas) con entrega digital y soporte por WhatsApp/Correo.</p>
-          <p><strong>2. Naturaleza del servicio.</strong> Algunos productos pueden funcionar con <em>perfiles o cuentas por menor</em> (acceso compartido con perfil propio) y otros son <em>cuentas completas</em> (titularidad para el cliente/proveedor). No estamos afiliados ni somos representantes de las marcas mencionadas.</p>
-          <p><strong>3. Precios y moneda.</strong> Los precios se muestran en Soles (o USD si se selecciona). Pueden variar sin previo aviso hasta confirmar el pedido.</p>
-          <p><strong>4. Entrega y activación.</strong> La entrega es digital (WhatsApp o correo) tras confirmar el pago. Si hay incidencias de activación, brindamos soporte y reemplazo razonable.</p>
-          <p><strong>5. Soporte y garantía.</strong> Si durante el período contratado el servicio falla por causas atribuibles a la cuenta entregada y no puede solucionarse, podremos reemplazar la cuenta o emitir un reembolso proporcional. No somos responsables por caídas globales, cambios de políticas o mantenimientos de plataformas externas.</p>
-          <p><strong>6. Uso adecuado.</strong> Prohibido el uso ilícito, el abuso de contraseñas o la reventa no autorizada. En cuentas por menor, no modificar datos del titular ni compartir fuera de lo contratado.</p>
-          <p><strong>7. Protección al consumidor.</strong> Estos términos se interpretan conforme al <em>Código de Protección y Defensa del Consumidor (Ley 29571)</em>. Tus derechos como consumidor se mantienen vigentes. Puedes usar nuestro <a href="/libro-de-reclamaciones" target="_blank" rel="noopener">Libro de Reclamaciones</a>.</p>
-          <p><strong>8. Datos personales.</strong> Tratamos tus datos conforme a la <em>Ley 29733</em> y su Reglamento. Finalidades: gestionar compras, soporte, facturación y comunicaciones. Puedes ejercer derechos ARCO escribiendo a <a href="mailto:ainnov611@gmail.com">ainnov611@gmail.com</a>.</p>
-          <p><strong>9. Limitación de responsabilidad.</strong> No asumimos responsabilidad por: (i) interrupciones de servicios de terceros, (ii) bloqueos por incumplimiento de términos de las plataformas, (iii) uso indebido por parte del cliente.</p>
-          <p><strong>10. Modificaciones.</strong> Podremos actualizar estos términos; la versión vigente aplica al momento de la compra.</p>
-          <p class="text-muted small">*Este texto es una plantilla. Te recomendamos revisión legal para tu actividad específica en Perú.</p>
+          <p><strong>2. Naturaleza del servicio.</strong> Algunos productos pueden funcionar con <em>perfiles o cuentas por menor</em> y otros como <em>cuentas completas</em>. No estamos afiliados a las marcas mencionadas.</p>
+          <p><strong>3. Precios y moneda.</strong> Los precios se muestran en Soles (o USD si se selecciona). Pueden variar hasta confirmar el pedido.</p>
+          <p><strong>4. Entrega.</strong> La entrega es digital tras confirmar el pago (WhatsApp o correo).</p>
+          <p class="text-muted small">*Plantilla general. Recomendable revisión legal.</p>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -452,7 +883,7 @@
     </div>
   </div>
 
-  <!-- Modales: Política de Privacidad -->
+  <!-- Modal: Privacidad -->
   <div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-labelledby="privacyTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
       <div class="modal-content">
@@ -462,15 +893,9 @@
         </div>
         <div class="modal-body">
           <p><strong>Responsable:</strong> Innov AI Tienda. Contacto: <a href="mailto:ainnov611@gmail.com">ainnov611@gmail.com</a>.</p>
-          <p><strong>Datos tratados:</strong> nombre, apellidos, país, celular (WhatsApp), email (opcional), detalles del pedido, evidencias de pago y comunicaciones.</p>
-          <p><strong>Finalidades:</strong> gestionar compras y entregas, soporte 24/7, prevención de fraude, atención de reclamos, y (con consentimiento) envíos comerciales.</p>
-          <p><strong>Base legal:</strong> ejecución de la relación contractual; cumplimiento de obligaciones legales; consentimiento para marketing.</p>
-          <p><strong>Derechos ARCO:</strong> acceso, rectificación, cancelación y oposición. Solicítalos escribiendo a nuestro correo con asunto “Derechos ARCO”.</p>
-          <p><strong>Transferencias/Encargos:</strong> servicios de pago (Yape/Plin/bancos), mensajería (WhatsApp/Email) y hosting. Todos bajo medidas de seguridad adecuadas.</p>
-          <p><strong>Conservación:</strong> datos de facturación y soporte por el tiempo necesario para la relación y obligaciones legales; marketing hasta revocar consentimiento.</p>
-          <p><strong>Seguridad:</strong> aplicamos medidas técnicas y organizativas razonables. Evita compartir credenciales fuera de los canales oficiales.</p>
-          <p><strong>Reclamos:</strong> puedes usar nuestro <a href="/libro-de-reclamaciones" target="_blank" rel="noopener">Libro de Reclamaciones</a> o acudir a Indecopi.</p>
-          <p class="text-muted small">Tratamos tus datos conforme a la <em>Ley 29733</em> y su Reglamento. Recomendamos revisar periódicamente esta política.</p>
+          <p><strong>Datos tratados:</strong> nombre, celular (WhatsApp), email (opcional), país y detalles del pedido.</p>
+          <p><strong>Finalidad:</strong> gestionar compra/entrega y soporte.</p>
+          <p class="text-muted small">*Plantilla general. Recomendable revisión legal.</p>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -479,141 +904,317 @@
     </div>
   </div>
 
-  <!-- JavaScript Libraries -->
+  <!-- JS libs -->
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
   <script src="lib/easing/easing.min.js"></script>
   <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-
-  <!-- Template Javascript -->
   <script src="js/main.js"></script>
 
-  <!-- Núcleo compartido (carrito) + render del checkout + WhatsApp -->
   <script>
     (function(){
+      /* ==========================
+         CONFIG
+         ========================== */
+      const FX = 3.70; // 1 USD = 3.70 S/
       const CART_KEY = 'innov_cart_v1';
-      const CURRENCY = 'S/';
 
-      const money = n => CURRENCY + ' ' + (Number(n)||0).toFixed(2);
-      const read = () => { try { return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); } catch(e){ return []; } };
-      const write = (arr) => localStorage.setItem(CART_KEY, JSON.stringify(arr));
+      // IMPORTANTE: NO GUARDAR CARRITO -> sessionStorage (solo en esta pestaña/sesión)
+      const STORE = sessionStorage;
 
-      // API global (misma que shop.html/cart.html)
+      // Compat: si vienes de una versión vieja (localStorage), migra una vez y borra el legacy
+      function safeParse(s){ try{ return JSON.parse(s || '[]'); } catch(e){ return []; } }
+
+      function readCart(){
+        const cur = safeParse(STORE.getItem(CART_KEY));
+        if(cur && cur.length) return cur;
+
+        const legacy = safeParse(localStorage.getItem(CART_KEY));
+        if(legacy && legacy.length){
+          STORE.setItem(CART_KEY, JSON.stringify(legacy));
+          // para que NO se quede guardado
+          localStorage.removeItem(CART_KEY);
+          return legacy;
+        }
+        return [];
+      }
+      function writeCart(arr){ STORE.setItem(CART_KEY, JSON.stringify(arr || [])); }
+
+      // Moneda (se mantiene con localStorage para que sea igual en todo el sitio)
+      const state = {
+        currency: localStorage.getItem('innov_currency') || 'PEN'
+      };
+
+      function penToUsd(pen){ return pen / FX; }
+      function formatMoneyPen(n){ return 'S/ ' + (Number(n)||0).toFixed(2); }
+      function formatMoneyUsd(n){ return '$ ' + (Number(n)||0).toFixed(2); }
+      function money(pen){
+        return (state.currency === 'USD') ? formatMoneyUsd(penToUsd(pen)) : formatMoneyPen(pen);
+      }
+
+      function showToast(msg, iconClass){
+        const toast = document.getElementById('toastMini');
+        const text = document.getElementById('toastText');
+        const icon = toast.querySelector('i');
+        if(iconClass) icon.className = iconClass;
+        text.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(()=>toast.classList.remove('show'), 1400);
+      }
+
+      // API global mínima (por consistencia)
       window.Cart = window.Cart || {
-        add: (item) => {
-          const items = read();
-          const idx = items.findIndex(i => i.id === item.id);
-          if(idx>-1){ items[idx].qty += (item.qty||1); }
-          else { items.push({ id:item.id, nombre:item.nombre, precio:Number(item.precio), imagen:item.imagen||'', qty:item.qty||1 }); }
-          write(items);
-          return items;
-        },
-        items: ()=> read(),
-        count: ()=> read().reduce((a,b)=>a+b.qty,0),
-        subtotal: ()=> read().reduce((a,b)=>a+(b.precio*b.qty),0),
-        clear: ()=> write([])
+        items: () => readCart(),
+        count: () => readCart().reduce((a,b)=>a+(Number(b.qty)||0),0),
+        subtotal: () => readCart().reduce((a,b)=>a + (Number(b.precio||0) * Number(b.qty||1)), 0),
+        clear: () => writeCart([])
       };
 
       function syncHeaderBadges(){
         const c = Cart.count();
         const b1 = document.getElementById('headerCartBadge');
         const b2 = document.getElementById('headerCartBadgeSm');
-        [b1,b2].forEach(b=>{ if(b) b.textContent = c; });
+        if(b1) b1.textContent = c;
+        if(b2) b2.textContent = c;
       }
 
-      // Renderizar productos del carrito en el resumen
+      function normalizeImgFallback(img){
+        if(!img) return;
+        img.dataset.errstep = '0';
+        img.addEventListener('error', ()=>{
+          const step = Number(img.dataset.errstep || '0') + 1;
+          img.dataset.errstep = String(step);
+          if(step >= 1){ img.src = 'img/placeholder.jpg'; }
+        });
+      }
+
       function renderCheckout(){
-        const cont = document.getElementById('checkoutProducts');
+        const list = document.getElementById('checkoutProducts');
         const emptyNote = document.getElementById('emptyNote');
-        cont.querySelectorAll('.checkout-item').forEach(n=>n.remove());
+        const itemsCountText = document.getElementById('itemsCountText');
+
+        list.innerHTML = '';
 
         const items = Cart.items();
-        emptyNote.style.display = items.length===0 ? 'block' : 'none';
+        const count = Cart.count();
+        itemsCountText.textContent = `${count} item${count===1?'':'s'}`;
 
+        if(items.length === 0){
+          emptyNote.style.display = 'block';
+        }else{
+          emptyNote.style.display = 'none';
+        }
+
+        let subtotalPen = 0;
         items.forEach(it=>{
+          const qty = Number(it.qty||1);
+          const precioPen = Number(it.precio||0);
+          const lineTotal = precioPen * qty;
+          subtotalPen += lineTotal;
+
           const row = document.createElement('div');
-          row.className = 'd-flex justify-content-between checkout-item';
+          row.className = 'order-item';
           row.innerHTML = `
-            <p>${it.nombre} <span class="text-muted">× ${it.qty}</span></p>
-            <p>${money(it.precio * it.qty)}</p>
+            <div class="order-left">
+              <div class="order-thumb">
+                <img src="${it.imagen || 'img/placeholder.jpg'}" alt="${(it.nombre||'Producto').replaceAll('"','&quot;')}" loading="lazy" decoding="async">
+              </div>
+              <div style="min-width:0;">
+                <div class="order-name" title="${(it.nombre||'Producto').replaceAll('"','&quot;')}">${it.nombre || 'Producto'}</div>
+                <div class="order-qty">x ${qty}</div>
+              </div>
+            </div>
+            <div style="font-weight:900;">${money(lineTotal)}</div>
           `;
-          cont.appendChild(row);
+          list.appendChild(row);
+
+          normalizeImgFallback(row.querySelector('img'));
         });
 
-        const sub = Cart.subtotal();
-        document.getElementById('subtotal').textContent = money(sub);
-        document.getElementById('total').textContent = money(sub); // envío digital gratis
+        document.getElementById('subtotalText').textContent = money(subtotalPen);
+        document.getElementById('totalText').textContent = money(subtotalPen);
+
+        syncHeaderBadges();
       }
 
-      // WhatsApp FAB badge persistencia
-      (function(){
-        var btn = document.getElementById('whatsappFab');
-        var badge = document.getElementById('whatsappBadge');
-        try { if (sessionStorage.getItem('waBadgeHidden')==='1') { badge && (badge.style.display='none'); } } catch(e){}
-        if(btn && badge){
-          btn.addEventListener('click', function(){
-            badge.style.display='none';
-            try { sessionStorage.setItem('waBadgeHidden','1'); } catch(e){}
-          });
+      /* ==========================
+         Payment selection (cards)
+         ========================== */
+      function syncPayCards(){
+        const grid = document.getElementById('payGrid');
+        const selected = grid.querySelector('input[name="payment"]:checked');
+        grid.querySelectorAll('.pay-card').forEach(card=>{
+          const input = card.querySelector('input');
+          if(input && selected && input.value === selected.value){
+            card.classList.add('selected');
+          }else{
+            card.classList.remove('selected');
+          }
+        });
+      }
+      document.getElementById('payGrid').addEventListener('click', (e)=>{
+        const card = e.target.closest('.pay-card');
+        if(!card) return;
+        const input = card.querySelector('input');
+        if(input){
+          input.checked = true;
+          syncPayCards();
+          showToast('Método de pago seleccionado ✅', 'fas fa-check-circle');
         }
-      })();
+      });
 
-      // Confirmar pedido -> WhatsApp
+      /* ==========================
+         Currency (PEN/USD)
+         ========================== */
+      const currencyBtn = document.getElementById('currencyBtn');
+      function setCurrency(cur){
+        state.currency = cur;
+        localStorage.setItem('innov_currency', cur);
+        currencyBtn.textContent = (cur === 'USD') ? 'USD' : 'Soles';
+        renderCheckout();
+        showToast('Moneda actualizada 💱', 'fas fa-exchange-alt');
+      }
+      currencyBtn.textContent = (state.currency === 'USD') ? 'USD' : 'Soles';
+      document.querySelectorAll('.js-set-currency').forEach(btn=>{
+        btn.addEventListener('click', ()=> setCurrency(btn.getAttribute('data-currency')));
+      });
+
+      /* ==========================
+         Confirm order -> WhatsApp
+         ========================== */
+      function orderId(){
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,'0');
+        const day = String(d.getDate()).padStart(2,'0');
+        const r = Math.random().toString(36).slice(2,6).toUpperCase();
+        return `INN-${y}${m}${day}-${r}`;
+      }
+
       const placeBtn = document.getElementById('placeOrder');
-      placeBtn && placeBtn.addEventListener('click', function(ev){
+      const markPaidBtn = document.getElementById('markPaid');
+
+      placeBtn.addEventListener('click', function(ev){
         ev.preventDefault();
 
         const items = Cart.items();
-        if(items.length===0){
-          alert('Tu carrito está vacío. Agrega productos para continuar.');
-          window.location.href = 'shop.html';
+        if(items.length === 0){
+          showToast('Carrito vacío 😅', 'fas fa-info-circle');
+          setTimeout(()=> window.location.href='shop.html', 350);
           return;
         }
 
-        const firstName = document.getElementById('firstName')?.value?.trim() || '';
-        const lastName  = document.getElementById('lastName')?.value?.trim() || '';
-        const email     = document.getElementById('email')?.value?.trim() || '';
-        const celular   = document.getElementById('phone')?.value?.trim() || '';
-        const entrega   = document.getElementById('deliveryMethod')?.value || 'WhatsApp';
-        const payLabel  = document.querySelector('input[name="payment"]:checked')?.nextElementSibling?.textContent?.trim() || 'Por definir';
-        const termsOk   = document.getElementById('terms')?.checked;
+        const firstName = (document.getElementById('firstName').value||'').trim();
+        const lastName  = (document.getElementById('lastName').value||'').trim();
+        const email     = (document.getElementById('email').value||'').trim();
+        const phone     = (document.getElementById('phone').value||'').trim();
+        const delivery  = document.getElementById('deliveryMethod').value;
+        const country   = document.getElementById('country').value;
+        const termsOk   = document.getElementById('terms').checked;
+        const payMethod = document.querySelector('input[name="payment"]:checked')?.value || 'yape_plin';
 
-        if (!firstName || !lastName || !celular || !termsOk) {
-          alert('Completa Nombres, Apellidos, Celular y acepta los Términos para continuar.');
+        if(!firstName || !lastName || !phone){
+          showToast('Completa tus datos obligatorios ✍️', 'fas fa-exclamation-circle');
+          return;
+        }
+        if(delivery === 'Correo' && !email){
+          showToast('Si eliges correo, escribe tu email 📧', 'fas fa-exclamation-circle');
+          return;
+        }
+        if(!termsOk){
+          showToast('Acepta Términos y Privacidad ✅', 'fas fa-exclamation-circle');
           return;
         }
 
-        const lineas = [];
-        lineas.push('Hola, quiero completar mi compra en *Innov AI Tienda*');
-        lineas.push('');
-        lineas.push('*Productos:*');
-        items.forEach(p => lineas.push(`- ${p.nombre} × ${p.qty} (${money(p.precio)} c/u)`));
-        lineas.push(`Subtotal: ${money(Cart.subtotal())}`);
-        lineas.push(`Total: ${money(Cart.subtotal())}`);
-        lineas.push('');
-        lineas.push(`*Método de pago:* ${payLabel}`);
-        lineas.push(`*Entrega:* ${entrega}`);
-        lineas.push('');
-        lineas.push('*Datos:*');
-        lineas.push(`- Nombre: ${firstName} ${lastName}`);
-        if(email){ lineas.push(`- Email: ${email}`); } // opcional
-        lineas.push(`- Celular: ${celular}`);
-        lineas.push('');
-        lineas.push('Gracias.');
+        const oid = orderId();
+        const subtotalPen = Cart.subtotal();
 
-        const mensaje = encodeURIComponent(lineas.join('\n'));
-        const phone = '51991564053'; // sin '+'
-        const url = 'https://wa.me/' + phone + '?text=' + mensaje;
-        window.open(url, '_blank');
+        const payLabelMap = {
+          yape_plin: 'Yape / Plin',
+          tarjeta: 'Tarjeta (Visa/Mastercard)',
+          transferencia: 'Transferencia bancaria'
+        };
+
+        const lines = [];
+        lines.push(`Hola, quiero completar mi compra en *Innov AI Tienda* 🛒`);
+        lines.push(`Pedido: *${oid}*`);
+        lines.push('');
+        lines.push('*Productos:*');
+        items.forEach(p=>{
+          const qty = Number(p.qty||1);
+          const precioPen = Number(p.precio||0);
+          lines.push(`- ${p.nombre} x${qty} (Total: ${formatMoneyPen(precioPen*qty)})`);
+        });
+        lines.push('');
+        lines.push(`Subtotal: ${formatMoneyPen(subtotalPen)}`);
+        lines.push(`Total: ${formatMoneyPen(subtotalPen)}`);
+        lines.push('');
+        lines.push(`*Pago:* ${payLabelMap[payMethod] || payMethod}`);
+        lines.push(`*Entrega:* ${delivery}`);
+        lines.push(`*País:* ${country}`);
+        lines.push('');
+        lines.push('*Datos:*');
+        lines.push(`- Nombre: ${firstName} ${lastName}`);
+        if(email) lines.push(`- Email: ${email}`);
+        lines.push(`- WhatsApp: ${phone}`);
+        lines.push('');
+        lines.push('Gracias ✅');
+
+        // WhatsApp destino (principal de ventas)
+        const WA = '51991564053';
+        const url = `https://wa.me/${WA}?text=${encodeURIComponent(lines.join('\n'))}`;
+        window.open(url, '_blank', 'noopener');
+
+        // Mostrar botón "Ya pagué" (limpia carrito)
+        markPaidBtn.classList.remove('d-none');
+        showToast('WhatsApp abierto ✅ Envíanos el comprobante', 'fab fa-whatsapp');
       });
 
-      // Init
+      markPaidBtn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        Cart.clear();
+        renderCheckout();
+        syncHeaderBadges();
+        showToast('Listo ✅ Carrito limpiado', 'fas fa-check-circle');
+        // te manda al carrito con el trigger de limpieza también (por si usas esa lógica)
+        setTimeout(()=> window.location.href='cart.html?paid=1', 500);
+      });
+
+      /* ==========================
+         WhatsApp badges hide
+         ========================== */
+      (function(){
+        var badge1 = document.getElementById('whatsappBadge');
+        var badge2 = document.getElementById('whatsappBadge2');
+        try {
+          if (sessionStorage.getItem('waBadgeHidden')==='1') badge1 && (badge1.style.display='none');
+          if (sessionStorage.getItem('waBadge2Hidden')==='1') badge2 && (badge2.style.display='none');
+        } catch(e){}
+        document.getElementById('whatsappFab')?.addEventListener('click', function(){
+          if(badge1) badge1.style.display='none';
+          try { sessionStorage.setItem('waBadgeHidden','1'); } catch(e){}
+        });
+        document.getElementById('whatsappFab2')?.addEventListener('click', function(){
+          if(badge2) badge2.style.display='none';
+          try { sessionStorage.setItem('waBadge2Hidden','1'); } catch(e){}
+        });
+      })();
+
+      /* ==========================
+         Init
+         ========================== */
+      syncPayCards();
       renderCheckout();
       syncHeaderBadges();
 
-      // Si el carrito cambia en otra pestaña
+      // Si cambia la moneda en otra página, refresca el checkout
       window.addEventListener('storage', function(e){
-        if(e.key===CART_KEY){ renderCheckout(); syncHeaderBadges(); }
+        if(e.key === 'innov_currency'){
+          state.currency = localStorage.getItem('innov_currency') || 'PEN';
+          currencyBtn.textContent = (state.currency === 'USD') ? 'USD' : 'Soles';
+          renderCheckout();
+        }
       });
     })();
   </script>
