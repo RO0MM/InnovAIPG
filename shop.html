@@ -410,6 +410,67 @@
     }
     .social-btn i{ font-size:18px; }
     .tiktok-svg{ width:18px; height:18px; fill: currentColor; display:block; }
+
+    /* ================== MEJORAS MÓVIL (SOLO UI) ================== */
+    .filters-toggle{
+      border:2px solid rgba(0,0,0,.12);
+      box-shadow:4px 4px 0 rgba(0,0,0,.10);
+      border-radius:14px;
+      font-weight:900;
+    }
+    .filters-toggle i{ opacity:.9; }
+
+    @media (max-width: 991.98px){
+      .shop-sidebar .section-title{ margin-bottom:.5rem; }
+      .shop-sidebar .bg-light.p-3.mb-30{
+        padding:.75rem !important;
+        margin-bottom:1rem !important;
+        border-radius:14px;
+        border:2px solid rgba(0,0,0,.08);
+        box-shadow:4px 4px 0 rgba(0,0,0,.06);
+      }
+    }
+
+    @media (max-width: 575.98px){
+      .shop-sidebar .section-title > span{ font-size:.95rem; }
+      .shop-sidebar small{ font-size:12px; }
+      .shop-sidebar .btn-group-toggle .btn{ padding:.25rem .4rem; font-size:.78rem; }
+      #minPrice, #maxPrice{ max-width:108px !important; }
+
+      .product-img img{ height:115px; padding:10px; }
+      .product-item a.h6{ font-size:.86rem; }
+      .product-item .text-center.py-4{ padding:.6rem .45rem !important; }
+      .cat-chip{ font-size:9px; }
+      .period-note{ font-size:11px; }
+
+      /* En móvil (táctil): acciones visibles sin hover */
+      .product-action{
+        opacity:1;
+        transform:none;
+        pointer-events:auto;
+      }
+      .product-action .btn-square{ width:34px; height:34px; }
+      .product-action .btn-detail{ padding:0 .65rem; }
+    }
+
+    /* Resaltar carrito (más visible al finalizar fly-to-cart) */
+    @keyframes cart-attn{
+      0%{ transform:scale(1); box-shadow:0 0 0 0 rgba(13,110,253,0); }
+      45%{ transform:scale(1.35); box-shadow:0 0 0 12px rgba(13,110,253,.22); }
+      100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(13,110,253,0); }
+    }
+    .cart-attn{
+      animation: cart-attn 700ms ease-out;
+      border-color: rgba(13,110,253,.75) !important;
+    }
+
+    /* Botón copiar link en modal */
+    #modalCopyLink{
+      border-width:2px;
+      border-radius:999px;
+      font-weight:900;
+      box-shadow:3px 3px 0 rgba(0,0,0,.12);
+    }
   </style>
 </head>
 
@@ -576,67 +637,82 @@
       <aside class="col-lg-3 col-md-4 shop-sidebar">
         <div class="shop-sidebar-sticky">
 
-          <h5 class="section-title position-relative text-uppercase mb-3">
-            <span class="bg-secondary pr-3">Tipo de venta</span>
-          </h5>
-          <div class="bg-light p-3 mb-30">
-            <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
-              <label id="modeRetailBtn" class="btn btn-sm btn-outline-dark active flex-fill">
-                <input type="radio" name="mode" value="retail" checked> Por menor
-              </label>
-              <label id="modeWholesaleBtn" class="btn btn-sm btn-outline-dark flex-fill">
-                <input type="radio" name="mode" value="wholesale"> Proveedores
-              </label>
-            </div>
-            <small class="d-block mt-2 text-muted">“Proveedores” = cuentas completas / multiusuarios.</small>
-          </div>
+          <!-- ✅ Botón filtros (solo móvil/tablet) -->
+          <button id="filtersToggleBtn"
+                  class="btn btn-primary btn-block d-lg-none mb-3 filters-toggle"
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#filtersCollapse"
+                  aria-expanded="false"
+                  aria-controls="filtersCollapse">
+            <i class="fa fa-filter mr-2"></i> Filtros
+          </button>
 
-          <h5 class="section-title position-relative text-uppercase mb-3">
-            <span class="bg-secondary pr-3">Rango de precio</span>
-          </h5>
-          <div class="bg-light p-3 mb-30">
-            <div class="form-group mb-2">
-              <label class="small mb-1" id="priceLabel">Rango</label>
-              <div class="d-flex align-items-center">
-                <input id="minPrice" type="number" class="form-control form-control-sm mr-2" min="0" step="0.1" value="0" style="max-width:120px">
-                <span class="mx-1">–</span>
-                <input id="maxPrice" type="number" class="form-control form-control-sm ml-2" min="0" step="0.1" value="30" style="max-width:120px">
+          <!-- ✅ Contenido colapsable en móvil; siempre visible en desktop -->
+          <div id="filtersCollapse" class="collapse d-lg-block">
+
+            <h5 class="section-title position-relative text-uppercase mb-3">
+              <span class="bg-secondary pr-3">Tipo de venta</span>
+            </h5>
+            <div class="bg-light p-3 mb-30">
+              <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+                <label id="modeRetailBtn" class="btn btn-sm btn-outline-dark active flex-fill">
+                  <input type="radio" name="mode" value="retail" checked> Por menor
+                </label>
+                <label id="modeWholesaleBtn" class="btn btn-sm btn-outline-dark flex-fill">
+                  <input type="radio" name="mode" value="wholesale"> Proveedores
+                </label>
+              </div>
+              <small class="d-block mt-2 text-muted">“Proveedores” = cuentas completas / multiusuarios.</small>
+            </div>
+
+            <h5 class="section-title position-relative text-uppercase mb-3">
+              <span class="bg-secondary pr-3">Rango de precio</span>
+            </h5>
+            <div class="bg-light p-3 mb-30">
+              <div class="form-group mb-2">
+                <label class="small mb-1" id="priceLabel">Rango</label>
+                <div class="d-flex align-items-center">
+                  <input id="minPrice" type="number" class="form-control form-control-sm mr-2" min="0" step="0.1" value="0" style="max-width:120px">
+                  <span class="mx-1">–</span>
+                  <input id="maxPrice" type="number" class="form-control form-control-sm ml-2" min="0" step="0.1" value="30" style="max-width:120px">
+                </div>
+              </div>
+              <div class="d-flex">
+                <button id="applyFilters" class="btn btn-sm btn-primary mr-2">Aplicar</button>
+                <button id="clearFilters" class="btn btn-sm btn-outline-secondary">Limpiar</button>
+              </div>
+              <small class="d-block mt-2 text-muted">* Se adapta a moneda y modo</small>
+            </div>
+
+            <h5 class="section-title position-relative text-uppercase mb-3">
+              <span class="bg-secondary pr-3">Categorías</span>
+            </h5>
+            <div class="bg-light p-3 mb-30">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input js-cat" id="fc-ai" value="ai" checked>
+                <label class="custom-control-label" for="fc-ai">IA</label>
+              </div>
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input js-cat" id="fc-stream" value="streaming" checked>
+                <label class="custom-control-label" for="fc-stream">Streaming</label>
+              </div>
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input js-cat" id="fc-music" value="musica" checked>
+                <label class="custom-control-label" for="fc-music">Edición/Video</label>
+              </div>
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input js-cat" id="fc-otros" value="otros" checked>
+                <label class="custom-control-label" for="fc-otros">Herramientas</label>
               </div>
             </div>
-            <div class="d-flex">
-              <button id="applyFilters" class="btn btn-sm btn-primary mr-2">Aplicar</button>
-              <button id="clearFilters" class="btn btn-sm btn-outline-secondary">Limpiar</button>
-            </div>
-            <small class="d-block mt-2 text-muted">* Se adapta a moneda y modo</small>
-          </div>
 
-          <h5 class="section-title position-relative text-uppercase mb-3">
-            <span class="bg-secondary pr-3">Categorías</span>
-          </h5>
-          <div class="bg-light p-3 mb-30">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input js-cat" id="fc-ai" value="ai" checked>
-              <label class="custom-control-label" for="fc-ai">IA</label>
+            <div class="bg-light p-3 mb-30 small text-muted">
+              <div><strong>Estado:</strong> por defecto “Disponible” (verde).</div>
+              <div>Para poner rojo: <code>disponible:false</code> o <code>cupo:0</code>.</div>
             </div>
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input js-cat" id="fc-stream" value="streaming" checked>
-              <label class="custom-control-label" for="fc-stream">Streaming</label>
-            </div>
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input js-cat" id="fc-music" value="musica" checked>
-              <label class="custom-control-label" for="fc-music">Edición/Video</label>
-            </div>
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input js-cat" id="fc-otros" value="otros" checked>
-              <label class="custom-control-label" for="fc-otros">Herramientas</label>
-            </div>
-          </div>
 
-          <div class="bg-light p-3 mb-30 small text-muted">
-            <div><strong>Estado:</strong> por defecto “Disponible” (verde).</div>
-            <div>Para poner rojo: <code>disponible:false</code> o <code>cupo:0</code>.</div>
           </div>
-
         </div>
       </aside>
 
@@ -791,9 +867,17 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 id="productModalLabel" class="modal-title">Detalle del producto</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-            <span aria-hidden="true">&times;</span>
-          </button>
+
+          <!-- ✅ Botón copiar link -->
+          <div class="d-flex align-items-center">
+            <button id="modalCopyLink" type="button" class="btn btn-sm btn-outline-primary mr-2" aria-label="Copiar link del producto">
+              <i class="fa fa-link"></i> Copiar link
+            </button>
+
+            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
         </div>
 
         <div class="modal-body">
@@ -894,6 +978,56 @@
       if(!u) return '';
       if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
       return u;
+    }
+
+    /* ================== Deep links por producto ================== */
+    function buildProductLink(id){
+      try{
+        const url = new URL(window.location.href);
+        url.hash = 'p=' + encodeURIComponent(id);
+        return url.toString();
+      }catch(e){
+        const base = window.location.href.split('#')[0];
+        return base + '#p=' + encodeURIComponent(id);
+      }
+    }
+    function setProductHash(id){
+      try{
+        const url = new URL(window.location.href);
+        url.hash = 'p=' + encodeURIComponent(id);
+        history.replaceState(null, '', url.toString());
+      }catch(e){
+        window.location.hash = 'p=' + encodeURIComponent(id);
+      }
+    }
+    function getProductFromHash(){
+      const raw = String(window.location.hash || '').replace(/^#/, '');
+      if(!raw) return null;
+      const params = new URLSearchParams(raw);
+      return params.get('p');
+    }
+    async function copyToClipboard(text){
+      try{
+        if(navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      }catch(e){}
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly','');
+        ta.style.position = 'fixed';
+        ta.style.top = '-9999px';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        return true;
+      }catch(e){
+        return false;
+      }
     }
 
     /* ================== Carrito (NO se pega) ================== */
@@ -1028,7 +1162,7 @@
           '✅ Acceso mensual',
           '👥 Tiene más usuarios (mejor disponibilidad)',
           '📱 Compatible en celular y PC',
-          '⚡ Entrega rápida',        
+          '⚡ Entrega rápida',
         ],
         why:'Ideal si quieres buen precio y usarlo en más de un dispositivo.'
       },
@@ -1183,7 +1317,7 @@
       {
         id:'rt-tools-canva-2y',
         name:'Canva Pro',
-        price:13.5,
+        price:13.90,
         cat:'otros',
         url:'https://www.canva.com',
         period:'2 años',
@@ -1203,7 +1337,7 @@
       {
         id:'rt-tools-canva-3y',
         name:'Canva Pro',
-        price:15.9,
+        price:15.90,
         cat:'otros',
         url:'https://www.canva.com',
         period:'3 años',
@@ -1423,7 +1557,7 @@
         ],
         why:'Ideal si quieres VPN económica para un solo equipo.'
       }
-      
+
     ];
 
     /* ==========================================================
@@ -1438,7 +1572,7 @@
         url:'https://openai.com/chatgpt',
         period:'Mensual',
         cupo:0,
-        disponible:false,  // 🔴 AGOTADO (pedido anterior)
+        disponible:false,
         chips:['Cuenta completa','Agotado'],
         desc:'Cuenta completa para proveedor. Actualmente sin cupo.',
         benefits:[
@@ -1512,7 +1646,7 @@
         cat:'otros',
         url:'https://www.autodesk.com',
         period:'1 año',
-        cupo:2,            // “manejaremos 2” -> cupo 2
+        cupo:2,
         disponible:true,
         chips:['250 usuarios','1 año','Cupo 2','Proveedor'],
         desc:'Autodesk para proveedor: 250 usuarios por 1 año (cupos limitados).',
@@ -1614,7 +1748,7 @@
       const minPen = toPen(state.min);
       const maxPen = toPen(state.max);
       return items.filter(it => {
-        if(it.price==null) return true; // Consultar siempre visible
+        if(it.price==null) return true;
         if(minPen!=null && it.price < minPen) return false;
         if(maxPen!=null && it.price > maxPen) return false;
         return true;
@@ -1697,7 +1831,7 @@
       const period = it.period ? `<div class="period-note">${esc(it.period)}</div>` : '';
 
       return `
-        <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+        <div class="col-6 col-sm-6 col-md-4 col-lg-3 pb-1">
           <div class="product-item mb-4 ${!disponible?'is-unavailable':''}"
                data-id="${esc(it.id)}"
                data-name="${esc(it.name)}"
@@ -1737,7 +1871,7 @@
             </div>
 
             <div class="text-center py-4">
-              <a class="h6 text-decoration-none text-truncate js-title" href="#">${esc(it.name)}</a>
+              <a class="h6 text-decoration-none text-truncate js-title" href="#p=${encodeURIComponent(it.id)}">${esc(it.name)}</a>
               <div class="d-flex align-items-center justify-content-center mt-2">
                 <h5 data-price-pen="${penAttr}">${it.price==null?'Consultar':fmt(it.price)}</h5>
               </div>
@@ -1830,7 +1964,8 @@
           flyToCart({
             originEl: imgEl || (action==='buy'?buyBtn:addBtn),
             emoji: '',
-            imgUrl: imagenFinal
+            imgUrl: imagenFinal,
+            onEnd: attentionCartBadge
           });
 
           showToast('Añadido: ' + nombre);
@@ -1866,13 +2001,29 @@
     const elExtra  = document.getElementById('modalExtra');
     const btnAdd   = document.getElementById('modalAdd');
     const btnBuy   = document.getElementById('modalBuy');
+    const btnCopy  = document.getElementById('modalCopyLink');
 
     let modalItem = null;
+
+    if(btnCopy){
+      btnCopy.addEventListener('click', async ()=>{
+        if(!modalItem) return;
+        const link = buildProductLink(modalItem.id);
+        const ok = await copyToClipboard(link);
+        showToast(ok ? 'Link copiado ✅' : 'No se pudo copiar');
+        if(!ok){
+          try{ window.prompt('Copia el link del producto:', link); }catch(e){}
+        }
+      });
+    }
 
     function openDetail(id){
       const it = findItemById(id);
       if(!it) return;
       modalItem = it;
+
+      /* ✅ Actualiza link directo: shop.html#p=ID */
+      setProductHash(it.id);
 
       document.getElementById('productModalLabel').textContent = it.name;
       elTitle.textContent = it.name;
@@ -1959,7 +2110,7 @@
 
       Cart.add({ id: modalItem.id, nombre: modalItem.name, precio: modalItem.price||0, imagen: elImg.src, qty:1 });
       syncHeaderBadges();
-      flyToCart({ originEl: elImg, emoji:'', imgUrl: elImg.src });
+      flyToCart({ originEl: elImg, emoji:'', imgUrl: elImg.src, onEnd: attentionCartBadge });
       showToast('Añadido: ' + modalItem.name);
     });
 
@@ -1974,7 +2125,7 @@
 
       Cart.add({ id: modalItem.id, nombre: modalItem.name, precio: modalItem.price||0, imagen: elImg.src, qty:1 });
       syncHeaderBadges();
-      flyToCart({ originEl: elImg, emoji:'', imgUrl: elImg.src });
+      flyToCart({ originEl: elImg, emoji:'', imgUrl: elImg.src, onEnd: attentionCartBadge });
       setTimeout(()=>{ window.location.href='checkout.html'; }, SETTINGS.cartRedirectDelay);
     });
 
@@ -1989,6 +2140,15 @@
       const inViewport = (el) => el && !!(el.offsetParent || el.getClientRects().length);
       return inViewport(d) ? d : (m || d);
     }
+    function attentionCartBadge(){
+      const b = findCartBadge();
+      if(!b) return;
+      b.classList.remove('cart-attn');
+      void b.offsetWidth;
+      b.classList.add('cart-attn');
+      setTimeout(()=> b.classList.remove('cart-attn'), 750);
+    }
+
     function bezier(t, p0, p1, p2){
       const u=1-t;
       return { x:u*u*p0.x + 2*u*t*p1.x + t*t*p2.x, y:u*u*p0.y + 2*u*t*p1.y + t*t*p2.y };
@@ -2199,6 +2359,20 @@
       }
     })();
 
+    /* ================== Botón filtros: cambia texto al abrir/cerrar ================== */
+    (function(){
+      const btn = document.getElementById('filtersToggleBtn');
+      if(!btn) return;
+      try{
+        $('#filtersCollapse').on('show.bs.collapse', function(){
+          btn.innerHTML = '<i class="fa fa-times mr-2"></i> Cerrar filtros';
+        });
+        $('#filtersCollapse').on('hide.bs.collapse', function(){
+          btn.innerHTML = '<i class="fa fa-filter mr-2"></i> Filtros';
+        });
+      }catch(e){}
+    })();
+
     /* ================== INIT ================== */
     setCurrency(state.currency);
     document.getElementById('sortSelect').value = state.sort;
@@ -2210,10 +2384,42 @@
       }
     });
 
+    /* ✅ Abrir producto directo si viene link #p=ID */
+    (function openFromHash(){
+      const pid = getProductFromHash();
+      if(!pid) return;
+      const it = findItemById(pid);
+      if(!it) return;
+
+      // Si es un producto de proveedores, cambia modo para que tenga sentido visualmente.
+      const isWh = WHOLESALE.some(x => x.id === pid);
+      if(isWh && state.mode !== 'wholesale'){
+        state.mode = 'wholesale';
+        resetPriceInputs();
+        render();
+        modeWholesaleBtn.classList.add('active');
+        modeRetailBtn.classList.remove('active');
+      }
+      if(!isWh && state.mode !== 'retail'){
+        state.mode = 'retail';
+        resetPriceInputs();
+        render();
+        modeRetailBtn.classList.add('active');
+        modeWholesaleBtn.classList.remove('active');
+      }
+
+      // En móvil, cerramos filtros para que no estorbe
+      try { $('#filtersCollapse').collapse('hide'); } catch(e){}
+
+      openDetail(pid);
+    })();
+
   })();
   </script>
 </body>
 </html>
+
+
 
 
 
