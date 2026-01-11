@@ -45,6 +45,7 @@
       background:
         radial-gradient(circle at 10px 10px, rgba(0,0,0,.04) 2px, transparent 2.2px) 0 0/22px 22px,
         #fff;
+      font-size:0.95rem;
     }
     h1,h2,h3,.h1,.h2,.h3{
       font-family:'Bangers','Comic Neue',cursive;
@@ -76,6 +77,9 @@
       gap:.75rem;
       margin-bottom: 1rem;
     }
+    .cart-toolbar h3{
+      font-size:1.25rem;
+    }
 
     .cart-table{
       border-radius:16px;
@@ -90,18 +94,22 @@
       text-transform:uppercase;
       font-size:12px;
     }
-    .cart-table td, .cart-table th{ vertical-align:middle !important; }
+    .cart-table td, .cart-table th{
+      vertical-align:middle !important;
+      font-size:0.95rem;
+      padding:.55rem .5rem;
+    }
     .cart-table tbody tr{ background:#fff; }
     .cart-table tbody tr:hover{ background:#f8f9fa; }
 
     .prod-cell{
       display:flex;
       align-items:center;
-      gap:.75rem;
+      gap:.6rem;
       text-align:left;
     }
     .prod-img{
-      width:48px; height:48px;
+      width:44px; height:44px;
       border-radius:12px;
       border:2px solid rgba(0,0,0,.10);
       background:#fff;
@@ -116,15 +124,16 @@
       width:100%;
       height:100%;
       object-fit:contain;
-      padding:8px;
+      padding:6px;
       background:transparent;
     }
     .prod-name{
       font-weight:900;
       line-height:1.15;
+      font-size:0.98rem;
     }
     .prod-meta{
-      font-size:12px;
+      font-size:11px;
       color:rgba(0,0,0,.55);
       margin-top:.1rem;
     }
@@ -133,10 +142,10 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:.35rem;
+      gap:.3rem;
     }
     .qty-btn{
-      width:36px; height:36px;
+      width:32px; height:32px;
       border-radius:999px;
       border:2px solid rgba(0,0,0,.15);
       background:#fff;
@@ -149,18 +158,19 @@
     }
     .qty-btn:hover{ transform:translateY(-1px); }
     .qty-input{
-      width:56px;
-      height:36px;
+      width:52px;
+      height:32px;
       border-radius:12px;
       border:2px solid rgba(0,0,0,.12);
       text-align:center;
       font-weight:900;
+      font-size:0.9rem;
       background:#fff;
       box-shadow:3px 3px 0 rgba(0,0,0,.06);
     }
 
     .remove-btn{
-      width:38px; height:38px;
+      width:34px; height:34px;
       border-radius:999px;
       border:2px solid rgba(0,0,0,.12);
       box-shadow:3px 3px 0 rgba(0,0,0,.08);
@@ -172,7 +182,7 @@
       top: calc(var(--sticky-offset) + 10px);
     }
     @media (max-width: 991.98px){
-      .summary-sticky{ position: static; top:auto; }
+      .summary-sticky{ position: static; top:auto; margin-top:1rem; }
     }
 
     .summary-box{
@@ -183,7 +193,7 @@
       overflow:hidden;
     }
     .summary-head{
-      padding: .9rem 1rem;
+      padding: .8rem 1rem;
       background: rgba(13,110,253,.10);
       border-bottom:2px solid rgba(0,0,0,.08);
       font-weight:900;
@@ -192,14 +202,15 @@
       justify-content:space-between;
     }
     .summary-body{
-      padding: 1rem;
+      padding: .9rem 1rem;
     }
     .summary-row{
       display:flex;
       justify-content:space-between;
       gap:.75rem;
-      padding:.35rem 0;
+      padding:.3rem 0;
       border-bottom:1px dashed rgba(0,0,0,.16);
+      font-size:0.95rem;
     }
     .summary-row:last-child{ border-bottom:0; }
     .summary-total{
@@ -207,7 +218,7 @@
       justify-content:space-between;
       gap:.75rem;
       padding-top:.6rem;
-      font-size:1.15rem;
+      font-size:1.05rem;
       font-weight:900;
     }
 
@@ -230,28 +241,40 @@
       background:#fff;
       border:2px dashed rgba(0,0,0,.18);
       border-radius:18px;
-      padding: 1.25rem;
+      padding: 1.1rem;
       box-shadow:8px 8px 0 rgba(0,0,0,.06);
       text-align:center;
     }
     .empty-emoji{
-      font-size:42px;
+      font-size:40px;
       margin-bottom:.25rem;
     }
 
-    /* Coupon */
+    /* Coupon (con borde animado) */
     .coupon-box{
+      position:relative;
       background:#fff;
-      border:2px solid rgba(0,0,0,.12);
       border-radius:16px;
-      box-shadow:6px 6px 0 rgba(0,0,0,.06);
       overflow:hidden;
       margin-bottom: 1rem;
+      border:2px solid transparent;
+      background-image:
+        linear-gradient(#ffffff, #ffffff),
+        linear-gradient(120deg,#0d6efd,#6610f2,#20c997,#ffc107,#0d6efd);
+      background-origin:border-box;
+      background-clip:padding-box,border-box;
+      animation:couponGlow 8s linear infinite;
+      box-shadow:6px 6px 0 rgba(0,0,0,.06);
+    }
+    @keyframes couponGlow{
+      0%{ background-position:0 0, 0 50%; }
+      100%{ background-position:0 0, 300% 50%; }
     }
     .coupon-box .input-group .form-control{
       border:0 !important;
       height:52px;
       font-weight:900;
+      font-size:0.95rem;
     }
     .coupon-box .input-group-append .btn{
       height:52px;
@@ -334,6 +357,106 @@
     }
     @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
     @keyframes float-y{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+    /* Selector de agente WhatsApp (más visible) */
+    #whatsappAgentSelector{
+      gap:.5rem;
+    }
+    #whatsappAgentSelector .btn{
+      position:relative;
+      border-radius:14px;
+      padding:.45rem .6rem;
+      font-size:13px;
+      white-space:nowrap;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:3px 3px 0 rgba(0,0,0,.08);
+      border:2px solid rgba(0,0,0,.12);
+      background:#ffffff;
+      transition:
+        transform .12s ease,
+        box-shadow .12s ease,
+        border-color .12s ease,
+        background .12s ease,
+        color .12s ease;
+    }
+    #whatsappAgentSelector .agent-emoji{
+      margin-right:.35rem;
+      font-size:1.1rem;
+    }
+    #whatsappAgentSelector .btn.active{
+      background:#25D366;
+      border-color:#1ebe5d;
+      color:#fff;
+      box-shadow:0 0 0 2px rgba(37,211,102,.25),4px 4px 0 rgba(0,0,0,.18);
+      transform:scale(1.03);
+    }
+    #whatsappAgentSelector .btn:not(.active):hover{
+      transform:scale(1.03);
+      box-shadow:4px 4px 0 rgba(0,0,0,.12);
+      border-color:rgba(0,0,0,.22);
+    }
+    #whatsappAgentSelector .btn:active{
+      transform:scale(0.97) translateY(1px);
+      box-shadow:2px 2px 0 rgba(0,0,0,.10);
+    }
+
+    /* Responsive ajustes */
+    @media (max-width: 767.98px){
+      .cart-toolbar h3{
+        font-size:1.1rem;
+      }
+      .cart-table td, .cart-table th{
+        font-size:0.85rem;
+        padding:.4rem .3rem;
+      }
+      .prod-img{
+        width:40px; height:40px;
+      }
+      .prod-name{
+        font-size:0.9rem;
+      }
+      .prod-meta{
+        font-size:10px;
+      }
+      .qty-btn{
+        width:30px; height:30px;
+      }
+      .qty-input{
+        width:48px; height:30px; font-size:0.85rem;
+      }
+      .summary-box{
+        box-shadow:5px 5px 0 rgba(0,0,0,.08);
+      }
+      .summary-head{
+        padding:.7rem .8rem;
+      }
+      .summary-body{
+        padding:.75rem .85rem;
+      }
+      #whatsappAgentSelector .btn{
+        font-size:12px;
+        padding:.4rem .45rem;
+      }
+      .coupon-box .input-group .form-control{
+        height:48px;
+      }
+      .coupon-box .input-group-append .btn{
+        height:48px;
+      }
+    }
+    @media (max-width: 575.98px){
+      .prod-cell{
+        gap:.5rem;
+      }
+      .cart-table{
+        box-shadow:4px 4px 0 rgba(0,0,0,.05);
+      }
+      #whatsappAgentSelector .agent-phone{
+        display:none;
+      }
+    }
   </style>
 </head>
 
@@ -519,11 +642,11 @@
           <table class="table table-light table-borderless text-center mb-0" id="cartTable">
             <thead class="thead-dark">
               <tr>
-                <th style="min-width:280px;">Producto</th>
-                <th style="min-width:110px;">Precio</th>
-                <th style="min-width:170px;">Cantidad</th>
-                <th style="min-width:110px;">Total</th>
-                <th style="min-width:90px;">Quitar</th>
+                <th style="min-width:260px;">Producto</th>
+                <th style="min-width:90px;">Precio</th>
+                <th style="min-width:150px;">Cantidad</th>
+                <th style="min-width:100px;">Total</th>
+                <th style="min-width:70px;">Quitar</th>
               </tr>
             </thead>
             <tbody class="align-middle" id="cartBody">
@@ -591,9 +714,28 @@
                 <a href="checkout.html" class="btn btn-block btn-primary font-weight-bold py-3" id="toCheckout">
                   <i class="fa fa-credit-card mr-1"></i> Proceder al pago
                 </a>
-                <button class="btn btn-outline-success btn-block py-3" id="toWhatsApp">
+
+                <!-- Botón principal de WhatsApp + selector de agente -->
+                <button class="btn btn-outline-success btn-block py-3 mt-2" id="toWhatsApp">
                   <i class="fab fa-whatsapp mr-1"></i> Finalizar por WhatsApp
+                  <div class="small text-muted mt-1">
+                    Agente seleccionado: <strong id="currentAgentLabel">🤖 Room</strong>
+                  </div>
                 </button>
+                <div class="d-flex flex-wrap justify-content-between mt-2" id="whatsappAgentSelector">
+                  <button type="button" class="btn btn-sm btn-light js-select-agent mb-2 flex-fill mr-1"
+                          data-agent="ROOM" data-number="51991564053">
+                    <span class="agent-emoji">🤵</span>
+                    <span class="agent-name">Room</span>
+                    <span class="agent-phone ml-1">· +51 991 564 053</span>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-light js-select-agent mb-2 flex-fill ml-1"
+                          data-agent="ASTRID" data-number="51930264550">
+                    <span class="agent-emoji">👩‍✈️</span>
+                    <span class="agent-name">Ruth</span>
+                    <span class="agent-phone ml-1">· +51 930 264 550</span>
+                  </button>
+                </div>
               </div>
 
               <div class="pill-note">
@@ -740,20 +882,28 @@
       const FX = 3.70; // 1 USD = 3.70 S/
       const CART_KEY = 'innov_cart_v1';
 
-      // IMPORTANTE: mismo comportamiento que tu shop mejorado -> NO se guarda (solo sesión)
+      // Carrito solo sesión
       const CART_STORE = sessionStorage;
 
-      // WhatsApp (para finalizar pedido)
-      const WA_ORDER = '51991564053';
+      // Agentes de WhatsApp
+      const WA_AGENTS = {
+        ROOM:  { name:'Room',number:'51991564053', emoji:'🤵' },
+        ASTRID:{ name:'Ruth',number:'51930264550', emoji:'👩‍✈️' }
+      };
+
+      // Cupón aplicado en la sesión
+      const APPLIED_COUPON_KEY = 'innov_applied_coupon_v1';
+      // Cupones usados (persistente en el navegador)
+      const USED_COUPONS_KEY = 'innov_used_coupons_v1';
 
       const state = {
         currency: localStorage.getItem('innov_currency') || 'PEN', // PEN | USD
-        discountRate: 0,
-        discountCode: ''
+        appliedCouponCode: null, // string | null
+        selectedAgent: localStorage.getItem('innov_wa_agent') || 'ROOM'
       };
 
       /* ==========================
-         HELPERS
+         HELPERS CARRITO
          ========================== */
       function readCart(){
         try{ return JSON.parse(CART_STORE.getItem(CART_KEY) || '[]'); }catch(e){ return []; }
@@ -764,7 +914,13 @@
       function countCart(){
         return readCart().reduce((a,b)=>a+(b.qty||0),0);
       }
+      function cartSubtotalPen(cart){
+        return (cart||[]).reduce((s,i)=> s + (Number(i.precio||0) * Number(i.qty||1)), 0);
+      }
 
+      /* ==========================
+         HELPERS MONEY
+         ========================== */
       function penToUsd(pen){ return pen / FX; }
       function formatMoneyPen(n){ return 'S/ ' + (Number(n)||0).toFixed(2); }
       function formatMoneyUsd(n){ return '$ ' + (Number(n)||0).toFixed(2); }
@@ -775,6 +931,9 @@
           : formatMoneyPen(pen);
       }
 
+      /* ==========================
+         HELPERS UI
+         ========================== */
       function showToast(msg, iconClass){
         const toast = document.getElementById('toastMini');
         const text = document.getElementById('toastText');
@@ -806,7 +965,224 @@
         });
       }
 
-      // API global (por si la usas desde otras páginas)
+      /* ==========================
+         CUPONES: FECHA + CATÁLOGO
+         ========================== */
+
+      function isoLocalDate(d){
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,'0');
+        const day = String(d.getDate()).padStart(2,'0');
+        return `${y}-${m}-${day}`; // YYYY-MM-DD
+      }
+
+      // Suma meses manteniendo el día lo mejor posible
+      function addMonthsClamped(date, months){
+        const y = date.getFullYear();
+        const m = date.getMonth();
+        const day = date.getDate();
+
+        const targetMonth = m + months;
+        const lastDay = new Date(y, targetMonth + 1, 0).getDate();
+        const clampedDay = Math.min(day, lastDay);
+
+        return new Date(y, targetMonth, clampedDay);
+      }
+
+      // Por defecto: vence en 1 mes desde hoy.
+      const DEFAULT_EXPIRES_ISO = isoLocalDate(addMonthsClamped(new Date(), 1));
+
+      // CATÁLOGO DE CUPONES
+      const COUPON_DEFS = [
+        { code:'INN5-8GXY12',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-GKVDQK',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-HXFACT',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-JVfsLW',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-KQARZJ',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-KWADSC',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-NFFAD2',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-RY5ESN',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-TX4WEP',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-WYTJG5',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-2K9QWD',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-4X7MPT',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-6H3ZVA',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-7JQ8RC',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-8V2NGL',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-9T5WKB',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-B3Q7XF',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-C9M2HD',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-D6R8YP',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-F4K9SJ',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-G7V3MN',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-H2P8QD',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-J5X7TR',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-K8D2LW',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-L3N9ZA',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-M6C4YF',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-N9H5VK',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-P2W8GS',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-Q7L3BX',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-R4S9CJ',  amountPen:2,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+
+        // 5
+        { code:'INN5-8GXYG3',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-GKVMQK',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-HXF4CT',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-JVKFLW',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-KQNKZJ',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-KWTGYC',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-NFFW52',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-RY52TN',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-TX4JQP',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN5-WYTRS5',  amountPen:5,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+
+        // 8
+        { code:'INN8-2HHXLX',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN8-3NBGP7',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN8-6JR92H',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN8-9P9ESJ',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN8-D2ZQAG',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN8-EBEZD7',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN8-LW78JK',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN8-N9TPM6',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN8-PZH6B5',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN8-SB2J4D',  amountPen:8,  expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+
+        // 10
+        { code:'INN10-6WYG4C', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN10-CHNSDZ', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN10-JBQXX7', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN10-MDRQFF', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN10-R2R8YC', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN10-XXSELH', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN10-YNS7Z9', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN10-YSA6YA', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN10-Z2Y3HK', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN10-ZJ4YYT', amountPen:10, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+
+        // 12
+        { code:'INN12-3S5QCM', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN12-5ZRD5B', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN12-6F2AVK', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN12-D59WNW', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN12-JFU8UR', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN12-LKCSGF', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN12-LX495A', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN12-NRZPSH', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN12-UV98H6', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN12-VFRR5M', amountPen:12, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+
+        // 15
+        { code:'INN15-3QP5M9', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN15-FJV3RK', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN15-JCZ99M', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN15-JPRRWP', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN15-MGEFM8', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN15-NQP92E', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN15-NWJE83', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN15-U28E9H', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN15-YMLR5S', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 },
+        { code:'INN15-ZPXFZS', amountPen:15, expiresISO: DEFAULT_EXPIRES_ISO, maxUses:1 }
+      ];
+
+      // Mapa para búsqueda rápida
+      const COUPONS = (function(){
+        const map = Object.create(null);
+        COUPON_DEFS.forEach(c => { map[String(c.code||'').toUpperCase()] = c; });
+        return map;
+      })();
+
+      function todayISO(){
+        return isoLocalDate(new Date());
+      }
+      function isExpired(expiresISO){
+        if(!expiresISO) return false;
+        return todayISO() > expiresISO;
+      }
+
+      function readUsedCoupons(){
+        try{ return JSON.parse(localStorage.getItem(USED_COUPONS_KEY) || '{}'); }catch(e){ return {}; }
+      }
+      function writeUsedCoupons(obj){
+        localStorage.setItem(USED_COUPONS_KEY, JSON.stringify(obj));
+      }
+      function isCouponUsed(code){
+        const used = readUsedCoupons();
+        return Boolean(used[code]);
+      }
+      function markCouponUsed(code){
+        const used = readUsedCoupons();
+        used[code] = new Date().toISOString();
+        writeUsedCoupons(used);
+      }
+
+      function readAppliedCoupon(){
+        try{ return JSON.parse(CART_STORE.getItem(APPLIED_COUPON_KEY) || 'null'); }catch(e){ return null; }
+      }
+      function writeAppliedCoupon(code){
+        if(!code){
+          CART_STORE.removeItem(APPLIED_COUPON_KEY);
+          return;
+        }
+        CART_STORE.setItem(APPLIED_COUPON_KEY, JSON.stringify({ code }));
+      }
+      function clearAppliedCoupon(){
+        CART_STORE.removeItem(APPLIED_COUPON_KEY);
+        state.appliedCouponCode = null;
+      }
+
+      // Restaurar cupón
+      (function restoreAppliedCoupon(){
+        const saved = readAppliedCoupon();
+        if(saved && saved.code){
+          state.appliedCouponCode = String(saved.code).toUpperCase();
+          const input = document.getElementById('couponInput');
+          if(input) input.value = state.appliedCouponCode;
+        }
+      })();
+
+      function getDiscountPen(subtotalPen){
+        const code = state.appliedCouponCode ? String(state.appliedCouponCode).toUpperCase() : '';
+        if(!code) return 0;
+
+        const def = COUPONS[code];
+        if(!def){
+          clearAppliedCoupon();
+          return 0;
+        }
+        if(isExpired(def.expiresISO)){
+          clearAppliedCoupon();
+          return 0;
+        }
+        if(isCouponUsed(code)){
+          clearAppliedCoupon();
+          return 0;
+        }
+
+        const raw = Number(def.amountPen || 0);
+        return Math.max(0, Math.min(raw, Number(subtotalPen||0)));
+      }
+
+      function consumeAppliedCoupon(){
+        const code = state.appliedCouponCode ? String(state.appliedCouponCode).toUpperCase() : '';
+        if(!code) return;
+
+        const def = COUPONS[code];
+        if(!def){ clearAppliedCoupon(); return; }
+        if(isExpired(def.expiresISO)){ clearAppliedCoupon(); return; }
+        if(isCouponUsed(code)){ clearAppliedCoupon(); return; }
+
+        markCouponUsed(code);
+        clearAppliedCoupon();
+
+        const input = document.getElementById('couponInput');
+        if(input) input.value = '';
+      }
+
+      /* ==========================
+         API global
+         ========================== */
       window.Cart = window.Cart || {
         add(item){
           const cart = readCart();
@@ -817,7 +1193,7 @@
             cart.push({
               id: item.id,
               nombre: item.nombre,
-              precio: Number(item.precio || 0), // precios siempre en PEN
+              precio: Number(item.precio || 0),
               imagen: item.imagen || 'img/placeholder.jpg',
               qty: item.qty || 1
             });
@@ -846,6 +1222,22 @@
       };
 
       /* ==========================
+         UI agente WhatsApp
+         ========================== */
+      function syncAgentUI(){
+        const key = (state.selectedAgent && WA_AGENTS[state.selectedAgent]) ? state.selectedAgent : 'ROOM';
+        const agent = WA_AGENTS[key];
+        const label = document.getElementById('currentAgentLabel');
+        if(label) label.textContent = `${agent.emoji} ${agent.name}`;
+
+        document.querySelectorAll('#whatsappAgentSelector .js-select-agent').forEach(btn=>{
+          const k = btn.getAttribute('data-agent');
+          if(k === key) btn.classList.add('active');
+          else btn.classList.remove('active');
+        });
+      }
+
+      /* ==========================
          RENDER
          ========================== */
       function renderCart(){
@@ -858,11 +1250,8 @@
         const itemsCount = cart.reduce((s,i)=>s + (i.qty||0), 0);
         document.getElementById('itemsCountText').textContent = `${itemsCount} item${itemsCount===1?'':'s'}`;
 
-        // Totales (siempre en PEN y luego formateo)
-        let subtotalPen = 0;
-        cart.forEach(i => subtotalPen += (Number(i.precio||0) * Number(i.qty||1)));
-
-        const discountPen = subtotalPen * (state.discountRate || 0);
+        const subtotalPen = cartSubtotalPen(cart);
+        const discountPen = getDiscountPen(subtotalPen);
         const totalPen = Math.max(0, subtotalPen - discountPen);
 
         document.getElementById('subtotalText').textContent = formatMoneyPenSmart(subtotalPen);
@@ -881,6 +1270,7 @@
 
         if(cart.length === 0){
           empty.classList.remove('d-none');
+          syncHeaderBadges();
           return;
         }else{
           empty.classList.add('d-none');
@@ -936,7 +1326,6 @@
 
           tbody.appendChild(tr);
 
-          // fallback imagen
           normalizeImgFallback(tr.querySelector('img'));
         });
 
@@ -999,9 +1388,10 @@
           return;
         }
         window.Cart.clear();
-        state.discountRate = 0;
-        state.discountCode = '';
-        document.getElementById('couponInput').value = '';
+        clearAppliedCoupon();
+        const input = document.getElementById('couponInput');
+        if(input) input.value = '';
+
         renderCart();
         showToast('Carrito vaciado ✅', 'fas fa-check-circle');
       });
@@ -1012,29 +1402,63 @@
       document.getElementById('couponForm').addEventListener('submit', function(e){
         e.preventDefault();
         const code = (document.getElementById('couponInput').value||'').trim().toUpperCase();
-        const subtotalPen = readCart().reduce((s,i)=>s + (Number(i.precio||0)*Number(i.qty||1)), 0);
+        const cart = readCart();
+        const subtotalPen = cartSubtotalPen(cart);
 
         if(subtotalPen <= 0){
           showToast('Carrito vacío 😅', 'fas fa-info-circle');
           return;
         }
 
-        if(code === 'INNOV10'){
-          state.discountRate = 0.10;
-          state.discountCode = code;
-          renderCart();
-          showToast('Cupón aplicado: 10% OFF 🎉', 'fas fa-ticket-alt');
-        }else if(code === ''){
-          state.discountRate = 0;
-          state.discountCode = '';
+        if(code === ''){
+          clearAppliedCoupon();
           renderCart();
           showToast('Cupón removido', 'fas fa-info-circle');
-        }else{
-          state.discountRate = 0;
-          state.discountCode = '';
+          return;
+        }
+
+        const def = COUPONS[code];
+        if(!def){
+          clearAppliedCoupon();
           renderCart();
           showToast('Cupón inválido ❌', 'fas fa-times-circle');
+          return;
         }
+
+        if(isExpired(def.expiresISO)){
+          clearAppliedCoupon();
+          renderCart();
+          showToast('Cupón vencido ⏳', 'fas fa-hourglass-end');
+          return;
+        }
+
+        if(isCouponUsed(code)){
+          clearAppliedCoupon();
+          renderCart();
+          showToast('Cupón ya fue usado ✅', 'fas fa-ban');
+          return;
+        }
+
+        state.appliedCouponCode = code;
+        writeAppliedCoupon(code);
+
+        renderCart();
+
+        const effectiveDiscountPen = Math.min(Number(def.amountPen||0), subtotalPen);
+        showToast(`Cupón aplicado: -${formatMoneyPenSmart(effectiveDiscountPen)} 🎉`, 'fas fa-ticket-alt');
+      });
+
+      /* ==========================
+         SELECTOR DE AGENTE WHATSAPP
+         ========================== */
+      document.querySelectorAll('#whatsappAgentSelector .js-select-agent').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const agentKey = btn.getAttribute('data-agent');
+          if(!WA_AGENTS[agentKey]) return;
+          state.selectedAgent = agentKey;
+          try{ localStorage.setItem('innov_wa_agent', agentKey); }catch(e){}
+          syncAgentUI();
+        });
       });
 
       /* ==========================
@@ -1048,17 +1472,34 @@
           return;
         }
 
-        const subtotalTxt = document.getElementById('subtotalText').textContent;
-        const totalTxt = document.getElementById('totalText').textContent;
+        const agentKey = (state.selectedAgent && WA_AGENTS[state.selectedAgent]) ? state.selectedAgent : 'ROOM';
+        const agent = WA_AGENTS[agentKey];
+        const waNumber = agent.number;
+
+        const subtotalPen = cartSubtotalPen(cart);
+        const discountPen = getDiscountPen(subtotalPen);
+        const totalPen = Math.max(0, subtotalPen - discountPen);
+
         const currencyTxt = (state.currency === 'USD') ? 'USD' : 'Soles (PEN)';
 
         const lines = [];
         lines.push('Hola, quiero completar mi compra en *Innov AI Tienda* 🛒');
         lines.push('');
+        lines.push(`Agente: *${agent.name}* · +${agent.number}`);
         lines.push(`Moneda en pantalla: *${currencyTxt}*`);
-        if(state.discountCode){
-          lines.push(`Cupón: *${state.discountCode}*`);
+
+        if(state.appliedCouponCode){
+          const def = COUPONS[state.appliedCouponCode];
+          if(def){
+            lines.push('');
+            lines.push(`Cupón usado: *${state.appliedCouponCode}*`);
+            lines.push(`Vence: ${def.expiresISO}`);
+            if(discountPen > 0){
+              lines.push(`Descuento aplicado: -${formatMoneyPen(discountPen)}`);
+            }
+          }
         }
+
         lines.push('');
         lines.push('*Productos:*');
         cart.forEach(i=>{
@@ -1066,18 +1507,25 @@
           lines.push(`- ${i.nombre} x${i.qty} (Total: ${formatMoneyPen(lineTotalPen)})`);
         });
         lines.push('');
-        lines.push(`Subtotal: ${subtotalTxt}`);
-        lines.push(`Total: ${totalTxt}`);
+        lines.push(`Subtotal: ${formatMoneyPen(subtotalPen)}`);
+        if(discountPen > 0) lines.push(`Descuento: -${formatMoneyPen(discountPen)}`);
+        lines.push(`Total a pagar: ${formatMoneyPen(totalPen)}`);
         lines.push('');
         lines.push('Método de pago: por definir ✅');
         lines.push('Gracias.');
 
-        const url = `https://wa.me/${WA_ORDER}?text=${encodeURIComponent(lines.join('\n'))}`;
+        const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
         window.open(url, '_blank', 'noopener');
+
+        if(discountPen > 0 && state.appliedCouponCode){
+          consumeAppliedCoupon();
+          renderCart();
+          showToast('Cupón consumido (1 uso) ✅', 'fas fa-check-circle');
+        }
       });
 
       /* ==========================
-         MONEDA (igual a shop)
+         MONEDA
          ========================== */
       const currencyBtn = document.getElementById('currencyBtn');
       function setCurrency(cur){
@@ -1092,19 +1540,18 @@
           setCurrency(btn.getAttribute('data-currency'));
         });
       });
-      // Ajustar botón al iniciar
       currencyBtn.textContent = (state.currency==='USD'?'USD':'Soles');
 
       /* ==========================
          LIMPIAR CARRITO AL VOLVER DEL PAGO
-         - Si regresas a cart.html?paid=1
          ========================== */
       (function maybeClearCartFromQuery(){
         const qs = new URLSearchParams(location.search);
         if(qs.get('paid') === '1'){
+          if(state.appliedCouponCode){
+            consumeAppliedCoupon();
+          }
           window.Cart.clear();
-          state.discountRate = 0;
-          state.discountCode = '';
           showToast('Compra finalizada ✅ Carrito limpiado', 'fas fa-check-circle');
           qs.delete('paid');
           const tail = qs.toString();
@@ -1133,13 +1580,41 @@
       })();
 
       /* ==========================
+         PROCEDER AL PAGO
+         ========================== */
+      document.getElementById('toCheckout').addEventListener('click', function(e){
+        const cart = readCart();
+        if(cart.length===0){
+          e.preventDefault();
+          showToast('Tu carrito está vacío 😅', 'fas fa-info-circle');
+          return;
+        }
+        const subtotalPen = cartSubtotalPen(cart);
+        const discountPen = getDiscountPen(subtotalPen);
+        const totalPen = Math.max(0, subtotalPen - discountPen);
+
+        const payload = {
+          subtotalPen,
+          discountPen,
+          totalPen,
+          couponCode: state.appliedCouponCode,
+          currency: state.currency,
+          updatedAt: new Date().toISOString()
+        };
+        try{
+          sessionStorage.setItem('innov_checkout_meta_v1', JSON.stringify(payload));
+        }catch(err){}
+      });
+
+      /* ==========================
          INIT
          ========================== */
       renderCart();
       syncHeaderBadges();
+      syncAgentUI();
 
-      // Si vienes desde shop, todo ok (misma sessionStorage en la misma pestaña)
     })();
   </script>
 </body>
 </html>
+
