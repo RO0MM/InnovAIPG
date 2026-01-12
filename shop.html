@@ -1,29 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Open Graph (WhatsApp / Facebook) -->
-<meta property="og:title" content="Innov AI Tienda — Tienda" />
-<meta property="og:description" content="Explora Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp." />
-<meta property="og:type" content="website" />
-
-<!-- IMPORTANTE: pon aquí EXACTO el link que vas a compartir -->
-<meta property="og:url" content="https://innovaistreming.vercel.app/shop.html" />
-
-<!-- Imagen por LINK (Facebook CDN) -->
-<meta property="og:image" content="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/607453602_122105818401175445_7145539768385536412_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=eaZjM59V5uYQ7kNvwFv6YSQ&_nc_oc=AdnMIR3AM8uLUbuubWUW74nLTbORXJhATBl2IOR30RbVc3smJC8VnHqR3Lu48EPjV_U&_nc_zt=23&_nc_ht=scontent-mia3-2.xx&_nc_gid=dthu8BO-tZrkwsO4f2wI8Q&oh=00_Afp5pwSoA1OdLte05Dt5BARQmhrd8P9y0VpRRk3q49pj7g&oe=696A0662" />
-<meta property="og:image:secure_url" content="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/607453602_122105818401175445_7145539768385536412_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=eaZjM59V5uYQ7kNvwFv6YSQ&_nc_oc=AdnMIR3AM8uLUbuubWUW74nLTbORXJhATBl2IOR30RbVc3smJC8VnHqR3Lu48EPjV_U&_nc_zt=23&_nc_ht=scontent-mia3-2.xx&_nc_gid=dthu8BO-tZrkwsO4f2wI8Q&oh=00_Afp5pwSoA1OdLte05Dt5BARQmhrd8P9y0VpRRk3q49pj7g&oe=696A0662" />
-<meta property="og:image:type" content="image/jpeg" />
-
-<!-- (Opcional pero recomendado) -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:image" content="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/607453602_122105818401175445_7145539768385536412_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=eaZjM59V5uYQ7kNvwFv6YSQ&_nc_oc=AdnMIR3AM8uLUbuubWUW74nLTbORXJhATBl2IOR30RbVc3smJC8VnHqR3Lu48EPjV_U&_nc_zt=23&_nc_ht=scontent-mia3-2.xx&_nc_gid=dthu8BO-tZrkwsO4f2wI8Q&oh=00_Afp5pwSoA1OdLte05Dt5BARQmhrd8P9y0VpRRk3q49pj7g&oe=696A0662" />
-
-
   <meta charset="utf-8" />
   <title>Innov AI Tienda — Tienda</title>
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <meta name="description" content="Explora Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp." />
-  <meta name="keywords" content="Innov AI Tienda, tienda, servicios digitales, Perú, ChatGPT Plus, Gemini Pro, CapCut Pro, Perplexity, Canva, Autodesk, Netflix, Disney, Max, Prime Video, ViX, IPTV, Crunchyroll, Surfshark" />
+  <meta name="keywords" content="Innov AI Tienda, tienda, servicios digitales, Perú, ChatGPT Plus, Gemini Pro, CapCut Pro, Perplexity, Canva, Autodesk, Netflix, Disney, Max, Prime Video, ViX, IPTV, Crunchyroll, Surfshark, YouTube Premium, Spotify, Paramount+, Turnitin, QuillBot, ESET" />
 
   <!-- Favicon -->
   <link href="img/favicon.ico" rel="icon" />
@@ -170,8 +152,8 @@
     }
     .product-img img{
       width:100%;
-      height:140px;         /* MÁS PEQUEÑO */
-      object-fit:contain;   /* logos */
+      height:140px;
+      object-fit:contain;
       padding:14px;
       background:transparent;
     }
@@ -461,7 +443,6 @@
       .cat-chip{ font-size:9px; }
       .period-note{ font-size:11px; }
 
-      /* En móvil (táctil): acciones visibles sin hover */
       .product-action{
         opacity:1;
         transform:none;
@@ -471,7 +452,6 @@
       .product-action .btn-detail{ padding:0 .65rem; }
     }
 
-    /* Resaltar carrito (más visible al finalizar fly-to-cart) */
     @keyframes cart-attn{
       0%{ transform:scale(1); box-shadow:0 0 0 0 rgba(13,110,253,0); }
       45%{ transform:scale(1.35); box-shadow:0 0 0 12px rgba(13,110,253,.22); }
@@ -625,6 +605,7 @@
                   <i class="fas fa-shopping-cart text-primary"></i>
                   <span id="headerCartBadge" class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
                 </a>
+
               </div>
 
             </div>
@@ -790,7 +771,6 @@
             </a>
 
             <a class="social-btn" href="https://www.tiktok.com/@innoovia" target="_blank" rel="noopener" aria-label="TikTok">
-              <!-- TikTok SVG (FA 5.10 no siempre incluye tiktok) -->
               <svg class="tiktok-svg" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M17.5 3c.6 2.7 2.6 4.9 5.2 5.6v3.4c-2.2 0-4.2-.7-5.9-2v6.3c0 4-3.2 7.2-7.2 7.2S2.4 20.3 2.4 16.3c0-4 3.2-7.2 7.2-7.2.4 0 .8 0 1.2.1v3.8c-.4-.2-.8-.3-1.2-.3-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5V1.9h3.2c.1.4.2.7.3 1.1z"/>
               </svg>
@@ -999,14 +979,14 @@
     }
 
     /* ================== Deep links por producto ================== */
+    // URL especial para compartir: /links/ID.html
+    // (debes crear un HTML por producto en /links con sus meta OG)
     function buildProductLink(id){
       try{
-        const url = new URL(window.location.href);
-        url.hash = 'p=' + encodeURIComponent(id);
-        return url.toString();
+        const origin = window.location.origin || '';
+        return origin + '/links/' + encodeURIComponent(id) + '.html';
       }catch(e){
-        const base = window.location.href.split('#')[0];
-        return base + '#p=' + encodeURIComponent(id);
+        return '/links/' + encodeURIComponent(id) + '.html';
       }
     }
     function setProductHash(id){
@@ -1118,8 +1098,6 @@
     }
 
     /* ================== Disponible / Cupo ================== */
-    // Default: disponible (verde)
-    // Rojo si: disponible === false o cupo <= 0
     function isDisponible(it){
       const disp = (it.disponible !== false);
       if(!disp) return false;
@@ -1161,10 +1139,8 @@
 
     /* ==========================================================
        CATÁLOGO (POR MENOR)
-       - AQUÍ EDITAS TODO (cupo, disponible, beneficios, etc.)
        ========================================================== */
     const CATALOG = [
-      /* ===== IA ===== */
       {
         id:'rt-ai-gpt-8',
         name:'ChatGPT Plus',
@@ -1224,8 +1200,6 @@
         ],
         why:'Si trabajas en computadora y quieres extras, este es el mejor combo.'
       },
-
-      /* ===== VIDEO / EDICIÓN ===== */
       {
         id:'rt-vid-capcut',
         name:'CapCut Pro',
@@ -1246,8 +1220,6 @@
         ],
         why:'Para creadores: mejoras tus videos en minutos con herramientas Pro.'
       },
-
-      /* ===== IA / GOOGLE ===== */
       {
         id:'rt-ai-gemini',
         name:'Gemini PRO + 2 TB Google One',
@@ -1298,7 +1270,7 @@
         url:'https://www.perplexity.ai',
         period:'1 año',
         cupo:null,
-        disponible:false,
+        disponible:true,
         chips:['1 año','Búsqueda con fuentes','Activación en tu cuenta'],
         desc:'IA para investigar con fuentes: respuestas rápidas, útiles y verificables.',
         benefits:[
@@ -1310,8 +1282,6 @@
         ],
         why:'Ideal para estudiar, investigar y trabajar con información más confiable.'
       },
-
-      /* ===== HERRAMIENTAS ===== */
       {
         id:'rt-tools-canva-1y',
         name:'Canva Pro',
@@ -1368,11 +1338,10 @@
           '⏳ Duración: 3 años',
           '🏆 Mejor precio por año',
           '🚀 Ideal para agencias / emprendimientos',
-          ' EDU'
+          'EDU'
         ],
         why:'La opción más rentable si lo usarás por largo tiempo.'
       },
-
       {
         id:'rt-tools-autodesk',
         name:'Autodesk Suite',
@@ -1403,7 +1372,6 @@
         ],
         why:'Perfecto para estudiantes y profesionales que necesitan la suite completa.'
       },
-
       {
         id:'rt-tools-office365',
         name:'Office 365 — Consultar',
@@ -1423,8 +1391,64 @@
         ],
         why:'Consulta y te pasamos el plan más conveniente.'
       },
-
-      /* ===== STREAMING ===== */
+      {
+        id:'rt-tools-turnitin',
+        name:'Turnitin',
+        price:20,
+        cat:'otros',
+        url:'https://www.turnitin.com',
+        period:'Mensual',
+        cupo:null,
+        disponible:true,
+        chips:['Mensual','Antiplagio','Educación'],
+        desc:'Servicio antiplagio para revisar trabajos, tesis y tareas antes de entregar.',
+        benefits:[
+          '🧠 Revisión de similitud y plagio',
+          '🎓 Ideal para estudiantes y docentes',
+          '📄 Útil para tesis, monografías y tareas',
+          '🛟 Soporte por WhatsApp para uso básico'
+        ],
+        why:'Te ayuda a evitar problemas de plagio y entregar trabajos más seguros.'
+      },
+      {
+        id:'rt-ai-quillbot',
+        name:'QuillBot Premium (Cuenta compartida)',
+        price:17,
+        cat:'ai',
+        url:'https://quillbot.com',
+        period:'Mensual',
+        cupo:null,
+        disponible:true,
+        chips:['Cuenta compartida','Paráfrasis','Mensual'],
+        desc:'IA para parafrasear, resumir y corregir textos, pensada para que tu contenido se vea más natural.',
+        benefits:[
+          '✏️ Parafraseo avanzado en varios modos',
+          '🧹 Reduce el “estilo IA” de los textos',
+          '📚 Resumen y corrección gramatical',
+          '👥 Cuenta compartida (según cupo)',
+          '🛟 Soporte por WhatsApp'
+        ],
+        why:'Perfecto para reescribir textos y hacerlos más naturales sin que parezcan generados por IA.'
+      },
+      {
+        id:'rt-tools-eset',
+        name:'ESET Antivirus (mensual)',
+        price:10,
+        cat:'otros',
+        url:'https://www.eset.com',
+        period:'Mensual',
+        cupo:null,
+        disponible:true,
+        chips:['Mensual','Antivirus','Seguridad'],
+        desc:'Antivirus mensual ESET para proteger tu PC y navegación diaria.',
+        benefits:[
+          '🛡 Protección contra virus, malware y phishing',
+          '💻 Ideal para uso personal y estudio',
+          '🔄 Licencia renovable mes a mes',
+          '🛟 Soporte por WhatsApp para instalación básica'
+        ],
+        why:'Buena protección básica a precio accesible para tu equipo principal.'
+      },
       {
         id:'rt-st-netflix',
         name:'Netflix',
@@ -1432,14 +1456,13 @@
         cat:'streaming',
         url:'https://www.netflix.com',
         period:'Mensual',
-        cupo:5,
-        disponible:true,
+        cupo:0,
+        disponible:false,
         chips:['Mensual','Streaming','Soporte'],
         desc:'Entretenimiento premium con soporte.',
         benefits:[
           '🎬 Series y películas',
           '⚡ Entrega rápida',
-          '📺 Solo televisor',
           '🛟 Soporte por WhatsApp',
           '🔒 Configuración guiada'
         ],
@@ -1519,6 +1542,63 @@
         why:'Gran alternativa para ver de todo.'
       },
       {
+        id:'rt-st-youtube-premium',
+        name:'YouTube Premium (no renovable)',
+        price:5,
+        cat:'streaming',
+        url:'https://www.youtube.com/premium',
+        period:'Mensual (una sola activación)',
+        cupo:null,
+        disponible:true,
+        chips:['S/ 5','No renovable','En tu Gmail'],
+        desc:'YouTube Premium mensual, una sola activación en tu mismo correo Gmail. No renovable automáticamente.',
+        benefits:[
+          '▶️ YouTube sin anuncios y en segundo plano (según región)',
+          '📧 Activación en tu propio correo Gmail',
+          '🔁 No renovable: una sola activación por ciclo',
+          '💸 Ideal para probar el servicio a bajo costo'
+        ],
+        why:'Buenísima opción barata si solo quieres un mes puntual en tu propio correo.'
+      },
+      {
+        id:'rt-st-spotify',
+        name:'Spotify Premium',
+        price:12,
+        cat:'streaming',
+        url:'https://www.spotify.com',
+        period:'Mensual',
+        cupo:null,
+        disponible:true,
+        chips:['Mensual','Música','Streaming'],
+        desc:'Spotify Premium mensual para escuchar música sin anuncios.',
+        benefits:[
+          '🎧 Música sin anuncios (según plan)',
+          '⏯ Descargas y modo offline',
+          '📱 Funciona en celular y PC',
+          '🛟 Soporte por WhatsApp para activar'
+        ],
+        why:'Para escuchar música todo el día sin interrupciones.'
+      },
+      {
+        id:'rt-st-paramount',
+        name:'Paramount+',
+        price:7,
+        cat:'streaming',
+        url:'https://www.paramountplus.com',
+        period:'Mensual',
+        cupo:null,
+        disponible:true,
+        chips:['Mensual','Series y pelis','Streaming'],
+        desc:'Paramount+ mensual con series, películas y contenido exclusivo.',
+        benefits:[
+          '🎬 Catálogo de series y películas',
+          '⚡ Activación rápida',
+          '🛟 Soporte por WhatsApp',
+          '📺 Compatible con varios dispositivos'
+        ],
+        why:'Buena alternativa para sumar más contenido a tu combo de streaming.'
+      },
+      {
         id:'rt-st-iptv',
         name:'IPTV',
         price:8,
@@ -1555,8 +1635,6 @@
         ],
         why:'Para fans del anime: simple y rápido.'
       },
-
-      /* ===== VPN ===== */
       {
         id:'rt-vpn-surfshark-device',
         name:'Surfshark VPN (1 dispositivo)',
@@ -1752,10 +1830,65 @@
           '🛟 Soporte a proveedores'
         ],
         why:'Plan perfecto para vender como pack trimestral.'
+      },
+      {
+        id:'wh-edu-turnitin-bulk',
+        name:'Turnitin — Pack universidades (Proveedor)',
+        price:10,
+        cat:'otros',
+        url:'https://www.turnitin.com',
+        period:'Mensual',
+        cupo:0,
+        disponible:false,
+        chips:['Educación','Pack universidades','Sin cupo'],
+        desc:'Pack de cuentas Turnitin para instituciones educativas. Actualmente sin cupo, solo consulta.',
+        benefits:[
+          '🎓 Pensado para colegios y universidades',
+          '🧠 Revisión masiva de trabajos',
+          '💼 Ideal para proveedores educativos',
+          '⚠️ Ahora mismo sin stock (no disponible)'
+        ],
+        why:'Cuando vuelva stock, permite ofrecer Turnitin a instituciones completas.'
+      },
+      {
+        id:'wh-ai-quillbot-teams',
+        name:'QuillBot Teams (Proveedor)',
+        price:10,
+        cat:'ai',
+        url:'https://quillbot.com',
+        period:'Mensual',
+        cupo:0,
+        disponible:false,
+        chips:['Paráfrasis','Teams','Sin cupo'],
+        desc:'Plan de equipos QuillBot para proveedores. Marcado como no disponible por ahora.',
+        benefits:[
+          '✏️ Parafraseo para grupos de usuarios',
+          '📚 Ideal para academias y agencias',
+          '🛟 Soporte a proveedores',
+          '⚠️ Actualmente sin cupo, solo consulta'
+        ],
+        why:'Buen producto para revender cuando haya cupos disponibles.'
+      },
+      {
+        id:'wh-sec-eset-10u',
+        name:'ESET Antivirus (10 dispositivos / Proveedor)',
+        price:10,
+        cat:'otros',
+        url:'https://www.eset.com',
+        period:'Mensual',
+        cupo:0,
+        disponible:false,
+        chips:['Antivirus','10 dispositivos','Sin cupo'],
+        desc:'Pack mensual de ESET Antivirus para hasta 10 dispositivos. Marcado como no disponible por ahora.',
+        benefits:[
+          '🛡 Protección para varios equipos',
+          '💼 Útil para pequeñas empresas y cabinas',
+          '🛟 Soporte a proveedores',
+          '⚠️ Actualmente sin cupo (no disponible)'
+        ],
+        why:'Diseñado para proveedores de servicios de seguridad cuando haya stock.'
       }
     ];
-
-    function currentCatalog(){ return state.mode==='retail' ? CATALOG : WHOLESALE; }
 
     /* ================== Render ================== */
     const grid = document.getElementById('productsGrid');
@@ -1786,6 +1919,8 @@
       else if(s==='name-desc') arr.sort((a,b)=>b.name.localeCompare(a.name));
       return arr;
     }
+
+    function currentCatalog(){ return state.mode==='retail' ? CATALOG : WHOLESALE; }
 
     function getFilterMaxPen(){
       const prices = currentCatalog().map(it=>it.price).filter(p=>typeof p === 'number');
@@ -1950,7 +2085,6 @@
         const detBtn = card.querySelector('.btn-detail');
         const titleA = card.querySelector('.js-title');
 
-        // fallback imagen
         if(imgEl){
           imgEl.dataset.errstep = '0';
           imgEl.addEventListener('error', ()=>{
@@ -1970,7 +2104,6 @@
             return;
           }
 
-          // Si es “Consultar”
           if(precio==null){
             consultWhatsApp(it);
             return;
@@ -2041,7 +2174,6 @@
       if(!it) return;
       modalItem = it;
 
-      /* ✅ Actualiza link directo: shop.html#p=ID */
       setProductHash(it.id);
 
       document.getElementById('productModalLabel').textContent = it.name;
@@ -2060,12 +2192,10 @@
           : `≈ ${formatMoneyUsd(penToUsd(it.price))} en USD`;
       }
 
-      // Estado (verde/rojo)
       const disp = isDisponible(it);
       elStatus.textContent = disp ? 'Disponible' : 'No disponible';
       elStatus.style.color = disp ? '#198754' : '#ff3b30';
 
-      // Chips
       elChips.innerHTML = '';
       const chips = Array.isArray(it.chips) ? it.chips : [];
       const cupoChip = (typeof it.cupo === 'number') ? `Cupos: ${it.cupo}` : null;
@@ -2080,7 +2210,6 @@
 
       elDesc.textContent = it.desc || 'Servicio digital con entrega inmediata por WhatsApp.';
 
-      // Beneficios (bonitos)
       elBen.innerHTML = '';
       (it.benefits || []).forEach(b=>{
         const li = document.createElement('li');
@@ -2088,10 +2217,8 @@
         elBen.appendChild(li);
       });
 
-      // Why (texto)
       elWhy.textContent = it.why || 'Precio competitivo, soporte y entrega rápida.';
 
-      // Extra (Autodesk y otros con secciones)
       if(Array.isArray(it.extraSections) && it.extraSections.length){
         elExtra.classList.remove('d-none');
         elExtra.innerHTML = `<div class="font-weight-bold mb-2">📦 Suite / Más información</div>` +
@@ -2109,9 +2236,8 @@
         elExtra.innerHTML = '';
       }
 
-      // Botones
       btnAdd.disabled = (!disp) || (it.price==null);
-      btnBuy.disabled = (!disp) ? true : false;
+      btnBuy.disabled = (!disp);
 
       if(it.price==null){
         btnBuy.innerHTML = '<i class="fab fa-whatsapp"></i> Consultar por WhatsApp';
@@ -2410,7 +2536,6 @@
       const it = findItemById(pid);
       if(!it) return;
 
-      // Si es un producto de proveedores, cambia modo para que tenga sentido visualmente.
       const isWh = WHOLESALE.some(x => x.id === pid);
       if(isWh && state.mode !== 'wholesale'){
         state.mode = 'wholesale';
@@ -2427,7 +2552,6 @@
         modeWholesaleBtn.classList.remove('active');
       }
 
-      // En móvil, cerramos filtros para que no estorbe
       try { $('#filtersCollapse').collapse('hide'); } catch(e){}
 
       openDetail(pid);
@@ -2437,12 +2561,6 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
 
 
 
