@@ -979,6 +979,10 @@
     const WA_PRIMARY   = '51930264550';
     const WA_SECONDARY = '51991564053';
 
+    // Base para los links compartibles de productos (para WhatsApp / redes)
+    // Ajusta el dominio si cambias de hosting:
+    const SHARE_BASE = 'https://innovaistreming.vercel.app/p/';
+
     const SETTINGS = {
       currency: localStorage.getItem('innov_currency') || 'PEN',
       flyDurationMs: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--fly-duration')) || 1050,
@@ -1141,8 +1145,6 @@
     }
 
     /* ================== Disponible / Cupo ================== */
-    // Default: disponible (verde)
-    // Rojo si: disponible === false o cupo <= 0
     function isDisponible(it){
       const disp = (it.disponible !== false);
       if(!disp) return false;
@@ -1194,6 +1196,7 @@
         price:8,
         cat:'ai',
         url:'https://openai.com/chatgpt',
+        shareUrl: SHARE_BASE + 'rt-ai-gpt-8.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1214,6 +1217,7 @@
         price:12,
         cat:'ai',
         url:'https://openai.com/chatgpt',
+        shareUrl: SHARE_BASE + 'rt-ai-gpt-12.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1230,11 +1234,12 @@
       },
       {
         id:'rt-ai-gpt-18',
-        priority: 5,
+        priority: 3,
         name:'ChatGPT Plus (Solo PC)',
         price:18,
         cat:'ai',
         url:'https://openai.com/chatgpt',
+        shareUrl: SHARE_BASE + 'rt-ai-gpt-18.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1258,6 +1263,7 @@
         price:10,
         cat:'musica',
         url:'https://www.capcut.com',
+        shareUrl: SHARE_BASE + 'rt-vid-capcut.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1276,11 +1282,12 @@
       /* ===== IA / GOOGLE ===== */
       {
         id:'rt-ai-gemini',
-        priority: 3,
+        priority: 5,
         name:'Gemini PRO + 2 TB Google One',
         price:15,
         cat:'ai',
         url:'https://gemini.google.com/app',
+        shareUrl: SHARE_BASE + 'rt-ai-gemini.html',
         period:'1 año',
         cupo:null,
         disponible:true,
@@ -1304,6 +1311,7 @@
         price:15,
         cat:'ai',
         url:'https://one.google.com',
+        shareUrl: SHARE_BASE + 'rt-ai-googleone.html',
         period:'1 año',
         cupo:null,
         disponible:true,
@@ -1325,6 +1333,7 @@
         price:15,
         cat:'ai',
         url:'https://www.perplexity.ai',
+        shareUrl: SHARE_BASE + 'rt-ai-perplexity.html',
         period:'1 año',
         cupo:null,
         disponible:false,
@@ -1348,6 +1357,7 @@
         price:10,
         cat:'otros',
         url:'https://www.canva.com',
+        shareUrl: SHARE_BASE + 'rt-tools-canva-1y.html',
         period:'1 año',
         cupo:null,
         disponible:true,
@@ -1369,6 +1379,7 @@
         price:14,
         cat:'otros',
         url:'https://www.canva.com',
+        shareUrl: SHARE_BASE + 'rt-tools-canva-2y.html',
         period:'2 años',
         cupo:30,
         disponible:true,
@@ -1390,6 +1401,7 @@
         price:18.9,
         cat:'otros',
         url:'https://www.canva.com',
+        shareUrl: SHARE_BASE + 'rt-tools-canva-3y.html',
         period:'3 años',
         cupo:30,
         disponible:true,
@@ -1412,6 +1424,7 @@
         price:15,
         cat:'otros',
         url:'https://www.autodesk.com',
+        shareUrl: SHARE_BASE + 'rt-tools-autodesk.html',
         period:'1 año',
         cupo:null,
         disponible:true,
@@ -1444,6 +1457,7 @@
         price:null,
         cat:'otros',
         url:'https://www.microsoft.com/microsoft-365',
+        shareUrl: SHARE_BASE + 'rt-tools-office365.html',
         period:'Consultar',
         cupo:null,
         disponible:true,
@@ -1466,6 +1480,7 @@
         price:13,
         cat:'streaming',
         url:'https://www.netflix.com',
+        shareUrl: SHARE_BASE + 'rt-st-netflix.html',
         period:'Mensual',
         cupo:5,
         disponible:true,
@@ -1486,6 +1501,7 @@
         price:8,
         cat:'streaming',
         url:'https://www.disneyplus.com',
+        shareUrl: SHARE_BASE + 'rt-st-disney.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1506,6 +1522,7 @@
         price:7,
         cat:'streaming',
         url:'https://www.max.com',
+        shareUrl: SHARE_BASE + 'rt-st-hbo.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1525,6 +1542,7 @@
         price:7,
         cat:'streaming',
         url:'https://vix.com',
+        shareUrl: SHARE_BASE + 'rt-st-vix.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1544,6 +1562,7 @@
         price:8,
         cat:'streaming',
         url:'https://www.primevideo.com',
+        shareUrl: SHARE_BASE + 'rt-st-prime.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1563,6 +1582,7 @@
         price:8,
         cat:'streaming',
         url:'https://example.com',
+        shareUrl: SHARE_BASE + 'rt-st-iptv.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1583,6 +1603,7 @@
         price:8,
         cat:'streaming',
         url:'https://www.crunchyroll.com',
+        shareUrl: SHARE_BASE + 'rt-st-crunchy.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1604,6 +1625,7 @@
         price:7,
         cat:'otros',
         url:'https://surfshark.com',
+        shareUrl: SHARE_BASE + 'rt-vpn-surfshark-device.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1631,6 +1653,7 @@
         price:40,
         cat:'ai',
         url:'https://openai.com/chatgpt',
+        shareUrl: SHARE_BASE + 'wh-ai-chatgpt-full.html',
         period:'Mensual',
         cupo:0,
         disponible:false,
@@ -1650,6 +1673,7 @@
         price:25,
         cat:'streaming',
         url:'https://www.disneyplus.com',
+        shareUrl: SHARE_BASE + 'wh-st-disney-7u.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1670,6 +1694,7 @@
         price:15,
         cat:'musica',
         url:'https://www.capcut.com',
+        shareUrl: SHARE_BASE + 'wh-vid-capcut-3d.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1690,6 +1715,7 @@
         price:35,
         cat:'otros',
         url:'https://www.canva.com',
+        shareUrl: SHARE_BASE + 'wh-tools-canva-500.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1710,6 +1736,7 @@
         price:35,
         cat:'otros',
         url:'https://www.autodesk.com',
+        shareUrl: SHARE_BASE + 'wh-tools-autodesk-250-1y.html',
         period:'1 año',
         cupo:2,
         disponible:true,
@@ -1730,6 +1757,7 @@
         price:60,
         cat:'otros',
         url:'https://www.autodesk.com',
+        shareUrl: SHARE_BASE + 'wh-tools-autodesk-3000-3y.html',
         period:'3 años',
         cupo:null,
         disponible:true,
@@ -1750,6 +1778,7 @@
         price:7,
         cat:'streaming',
         url:'https://www.youtube.com/premium',
+        shareUrl: SHARE_BASE + 'wh-st-youtube-5u.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1770,6 +1799,7 @@
         price:25,
         cat:'streaming',
         url:'https://www.crunchyroll.com',
+        shareUrl: SHARE_BASE + 'wh-st-crunchy-full.html',
         period:'Mensual',
         cupo:null,
         disponible:true,
@@ -1790,6 +1820,7 @@
         price:32,
         cat:'otros',
         url:'https://surfshark.com',
+        shareUrl: SHARE_BASE + 'wh-vpn-surfshark-full-3m.html',
         period:'3 meses',
         cupo:null,
         disponible:true,
@@ -2092,7 +2123,10 @@
     if(btnCopy){
       btnCopy.addEventListener('click', async ()=>{
         if(!modalItem) return;
-        const link = buildProductLink(modalItem.id);
+
+        // Si el producto tiene shareUrl, se usa para que redes lean sus metas OG
+        const link = modalItem.shareUrl || buildProductLink(modalItem.id);
+
         const ok = await copyToClipboard(link);
         showToast(ok ? 'Link copiado ✅' : 'No se pudo copiar');
         if(!ok){
@@ -2112,7 +2146,7 @@
       if(!it) return;
       modalItem = it;
 
-      /* ✅ Actualiza link directo: shop.html#p=ID */
+      /* ✅ Actualiza hash: shop.html#p=ID */
       setProductHash(it.id);
 
       document.getElementById('productModalLabel').textContent = it.name;
@@ -2151,7 +2185,7 @@
 
       elDesc.textContent = it.desc || 'Servicio digital con entrega inmediata por WhatsApp.';
 
-      // Beneficios (bonitos)
+      // Beneficios
       elBen.innerHTML = '';
       (it.benefits || []).forEach(b=>{
         const li = document.createElement('li');
@@ -2159,7 +2193,7 @@
         elBen.appendChild(li);
       });
 
-      // Why (texto)
+      // Why
       elWhy.textContent = it.why || 'Precio competitivo, soporte y entrega rápida.';
 
       // Extra (Autodesk y otros con secciones)
@@ -2182,7 +2216,7 @@
 
       // Botones
       btnAdd.disabled = (!disp) || (it.price==null);
-      btnBuy.disabled = (!disp) ? true : false;
+      btnBuy.disabled = (!disp);
 
       if(it.price==null){
         btnBuy.innerHTML = '<i class="fab fa-whatsapp"></i> Consultar por WhatsApp';
@@ -2190,7 +2224,7 @@
         btnBuy.innerHTML = '<i class="fas fa-bolt"></i> Comprar ahora';
       }
 
-      syncHeaderBadges(); // actualiza contador de carrito dentro del modal
+      syncHeaderBadges(); // actualiza contador carrito dentro del modal
       $modal.modal('show');
     }
 
@@ -2509,8 +2543,5 @@
   </script>
 </body>
 </html>
-
-
-
 
 
