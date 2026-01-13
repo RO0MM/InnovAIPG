@@ -1230,7 +1230,7 @@
       },
       {
         id:'rt-ai-gpt-18',
-        priority: 3,
+        priority: 5,
         name:'ChatGPT Plus (Solo PC)',
         price:18,
         cat:'ai',
@@ -1276,7 +1276,7 @@
       /* ===== IA / GOOGLE ===== */
       {
         id:'rt-ai-gemini',
-        priority: 5,
+        priority: 3,
         name:'Gemini PRO + 2 TB Google One',
         price:15,
         cat:'ai',
@@ -2089,30 +2089,14 @@
 
     let modalItem = null;
 
-    /* 🔗 Copiar link: imagen del producto + link interno */
     if(btnCopy){
       btnCopy.addEventListener('click', async ()=>{
         if(!modalItem) return;
-
-        // Link interno a tu tienda (shop.html#p=ID)
-        const productLink = buildProductLink(modalItem.id);
-
-        // Imagen que se muestra en el modal (logo del producto)
-        const imgUrl = (elImg && elImg.src) ? elImg.src : resolveThumb(modalItem);
-
-        // Texto que se copiará (primero la imagen para que WhatsApp use esa vista previa)
-        const textToCopy =
-          `${imgUrl}\n` +
-          `${modalItem.name} — ver detalle:\n` +
-          `${productLink}`;
-
-        const ok = await copyToClipboard(textToCopy);
-        showToast(ok ? 'Imagen + link copiados ✅' : 'No se pudo copiar');
-
+        const link = buildProductLink(modalItem.id);
+        const ok = await copyToClipboard(link);
+        showToast(ok ? 'Link copiado ✅' : 'No se pudo copiar');
         if(!ok){
-          try{
-            window.prompt('Copia el texto (imagen + link):', textToCopy);
-          }catch(e){}
+          try{ window.prompt('Copia el link del producto:', link); }catch(e){}
         }
       });
     }
