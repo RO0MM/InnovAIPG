@@ -34,7 +34,7 @@ input,select,textarea{width:100%;border:1px solid var(--line);border-radius:13px
 <button data-tab="settings">⚙️ Pagos / QR</button>
 <button data-tab="backup">💾 Respaldo</button>
 </nav>
-<div class="side-card"><b>Regla de cupos:</b><br>Stock controlado usa cuentas/códigos. Stock manual usa el número que escribas en el plan.</div>
+<div class="side-card"><b>Regla de cupos:</b><br>Stock controlado usa cuentas/códigos. Stock manual usa el número del plan.<br><br><b>Si no hay stock:</b> en Pagos y pedidos usa <b>Entregar manual</b> y el panel te pedirá correo, clave o código.</div>
 <div class="side-card" id="connectionStatus">Conectando...</div>
 </aside>
 
@@ -127,7 +127,7 @@ function renderProducts(){$('productRows').innerHTML=products.map(p=>`<tr><td><i
 function renderProductPlanCards(){const pid=currentProductId||$('productSelect').value; const rows=plans.filter(p=>p.product_id===pid); const total=rows.reduce((a,p)=>a+(visibleStock(p)>=999999?0:visibleStock(p)),0);$('selectedProductCupos').textContent=total+' cupos';$('productPlanCards').innerHTML=rows.map(p=>`<div class="quick-plan"><div class="head"><div><b>${esc(p.name)}</b><div class="muted mini">${money(p.price)} · ${esc(p.stock_mode||'controlled')} · ${esc(p.availability_status||'available')}</div></div><span class="pill ${visibleStock(p)>0||visibleStock(p)>=999999?'ok':'bad'}">${visibleStock(p)>=999999?'Ilimitado':visibleStock(p)+' cupos'}</span></div><div class="actions"><button class="small blue" data-edit-plan="${p.id}">Editar cupos</button><button class="small ghost" data-go-stock="${p.id}">Agregar stock</button></div></div>`).join('')||'<p class="muted">Este producto aún no tiene planes.</p>'}
 function renderPlans(){const term=($('planSearch').value||'').toLowerCase();$('planRows').innerHTML=plans.filter(p=>(p.name+' '+prodName(p.product_id)).toLowerCase().includes(term)).map(p=>`<tr><td>${esc(prodName(p.product_id))}</td><td><b>${esc(p.name)}</b><br><span class="muted mini">${esc(p.slug)}</span></td><td><b>${money(p.price)}</b></td><td><span class="pill ${visibleStock(p)>0||visibleStock(p)>=999999?'ok':'bad'}">${stockLabel(p)}</span><br><span class="muted mini">${esc(p.stock_mode||'controlled')}</span></td><td>${esc(p.delivery_mode||'auto')} · ${esc(p.delivery_eta_minutes||0)} min</td><td><span class="pill ${p.active&&p.availability_status!=='unavailable'?'ok':'bad'}">${p.active?esc(p.availability_status||'available'):'Oculto'}</span></td><td><button class="small blue" data-edit-plan="${p.id}">Editar</button></td></tr>`).join('')||'<tr><td colspan="7">Sin planes.</td></tr>'}
 function renderStock(){const fp=$('stockFilterPlan').value, fs=$('stockFilterStatus').value; $('stockRows').innerHTML=stock.filter(s=>(!fp||s.plan_id===fp)&&(!fs||s.status===fs)).map(s=>`<tr><td>${esc(planName(s.plan_id))}</td><td><b>${esc(s.title||'Stock')}</b><br><span class="muted mini">${esc(s.stock_type)}</span></td><td><span class="pill ${s.status==='available'?'ok':s.status==='blocked'?'bad':'warn'}">${esc(s.status)}</span></td><td><span class="code">${esc(JSON.stringify(s.secret_data||{})).slice(0,110)}</span></td><td><button class="small yellow" data-toggle-stock="${s.id}">${s.status==='available'?'Bloquear':'Activar'}</button><button class="small red" data-delete-stock="${s.id}">Eliminar</button></td></tr>`).join('')||'<tr><td colspan="5">Sin stock.</td></tr>'}
-function renderOrders(){$('orderRows').innerHTML=orders.map(o=>{const pr=proofs.find(p=>p.order_id===o.id); const items=orderItems.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join('<br>'); return `<tr><td><b>${esc(o.order_code)}</b><br><span class="muted mini">${new Date(o.created_at).toLocaleString()}</span></td><td>${esc(o.customer_name||'')}<br><span class="muted mini">${esc(o.customer_whatsapp||'')}</span></td><td><b>${money(o.total)}</b><br><span class="muted mini">Desc: ${money(o.discount_amount)}</span></td><td>${esc(o.payment_method)}<br><span class="muted mini">Op: ${esc(pr?.operation_code||'pendiente')}</span></td><td>${items||'Sin items'}</td><td><span class="pill ${o.status==='delivered'?'ok':o.status==='payment_review'?'warn':o.status==='rejected'?'bad':''}">${esc(o.status)}</span><br><span class="muted mini">${esc(o.delivery_status||'pending')}</span></td><td><button class="small blue" data-approve="${o.id}">Aprobar y entregar</button><button class="small red" data-reject="${o.id}">Rechazar</button><button class="small ghost" data-view-delivery="${o.id}">Ver entrega</button></td></tr>`}).join('')||'<tr><td colspan="7">Sin pedidos.</td></tr>'}
+function renderOrders(){$('orderRows').innerHTML=orders.map(o=>{const pr=proofs.find(p=>p.order_id===o.id); const items=orderItems.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join('<br>'); return `<tr><td><b>${esc(o.order_code)}</b><br><span class="muted mini">${new Date(o.created_at).toLocaleString()}</span></td><td>${esc(o.customer_name||'')}<br><span class="muted mini">${esc(o.customer_whatsapp||'')}</span></td><td><b>${money(o.total)}</b><br><span class="muted mini">Desc: ${money(o.discount_amount)}</span></td><td>${esc(o.payment_method)}<br><span class="muted mini">Op: ${esc(pr?.operation_code||'pendiente')}</span></td><td>${items||'Sin items'}</td><td><span class="pill ${o.status==='delivered'?'ok':o.status==='payment_review'?'warn':o.status==='rejected'?'bad':''}">${esc(o.status)}</span><br><span class="muted mini">${esc(o.delivery_status||'pending')}</span></td><td><button class="small blue" data-approve="${o.id}">Aprobar y entregar</button><button class="small yellow" data-manual="${o.id}">Entregar manual</button><button class="small red" data-reject="${o.id}">Rechazar</button><button class="small ghost" data-view-delivery="${o.id}">Ver entrega</button></td></tr>`}).join('')||'<tr><td colspan="7">Sin pedidos.</td></tr>'}
 function renderCoupons(){$('couponRows').innerHTML=coupons.map(c=>`<tr><td><b>${esc(c.code)}</b></td><td>${c.discount_type==='percent'?esc(c.discount_value+'%'):money(c.discount_value)}</td><td>${esc(c.used_count)} / ${esc(c.max_uses)}</td><td><span class="pill ${c.active?'ok':'bad'}">${c.active?'Activo':'Inactivo'}</span></td><td><button class="small yellow" data-toggle-coupon="${c.id}">${c.active?'Desactivar':'Activar'}</button></td></tr>`).join('')}
 function renderSettings(){const pay=settings.find(s=>s.key==='payment_public')?.value||{}; const store=settings.find(s=>s.key==='store_public')?.value||{}; $('setYape').value=pay.yape_number||'991564053';$('setQr').value=pay.yape_qr_url||'img/yape-qr.png';$('qrPreview').src=$('setQr').value||'img/yape-qr.png';$('setStore').value=store.store_name||'Innov IA Tienda';$('setWa1').value=store.whatsapp_primary||'51930264550';$('setWa2').value=store.whatsapp_secondary||'51991564053'}
 function clearProduct(){currentProductId=null;['pName','pSlug','pImage','pDesc'].forEach(id=>$(id).value='');$('pPriority').value=100;$('pActive').value='true';$('pPreview').src='img/placeholder.jpg'}
@@ -143,13 +143,86 @@ async function bulkStock(){const plan_id=$('stockPlan').value, lines=arrLines($(
 async function toggleStock(id){const s=stock.find(x=>x.id===id); const ns=s.status==='available'?'blocked':'available'; const r=await db.from('stock_items').update({status:ns}).eq('id',id); if(r.error)return toast(r.error.message,true); await loadAll()}
 async function deleteStock(id){if(!confirm('Eliminar stock definitivo?'))return; const r=await db.from('stock_items').delete().eq('id',id); if(r.error)return toast(r.error.message,true); await loadAll()}
 async function approveOrder(id){if(!confirm('¿Aprobar pago y descontar stock/entregar?'))return; const r=await db.rpc('admin_approve_payment_and_deliver',{p_order_id:id}); if(r.error)return toast(r.error.message,true); toast(r.data?.[0]?.message||'Pedido procesado'); await loadAll()}
+
+async function manualDeliverOrder(id){
+  const order = orders.find(o=>o.id===id);
+  if(!order){ return toast('Pedido no encontrado', true); }
+
+  const its = orderItems.filter(i=>i.order_id===id);
+  if(!its.length){ return toast('Este pedido no tiene items', true); }
+
+  let chosen = its[0];
+
+  if(its.length > 1){
+    const list = its.map((i,idx)=>`${idx+1}) ${planName(i.plan_id)} x${i.quantity}`).join('\n');
+    const ans = prompt('¿Qué producto/plan vas a entregar?\n\n' + list + '\n\nEscribe el número:', '1');
+    if(ans === null) return;
+    const n = Number(ans);
+    if(!n || !its[n-1]) return toast('Selección inválida', true);
+    chosen = its[n-1];
+  }
+
+  const selectedPlan = plans.find(p=>p.id===chosen.plan_id);
+  const planTitle = planName(chosen.plan_id);
+
+  alert('Entrega manual para:\n' + planTitle + '\n\nCompleta los datos que vas a entregar. Puedes dejar vacío lo que no aplique.');
+
+  const correo = prompt('Correo / usuario a entregar:', '');
+  if(correo === null) return;
+
+  const clave = prompt('Clave / contraseña:', '');
+  if(clave === null) return;
+
+  const codigo = prompt('Código / token / perfil, si aplica:', '');
+  if(codigo === null) return;
+
+  const nota = prompt('Nota interna o indicación para el cliente:', 'No cambiar datos. Soporte por WhatsApp.');
+  if(nota === null) return;
+
+  const data = {};
+  if(correo.trim()) data.correo = correo.trim();
+  if(clave.trim()) data.clave = clave.trim();
+  if(codigo.trim()) data.codigo = codigo.trim();
+  if(nota.trim()) data.nota = nota.trim();
+
+  if(!Object.keys(data).length){
+    return toast('No colocaste datos para entregar', true);
+  }
+
+  const msgLines = [];
+  msgLines.push('✅ Pago confirmado');
+  msgLines.push('Producto: ' + (selectedPlan?.name || planTitle));
+  if(data.correo) msgLines.push('Correo/Usuario: ' + data.correo);
+  if(data.clave) msgLines.push('Clave: ' + data.clave);
+  if(data.codigo) msgLines.push('Código/Perfil: ' + data.codigo);
+  if(data.nota) msgLines.push('Nota: ' + data.nota);
+  msgLines.push('');
+  msgLines.push('Gracias por tu compra. Si tienes inconvenientes, escríbenos por WhatsApp.');
+
+  if(!confirm('¿Registrar esta entrega y marcar el pago como aprobado?\n\n' + msgLines.join('\n'))){
+    return;
+  }
+
+  const r = await db.rpc('admin_manual_deliver_order', {
+    p_order_id: id,
+    p_plan_id: chosen.plan_id,
+    p_delivery_data: data,
+    p_delivery_message: msgLines.join('\n')
+  });
+
+  if(r.error) return toast(r.error.message, true);
+
+  toast(r.data?.[0]?.message || 'Entrega manual registrada');
+  await loadAll();
+}
+
 async function rejectOrder(id){const r=await db.from('orders').update({status:'rejected'}).eq('id',id); if(r.error)return toast(r.error.message,true);toast('Pedido rechazado');await loadAll()}
 function viewDelivery(id){const ds=deliveries.filter(d=>d.order_id===id); alert(ds.length?ds.map(d=>d.delivered_message).join('\n\n---\n\n'):'Sin entrega todavía')}
 async function saveCoupon(){const code=$('cpCode').value.trim().toUpperCase(); if(!code)return toast('Falta código',true); const r=await db.from('coupons').upsert({code,discount_type:$('cpType').value,discount_value:Number($('cpValue').value||0),max_uses:Number($('cpMax').value||1),min_amount:Number($('cpMin').value||0),active:$('cpActive').value==='true'},{onConflict:'code'}); if(r.error)return toast(r.error.message,true);toast('Cupón guardado');await loadAll()}
 async function toggleCoupon(id){const c=coupons.find(x=>x.id===id); const r=await db.from('coupons').update({active:!c.active}).eq('id',id); if(r.error)return toast(r.error.message,true);await loadAll()}
 async function saveSetting(key,value){const r=await db.from('app_settings').upsert({key,value}); if(r.error)return toast(r.error.message,true);toast('Configuración guardada');await loadAll()}
 function exportBackup(){const data={products,plans,stock,orders,orderItems,proofs,deliveries,coupons,settings,summary,exported_at:new Date().toISOString()}; const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='backup-innov-ia.json';a.click();}
-document.addEventListener('click',e=>{const b=e.target.closest('button'); if(!b)return; if(b.dataset.jump)switchTab(b.dataset.jump); if(b.dataset.editProduct){switchTab('products');loadProduct(b.dataset.editProduct)} if(b.dataset.editPlan)loadPlan(b.dataset.editPlan); if(b.dataset.goStock){switchTab('stock');$('stockPlan').value=b.dataset.goStock} if(b.dataset.toggleStock)toggleStock(b.dataset.toggleStock); if(b.dataset.deleteStock)deleteStock(b.dataset.deleteStock); if(b.dataset.approve)approveOrder(b.dataset.approve); if(b.dataset.reject)rejectOrder(b.dataset.reject); if(b.dataset.viewDelivery)viewDelivery(b.dataset.viewDelivery); if(b.dataset.toggleCoupon)toggleCoupon(b.dataset.toggleCoupon);});
+document.addEventListener('click',e=>{const b=e.target.closest('button'); if(!b)return; if(b.dataset.jump)switchTab(b.dataset.jump); if(b.dataset.editProduct){switchTab('products');loadProduct(b.dataset.editProduct)} if(b.dataset.editPlan)loadPlan(b.dataset.editPlan); if(b.dataset.goStock){switchTab('stock');$('stockPlan').value=b.dataset.goStock} if(b.dataset.toggleStock)toggleStock(b.dataset.toggleStock); if(b.dataset.deleteStock)deleteStock(b.dataset.deleteStock); if(b.dataset.approve)approveOrder(b.dataset.approve); if(b.dataset.manual)manualDeliverOrder(b.dataset.manual); if(b.dataset.reject)rejectOrder(b.dataset.reject); if(b.dataset.viewDelivery)viewDelivery(b.dataset.viewDelivery); if(b.dataset.toggleCoupon)toggleCoupon(b.dataset.toggleCoupon);});
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));$('btnLogin').onclick=login;$('loginPass').onkeydown=e=>{if(e.key==='Enter')login()};$('logout').onclick=logout;$('reload').onclick=loadAll;$('newProduct').onclick=clearProduct;$('loadProduct').onclick=()=>loadProduct($('productSelect').value);$('previewProduct').onclick=()=>{$('pPreview').src=$('pImage').value||'img/placeholder.jpg'};$('saveProduct').onclick=saveProduct;$('hideProduct').onclick=async()=>{if(!currentProductId)return;await db.from('products').update({active:false}).eq('id',currentProductId);await loadAll();loadProduct(currentProductId)};$('deleteProduct').onclick=deleteProduct;$('planProduct').onchange=()=>{updatePlanSelects();clearPlan()};$('newPlan').onclick=clearPlan;$('loadPlan').onclick=()=>loadPlan($('planSelect').value);$('savePlan').onclick=savePlan;$('hidePlan').onclick=async()=>{if(!currentPlanId)return;await db.from('product_plans').update({active:false}).eq('id',currentPlanId);await loadAll();loadPlan(currentPlanId)};$('deletePlan').onclick=deletePlan;$('addStock').onclick=addStock;$('bulkStock').onclick=bulkStock;$('stockFilterPlan').onchange=renderStock;$('stockFilterStatus').onchange=renderStock;$('planSearch').oninput=renderPlans;$('saveCoupon').onclick=saveCoupon;$('previewQr').onclick=()=>{$('qrPreview').src=$('setQr').value||'img/yape-qr.png'};$('savePayment').onclick=()=>saveSetting('payment_public',{yape_number:$('setYape').value.trim()||'991564053',yape_qr_url:$('setQr').value.trim()||'img/yape-qr.png'});$('saveStore').onclick=()=>saveSetting('store_public',{store_name:$('setStore').value,whatsapp_primary:$('setWa1').value,whatsapp_secondary:$('setWa2').value});$('exportBackup').onclick=exportBackup;init();
 </script>
 </body>
