@@ -700,6 +700,62 @@
       .product-mini-badges{ gap:5px; }
       .product-mini-badge{ font-size:9px; }
     }
+
+    /* Estado de conexión / Supabase */
+    .catalog-status{
+      display:inline-flex;
+      align-items:center;
+      gap:.45rem;
+      padding:.28rem .6rem;
+      border-radius:999px;
+      border:2px solid rgba(0,0,0,.12);
+      background:#fff;
+      box-shadow:3px 3px 0 rgba(0,0,0,.08);
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .catalog-status.is-live{ color:#198754; }
+    .catalog-status.is-warn{ color:#d97706; }
+    .catalog-status.is-error{ color:#dc3545; }
+    .stock-filter-row{
+      border-top:1px dashed rgba(0,0,0,.16);
+      margin-top:.75rem;
+      padding-top:.75rem;
+    }
+    .empty-state{
+      grid-column:1 / -1;
+      width:100%;
+      border:2px dashed rgba(0,0,0,.16);
+      border-radius:18px;
+      background:#fff;
+      padding:1.3rem;
+      text-align:center;
+      box-shadow:6px 6px 0 rgba(0,0,0,.06);
+    }
+    .source-dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      display:inline-block;
+      background:#0d6efd;
+      box-shadow:0 0 0 4px rgba(13,110,253,.12);
+    }
+    .source-dot.local{ background:#6c757d; box-shadow:0 0 0 4px rgba(108,117,125,.12); }
+    .stock-note{
+      font-size:11px;
+      font-weight:900;
+      color:rgba(0,0,0,.58);
+      margin-top:.2rem;
+    }
+    .plan-stock-ok{ color:#198754; }
+    .plan-stock-bad{ color:#dc3545; }
+    @media (max-width: 575.98px){
+      .shop-toolbar{ display:block !important; }
+      .shop-toolbar .d-flex.align-items-center{ margin-top:.55rem; justify-content:space-between; }
+      .catalog-status{ margin-top:.45rem; font-size:11px; }
+    }
+
   </style>
 </head>
 
@@ -757,7 +813,7 @@
         <div class="col-lg-4 col-6 text-left">
           <form action="buscar.html">
             <div class="input-group">
-              <input type="text" class="form-control" placeholder="Buscar productos" aria-label="Buscar productos" />
+              <input id="shopSearchInput" type="text" class="form-control" placeholder="Buscar productos" aria-label="Buscar productos" autocomplete="off" />
               <div class="input-group-append">
                 <button class="input-group-text bg-transparent text-primary" aria-label="Buscar" type="submit">
                   <i class="fa fa-search"></i>
@@ -920,6 +976,11 @@
                 <input type="checkbox" class="custom-control-input js-cat" id="fc-otros" value="otros" checked>
                 <label class="custom-control-label" for="fc-otros">Herramientas</label>
               </div>
+
+              <div class="custom-control custom-checkbox stock-filter-row">
+                <input type="checkbox" class="custom-control-input" id="stockOnly">
+                <label class="custom-control-label" for="stockOnly">Mostrar solo con stock</label>
+              </div>
             </div>
 
             <div class="bg-light p-3 mb-30 small text-muted">
@@ -934,7 +995,10 @@
       <!-- Productos -->
       <main class="col-lg-9 col-md-8">
         <div class="shop-toolbar d-flex align-items-center justify-content-between">
-          <h5 id="sectionTitle" class="mb-0">Productos</h5>
+          <div>
+            <h5 id="sectionTitle" class="mb-0">Productos</h5>
+            <span id="catalogStatus" class="catalog-status is-warn"><span class="source-dot local"></span> Cargando catálogo...</span>
+          </div>
           <div class="d-flex align-items-center">
             <label class="mb-0 mr-2 small text-muted">Ordenar:</label>
             <select id="sortSelect" class="custom-select custom-select-sm" style="max-width:240px">
@@ -1170,6 +1234,15 @@
     const FX = 3.70;              // 1 USD = 3.70 S/
     const PAGE_SIZE = 16;         // cards pequeñas
 
+    // Conexión pública a Supabase (segura con RLS activado)
+    const SUPABASE_URL = 'https://rfjvskrimsoqlyofhidj.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
+
+    // Modo final: cuando Supabase tiene productos, la tienda usa SOLO Supabase.
+    // Así, si eliminas u ocultas un producto desde el panel, desaparece de la tienda.
+    // El catálogo local solo queda como respaldo si Supabase está vacío o falla.
+    const DATA_SOURCE_MODE = 'supabase_first';
+
     const WA_PRIMARY   = '51930264550';
     const WA_SECONDARY = '51991564053';
 
@@ -1184,17 +1257,6 @@
       toastTime: 1300
     };
 
-    /* ================== Supabase catálogo dinámico ==================
-       La tienda pública lee productos/planes/stock desde public.get_public_catalog().
-       Solo usa la publishable key. NO pongas secret key ni service_role aquí.
-    */
-    const SUPABASE_URL = 'https://rfjvskrimsoqlyofhidj.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
-    const USE_SUPABASE_CATALOG = true;
-    const supabaseDb = (window.supabase && SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY)
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
-      : null;
-
     const state = {
       currency: SETTINGS.currency,
       mode: 'retail', // retail | wholesale
@@ -1202,8 +1264,29 @@
       sort: 'relevance',
       cats: new Set(['ai','streaming','musica','otros']),
       min: 0,
-      max: null
+      max: null,
+      search: '',
+      stockOnly: false
     };
+
+    const DB_CATALOG = {
+      loading: false,
+      ready: false,
+      error: null,
+      retail: [],
+      wholesale: [],
+      updatedAt: null
+    };
+
+    let supabaseClient = null;
+    try{
+      if(window.supabase && SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY){
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      }
+    }catch(e){
+      supabaseClient = null;
+    }
+
 
     /* ================== Utils ================== */
     function esc(s){
@@ -1283,7 +1366,7 @@
         const items = readCart();
         const idx = items.findIndex(i => i.id === item.id);
         if(idx>-1){ items[idx].qty += (item.qty||1); }
-        else { items.push({ id:item.id, nombre:item.nombre, precio:Number(item.precio||0), imagen:item.imagen||'', qty:item.qty||1 }); }
+        else { items.push({ id:item.id, nombre:item.nombre, precio:Number(item.precio||0), imagen:item.imagen||'', qty:item.qty||1, source:item.source||'local', product_id:item.product_id||null, plan_id:item.plan_id||null, plan_name:item.plan_name||null, stock_control:item.stock_control||'local', meta:item.meta||{} }); }
         writeCart(items);
         return items;
       },
@@ -1356,11 +1439,37 @@
       return true;
     }
     function statusLabel(it){
-      if(!isDisponible(it)) return 'No disponible';
-      if(hasPlans(it)) return `Disponible • ${getPlans(it).length} planes`;
-      if(typeof it.cupo === 'number') return `Disponible • ${it.cupo} cupos`;
+      if(!isDisponible(it)){
+        return hasPlans(it) ? 'Sin stock' : 'No disponible';
+      }
+      const stock = stockAmount(it);
+      if(typeof stock === 'number'){
+        return `Disponible • ${stock} cupos`;
+      }
+      if(hasPlans(it)){
+        const availablePlans = getPlans(it).filter(p=>isPlanDisponible(p)).length;
+        return `Disponible • ${availablePlans}/${getPlans(it).length} planes`;
+      }
       return 'Disponible';
     }
+
+    function stockAmount(it){
+      if(!it) return null;
+      if(hasPlans(it)){
+        const nums = getPlans(it).map(p=>p.cupo).filter(v=>typeof v === 'number' && !isNaN(v));
+        return nums.length ? nums.reduce((a,b)=>a+b,0) : null;
+      }
+      if(typeof it.cupo === 'number' && !isNaN(it.cupo)) return it.cupo;
+      return null;
+    }
+
+    function hasLiveStock(it){
+      if(!isDisponible(it)) return false;
+      const stock = stockAmount(it);
+      if(typeof stock === 'number') return stock > 0;
+      return true;
+    }
+
     function statusClass(it){
       return isDisponible(it) ? 'is-available' : 'is-unavailable';
     }
@@ -1380,12 +1489,16 @@
     }
     function miniBadgesHTML(it){
       const badges = [];
+      const stock = stockAmount(it);
+      const source = it.source === 'supabase' ? 'DB' : 'Local';
       badges.push(`<span class="product-mini-badge"><i class="${catIconClass(it.cat)}"></i>${esc(catLabel(it.cat))}</span>`);
       badges.push(`<span class="product-mini-badge"><i class="fas fa-bolt"></i>${esc(hasPlans(it) ? (getPlans(it).length + ' planes') : (it.period || 'Rápido'))}</span>`);
-      badges.push(`<span class="product-mini-badge"><i class="fab fa-whatsapp"></i>Soporte</span>`);
-      if(typeof it.cupo === 'number' && it.cupo > 0){
-        badges[2] = `<span class="product-mini-badge"><i class="fas fa-users"></i>${esc(it.cupo)} cupos</span>`;
+      if(typeof stock === 'number'){
+        badges.push(`<span class="product-mini-badge"><i class="fas fa-box"></i>${esc(stock)} stock</span>`);
+      }else{
+        badges.push(`<span class="product-mini-badge"><i class="fab fa-whatsapp"></i>Soporte</span>`);
       }
+      badges.push(`<span class="product-mini-badge"><i class="fas fa-database"></i>${esc(source)}</span>`);
       return `<div class="product-mini-badges">${badges.join('')}</div>`;
     }
 
@@ -1428,7 +1541,7 @@
        CATÁLOGO (POR MENOR)
        ✅ Productos iguales agrupados: edita precios en plans[].price
        ========================================================== */
-    let CATALOG = [
+    const CATALOG = [
       {
             "id": "rt-event-bts-campob",
             "priority": 0,
@@ -1460,7 +1573,7 @@
             "id": "rt-ai-chatgpt-plus",
             "priority": 1,
             "name": "ChatGPT Plus",
-            "price": 8,
+            "price": 10,
             "cat": "ai",
             "url": "https://openai.com/chatgpt",
             "period": "3 planes",
@@ -1468,7 +1581,7 @@
             "disponible": true,
             "chips": [
                   "3 planes",
-                  "Desde S/8",
+                  "Desde S/10",
                   "Mensual"
             ],
             "desc": "ChatGPT Plus agrupado: elige el plan según uso, cantidad de usuarios y presupuesto.",
@@ -1483,7 +1596,7 @@
                   {
                         "id": "rt-ai-gpt-8",
                         "name": "Compartido — Celular + PC",
-                        "price": 8,
+                        "price": 10,
                         "period": "Mensual",
                         "cupo": null,
                         "disponible": true,
@@ -1505,7 +1618,7 @@
                   {
                         "id": "rt-ai-gpt-12",
                         "name": "Solo celular — 3 usuarios",
-                        "price": 12,
+                        "price": 10,
                         "period": "Mensual",
                         "cupo": null,
                         "disponible": true,
@@ -2208,7 +2321,7 @@
        CATÁLOGO (PROVEEDORES / CUENTAS COMPLETAS)
        ✅ Productos iguales agrupados: edita precios en plans[].price
        ========================================================== */
-    let WHOLESALE = [
+    const WHOLESALE = [
       {
             "id": "wh-ai-chatgpt-full",
             "priority": 1,
@@ -2448,9 +2561,16 @@
       }
 ];
 
-    function currentCatalog(){ return state.mode==='retail' ? CATALOG : WHOLESALE; }
 
-    function normalizeJsonArray(value){
+    function normalizeKey(s){
+      return String(s || '')
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-z0-9]+/g,'-')
+        .replace(/^-+|-+$/g,'');
+    }
+
+    function parseJsonArray(value){
       if(Array.isArray(value)) return value;
       if(typeof value === 'string'){
         try{
@@ -2461,123 +2581,222 @@
       return [];
     }
 
-    function textLogoFallback(name, category){
-      const initials = String(name || 'IN').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase() || 'IN';
-      return makeTextThumb(initials, category === 'ai' ? '#111827' : '#0f172a', '#ffffff', String(category || 'TIENDA').toUpperCase());
+    function productLooksSame(localItem, dbItem){
+      const a = normalizeKey(localItem?.name);
+      const b = normalizeKey(dbItem?.name);
+      const id = normalizeKey(localItem?.id);
+      const slug = normalizeKey(dbItem?.slug || dbItem?.id);
+      if(!a || !b) return false;
+      if(a === b) return true;
+      if(a.includes(b) || b.includes(a)) return true;
+      if(slug && (id.includes(slug) || slug.includes(id))) return true;
+
+      // Coincidencias conocidas del catálogo antiguo
+      const aliases = [
+        ['chatgpt-plus', 'chatgpt-plus'],
+        ['canva-pro', 'canva-pro'],
+        ['gemini', 'gemini'],
+        ['capcut-pro', 'capcut-pro'],
+        ['perplexity-pro', 'perplexity-pro']
+      ];
+      return aliases.some(([x,y]) => (a.includes(x) || id.includes(x)) && (b.includes(y) || slug.includes(y)));
     }
 
-    function buildCatalogFromSupabase(rows){
+    function buildDbCatalog(rows){
       const map = new Map();
 
-      (rows || []).forEach(row => {
-        const productId = row.product_slug || String(row.product_id || 'producto');
-        const thumb = row.image_url || textLogoFallback(row.product_name, row.category);
+      (rows || []).forEach(row=>{
+        const modeRaw = row.sale_mode || row.product_mode || row.mode || row.product_sale_mode || 'retail';
+        const saleMode = String(modeRaw || 'retail').toLowerCase().includes('whole') || String(modeRaw).toLowerCase().includes('prove')
+          ? 'wholesale'
+          : 'retail';
 
-        if(!map.has(productId)){
-          map.set(productId, {
-            id: productId,
-            dbProductId: row.product_id,
-            priority: Number(row.product_priority || 100),
+        const productKey = row.product_slug || row.product_id;
+        if(!map.has(productKey)){
+          map.set(productKey, {
+            id: 'db-' + (row.product_slug || row.product_id),
+            source: 'supabase',
+            saleMode,
+            slug: row.product_slug || '',
+            dbProductId: row.product_id || null,
+            priority: Number(row.product_priority ?? 100),
             name: row.product_name || 'Producto',
             price: null,
             cat: row.category || 'otros',
-            url: '',
-            thumb,
+            url: row.website_url || '',
+            thumb: row.image_url || '',
+            thumbFit: row.thumb_fit || 'contain',
             period: 'Planes',
             cupo: 0,
-            disponible: true,
-            chips: ['Catálogo online', 'Stock real'],
-            desc: row.product_description || 'Servicio digital con disponibilidad en tiempo real.',
-            benefits: ['Planes seleccionables', 'Stock conectado a la base de datos', 'Soporte por WhatsApp'],
-            why: 'Este producto se actualiza desde el panel admin conectado a Supabase.',
+            disponible: false,
+            chips: ['Base de datos', 'Stock real'],
+            desc: row.product_description || 'Servicio digital con stock en tiempo real.',
+            benefits: [],
+            why: row.product_why || 'Producto conectado al inventario real del panel admin.',
+            extraSections: parseJsonArray(row.product_extra_sections),
             plans: []
           });
         }
 
-        const parent = map.get(productId);
+        const item = map.get(productKey);
         const stock = Number(row.available_stock || 0);
-        const price = row.price == null ? null : Number(row.price);
-        const planId = row.plan_slug || String(row.plan_id || 'plan');
+        const stockMode = row.stock_mode || 'controlled';
+        const availabilityStatus = row.availability_status || 'available';
+        const allowWithoutStock = !!row.allow_purchase_without_stock;
+        const chips = parseJsonArray(row.chips);
+        const benefits = parseJsonArray(row.benefits);
+        const planExtra = parseJsonArray(row.plan_extra_sections);
 
-        parent.plans.push({
-          id: planId,
-          dbPlanId: row.plan_id,
+        function dbPlanIsAvailable(){
+          if(availabilityStatus === 'unavailable') return false;
+          if(availabilityStatus === 'consult') return true;
+          if(stockMode === 'unlimited') return true;
+          if(stockMode === 'manual' || stockMode === 'preorder') return allowWithoutStock || stock > 0 || availabilityStatus === 'available';
+          return stock > 0 || allowWithoutStock;
+        }
+
+        item.plans.push({
+          id: 'db-plan-' + row.plan_id,
+          source: 'supabase',
+          dbProductId: row.product_id || null,
+          dbPlanId: row.plan_id || null,
+          slug: row.plan_slug || '',
           name: row.plan_name || 'Plan',
-          price,
+          price: (row.price == null ? null : Number(row.price)),
+          currency: row.currency || 'PEN',
           period: row.period || 'Mensual',
-          cupo: stock,
-          disponible: stock > 0,
-          chips: normalizeJsonArray(row.chips),
-          desc: row.plan_description || row.product_description || 'Plan disponible según stock.',
-          benefits: normalizeJsonArray(row.benefits),
-          why: `Stock disponible: ${stock}`,
-          url: '',
-          thumb
+          cupo: stockMode === 'unlimited' ? null : stock,
+          availableStock: stock,
+          stockMode,
+          availabilityStatus,
+          allowPurchaseWithoutStock: allowWithoutStock,
+          disponible: dbPlanIsAvailable(),
+          chips: chips.length ? chips : [stockMode === 'controlled' ? 'Stock real' : 'Stock manual'],
+          desc: row.plan_description || row.product_description || '',
+          benefits: benefits.length ? benefits : ['Stock conectado al panel admin', 'Entrega según disponibilidad', 'Soporte por WhatsApp'],
+          why: row.plan_why || row.product_why || row.plan_description || 'Este plan toma disponibilidad real desde Supabase.',
+          extraSections: planExtra.length ? planExtra : parseJsonArray(row.product_extra_sections),
+          url: row.plan_website_url || row.website_url || '',
+          thumb: row.plan_image_url || row.image_url || '',
+          thumbFit: row.plan_thumb_fit || row.thumb_fit || 'contain'
         });
       });
 
-      const products = Array.from(map.values()).map(item => {
-        item.plans.sort((a,b) => {
-          const ap = (typeof a.price === 'number') ? a.price : 999999;
-          const bp = (typeof b.price === 'number') ? b.price : 999999;
-          return ap - bp;
+      const retail = [];
+      const wholesale = [];
+
+      map.forEach(item=>{
+        item.plans.sort((a,b)=>{
+          const pa = Number(a.priority ?? 100);
+          const pb = Number(b.priority ?? 100);
+          if(pa !== pb) return pa - pb;
+          return String(a.name).localeCompare(String(b.name));
         });
 
-        const prices = item.plans.map(p => p.price).filter(p => typeof p === 'number' && !isNaN(p));
-        const minPrice = prices.length ? Math.min(...prices) : null;
-        const totalStock = item.plans.reduce((sum,p)=>sum + (Number(p.cupo || 0)),0);
-        const availablePlans = item.plans.filter(p=>isPlanDisponible(p)).length;
+        const prices = item.plans.map(p=>p.price).filter(v=>typeof v === 'number' && !isNaN(v));
+        item.price = prices.length ? Math.min(...prices) : null;
+        item.cupo = item.plans.reduce((sum,p)=> sum + (typeof p.cupo === 'number' ? p.cupo : 0), 0);
+        item.disponible = item.plans.some(p=>p.disponible !== false && (typeof p.cupo !== 'number' || p.cupo > 0));
+        item.period = item.plans.length > 1 ? `${item.plans.length} planes` : (item.plans[0]?.period || 'Mensual');
 
-        item.price = minPrice;
-        item.cupo = totalStock;
-        item.disponible = availablePlans > 0;
-        item.period = item.plans.length + ' planes';
-        item.chips = [
-          item.plans.length + ' planes',
-          minPrice == null ? 'Consultar' : 'Desde S/' + minPrice,
-          totalStock > 0 ? totalStock + ' disponibles' : 'Sin stock'
-        ];
-        item.benefits = [
-          '✅ Producto cargado desde la base de datos',
-          '📦 Stock visible en tiempo real',
-          '📌 Planes seleccionables',
-          '🛟 Soporte por WhatsApp'
-        ];
-        item.why = totalStock > 0
-          ? 'Hay stock disponible. Elige el plan exacto para continuar.'
-          : 'Actualmente no hay stock disponible. Puedes consultar por WhatsApp.';
-        return item;
+        const firstPlan = item.plans.find(p=>p.disponible) || item.plans[0];
+        if(firstPlan){
+          item.benefits = firstPlan.benefits || item.benefits;
+          item.chips = [...new Set([...(item.chips||[]), ...(firstPlan.chips||[]), `${item.cupo} disponibles`])].slice(0,5);
+        }
+
+        if(item.saleMode === 'wholesale') wholesale.push(item);
+        else retail.push(item);
       });
 
-      products.sort((a,b)=>{
-        const pa = (typeof a.priority === 'number') ? a.priority : 9999;
-        const pb = (typeof b.priority === 'number') ? b.priority : 9999;
-        if(pa !== pb) return pa - pb;
-        return a.name.localeCompare(b.name);
-      });
-
-      return products;
+      return { retail, wholesale };
     }
 
     async function loadSupabaseCatalog(){
-      if(!USE_SUPABASE_CATALOG || !supabaseDb) return;
-      try{
-        if(grid){
-          grid.innerHTML = '<div class="col-12"><div class="alert alert-light border">Cargando productos desde la base de datos...</div></div>';
-        }
-        const { data, error } = await supabaseDb.rpc('get_public_catalog');
-        if(error) throw error;
-        const dynamicCatalog = buildCatalogFromSupabase(data || []);
-        if(dynamicCatalog.length){
-          CATALOG = dynamicCatalog;
-          state.page = 1;
-        }else{
-          showToast('No hay productos activos en Supabase todavía.');
-        }
-      }catch(err){
-        console.error('Supabase catalog error:', err);
-        showToast('No se pudo cargar Supabase. Usando catálogo local.');
+      const statusEl = document.getElementById('catalogStatus');
+      DB_CATALOG.loading = true;
+      DB_CATALOG.error = null;
+      updateCatalogStatus('Cargando Supabase...');
+
+      if(!supabaseClient){
+        DB_CATALOG.loading = false;
+        DB_CATALOG.ready = false;
+        DB_CATALOG.error = 'No se encontró cliente Supabase.';
+        updateCatalogStatus();
+        return;
       }
+
+      try{
+        const { data, error } = await supabaseClient.rpc('get_public_catalog');
+        if(error) throw error;
+
+        const built = buildDbCatalog(data || []);
+        DB_CATALOG.retail = built.retail;
+        DB_CATALOG.wholesale = built.wholesale;
+        DB_CATALOG.ready = true;
+        DB_CATALOG.updatedAt = new Date();
+        DB_CATALOG.loading = false;
+        updateCatalogStatus();
+      }catch(err){
+        DB_CATALOG.error = err?.message || String(err);
+        DB_CATALOG.ready = false;
+        DB_CATALOG.loading = false;
+        updateCatalogStatus();
+      }
+    }
+
+    function updateCatalogStatus(customText){
+      const el = document.getElementById('catalogStatus');
+      if(!el) return;
+
+      const totalDb = DB_CATALOG.retail.length + DB_CATALOG.wholesale.length;
+      el.classList.remove('is-live','is-warn','is-error');
+
+      if(customText){
+        el.classList.add('is-warn');
+        el.innerHTML = `<span class="source-dot local"></span> ${esc(customText)}`;
+        return;
+      }
+
+      if(DB_CATALOG.error){
+        el.classList.add('is-error');
+        el.innerHTML = `<span class="source-dot local"></span> Supabase sin conexión • respaldo local activo`;
+        return;
+      }
+
+      if(DB_CATALOG.ready && totalDb > 0){
+        el.classList.add('is-live');
+        el.innerHTML = `<span class="source-dot"></span> Supabase activo • ${totalDb} productos • modo admin`;
+        return;
+      }
+
+      el.classList.add('is-warn');
+      el.innerHTML = `<span class="source-dot local"></span> Catálogo local activo`;
+    }
+
+    function mergedRetailCatalog(){
+      const db = Array.isArray(DB_CATALOG.retail) ? DB_CATALOG.retail : [];
+      // Preparado para eliminación real: si Supabase tiene productos, NO mezclamos el catálogo local.
+      // Así, al ocultar/eliminar en admin, desaparece de tienda.
+      if(DB_CATALOG.ready && db.length) return db;
+      return CATALOG;
+    }
+
+    function mergedWholesaleCatalog(){
+      const db = Array.isArray(DB_CATALOG.wholesale) ? DB_CATALOG.wholesale : [];
+      if(DB_CATALOG.ready && db.length) return db;
+      return WHOLESALE;
+    }
+
+    function mergeCatalogs(localList, dbList){
+      const db = Array.isArray(dbList) ? dbList : [];
+      const local = Array.isArray(localList) ? localList : [];
+      const cleanLocal = local.filter(localItem => !db.some(dbItem => productLooksSame(localItem, dbItem)));
+      return [...db, ...cleanLocal];
+    }
+
+    function currentCatalog(){
+      return state.mode === 'retail' ? mergedRetailCatalog() : mergedWholesaleCatalog();
     }
 
     /* ================== Productos con planes ================== */
@@ -2615,7 +2834,14 @@
     function isPlanDisponible(plan){
       const disp = (plan?.disponible !== false);
       if(!disp) return false;
-      if(typeof plan?.cupo === 'number' && plan.cupo <= 0) return false;
+      const status = plan?.availabilityStatus || plan?.availability_status || 'available';
+      const mode = plan?.stockMode || plan?.stock_mode || 'local';
+      const allow = !!(plan?.allowPurchaseWithoutStock || plan?.allow_purchase_without_stock);
+      if(status === 'unavailable') return false;
+      if(status === 'consult') return true;
+      if(mode === 'unlimited') return true;
+      if(mode === 'manual' || mode === 'preorder') return allow || status === 'available' || Number(plan?.availableStock || plan?.cupo || 0) > 0;
+      if(typeof plan?.cupo === 'number' && plan.cupo <= 0 && !allow) return false;
       return true;
     }
     function mergePlanItem(parent, plan){
@@ -2639,7 +2865,7 @@
       return list.some(it => it.id === id || getPlans(it).some(p => p.id === id || (it.id + '__' + p.id) === id));
     }
     function findParentAndPlanById(id){
-      const all = [...CATALOG, ...WHOLESALE];
+      const all = [...mergedRetailCatalog(), ...mergedWholesaleCatalog()];
       for(const it of all){
         if(it.id === id) return { item: it, plan: getDefaultPlan(it) };
         if(hasPlans(it)){
@@ -2726,13 +2952,33 @@
       updatePriceLabel();
     }
 
+
+    function bySearch(items){
+      const q = normalizeKey(state.search);
+      if(!q) return items;
+      return items.filter(it=>{
+        const hay = [
+          it.name, it.id, it.slug, it.cat, it.desc, it.period,
+          ...(Array.isArray(it.chips) ? it.chips : []),
+          ...(Array.isArray(it.benefits) ? it.benefits : []),
+          ...getPlans(it).flatMap(p => [p.name, p.slug, p.desc, p.period, ...(p.chips||[]), ...(p.benefits||[])])
+        ].map(x=>normalizeKey(x)).join(' ');
+        return hay.includes(q);
+      });
+    }
+
+    function byStock(items){
+      if(!state.stockOnly) return items;
+      return items.filter(hasLiveStock);
+    }
+
     function render(){
       sectionTitle.innerHTML = (state.mode==='retail')
         ? 'Productos <small class="text-muted">por menor</small>'
         : 'Proveedores <small class="text-muted">cuentas completas</small>';
 
       const BASE = currentCatalog();
-      const filtered = byPrice(byCats(BASE));
+      const filtered = bySearch(byStock(byPrice(byCats(BASE))));
       const sorted = sortItems(filtered);
 
       const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
@@ -2741,7 +2987,13 @@
       const start = (state.page-1)*PAGE_SIZE;
       const pageItems = sorted.slice(start, start+PAGE_SIZE);
 
-      grid.innerHTML = pageItems.map(cardHTML).join('');
+      grid.innerHTML = pageItems.length ? pageItems.map(cardHTML).join('') : `
+        <div class="empty-state">
+          <h5>No encontramos productos con esos filtros</h5>
+          <p class="text-muted mb-2">Prueba limpiar precio, categoría, búsqueda o el filtro de stock.</p>
+          <button class="btn btn-primary" type="button" onclick="document.getElementById('clearFilters').click()">Limpiar filtros</button>
+        </div>
+      `;
       bindCards();
 
       renderPagination(totalPages);
@@ -2842,6 +3094,27 @@
       });
     }
 
+
+    function cartPayloadFromItem(it, imagen){
+      return {
+        id: it.id,
+        nombre: it.name,
+        precio: Number(it.price || 0),
+        imagen: imagen || '',
+        qty: 1,
+        source: it.source || 'local',
+        product_id: it.dbProductId || it.parentId || it.id,
+        plan_id: it.dbPlanId || it.planId || null,
+        plan_name: it.planName || null,
+        stock_control: it.source === 'supabase' ? 'supabase' : 'local',
+        meta: {
+          cat: it.cat || '',
+          period: it.period || '',
+          cupo: (typeof it.cupo === 'number' ? it.cupo : null)
+        }
+      };
+    }
+
     /* ================== Acciones tarjetas ================== */
     function bindCards(){
       document.querySelectorAll('.product-item').forEach(card=>{
@@ -2892,7 +3165,7 @@
           }
 
           const imagenFinal = imgEl ? (imgEl.currentSrc || imgEl.src) : '';
-          Cart.add({ id, nombre, precio, imagen: imagenFinal, qty:1 });
+          Cart.add(cartPayloadFromItem(it, imagenFinal));
           syncHeaderBadges();
 
           flyToCart({
@@ -2985,7 +3258,7 @@
         const active = modalPlan && modalPlan.id === plan.id;
         const disp = isPlanDisponible(plan);
         const chips = (plan.chips || []).slice(0,3).map(c=>`<span class="plan-chip">${esc(c)}</span>`).join('');
-        const stateChip = disp ? '<span class="plan-chip">Disponible</span>' : '<span class="plan-chip">No disponible</span>';
+        const stateChip = disp ? `<span class="plan-chip plan-stock-ok">${typeof plan.cupo==='number' ? plan.cupo + ' disponibles' : 'Disponible'}</span>` : '<span class="plan-chip plan-stock-bad">Sin stock</span>';
         return `
           <button type="button" class="plan-option ${active?'active':''} ${!disp?'is-unavailable':''}" data-plan-id="${esc(plan.id)}" ${!disp?'disabled':''}>
             <div class="plan-top">
@@ -3033,7 +3306,7 @@
 
       // Estado (verde/rojo)
       const disp = isDisponible(selected);
-      elStatus.textContent = disp ? 'Disponible' : 'No disponible';
+      elStatus.textContent = disp ? statusLabel(selected) : 'No disponible';
       elStatus.style.color = disp ? '#198754' : '#ff3b30';
 
       // Planes seleccionables
@@ -3116,7 +3389,7 @@
       if(!isDisponible(sellItem)) return showToast('No disponible: ' + sellItem.name);
       if(sellItem.price==null) return consultWhatsApp(sellItem);
 
-      Cart.add({ id: sellItem.id, nombre: sellItem.name, precio: sellItem.price||0, imagen: elImg.src, qty:1 });
+      Cart.add(cartPayloadFromItem(sellItem, elImg.src));
       syncHeaderBadges();
       flyToCart({ originEl: elImg, emoji:'', imgUrl: elImg.src, onEnd: attentionCartBadge });
       showToast('Añadido: ' + sellItem.name);
@@ -3132,7 +3405,7 @@
         return;
       }
 
-      Cart.add({ id: sellItem.id, nombre: sellItem.name, precio: sellItem.price||0, imagen: elImg.src, qty:1 });
+      Cart.add(cartPayloadFromItem(sellItem, elImg.src));
       syncHeaderBadges();
       flyToCart({ originEl: elImg, emoji:'', imgUrl: elImg.src, onEnd: attentionCartBadge });
       setTimeout(()=>{ window.location.href='checkout.html'; }, SETTINGS.cartRedirectDelay);
@@ -3239,6 +3512,35 @@
     }
 
     /* ================== Filtros ================== */
+
+    const shopSearchInput = document.getElementById('shopSearchInput');
+    if(shopSearchInput){
+      shopSearchInput.addEventListener('input', ()=>{
+        state.search = shopSearchInput.value.trim();
+        state.page = 1;
+        render();
+      });
+      shopSearchInput.addEventListener('submit', e=> e.preventDefault());
+      const form = shopSearchInput.closest('form');
+      if(form){
+        form.addEventListener('submit', e=>{
+          e.preventDefault();
+          state.search = shopSearchInput.value.trim();
+          state.page = 1;
+          render();
+        });
+      }
+    }
+
+    const stockOnly = document.getElementById('stockOnly');
+    if(stockOnly){
+      stockOnly.addEventListener('change', ()=>{
+        state.stockOnly = stockOnly.checked;
+        state.page = 1;
+        render();
+      });
+    }
+
     document.getElementById('applyFilters').addEventListener('click', ()=>{
       const min = minI.value.trim()==='' ? null : Number(minI.value);
       const max = maxI.value.trim()==='' ? null : Number(maxI.value);
@@ -3384,59 +3686,63 @@
     })();
 
     /* ================== INIT ================== */
-    async function initShop(){
-      await loadSupabaseCatalog();
+    document.getElementById('sortSelect').value = state.sort;
+    syncHeaderBadges();
 
-      setCurrency(state.currency);
-      document.getElementById('sortSelect').value = state.sort;
-      syncHeaderBadges();
-
-      window.addEventListener('storage', function(e){
-        if(e.key==='innov_currency'){
-          setCurrency(localStorage.getItem('innov_currency')||'PEN');
-        }
-      });
-
-      /* ✅ Abrir producto directo si viene link #p=ID */
-      const pid = getProductFromHash();
-      if(pid){
-        const it = findItemById(pid);
-        if(it){
-          // Si es un producto de proveedores, cambia modo para que tenga sentido visualmente.
-          const isWh = catalogContainsId(WHOLESALE, pid);
-          if(isWh && state.mode !== 'wholesale'){
-            state.mode = 'wholesale';
-            resetPriceInputs();
-            render();
-            modeWholesaleBtn.classList.add('active');
-            modeRetailBtn.classList.remove('active');
-          }
-          if(!isWh && state.mode !== 'retail'){
-            state.mode = 'retail';
-            resetPriceInputs();
-            render();
-            modeRetailBtn.classList.add('active');
-            modeWholesaleBtn.classList.remove('active');
-          }
-
-          // En móvil, cerramos filtros para que no estorbe
-          try { $('#filtersCollapse').collapse('hide'); } catch(e){}
-
-          openDetail(pid);
-        }
+    function syncModeButtons(){
+      if(state.mode === 'wholesale'){
+        modeWholesaleBtn.classList.add('active');
+        modeRetailBtn.classList.remove('active');
+      }else{
+        modeRetailBtn.classList.add('active');
+        modeWholesaleBtn.classList.remove('active');
       }
     }
 
-    initShop();
+    function openFromHashIfPossible(){
+      const pid = getProductFromHash();
+      if(!pid) return;
+      const it = findItemById(pid);
+      if(!it) return;
+
+      const isWh = catalogContainsId(mergedWholesaleCatalog(), pid);
+      if(isWh && state.mode !== 'wholesale'){
+        state.mode = 'wholesale';
+        syncModeButtons();
+        resetPriceInputs();
+        render();
+      }
+      if(!isWh && state.mode !== 'retail'){
+        state.mode = 'retail';
+        syncModeButtons();
+        resetPriceInputs();
+        render();
+      }
+
+      try { $('#filtersCollapse').collapse('hide'); } catch(e){}
+      openDetail(pid);
+    }
+
+    window.addEventListener('storage', function(e){
+      if(e.key==='innov_currency'){
+        setCurrency(localStorage.getItem('innov_currency')||'PEN');
+      }
+    });
+
+    // Carga inicial: muestra respaldo local al instante y luego sincroniza Supabase.
+    setCurrency(state.currency);
+    syncModeButtons();
+    updateCatalogStatus('Cargando catálogo...');
+    loadSupabaseCatalog().finally(()=>{
+      resetPriceInputs();
+      render();
+      openFromHashIfPossible();
+    });
 
   })();
   </script>
 </body>
 </html>
-
-
-
-
 
 
 
