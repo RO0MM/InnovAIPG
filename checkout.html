@@ -472,6 +472,73 @@
       .step-pill{ font-size:12px; padding:.25rem .6rem; }
       .order-list{ max-height:220px; }
     }
+  
+    .steps a.step-pill{ text-decoration:none; color:inherit; }
+    .steps a.step-pill:hover{ color:inherit; }
+    .generate-order-box{
+      border:2px dashed rgba(13,110,253,.28);
+      border-radius:16px;
+      background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 100%);
+      padding:1rem;
+      box-shadow:0 10px 24px rgba(13,110,253,.08);
+    }
+    .generate-order-btn{
+      min-height:64px;
+      border-radius:16px;
+      font-size:1.1rem;
+      box-shadow:0 10px 24px rgba(13,110,253,.18);
+    }
+    .delivery-important-note{
+      border:2px solid rgba(255,193,7,.55);
+      background:#fff8df;
+      border-radius:14px;
+      padding:.85rem 1rem;
+      color:#7b5a00;
+      box-shadow:6px 6px 0 rgba(255,193,7,.18);
+    }
+    .delivery-mode-banner{
+      border-radius:14px;
+      padding:.85rem 1rem;
+      border:2px solid rgba(13,110,253,.18);
+      background:#fff;
+    }
+    .delivery-mode-banner.auto{ border-color:rgba(40,167,69,.28); background:#effbf3; color:#145c2c; }
+    .delivery-mode-banner.manual{ border-color:rgba(255,193,7,.38); background:#fff9e8; color:#7a5b00; }
+    .delivery-mode-banner.mixed{ border-color:rgba(108,117,125,.28); background:#f4f6f8; color:#374151; }
+    .generate-order-help{
+      font-size:.92rem;
+      color:#5b6673;
+    }
+    .order-status-panel,
+    .lookup-order-panel{
+      border:2px dashed rgba(0,0,0,.16);
+      border-radius:14px;
+      padding:.85rem;
+      background:#f8f9fa;
+    }
+    .order-id-highlight{
+      border:2px solid rgba(255,193,7,.42);
+      background:#fff8df;
+      border-radius:12px;
+      padding:.65rem .75rem;
+      color:#7b5a00;
+      font-weight:700;
+    }
+    .auto-refresh-note{
+      padding:.55rem .7rem;
+      border-radius:10px;
+      background:#eef4ff;
+      border:1px solid rgba(13,110,253,.15);
+    }
+    .status-pre{
+      white-space:pre-wrap;
+      background:#fff;
+      border:1px dashed rgba(0,0,0,.18);
+      border-radius:12px;
+      padding:.75rem;
+      margin-bottom:.65rem;
+    }
+
   </style>
 </head>
 
@@ -634,10 +701,10 @@
     <div class="row px-xl-5">
 
       <div class="col-12">
-        <div class="steps">
-          <span class="step-pill"><i class="fa fa-shopping-cart"></i> 1) Carrito</span>
-          <span class="step-pill active"><i class="fa fa-credit-card"></i> 2) Pagar</span>
-          <span class="step-pill"><i class="fab fa-whatsapp"></i> 3) Confirmación</span>
+        <div class="steps" id="checkoutSteps">
+          <a class="step-pill" href="cart.html" data-step="1"><i class="fa fa-shopping-cart"></i> 1) Carrito</a>
+          <a class="step-pill active" href="#billingCard" data-step="2"><i class="fa fa-credit-card"></i> 2) Pagar</a>
+          <a class="step-pill" href="#generateOrderArea" data-step="3"><i class="fa fa-qrcode"></i> 3) Generar pedido</a>
 
           <span class="ml-auto small-muted">
             <i class="fa fa-shield-alt mr-1"></i>
@@ -648,7 +715,7 @@
 
       <!-- LEFT: Billing -->
       <div class="col-lg-8 mb-4">
-        <div class="comic-card">
+        <div class="comic-card" id="billingCard">
           <div class="card-head">
             <span>🧾 Datos de facturación</span>
             <span class="small-muted">Campos con <span class="req">*</span> son obligatorios</span>
@@ -718,6 +785,27 @@
                 <div class="hint-pill">
                   <i class="fa fa-info-circle"></i>
                   Solo pedimos nombre, WhatsApp, país, entrega y aceptar términos.
+                </div>
+
+                <div class="delivery-important-note mt-3">
+                  <div class="font-weight-bold mb-1">⚠️ IMPORTANTE</div>
+                  <div>Guardar el ID de tu pedido es obligatorio para consultar tu cuenta entregada después del pago.</div>
+                </div>
+
+                <div id="generateOrderArea" class="generate-order-box mt-3">
+                  <div id="deliveryModeBanner" class="delivery-mode-banner manual">
+                    <div class="font-weight-bold">Modo de entrega del producto</div>
+                    <div class="small mb-0" id="deliveryModeText">Verificando si tu compra es de entrega automática o manual...</div>
+                  </div>
+
+                  <button class="btn btn-primary btn-block font-weight-bold generate-order-btn mt-3" id="placeOrder" type="button">
+                    <i class="fas fa-qrcode mr-2"></i> Generar pedido y pagar
+                  </button>
+
+                  <div class="generate-order-help mt-2">
+                    <i class="fa fa-shield-alt mr-1"></i>
+                    Genera tu pedido aquí. Luego guarda el ID y úsalo para consultar tu entrega.
+                  </div>
                 </div>
               </div>
             </div>
@@ -866,9 +954,6 @@
 
               </div>
 
-              <button class="btn btn-block btn-primary font-weight-bold py-3 mt-3" id="placeOrder">
-                <i class="fas fa-qrcode mr-1"></i> Generar pedido y pagar
-              </button>
               <div class="small text-muted mt-1">
                 Agente seleccionado: <strong id="currentAgentLabel">🤵 Room</strong>
               </div>
@@ -888,16 +973,16 @@
               </div>
 
               <small class="d-block mt-2 text-muted">
-                Al confirmar, se genera el pedido en el sistema. Luego reportas el pago y podrás consultar la entrega en esta misma página.
+                Completa tus datos a la izquierda y presiona <strong>Generar pedido y pagar</strong>. Después guarda el ID de tu pedido para consultar tu entrega.
               </small>
 
               <button class="btn btn-outline-success btn-block py-3 mt-2 d-none" id="markPaid">
                 <i class="fa fa-check-circle mr-1"></i> Ya pagué / reportar operación
               </button>
 
-              <div id="supabaseOrderBox" class="mt-3 d-none" style="border:2px dashed rgba(0,0,0,.16); border-radius:14px; padding:.75rem; background:#f8f9fa;">
+              <div id="supabaseOrderBox" class="mt-3 d-none order-status-panel">
                 <div class="font-weight-bold mb-2">📌 Pedido generado</div>
-                <div class="small mb-2">Código: <strong id="sbOrderCode">---</strong></div>
+                <div class="order-id-highlight mb-2">Guardar ID de tu pedido: <strong id="sbOrderCode">---</strong></div>
                 <div class="small mb-2">Monto a pagar: <strong id="sbOrderTotal">S/ 0.00</strong></div>
                 <div class="small mb-2">Yape: <strong id="sbYapeNumber">991564053</strong></div>
                 <img id="sbYapeQr" src="img/yape-qr.png" alt="QR Yape" style="max-width:180px;width:100%;border-radius:12px;border:2px solid rgba(0,0,0,.08);background:#fff;padding:6px;" onerror="this.style.display='none'">
@@ -912,7 +997,19 @@
                 <button id="checkOrderStatus" type="button" class="btn btn-outline-dark btn-block mt-2">
                   <i class="fa fa-sync"></i> Consultar estado / entrega
                 </button>
+                <div class="small text-muted mt-2 auto-refresh-note" id="autoRefreshNote">Después de reportar el pago, esta página verificará la entrega automáticamente cada 2 segundos.</div>
                 <div id="deliveryBox" class="mt-2 small"></div>
+              </div>
+
+              <div class="lookup-order-panel mt-3">
+                <div class="font-weight-bold mb-2">🔎 Consultar cuenta entregada</div>
+                <label class="small font-weight-bold">ID de tu pedido</label>
+                <input id="lookupOrderCode" class="form-control form-control-sm" placeholder="Ej: INN-20260428-AB12">
+                <div class="small text-muted mt-2">Usaremos el WhatsApp que coloques en el formulario para validar tu pedido.</div>
+                <button id="lookupOrderBtn" type="button" class="btn btn-outline-primary btn-block mt-2">
+                  <i class="fa fa-search"></i> Consultar mi entrega
+                </button>
+                <div id="lookupDeliveryBox" class="mt-2 small"></div>
               </div>
 
               <div class="hint-pill">
@@ -1106,6 +1203,8 @@
       const CART_KEY = 'innov_cart_v1';
       const STORE = sessionStorage;
       const APPLIED_COUPON_KEY = 'innov_applied_coupon_v1';
+      const CURRENT_ORDER_KEY = 'innov_checkout_current_order_v2';
+      const POLL_INTERVAL_MS = 2000;
 
       const WA_AGENTS = {
         ROOM:  { name:'Room', number:'51991564053', emoji:'🤵' },
@@ -1116,7 +1215,9 @@
         currency: localStorage.getItem('innov_currency') || 'PEN',
         selectedAgent: localStorage.getItem('innov_wa_agent') || 'ROOM',
         currentOrder: null,
-        appliedCoupon: ''
+        appliedCoupon: '',
+        pollTimer: null,
+        deliveryModeSummary: { mode:'manual', title:'Modo de entrega', message:'Verificando entrega...' }
       };
 
       function safeParse(s, fallback){
@@ -1146,6 +1247,164 @@
         subtotal: () => readCart().reduce((a,b)=>a + (Number(b.precio||0) * Number(b.qty||1)), 0),
         clear: () => writeCart([])
       };
+      function escapeHtml(str){
+        return String(str == null ? '' : str)
+          .replaceAll('&','&amp;')
+          .replaceAll('<','&lt;')
+          .replaceAll('>','&gt;')
+          .replaceAll('"','&quot;')
+          .replaceAll("'",'&#39;');
+      }
+
+      function persistCurrentOrder(){
+        try{
+          if(state.currentOrder) sessionStorage.setItem(CURRENT_ORDER_KEY, JSON.stringify(state.currentOrder));
+          else sessionStorage.removeItem(CURRENT_ORDER_KEY);
+        }catch(e){}
+      }
+
+      function restoreCurrentOrder(){
+        try{
+          const raw = sessionStorage.getItem(CURRENT_ORDER_KEY);
+          const parsed = raw ? JSON.parse(raw) : null;
+          if(parsed && parsed.order_code){
+            state.currentOrder = parsed;
+          }
+        }catch(e){}
+      }
+
+      function setStepActive(step){
+        document.querySelectorAll('#checkoutSteps [data-step]').forEach(el=>{
+          el.classList.toggle('active', Number(el.getAttribute('data-step')) === Number(step));
+        });
+      }
+
+      function hydrateOrderUI(){
+        const box = document.getElementById('supabaseOrderBox');
+        const mark = document.getElementById('markPaid');
+        if(!state.currentOrder || !state.currentOrder.order_code){
+          if(box) box.classList.add('d-none');
+          if(mark) mark.classList.add('d-none');
+          return;
+        }
+        if(box) box.classList.remove('d-none');
+        if(mark) mark.classList.remove('d-none');
+        const code = state.currentOrder.order_code || '---';
+        const total = Number(state.currentOrder.total || 0);
+        const codeEl = document.getElementById('sbOrderCode');
+        const totalEl = document.getElementById('sbOrderTotal');
+        const lookup = document.getElementById('lookupOrderCode');
+        if(codeEl) codeEl.textContent = code;
+        if(totalEl) totalEl.textContent = formatMoneyPen(total);
+        if(lookup && !lookup.value) lookup.value = code;
+      }
+
+      function getLookupOrderCode(){
+        const manual = (document.getElementById('lookupOrderCode')?.value || '').trim().toUpperCase();
+        if(manual) return manual;
+        return (state.currentOrder?.order_code || '').trim().toUpperCase();
+      }
+
+      function stopOrderPolling(){
+        if(state.pollTimer){
+          clearInterval(state.pollTimer);
+          state.pollTimer = null;
+        }
+      }
+
+      function startOrderPolling(){
+        stopOrderPolling();
+        state.pollTimer = setInterval(()=>{
+          checkStatus({ silent:true, targetBoxId:'deliveryBox' });
+        }, POLL_INTERVAL_MS);
+      }
+
+      function resolveDeliveryModeSummary(modes){
+        const valid = (modes || []).filter(Boolean);
+        const unique = [...new Set(valid)];
+        if(!unique.length){
+          return {
+            mode:'manual',
+            title:'Modo de entrega del producto',
+            message:'Revisaremos el pedido al confirmar el pago. Guarda tu ID para consultar la entrega.'
+          };
+        }
+        if(unique.length === 1 && unique[0] === 'auto'){
+          return {
+            mode:'auto',
+            title:'Entrega automática',
+            message:'Tu producto está configurado para entrega automática. Cuando se apruebe el pago, el sistema verificará la entrega de forma periódica.'
+          };
+        }
+        if(unique.length === 1 && unique[0] === 'manual'){
+          return {
+            mode:'manual',
+            title:'Entrega manual',
+            message:'Tu producto requiere entrega manual. Guarda el ID del pedido porque lo usarás para consultar la cuenta entregada.'
+          };
+        }
+        return {
+          mode:'mixed',
+          title:'Entrega mixta',
+          message:'Tu carrito incluye productos con entrega automática y manual. Guarda el ID del pedido y consulta aquí mismo la entrega.'
+        };
+      }
+
+      function syncDeliveryModeBanner(){
+        const box = document.getElementById('deliveryModeBanner');
+        const text = document.getElementById('deliveryModeText');
+        if(!box || !text) return;
+        box.classList.remove('auto','manual','mixed');
+        box.classList.add(state.deliveryModeSummary.mode || 'manual');
+        const titleEl = box.querySelector('.font-weight-bold');
+        if(titleEl) titleEl.textContent = state.deliveryModeSummary.title || 'Modo de entrega del producto';
+        text.textContent = state.deliveryModeSummary.message || '';
+      }
+
+      async function detectCartDeliveryMode(){
+        const ids = [...new Set(cartItemsForDb().map(x => x.plan_id).filter(Boolean))];
+        let modes = Cart.items().map(i => {
+          const direct = i.delivery_mode || i.deliveryMode || i?.meta?.delivery_mode || i?.meta?.deliveryMode || '';
+          return String(direct).toLowerCase() === 'auto' ? 'auto' : (String(direct).toLowerCase() === 'manual' ? 'manual' : '');
+        }).filter(Boolean);
+
+        if(ids.length){
+          try{
+            const r = await db.from('product_plans').select('id, delivery_mode').in('id', ids);
+            if(!r.error && Array.isArray(r.data) && r.data.length){
+              const modeMap = new Map(r.data.map(row => [String(row.id), String(row.delivery_mode || '').toLowerCase()]));
+              modes = Cart.items().map(i => {
+                const pid = String(i.plan_id || i.planId || i.supabase_plan_id || '');
+                const found = modeMap.get(pid) || '';
+                return found === 'auto' ? 'auto' : (found === 'manual' ? 'manual' : '');
+              }).filter(Boolean);
+            }
+          }catch(e){}
+        }
+
+        state.deliveryModeSummary = resolveDeliveryModeSummary(modes);
+        syncDeliveryModeBanner();
+      }
+
+      function renderStatusHTML(info, orderCode){
+        const code = escapeHtml(orderCode || info?.order_code || '');
+        const status = escapeHtml(info?.status || 'pending');
+        const deliveryStatus = escapeHtml(info?.delivery_status || 'pending');
+        const total = formatMoneyPen(info?.total || 0);
+        let html = `<div class="delivery-important-note mb-2"><div class="font-weight-bold mb-1">⚠️ IMPORTANTE</div><div>Guardar el ID de tu pedido: <strong>${code}</strong>. Lo necesitarás para consultar tu cuenta entregada.</div></div>`;
+        html += `<div class="alert alert-light border mt-2 mb-0"><strong>ID del pedido:</strong> ${code}<br><strong>Estado:</strong> ${status} / ${deliveryStatus}<br><strong>Total:</strong> ${total}</div>`;
+        if(info && Array.isArray(info.deliveries) && info.deliveries.length){
+          html += '<div class="mt-2 font-weight-bold">✅ Entrega:</div>';
+          html += info.deliveries.map(d => `<div class="status-pre">${escapeHtml(d.message || '')}</div>`).join('');
+        }else{
+          const waiting = String(info?.delivery_status || '').toLowerCase().includes('manual')
+            ? 'Tu producto está en entrega manual. El administrador debe registrar la cuenta para que aparezca aquí.'
+            : 'Aún no hay entrega registrada. Después de aprobado el pago, esta página seguirá consultando la entrega automáticamente.';
+          html += `<div class="small text-muted mt-2">${waiting}</div>`;
+        }
+        return html;
+      }
+
 
       function penToUsd(pen){ return pen / FX; }
       function formatMoneyPen(n){ return 'S/ ' + (Number(n)||0).toFixed(2); }
@@ -1383,11 +1642,9 @@
         }
 
         state.currentOrder = r.data[0];
-
-        document.getElementById('supabaseOrderBox').classList.remove('d-none');
-        document.getElementById('markPaid').classList.remove('d-none');
-        document.getElementById('sbOrderCode').textContent = state.currentOrder.order_code;
-        document.getElementById('sbOrderTotal').textContent = formatMoneyPen(state.currentOrder.total);
+        persistCurrentOrder();
+        hydrateOrderUI();
+        setStepActive(3);
 
         renderCheckout(state.currentOrder);
         clearAppliedCoupon();
@@ -1423,46 +1680,67 @@
           return;
         }
 
-        showToast('Pago enviado a revisión. Espera aprobación del admin ✅','fas fa-paper-plane');
-        await checkStatus();
+        showToast('Pago enviado a revisión. Empezamos a verificar la entrega cada 2 segundos ✅','fas fa-paper-plane');
+        await checkStatus({ orderCode: state.currentOrder.order_code, targetBoxId:'deliveryBox' });
+        startOrderPolling();
       }
 
-      async function checkStatus(){
-        if(!state.currentOrder){
-          showToast('Primero genera el pedido.', 'fas fa-info-circle');
+      async function checkStatus(opts = {}){
+        const orderCode = String(opts.orderCode || getLookupOrderCode() || '').trim().toUpperCase();
+        if(!orderCode){
+          if(!opts.silent) showToast('Ingresa el ID de tu pedido.', 'fas fa-info-circle');
           return;
         }
 
         const phone = (document.getElementById('phone').value||'').trim();
+        if(!phone){
+          if(!opts.silent) showToast('Coloca tu WhatsApp para validar el pedido.', 'fas fa-exclamation-circle');
+          return;
+        }
+
+        const targetBoxId = opts.targetBoxId || ((state.currentOrder?.order_code || '') === orderCode ? 'deliveryBox' : 'lookupDeliveryBox');
+        const box = document.getElementById(targetBoxId);
+        if(box && !opts.silent){
+          box.innerHTML = '<div class="small text-muted">Consultando estado de tu pedido...</div>';
+        }
 
         const r = await db.rpc('get_public_order_status', {
-          p_order_code: state.currentOrder.order_code,
+          p_order_code: orderCode,
           p_customer_whatsapp: phone
         });
 
         if(r.error){
-          showToast(r.error.message, 'fas fa-exclamation-circle');
+          if(box && !opts.silent) box.innerHTML = `<div class="alert alert-warning mb-0">${escapeHtml(r.error.message)}</div>`;
+          if(!opts.silent) showToast(r.error.message, 'fas fa-exclamation-circle');
           return;
         }
 
-        const info = r.data[0];
-        const box = document.getElementById('deliveryBox');
-
-        let html = `<div class="alert alert-light border mt-2 mb-0">
-          <strong>Estado:</strong> ${info.status} / ${info.delivery_status}<br>
-          <strong>Total:</strong> ${formatMoneyPen(info.total)}
-        </div>`;
-
-        if(info.deliveries && info.deliveries.length){
-          html += '<div class="mt-2 font-weight-bold">✅ Entrega:</div>';
-          html += info.deliveries.map(d => `<pre style="white-space:pre-wrap;background:#fff;border:1px dashed rgba(0,0,0,.18);border-radius:12px;padding:.65rem;">${String(d.message||'').replaceAll('<','&lt;')}</pre>`).join('');
-          Cart.clear();
-          syncHeaderBadges();
-        }else{
-          html += '<div class="small text-muted mt-2">Aún no hay entrega. Cuando el administrador apruebe el pago, aparecerá aquí.</div>';
+        const info = Array.isArray(r.data) ? r.data[0] : null;
+        if(!info){
+          if(box) box.innerHTML = '<div class="alert alert-warning mb-0">No encontramos información del pedido.</div>';
+          return;
         }
 
-        box.innerHTML = html;
+        if(!state.currentOrder || state.currentOrder.order_code === orderCode){
+          state.currentOrder = Object.assign({}, state.currentOrder || {}, { order_code: orderCode, total: info.total });
+          persistCurrentOrder();
+          hydrateOrderUI();
+        }
+
+        const html = renderStatusHTML(info, orderCode);
+        if(box) box.innerHTML = html;
+        if(targetBoxId === 'lookupDeliveryBox'){
+          const mainBox = document.getElementById('deliveryBox');
+          if(mainBox && !mainBox.innerHTML) mainBox.innerHTML = html;
+        }
+
+        const delivered = !!(info.deliveries && info.deliveries.length);
+        if(delivered){
+          Cart.clear();
+          syncHeaderBadges();
+          stopOrderPolling();
+          setStepActive(3);
+        }
       }
 
       document.getElementById('applyCouponBtn')?.addEventListener('click', handleApplyCoupon);
@@ -1515,21 +1793,32 @@
       });
 
       document.getElementById('sendPaymentReview')?.addEventListener('click', reportPayment);
-      document.getElementById('checkOrderStatus')?.addEventListener('click', checkStatus);
+      document.getElementById('checkOrderStatus')?.addEventListener('click', ()=> checkStatus({ targetBoxId:'deliveryBox' }));
+      document.getElementById('lookupOrderBtn')?.addEventListener('click', ()=> checkStatus({ orderCode:(document.getElementById('lookupOrderCode')?.value||'').trim().toUpperCase(), targetBoxId:'lookupDeliveryBox' }));
+      document.getElementById('lookupOrderCode')?.addEventListener('keypress', function(e){ if(e.key === 'Enter'){ e.preventDefault(); checkStatus({ orderCode:(document.getElementById('lookupOrderCode')?.value||'').trim().toUpperCase(), targetBoxId:'lookupDeliveryBox' }); } });
 
       if(new URLSearchParams(window.location.search).get('paid') === '1'){
         Cart.clear();
         showToast('Carrito limpiado ✅','fas fa-check-circle');
       }
 
+      restoreCurrentOrder();
       loadPaymentSettings();
       syncPayCards();
       syncAgentUI();
       renderCheckout();
+      hydrateOrderUI();
+      detectCartDeliveryMode();
+      setStepActive(state.currentOrder ? 3 : 2);
+      if(state.currentOrder?.order_code){
+        checkStatus({ orderCode: state.currentOrder.order_code, silent:true, targetBoxId:'deliveryBox' });
+      }
     })();
   </script>
 </body>
 </html>
+
+
 
 
 
