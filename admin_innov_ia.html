@@ -1025,7 +1025,298 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-  </style>
+  
+/* ---------- Operaciones PRO fusionadas desde Recordatorio ---------- */
+.ops-hero{
+  display:grid;
+  grid-template-columns:1.25fr .75fr;
+  gap:12px;
+  margin-bottom:14px;
+}
+.ops-hero .card{
+  overflow:hidden;
+  position:relative;
+}
+.ops-hero .card::after{
+  content:"";
+  position:absolute;
+  inset:auto -40px -80px auto;
+  width:180px;
+  height:180px;
+  border-radius:999px;
+  background:var(--primary-alpha);
+  pointer-events:none;
+}
+.ops-title{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.ops-title h2{
+  margin:0;
+  font-size:1.2rem;
+  letter-spacing:-.02em;
+}
+.ops-kpis{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin-top:12px;
+}
+.ops-kpi{
+  border:1px solid var(--border);
+  background:var(--card2);
+  border-radius:14px;
+  padding:10px;
+}
+.ops-kpi .v{font-weight:900;font-size:1.25rem;color:var(--card-ink);line-height:1.1}
+.ops-kpi .l{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.ops-switch{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.ops-switch .chip{border-radius:12px}
+.ops-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+  gap:12px;
+}
+.ops-stock-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:15px;
+  min-width:0;
+}
+.ops-stock-card.used{opacity:.72}
+.ops-stock-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+  margin-bottom:8px;
+}
+.ops-stock-title{
+  font-weight:850;
+  color:var(--card-ink);
+  line-height:1.25;
+  word-break:break-word;
+}
+.ops-secret{
+  display:grid;
+  gap:6px;
+  border:1px dashed var(--border);
+  background:var(--card2);
+  border-radius:12px;
+  padding:10px;
+  margin:10px 0;
+}
+.ops-secret .row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:.84rem;
+  border-bottom:1px dashed var(--border);
+  padding-bottom:4px;
+}
+.ops-secret .row:last-child{border-bottom:none;padding-bottom:0}
+.ops-secret .k{color:var(--muted);font-weight:700}
+.ops-secret .v{
+  text-align:right;
+  font-weight:800;
+  word-break:break-word;
+  font-family:var(--mono);
+}
+.ops-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.ops-actions .btn{padding:7px 10px;font-size:.8rem}
+.ops-import-preview{
+  display:grid;
+  gap:8px;
+  max-height:280px;
+  overflow:auto;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:8px;
+  background:var(--card2);
+}
+.ops-preview-item{
+  border:1px solid var(--border);
+  background:var(--card);
+  border-radius:10px;
+  padding:8px;
+  font-size:.84rem;
+}
+.ops-mini-help{
+  border-left:3px solid var(--primary);
+  padding:10px 12px;
+  background:var(--primary-alpha2);
+  border-radius:12px;
+  color:var(--muted);
+  font-size:.84rem;
+}
+@media(max-width:800px){
+  .ops-hero{grid-template-columns:1fr}
+  .ops-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ops-grid{grid-template-columns:1fr}
+  .ops-actions .btn{flex:1 1 calc(50% - 7px)}
+}
+@media(max-width:420px){
+  .ops-kpis{grid-template-columns:1fr 1fr}
+  .ops-title h2{font-size:1rem}
+}
+
+
+/* ================================================================
+   MOBILE APP FIX v10 — sin desplazamiento lateral + barra inferior agrupada
+   ================================================================ */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+body, #app, .container, .admin-section, .card, .mini-card, .ops-stock-card, .table-wrap, .admin-toolbar, dialog {
+  max-width: 100%;
+}
+img, video, canvas, svg { max-width: 100%; }
+input, select, textarea, button { min-width: 0; }
+
+@media (max-width: 800px) {
+  :root { --header-h: 56px; --bottombar-h: 66px; }
+  body { font-size: 14px; }
+  .container {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    padding: 10px 10px calc(var(--bottombar-h) + 18px);
+  }
+  header.app { width: 100%; max-width: 100vw; overflow: hidden; }
+  .brand, .brand .l { min-width: 0; }
+  .app-title { max-width: 52vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .header-actions .btn:not(#btnTheme):not(#btnLogout) { padding-inline: 8px; }
+
+  .admin-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .admin-kpi { padding: 11px; border-radius: 14px; }
+  .admin-kpi .kpi-icon { font-size: 1.25rem; margin-bottom: 4px; }
+  .admin-kpi .val { font-size: 1.35rem; }
+  .admin-kpi .lbl { font-size: .64rem; letter-spacing: .04em; }
+  .admin-kpi .sub { display: none; }
+
+  .card, .mini-card, .ops-stock-card { padding: 12px; border-radius: 14px; }
+  .mini-grid, .ops-grid, .cuentas-grid, .cdk-grid, .accx-group-grid { grid-template-columns: minmax(0, 1fr) !important; width: 100%; }
+  .mini-head, .ops-stock-top { gap: 8px; }
+  .thumb { width: 42px; height: 42px; }
+
+  .admin-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    gap: 8px;
+    padding: 10px;
+    position: sticky;
+    top: var(--header-h);
+    z-index: 35;
+  }
+  .admin-toolbar .input-wrap,
+  .admin-toolbar input,
+  .admin-toolbar select,
+  .admin-toolbar .actions,
+  #opsPlanFilter,
+  #opsStatusFilter {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .admin-toolbar .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .admin-toolbar .actions .btn { width: 100%; padding: 9px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .line-actions, .ops-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .line-actions .btn, .ops-actions .btn, .line-actions a.btn {
+    width: 100%;
+    min-width: 0;
+    flex: none;
+    padding: 8px 7px;
+    font-size: .78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .line-actions .btn-danger, .ops-actions .btn-danger { grid-column: span 1; }
+
+  .grid-2, .grid-3, .grid-4, .grid { grid-template-columns: minmax(0,1fr) !important; }
+  .grid .full, .full { grid-column: 1 / -1; }
+  .ops-hero { grid-template-columns: minmax(0,1fr) !important; }
+  .ops-title { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .ops-title > div:last-child { display: grid !important; grid-template-columns: repeat(3, minmax(0,1fr)); width: 100%; }
+  .ops-title > div:last-child .btn { width: 100%; padding-inline: 6px; }
+  .ops-kpis { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .ops-secret .row, .kv, .cdk-kv, .accx-kv { align-items: flex-start; }
+
+  .table-wrap { overflow: visible; width: 100%; }
+  table { min-width: 0 !important; width: 100%; }
+  tbody { width: 100%; }
+
+  dialog {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: auto 0 0 0;
+    border-radius: 18px 18px 0 0;
+  }
+  dialog form, dialog .dlg-body { padding: 14px; }
+  .modal-header, .modal-actions { padding-inline: 14px; }
+  .modal-actions { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .modal-actions .btn { width: 100%; }
+
+  .bottom-bar {
+    height: var(--bottombar-h);
+    overflow: hidden !important;
+  }
+  .bottom-actions {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 0;
+    padding: 0 3px;
+  }
+  .bottom-actions .btn {
+    min-width: 0 !important;
+    width: 100%;
+    padding: 5px 1px;
+    font-size: .62rem;
+    overflow: hidden;
+  }
+  .bottom-actions .btn .ico { font-size: 1.16rem; }
+  .bottom-actions .btn span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+
+  #toastContainer, .toasts { left: 10px; right: 10px; width: auto; bottom: calc(var(--bottombar-h) + 10px); }
+  .fab { right: 14px; bottom: calc(var(--bottombar-h) + 12px); }
+}
+
+@media (max-width: 380px) {
+  .bottom-actions .btn { font-size: .58rem; }
+  .bottom-actions .btn .ico { font-size: 1.05rem; }
+  .admin-toolbar .actions, .line-actions, .ops-actions { grid-template-columns: 1fr 1fr; }
+  .ops-title > div:last-child { grid-template-columns: 1fr; }
+}
+
+</style>
 </head>
 <body>
 
@@ -1058,6 +1349,7 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
   <div class="g-title">CRM</div>
   <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">👥 Clientes</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="reminders" type="button">🔔 Recordatorios</button>
+  <button class="btn btn-ghost nav-btn-side" data-tab="ops" type="button">🔐 Operaciones PRO</button>
   <div class="g-title">Configuración</div>
   <button class="btn btn-ghost nav-btn-side" data-tab="templates" type="button">📝 Plantillas</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="coupons" type="button">🎟️ Cupones</button>
@@ -1094,7 +1386,7 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
         <div class="logo"><span>IA</span></div>
         <div>
           <div class="app-title">Innov IA Admin</div>
-          <div class="app-sub">Productos • Cupos • Pagos • Entregas</div>
+          <div class="app-sub">Productos • Cupos • Pagos • Entregas • Recordatorios PRO</div>
         </div>
       </div>
       <div class="header-actions">
@@ -1115,6 +1407,7 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
     <button class="btn nav-btn" data-tab="orders">🧾 Pagos <span class="tab-badge" id="tbOrders" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="clients">👥 Clientes</button>
     <button class="btn nav-btn" data-tab="reminders">🔔 Recordatorios <span class="tab-badge" id="tbReminders" style="display:none">0</span></button>
+    <button class="btn nav-btn" data-tab="ops">🔐 Operaciones PRO</button>
     <button class="btn nav-btn" data-tab="templates">📝 Plantillas</button>
     <button class="btn nav-btn" data-tab="coupons">🎟️ Cupones</button>
     <button class="btn nav-btn" data-tab="settings">⚙️ Ajustes</button>
@@ -1220,6 +1513,64 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
         <div class="mini-grid" id="remindersGrid"></div>
       </section>
 
+
+      <!-- Operaciones PRO / fusión Recordatorio -->
+      <section id="tab-ops" class="admin-section">
+        <div class="ops-hero">
+          <div class="card">
+            <div class="ops-title">
+              <div>
+                <h2>🔐 Operaciones PRO</h2>
+                <p class="help" style="margin:4px 0 0">Cuentas, perfiles, CDK, entrega rápida y recordatorio automático a 30 días, todo dentro del admin.</p>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-primary" id="btnOpsAddAccount" type="button">＋ Cuenta</button>
+                <button class="btn btn-success" id="btnOpsAddCode" type="button">＋ CDK</button>
+                <button class="btn" id="btnOpsBulk" type="button">📥 Lote</button>
+              </div>
+            </div>
+            <div class="ops-kpis">
+              <div class="ops-kpi"><div class="v" id="opsKpiAccounts">0</div><div class="l">Cuentas libres</div></div>
+              <div class="ops-kpi"><div class="v" id="opsKpiCodes">0</div><div class="l">CDK libres</div></div>
+              <div class="ops-kpi"><div class="v" id="opsKpiUsed">0</div><div class="l">Usadas</div></div>
+              <div class="ops-kpi"><div class="v" id="opsKpiPlans">0</div><div class="l">Planes activos</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <strong>✅ Flujo recomendado</strong>
+            <div class="ops-mini-help" style="margin-top:10px">
+              1) Carga cuenta o CDK.<br>
+              2) Presiona <b>Entregar + recordatorio</b>.<br>
+              3) Ingresa WhatsApp del cliente.<br>
+              4) Se copia el mensaje, se crea cliente y se guarda renovación a <b>30 días</b>.
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="input-wrap"><input class="input" id="opsSearch" type="search" placeholder="🔍 Buscar cuenta, CDK, producto, correo..."></div>
+          <select class="input" id="opsPlanFilter" style="max-width:260px"><option value="">Todos los planes</option></select>
+          <select class="input" id="opsStatusFilter" style="max-width:180px">
+            <option value="">Todos</option>
+            <option value="available">Disponibles</option>
+            <option value="reserved">Reservadas</option>
+            <option value="used">Usadas</option>
+          </select>
+          <div class="actions">
+            <button class="btn" id="btnOpsRefresh" type="button">↻</button>
+            <button class="btn btn-success" id="btnOpsExport" type="button">⬇ Backup</button>
+          </div>
+        </div>
+
+        <div class="ops-switch" role="tablist" aria-label="Vista de operaciones">
+          <button class="chip" data-ops-view="accounts" aria-pressed="true" type="button">🔐 Cuentas</button>
+          <button class="chip" data-ops-view="codes" type="button">🎟️ CDK / Códigos</button>
+          <button class="chip" data-ops-view="all" type="button">📦 Todo stock</button>
+        </div>
+
+        <div id="opsGrid" class="ops-grid"></div>
+      </section>
+
       <!-- Plantillas -->
       <section id="tab-templates" class="admin-section">
         <div class="admin-toolbar">
@@ -1248,6 +1599,7 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
         <div class="grid grid-2">
           <div class="card">
             <strong style="display:block;margin-bottom:14px">🎟️ Crear / editar cupón</strong>
+            <input type="hidden" id="cpId">
             <label class="subtle">Código</label>
             <input class="input" id="cpCode" placeholder="PROMO10" style="margin-bottom:10px">
             <div class="grid grid-2">
@@ -1259,7 +1611,9 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
               <div><label class="subtle">Mínimo compra S/</label><input class="input" id="cpMin" type="number" value="0"></div>
             </div>
             <div style="margin-top:12px">
+              <button class="btn" id="btnNewCoupon" type="button">＋ Nuevo</button>
               <button class="btn btn-primary" id="btnSaveCoupon" type="button">Guardar cupón</button>
+              <button class="btn btn-danger" id="btnDeleteCouponForm" type="button">Eliminar</button>
             </div>
           </div>
           <div class="card">
@@ -1307,14 +1661,11 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
 <nav class="bottom-bar" aria-label="Navegación">
   <div class="bottom-actions">
     <button class="btn active" data-tab="dashboard" type="button"><span class="ico">📊</span><span>Inicio</span></button>
-    <button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Productos</span></button>
-    <button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Cupos</span></button>
+    <button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Prod.</span></button>
+    <button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Stock</span></button>
     <button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pagos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
-    <button class="btn" data-tab="clients" type="button"><span class="ico">👥</span><span>Clientes</span></button>
     <button class="btn" data-tab="reminders" type="button"><span class="ico">🔔</span><span>Record.</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
-    <button class="btn" data-tab="templates" type="button"><span class="ico">📝</span><span>Plant.</span></button>
-    <button class="btn" data-tab="coupons" type="button"><span class="ico">🎟️</span><span>Cupones</span></button>
-    <button class="btn" data-tab="settings" type="button"><span class="ico">⚙️</span><span>Ajustes</span></button>
+    <button class="btn" id="btnMobileMore" type="button" onclick="openSidenav()"><span class="ico">☰</span><span>Más</span></button>
   </div>
 </nav>
 
@@ -1593,6 +1944,115 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
     <button class="btn btn-primary" type="submit" form="reminderForm">Guardar recordatorio</button>
   </div>
 </dialog>
+
+
+<!-- Operaciones PRO: Cuenta / CDK -->
+<dialog id="dlgOpsStock">
+  <div class="modal-header">
+    <strong id="opsStockDlgTitle">Cuenta / CDK</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgOpsStock" type="button">✕</button>
+  </div>
+  <form id="opsStockForm">
+    <input type="hidden" id="opsStockId">
+    <div class="grid grid-2">
+      <div><label class="subtle">Tipo</label>
+        <select class="input" id="opsStockType">
+          <option value="account">Cuenta</option>
+          <option value="code">CDK / Código</option>
+        </select>
+      </div>
+      <div><label class="subtle">Plan vinculado *</label><select class="input" id="opsStockPlan" required></select></div>
+      <div class="full"><label class="subtle">Título / referencia</label><input class="input" id="opsStockTitle" placeholder="Netflix perfil 1, CDK Canva, etc."></div>
+      <div class="ops-account-field"><label class="subtle">Correo / usuario</label><input class="input" id="opsStockUser" placeholder="correo@gmail.com"></div>
+      <div class="ops-account-field"><label class="subtle">Contraseña</label><input class="input" id="opsStockPass" placeholder="clave"></div>
+      <div class="ops-account-field"><label class="subtle">Perfil</label><input class="input" id="opsStockProfile" placeholder="Perfil 1 / Rommel"></div>
+      <div class="ops-account-field"><label class="subtle">PIN</label><input class="input" id="opsStockPin" placeholder="1234"></div>
+      <div class="ops-code-field full"><label class="subtle">Código / CDK</label><input class="input" id="opsStockCode" placeholder="YEOHYVM2JWAOCN6V"></div>
+      <div><label class="subtle">Grupo WhatsApp / URL</label><input class="input" id="opsStockGroup" placeholder="https://..."></div>
+      <div><label class="subtle">Estado</label>
+        <select class="input" id="opsStockStatus">
+          <option value="available">Disponible</option>
+          <option value="reserved">Reservado</option>
+          <option value="used">Usado</option>
+        </select>
+      </div>
+      <div class="full"><label class="subtle">Notas / reglas</label><textarea class="input" id="opsStockNotes" placeholder="Reglas, garantía, observaciones..."></textarea></div>
+    </div>
+  </form>
+  <div class="modal-actions">
+    <button class="btn btn-danger" id="btnOpsDeleteStock" type="button">Eliminar</button>
+    <button class="btn" data-close="dlgOpsStock" type="button">Cancelar</button>
+    <button class="btn btn-primary" type="submit" form="opsStockForm">Guardar</button>
+  </div>
+</dialog>
+
+<!-- Operaciones PRO: Entrega rápida -->
+<dialog id="dlgOpsDeliver">
+  <div class="modal-header">
+    <strong>💚 Entregar + crear recordatorio</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgOpsDeliver" type="button">✕</button>
+  </div>
+  <div class="dlg-body">
+    <input type="hidden" id="opsDeliverStockId">
+    <div class="grid grid-2">
+      <div><label class="subtle">Nombre cliente *</label><input class="input" id="opsDeliverName" placeholder="Cliente"></div>
+      <div><label class="subtle">WhatsApp *</label><input class="input" id="opsDeliverPhone" placeholder="991564053"></div>
+      <div><label class="subtle">Servicio</label><input class="input" id="opsDeliverService"></div>
+      <div><label class="subtle">Monto S/</label><input class="input" id="opsDeliverAmount" type="number" step="0.01"></div>
+      <div><label class="subtle">Vence / renovación</label><input class="input" id="opsDeliverDue" type="date"></div>
+      <div><label class="subtle">Estado stock</label>
+        <select class="input" id="opsDeliverNewStatus">
+          <option value="used">Marcar usado</option>
+          <option value="reserved">Marcar reservado</option>
+          <option value="available">Mantener disponible</option>
+        </select>
+      </div>
+      <div class="full"><label class="subtle">Mensaje de entrega</label><textarea class="input" id="opsDeliverText" style="min-height:180px"></textarea></div>
+      <label class="help full" style="display:flex;gap:8px;align-items:center;cursor:pointer">
+        <input type="checkbox" id="opsDeliverOpenWa" checked> Abrir WhatsApp después de guardar
+      </label>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn" id="btnOpsCopyDeliver" type="button">📋 Copiar</button>
+    <button class="btn btn-primary" id="btnOpsSaveDeliver" type="button">✅ Guardar y abrir</button>
+  </div>
+</dialog>
+
+<!-- Operaciones PRO: Importación por lote -->
+<dialog id="dlgOpsBulk">
+  <div class="modal-header">
+    <strong>📥 Agregar cuentas / CDK por lote</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgOpsBulk" type="button">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div class="grid grid-2">
+      <div><label class="subtle">Plan destino *</label><select class="input" id="opsBulkPlan"></select></div>
+      <div><label class="subtle">Modo</label>
+        <select class="input" id="opsBulkMode">
+          <option value="mixed">Detectar automático</option>
+          <option value="account">Todo cuentas</option>
+          <option value="code">Todo CDK / códigos</option>
+        </select>
+      </div>
+      <div class="full">
+        <label class="subtle">Pega tus datos</label>
+        <textarea class="input" id="opsBulkText" style="min-height:190px" placeholder="correo@gmail.com|clave|perfil|pin|nota&#10;YEOHYVM2JWAOCN6V&#10;otrocorreo@gmail.com:clave123"></textarea>
+      </div>
+      <div class="full" style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="badge b-ok" id="opsBulkValid">0 válidas</span>
+        <span class="badge b-warn" id="opsBulkDoubt">0 dudosas</span>
+        <span class="badge b-pagado" id="opsBulkDup">0 duplicadas</span>
+      </div>
+      <div class="full"><div class="ops-import-preview" id="opsBulkPreview"><div class="help">La vista previa aparecerá aquí.</div></div></div>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn" id="btnOpsPreviewBulk" type="button">🔍 Detectar</button>
+    <button class="btn btn-success" id="btnOpsSaveBulk" type="button">Guardar válidas</button>
+  </div>
+</dialog>
+
 
 <!-- Chat pedido -->
 <dialog id="dlgOrderChat">
@@ -1875,7 +2335,7 @@ function fillReminderSelects(){
 }
 
 /* ---- Render All ---- */
-function renderAll(){renderKPIs();renderSummary();renderProducts();renderPlans();renderOrders();renderClients();renderReminders();renderTemplates();renderDeliveryTemplates();renderCoupons();renderSettings()}
+function renderAll(){renderKPIs();renderSummary();renderProducts();renderPlans();renderOrders();renderClients();renderReminders();renderOps();renderTemplates();renderDeliveryTemplates();renderCoupons();renderSettings()}
 
 function renderKPIs(){
   $('kpiProducts').textContent=state.products.filter(p=>p.active!==false).length;
@@ -1923,6 +2383,7 @@ function renderProducts(){
         <button class="btn btn-primary" onclick="editProduct('${p.id}')">✏️ Editar</button>
         <button class="btn" onclick="newPlanFor('${p.id}')">＋ Plan</button>
         <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="toggleProduct('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
+        <button class="btn btn-danger" onclick="quickDeleteProduct('${p.id}')">🗑 Eliminar</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">🧩</span><p>No hay productos.</p></div>';
@@ -1946,6 +2407,7 @@ function renderPlans(){
       <button class="btn btn-primary" onclick="editPlan('${p.id}')">✏️ Editar cupos</button>
       <button class="btn" onclick="openAddStock('${p.id}')">📤 Cargar</button>
       <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
+      <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">🗑 Eliminar</button>
     </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
 }
@@ -2007,6 +2469,7 @@ function renderClients(){
         <button class="btn btn-primary" onclick="editClient('${c.id}')">✏️ Editar</button>
         <button class="btn" onclick="newReminderFor('${c.id}')">＋ Record.</button>
         <a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}">💚 WhatsApp</a>
+        <button class="btn btn-danger" onclick="quickDeleteClient('${c.id}')">🗑 Eliminar</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">👥</span><p>Sin clientes todavía.</p></div>';
@@ -2043,6 +2506,7 @@ function renderReminders(){
         <a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}" onclick="markReminderSent('${r.id}')">💚 WhatsApp</a>
         <button class="btn" onclick="markReminderPaid('${r.id}')">✅ Pagado</button>
         <button class="btn" onclick="renewReminder('${r.id}')">🔄 Renovar</button>
+        <button class="btn btn-danger" onclick="quickDeleteReminder('${r.id}')">🗑 Eliminar</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">🔔</span><p>Sin recordatorios.</p></div>';
@@ -2062,6 +2526,7 @@ function renderTemplates(){
       <button class="btn btn-primary" onclick="editTemplate('${t.id}')">✏️ Editar</button>
       <button class="btn" onclick="duplicateTemplate('${t.id}')">Duplicar</button>
       <button class="btn ${t.is_default?'btn-warning':'btn-success'}" onclick="setDefaultTemplate('${t.id}')">${t.is_default?'Principal':'Hacer principal'}</button>
+      <button class="btn btn-danger" onclick="quickDeleteTemplate('${t.id}')">🗑 Eliminar</button>
     </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">📝</span><p>Sin plantillas. Crea una plantilla base.</p></div>';
 }
@@ -2080,6 +2545,7 @@ function renderDeliveryTemplates(){
       <button class="btn btn-primary" onclick="editDeliveryTemplate('${t.id}')">✏️ Editar</button>
       <button class="btn" onclick="duplicateDeliveryTemplate('${t.id}')">Duplicar</button>
       <button class="btn ${t.is_default?'btn-warning':'btn-success'}" onclick="setDefaultDeliveryTemplate('${t.id}')">${t.is_default?'Principal':'Hacer principal'}</button>
+      <button class="btn btn-danger" onclick="quickDeleteDeliveryTemplate('${t.id}')">🗑 Eliminar</button>
     </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin plantillas de entrega.</p></div>';
 }
@@ -2088,7 +2554,11 @@ function renderCoupons(){
   $('couponsList').innerHTML=state.coupons.map(c=>`<div class="mini-card coupon-card">
     <div class="mini-head"><b>${esc(c.code)}</b><span class="badge ${c.active?'b-ok':'b-bad'}">${c.active?'Activo':'Inactivo'}</span></div>
     <p>${c.discount_type==='percent'?c.discount_value+'%':money(c.discount_value)} · ${c.used_count||0}/${c.max_uses} usos</p>
-    <button class="btn ${c.active?'btn-warning':'btn-success'}" onclick="toggleCoupon('${c.id}')">${c.active?'Desactivar':'Activar'}</button>
+    <div class="line-actions">
+      <button class="btn btn-primary" onclick="editCoupon('${c.id}')">✏️ Editar</button>
+      <button class="btn ${c.active?'btn-warning':'btn-success'}" onclick="toggleCoupon('${c.id}')">${c.active?'Desactivar':'Activar'}</button>
+      <button class="btn btn-danger" onclick="deleteCoupon('${c.id}')">🗑 Eliminar</button>
+    </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">🎟️</span><p>Sin cupones.</p></div>';
 }
 
@@ -2112,18 +2582,19 @@ function switchTab(tab){
   // Scroll tabs into view on desktop
   const activeTab=document.querySelector('.admin-tabs .nav-btn[aria-pressed="true"]');
   if(activeTab)activeTab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
+  if(window.innerWidth<=800)window.scrollTo({top:0,behavior:'smooth'});
 }
 
 /* ---- Products CRUD ---- */
 function blankProduct(){
   ['pId','pName','pSlug','pImage','pDesc'].forEach(id=>$(id).value='');
   $('pCategory').value='otros';$('pSale').value='retail';$('pPriority').value=100;$('pActive').value='true';$('pBasePlan').checked=true;
-  $('productDlgTitle').textContent='Nuevo producto';showDialog('dlgProduct');
+  if($('btnDeleteProduct'))$('btnDeleteProduct').style.display='none';$('productDlgTitle').textContent='Nuevo producto';showDialog('dlgProduct');
 }
 function editProduct(id){
   const p=prod(id);if(!p)return;
   $('pId').value=p.id;$('pName').value=p.name||'';$('pSlug').value=p.slug||'';$('pCategory').value=p.category||'otros';$('pSale').value=p.sale_mode||'retail';$('pImage').value=p.image_url||'';$('pDesc').value=p.description||'';$('pPriority').value=p.priority||100;$('pActive').value=String(p.active!==false);$('pBasePlan').checked=false;
-  $('productDlgTitle').textContent='Editar producto';showDialog('dlgProduct');
+  if($('btnDeleteProduct'))$('btnDeleteProduct').style.display='inline-flex';$('productDlgTitle').textContent='Editar producto';showDialog('dlgProduct');
 }
 async function saveProduct(ev){
   ev.preventDefault();
@@ -2142,13 +2613,13 @@ function blankPlan(pid=''){
   fillProductSelects();$('plId').value='';$('plProduct').value=pid||state.products[0]?.id||'';
   ['plName','plSlug','plPrice','plImage','plDesc','plBenefits','plChips','plManualStock','bulkText'].forEach(id=>$(id).value='');
   $('plPeriod').value='Mensual';$('plDeliveryType').value='automatic';$('plAvailability').value='available';$('plPriority').value=100;$('plActive').value='true';
-  syncDeliveryBoxes();$('planDlgTitle').textContent='Nuevo plan';showDialog('dlgPlan');
+  if($('btnDeletePlan'))$('btnDeletePlan').style.display='none';syncDeliveryBoxes();$('planDlgTitle').textContent='Nuevo plan';showDialog('dlgPlan');
 }
 function newPlanFor(pid){blankPlan(pid)}
 function editPlan(id){
   const p=plan(id);if(!p)return;
   fillProductSelects();$('plId').value=p.id;$('plProduct').value=p.product_id;$('plName').value=p.name||'';$('plSlug').value=p.slug||'';$('plPrice').value=p.price??'';$('plPeriod').value=p.period||'Mensual';$('plImage').value=p.image_url||'';$('plDesc').value=p.description||'';$('plBenefits').value=Array.isArray(p.benefits)?p.benefits.join('\n'):'';$('plChips').value=Array.isArray(p.chips)?p.chips.join(', '):'';$('plDeliveryType').value=p.stock_mode==='controlled'?'automatic':'manual';$('plManualStock').value=p.manual_stock_count??'';$('plAvailability').value=p.availability_status||'available';$('plPriority').value=p.priority||100;$('plActive').value=String(p.active!==false);
-  syncDeliveryBoxes();$('planDlgTitle').textContent='Editar plan / cupos';showDialog('dlgPlan');
+  if($('btnDeletePlan'))$('btnDeletePlan').style.display='inline-flex';syncDeliveryBoxes();$('planDlgTitle').textContent='Editar plan / cupos';showDialog('dlgPlan');
 }
 function openAddStock(id){editPlan(id);setTimeout(()=>$('bulkText').focus(),300)}
 function syncDeliveryBoxes(){
@@ -2398,12 +2869,12 @@ async function setDefaultDeliveryTemplate(id){
 /* ---- Clients ---- */
 function blankClient(){
   ['cId','cName','cPhone','cEmail','cSource','cNotes'].forEach(id=>$(id).value='');
-  $('cSource').value='manual';$('clientDlgTitle').textContent='Nuevo cliente';showDialog('dlgClient');
+  $('cSource').value='manual';if($('btnDeleteClient'))$('btnDeleteClient').style.display='none';$('clientDlgTitle').textContent='Nuevo cliente';showDialog('dlgClient');
 }
 function editClient(id){
   const c=state.customers.find(x=>x.id===id);if(!c)return;
   $('cId').value=c.id;$('cName').value=c.name||'';$('cPhone').value=c.phone_e164||c.phone_raw||'';$('cEmail').value=c.email||'';$('cSource').value=c.source||'manual';$('cNotes').value=c.notes||'';
-  $('clientDlgTitle').textContent='Editar cliente';showDialog('dlgClient');
+  if($('btnDeleteClient'))$('btnDeleteClient').style.display='inline-flex';$('clientDlgTitle').textContent='Editar cliente';showDialog('dlgClient');
 }
 async function saveClient(ev){
   ev.preventDefault();
@@ -2429,13 +2900,13 @@ function blankReminder(cid=''){
   ['rId','rService','rAmount','rMsg'].forEach(id=>$(id).value='');
   $('rCustomer').value=cid||state.customers[0]?.id||'';$('rProduct').value='';$('rPlan').value='';$('rDue').value=daysFromNow(30);$('rStatus').value='pending';
   fillReminderSelects();if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
-  $('reminderDlgTitle').textContent='Nuevo recordatorio';showDialog('dlgReminder');
+  if($('btnDeleteReminder'))$('btnDeleteReminder').style.display='none';$('reminderDlgTitle').textContent='Nuevo recordatorio';showDialog('dlgReminder');
 }
 function newReminderFor(cid){blankReminder(cid)}
 function editReminder(id){
   const r=state.reminders.find(x=>x.id===id);if(!r)return;
   fillReminderSelects();$('rId').value=r.id;$('rCustomer').value=r.customer_id||'';$('rProduct').value=r.product_id||'';$('rPlan').value=r.plan_id||'';$('rService').value=r.service_name||'';$('rAmount').value=r.amount??'';$('rDue').value=r.due_date||todayISO();$('rStatus').value=r.status||'pending';$('rMsg').value=r.whatsapp_message||'';if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
-  $('reminderDlgTitle').textContent='Editar recordatorio';showDialog('dlgReminder');
+  if($('btnDeleteReminder'))$('btnDeleteReminder').style.display='inline-flex';$('reminderDlgTitle').textContent='Editar recordatorio';showDialog('dlgReminder');
 }
 async function saveReminder(ev,silent=false){
   if(ev)ev.preventDefault();
@@ -2505,16 +2976,87 @@ async function createRemindersFromOrder(orderId){
   toast('Cliente y recordatorio de pago creados a 30 días','ok');
 }
 
+
+/* ---- Quick delete helpers: acciones visibles en cards móviles ---- */
+async function quickDeleteProduct(id){
+  const p=prod(id)||{};
+  if(!confirm('¿Eliminar producto "'+(p.name||'')+'" y sus planes?'))return;
+  const r=await db.from('products').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Producto eliminado','ok');await loadAll();switchTab('products');
+}
+async function quickDeletePlan(id){
+  const p=plan(id)||{};
+  if(!confirm('¿Eliminar plan "'+(p.name||'')+'" y su stock?'))return;
+  const r=await db.from('product_plans').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Plan eliminado','ok');await loadAll();switchTab('inventory');
+}
+async function quickDeleteClient(id){
+  const c=state.customers.find(x=>x.id===id)||{};
+  if(!confirm('¿Eliminar cliente "'+(c.name||'')+'"?'))return;
+  const r=await db.from('crm_customers').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Cliente eliminado','ok');await loadAll();switchTab('clients');
+}
+async function quickDeleteReminder(id){
+  const r0=state.reminders.find(x=>x.id===id)||{};
+  if(!confirm('¿Eliminar recordatorio "'+(r0.service_name||'')+'"?'))return;
+  const r=await db.from('payment_reminders').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Recordatorio eliminado','ok');await loadAll();switchTab('reminders');
+}
+async function quickDeleteTemplate(id){
+  const t=state.templates.find(x=>x.id===id)||{};
+  if(!confirm('¿Eliminar plantilla "'+(t.name||'')+'"?'))return;
+  const r=await db.from('payment_message_templates').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Plantilla eliminada','ok');await loadAll();switchTab('templates');
+}
+async function quickDeleteDeliveryTemplate(id){
+  const t=state.deliveryTemplates.find(x=>x.id===id)||{};
+  if(!confirm('¿Eliminar plantilla de entrega "'+(t.name||'')+'"?'))return;
+  const r=await db.from('delivery_message_templates').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Plantilla de entrega eliminada','ok');await loadAll();switchTab('templates');
+}
+async function quickDeleteOpsStock(id){
+  const x=state.stock.find(s=>s.id===id)||{};
+  if(!confirm('¿Eliminar esta cuenta/código del stock?'))return;
+  const r=await db.from('stock_items').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Stock eliminado','ok');await loadAll();switchTab('ops');
+}
+
 /* ---- Coupons ---- */
+function blankCoupon(){
+  if($('cpId'))$('cpId').value='';
+  $('cpCode').value='';$('cpType').value='fixed';$('cpValue').value='';$('cpMax').value='1';$('cpMin').value='0';
+}
+function editCoupon(id){
+  const c=state.coupons.find(x=>x.id===id);if(!c)return;
+  if($('cpId'))$('cpId').value=c.id;
+  $('cpCode').value=c.code||'';$('cpType').value=c.discount_type||'fixed';$('cpValue').value=c.discount_value??'';$('cpMax').value=c.max_uses??1;$('cpMin').value=c.min_amount??0;
+  $('cpCode').focus();
+}
 async function saveCoupon(){
   const code=$('cpCode').value.trim().toUpperCase();if(!code)return toast('Falta código','bad');
-  const r=await db.from('coupons').upsert({code,discount_type:$('cpType').value,discount_value:Number($('cpValue').value||0),max_uses:Number($('cpMax').value||1),min_amount:Number($('cpMin').value||0),active:true},{onConflict:'code'});
-  if(r.error)return toast(r.error.message,'bad');toast('Cupón guardado','ok');await loadAll();
+  const id=$('cpId')?.value||'';
+  const payload={code,discount_type:$('cpType').value,discount_value:Number($('cpValue').value||0),max_uses:Number($('cpMax').value||1),min_amount:Number($('cpMin').value||0),active:true};
+  const r=id?await db.from('coupons').update(payload).eq('id',id):await db.from('coupons').upsert(payload,{onConflict:'code'});
+  if(r.error)return toast(r.error.message,'bad');toast('Cupón guardado','ok');blankCoupon();await loadAll();switchTab('coupons');
 }
 async function toggleCoupon(id){
   const c=state.coupons.find(x=>x.id===id);
   const r=await db.from('coupons').update({active:!c.active}).eq('id',id);
-  if(r.error)return toast(r.error.message,'bad');await loadAll();
+  if(r.error)return toast(r.error.message,'bad');await loadAll();switchTab('coupons');
+}
+async function deleteCoupon(id){
+  const target=id||$('cpId')?.value;if(!target)return toast('Selecciona un cupón primero','bad');
+  const c=state.coupons.find(x=>x.id===target)||{};
+  if(!confirm('¿Eliminar cupón '+(c.code||'')+'?'))return;
+  const r=await db.from('coupons').delete().eq('id',target);
+  if(r.error)return toast(r.error.message,'bad');toast('Cupón eliminado','ok');blankCoupon();await loadAll();switchTab('coupons');
 }
 
 /* ---- Settings ---- */
@@ -2536,6 +3078,320 @@ function exportBackup(){
   a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
   a.download='innov-ia-backup-admin.json';a.click();
 }
+
+
+/* ---- Operaciones PRO fusionadas ---- */
+state.opsView='accounts';
+
+function opsAvailableStatus(x){return String(x?.status||'available').toLowerCase();}
+function opsIsAccount(x){return String(x?.stock_type||'').toLowerCase()==='account' || !!opsSecret(x).correo || !!opsSecret(x).clave;}
+function opsIsCode(x){return String(x?.stock_type||'').toLowerCase()==='code' || !!opsSecret(x).codigo;}
+function opsSecret(x){
+  const d=x?.secret_data;
+  if(!d)return{};
+  if(typeof d==='string'){try{return JSON.parse(d)||{}}catch(_){return{raw:d}}}
+  return d||{};
+}
+function opsKeyFromItem(x){
+  const d=opsSecret(x);
+  return String(d.correo||d.codigo||x.title||'').trim().toLowerCase();
+}
+function opsStatusBadge(st){
+  st=String(st||'available').toLowerCase();
+  if(st==='available')return'<span class="badge b-ok">Disponible</span>';
+  if(st==='reserved')return'<span class="badge b-warn">Reservado</span>';
+  if(st==='used'||st==='delivered')return'<span class="badge b-bad">Usado</span>';
+  return`<span class="badge">${esc(st)}</span>`;
+}
+function opsPlanOptions(selected=''){
+  const active=state.plans.filter(p=>p.active!==false);
+  return active.map(p=>`<option value="${p.id}" ${p.id===selected?'selected':''}>${esc(prodName(p.product_id))} — ${esc(p.name)}</option>`).join('')||'<option value="">Primero crea un plan</option>';
+}
+function fillOpsSelects(){
+  if($('opsPlanFilter')){
+    const current=$('opsPlanFilter').value||'';
+    $('opsPlanFilter').innerHTML='<option value="">Todos los planes</option>'+opsPlanOptions(current);
+    $('opsPlanFilter').value=current;
+  }
+  ['opsStockPlan','opsBulkPlan'].forEach(id=>{
+    const el=$(id);if(!el)return;
+    const current=el.value||($('opsPlanFilter')?.value||'');
+    el.innerHTML=opsPlanOptions(current);
+    if(current)el.value=current;
+  });
+}
+function opsDeliveryText(item){
+  const d=opsSecret(item), lines=[];
+  lines.push('✅ ENTREGA INNOV IA');
+  lines.push('📦 Servicio: '+planName(item.plan_id));
+  if(d.correo)lines.push('📧 Correo/usuario: '+d.correo);
+  if(d.clave)lines.push('🔒 Contraseña: '+d.clave);
+  if(d.perfil)lines.push('👤 Perfil: '+d.perfil);
+  if(d.pin)lines.push('🔢 PIN: '+d.pin);
+  if(d.codigo)lines.push('🎟️ Código/CDK: '+d.codigo);
+  if(d.grupo)lines.push('📱 Grupo/URL: '+d.grupo);
+  if(d.url&&!d.grupo)lines.push('🔗 URL: '+d.url);
+  if(item.notes||d.nota)lines.push('\n📝 Nota: '+(d.nota||item.notes));
+  lines.push('\n🚫 Reglas básicas:');
+  lines.push('• No cambiar datos sin autorización.');
+  lines.push('• No compartir con terceros.');
+  lines.push('• Soporte por WhatsApp.');
+  lines.push('\nGracias por tu compra 💙');
+  return lines.filter(Boolean).join('\n');
+}
+function renderOps(){
+  if(!$('opsGrid'))return;
+  fillOpsSelects();
+  const q=($('opsSearch')?.value||'').toLowerCase().trim();
+  const planFilter=$('opsPlanFilter')?.value||'';
+  const statusFilter=$('opsStatusFilter')?.value||'';
+  let data=[...state.stock];
+  if(state.opsView==='accounts')data=data.filter(opsIsAccount);
+  if(state.opsView==='codes')data=data.filter(opsIsCode);
+  if(planFilter)data=data.filter(x=>x.plan_id===planFilter);
+  if(statusFilter)data=data.filter(x=>opsAvailableStatus(x)===statusFilter);
+  if(q)data=data.filter(x=>{
+    const d=opsSecret(x);
+    return (`${x.title||''} ${x.notes||''} ${planName(x.plan_id)} ${d.correo||''} ${d.codigo||''} ${d.perfil||''} ${d.pin||''}`).toLowerCase().includes(q);
+  });
+  data.sort((a,b)=>{
+    const av=opsAvailableStatus(a)==='available'?0:1, bv=opsAvailableStatus(b)==='available'?0:1;
+    if(av!==bv)return av-bv;
+    return String(b.created_at||'').localeCompare(String(a.created_at||''));
+  });
+  const accFree=state.stock.filter(x=>opsIsAccount(x)&&opsAvailableStatus(x)==='available').length;
+  const codeFree=state.stock.filter(x=>opsIsCode(x)&&opsAvailableStatus(x)==='available').length;
+  const used=state.stock.filter(x=>['used','delivered','reserved'].includes(opsAvailableStatus(x))).length;
+  if($('opsKpiAccounts'))$('opsKpiAccounts').textContent=accFree;
+  if($('opsKpiCodes'))$('opsKpiCodes').textContent=codeFree;
+  if($('opsKpiUsed'))$('opsKpiUsed').textContent=used;
+  if($('opsKpiPlans'))$('opsKpiPlans').textContent=state.plans.filter(p=>p.active!==false).length;
+
+  $('opsGrid').innerHTML=data.map(x=>{
+    const d=opsSecret(x), st=opsAvailableStatus(x), type=opsIsCode(x)?'🎟️ CDK':'🔐 Cuenta';
+    const title=x.title||d.correo||d.codigo||type;
+    const primary=d.correo||d.codigo||x.title||'—';
+    const second=d.clave?'••••••••':(d.perfil||d.pin||'—');
+    return `<div class="ops-stock-card ${st==='used'||st==='delivered'?'used':''}">
+      <div class="ops-stock-top">
+        <div>
+          <div class="ops-stock-title">${esc(title)}</div>
+          <div class="help">${type} · ${esc(planName(x.plan_id))}</div>
+        </div>
+        ${opsStatusBadge(st)}
+      </div>
+      <div class="ops-secret">
+        <div class="row"><span class="k">${opsIsCode(x)?'Código':'Usuario'}</span><span class="v">${esc(primary)}</span></div>
+        <div class="row"><span class="k">${opsIsCode(x)?'Dato':'Clave/perfil'}</span><span class="v">${esc(second)}</span></div>
+        ${d.perfil?`<div class="row"><span class="k">Perfil</span><span class="v">${esc(d.perfil)}</span></div>`:''}
+        ${d.pin?`<div class="row"><span class="k">PIN</span><span class="v">${esc(d.pin)}</span></div>`:''}
+      </div>
+      ${x.notes?`<div class="help" style="white-space:pre-wrap">${esc(x.notes).slice(0,160)}</div>`:''}
+      <div class="ops-actions">
+        <button class="btn btn-success" onclick="openOpsDeliver('${x.id}')">💚 Entregar + record.</button>
+        <button class="btn" onclick="copyTextSafe(opsDeliveryText(state.stock.find(s=>s.id==='${x.id}')))">📋 Copiar</button>
+        <button class="btn" onclick="openOpsStockDialog('', '${x.id}')">✏️ Editar</button>
+        <button class="btn" onclick="cycleOpsStatus('${x.id}')">🔄 Estado</button>
+        <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">🗑 Eliminar</button>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty-state"><span class="icon">🔐</span><p>No hay datos en esta vista. Carga cuentas o CDK desde “＋ Cuenta”, “＋ CDK” o “Lote”.</p></div>';
+}
+function syncOpsStockType(){
+  const type=$('opsStockType')?.value||'account';
+  document.querySelectorAll('.ops-account-field').forEach(el=>el.classList.toggle('hidden',type==='code'));
+  document.querySelectorAll('.ops-code-field').forEach(el=>el.classList.toggle('hidden',type!=='code'));
+}
+function openOpsStockDialog(type='account',id=''){
+  fillOpsSelects();
+  ['opsStockId','opsStockTitle','opsStockUser','opsStockPass','opsStockProfile','opsStockPin','opsStockCode','opsStockGroup','opsStockNotes'].forEach(k=>{if($(k))$(k).value=''});
+  $('opsStockStatus').value='available';
+  $('opsStockType').value=type||'account';
+  $('opsStockPlan').value=$('opsPlanFilter')?.value||state.plans[0]?.id||'';
+  $('btnOpsDeleteStock').style.display=id?'':'none';
+  if(id){
+    const x=state.stock.find(s=>s.id===id);if(!x)return;
+    const d=opsSecret(x);
+    $('opsStockId').value=x.id;
+    $('opsStockType').value=opsIsCode(x)?'code':'account';
+    $('opsStockPlan').value=x.plan_id||'';
+    $('opsStockTitle').value=x.title||'';
+    $('opsStockUser').value=d.correo||d.usuario||'';
+    $('opsStockPass').value=d.clave||d.pass||'';
+    $('opsStockProfile').value=d.perfil||'';
+    $('opsStockPin').value=d.pin||'';
+    $('opsStockCode').value=d.codigo||'';
+    $('opsStockGroup').value=d.grupo||d.url||'';
+    $('opsStockNotes').value=x.notes||d.nota||'';
+    $('opsStockStatus').value=opsAvailableStatus(x);
+  }
+  $('opsStockDlgTitle').textContent=id?'Editar cuenta / CDK':'Nueva '+(($('opsStockType').value==='code')?'CDK':'cuenta');
+  syncOpsStockType();showDialog('dlgOpsStock');
+}
+async function saveOpsStock(ev){
+  ev.preventDefault();
+  const id=$('opsStockId').value;
+  const type=$('opsStockType').value;
+  const planId=$('opsStockPlan').value;
+  if(!planId)return toast('Selecciona un plan destino','bad');
+  const d={};
+  if(type==='code'){
+    d.codigo=$('opsStockCode').value.trim();
+    if(!d.codigo)return toast('Falta código/CDK','bad');
+  }else{
+    d.correo=$('opsStockUser').value.trim();
+    d.clave=$('opsStockPass').value.trim();
+    d.perfil=$('opsStockProfile').value.trim();
+    d.pin=$('opsStockPin').value.trim();
+    if(!d.correo&&!d.clave)return toast('Ingresa usuario/correo y contraseña','bad');
+  }
+  const group=$('opsStockGroup').value.trim();
+  if(group)d.grupo=group;
+  const note=$('opsStockNotes').value.trim();
+  if(note)d.nota=note;
+  const payload={
+    plan_id:planId,
+    stock_type:type,
+    title:$('opsStockTitle').value.trim()||d.correo||d.codigo||planName(planId),
+    secret_data:d,
+    notes:note||null,
+    status:$('opsStockStatus').value||'available'
+  };
+  const r=id?await db.from('stock_items').update(payload).eq('id',id):await db.from('stock_items').insert(payload);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgOpsStock');toast('Guardado en inventario','ok');await loadAll();switchTab('ops');
+}
+async function deleteOpsStock(){
+  const id=$('opsStockId').value;if(!id)return;
+  if(!confirm('¿Eliminar esta cuenta/código del inventario?'))return;
+  const r=await db.from('stock_items').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgOpsStock');toast('Eliminado','ok');await loadAll();switchTab('ops');
+}
+async function cycleOpsStatus(id){
+  const x=state.stock.find(s=>s.id===id);if(!x)return;
+  const st=opsAvailableStatus(x);
+  const next=st==='available'?'reserved':st==='reserved'?'used':'available';
+  const r=await db.from('stock_items').update({status:next}).eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Estado: '+next,'ok');await loadAll();switchTab('ops');
+}
+function openOpsDeliver(id){
+  const x=state.stock.find(s=>s.id===id);if(!x)return;
+  $('opsDeliverStockId').value=id;
+  $('opsDeliverName').value='';
+  $('opsDeliverPhone').value='';
+  $('opsDeliverService').value=planName(x.plan_id);
+  const p=plan(x.plan_id);
+  $('opsDeliverAmount').value=p?.price??'';
+  $('opsDeliverDue').value=daysFromNow(30);
+  $('opsDeliverNewStatus').value='used';
+  $('opsDeliverText').value=opsDeliveryText(x);
+  showDialog('dlgOpsDeliver');
+}
+async function saveOpsDeliver(){
+  const id=$('opsDeliverStockId').value;
+  const x=state.stock.find(s=>s.id===id);if(!x)return;
+  const name=$('opsDeliverName').value.trim()||'Cliente';
+  const phone=normalizePhone($('opsDeliverPhone').value);
+  if(!phone.ok)return toast(phone.error||'WhatsApp inválido','bad');
+  const payload={name,phone_raw:$('opsDeliverPhone').value.trim(),phone_e164:phone.e164,email:null,source:'operaciones_pro',notes:'Creado desde Operaciones PRO'};
+  const c=await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
+  if(c.error)return toast('Cliente no guardado: '+c.error.message,'bad');
+  const service=$('opsDeliverService').value.trim()||planName(x.plan_id);
+  const amount=$('opsDeliverAmount').value===''?null:Number($('opsDeliverAmount').value||0);
+  const due=$('opsDeliverDue').value||daysFromNow(30);
+  const reminderDraft={customer_id:c.data.id,product_id:plan(x.plan_id)?.product_id||null,plan_id:x.plan_id,service_name:service,amount,currency:'PEN',due_date:due,status:'pending'};
+  reminderDraft.whatsapp_message=buildTemplateMessage(getDefaultTemplate(),c.data,reminderDraft);
+  const r=await db.from('payment_reminders').insert(reminderDraft);
+  if(r.error)return toast('Recordatorio no creado: '+r.error.message,'bad');
+  const newStatus=$('opsDeliverNewStatus').value;
+  if(newStatus&&newStatus!==opsAvailableStatus(x)){
+    await db.from('stock_items').update({status:newStatus}).eq('id',id);
+  }
+  const msg=$('opsDeliverText').value.trim()||opsDeliveryText(x);
+  copyTextSafe(msg);
+  closeDialog('dlgOpsDeliver');
+  toast('Cliente + recordatorio a 30 días creados','ok');
+  if($('opsDeliverOpenWa').checked){
+    const url=waLink(phone.e164,msg);
+    if(url!=='#')window.open(url,'_blank','noopener,noreferrer');
+  }
+  await loadAll();switchTab('ops');
+}
+function parseOpsBulk(){
+  const planId=$('opsBulkPlan')?.value||'';
+  const mode=$('opsBulkMode')?.value||'mixed';
+  const lines=arrLines($('opsBulkText')?.value||'');
+  const valid=[],doubt=[],dup=[];
+  const existing=new Set(state.stock.filter(x=>!planId||x.plan_id===planId).map(opsKeyFromItem).filter(Boolean));
+  for(const line of lines){
+    let raw=line.trim(); if(!raw)continue;
+    let item=null;
+    const pipe=raw.split('|').map(x=>x.trim());
+    const colon=raw.includes(':')&&!raw.includes('|')?raw.split(':').map(x=>x.trim()):null;
+    const looksEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+/.test(raw);
+    if(mode==='account'||(mode==='mixed'&&(looksEmail||pipe.length>=2&&/@/.test(pipe[0])||colon&&/@/.test(colon[0])))){
+      const parts=pipe.length>=2?pipe:(colon||[raw,'']);
+      item={stock_type:'account',title:parts[0],secret_data:{correo:parts[0]||'',clave:parts[1]||'',perfil:parts[2]||'',pin:parts[3]||'',nota:parts.slice(4).join(' | ')||''},notes:parts.slice(4).join(' | ')||null};
+      if(!item.secret_data.correo||!item.secret_data.clave){doubt.push(raw);continue;}
+    }else if(mode==='code'||mode==='mixed'){
+      item={stock_type:'code',title:raw,secret_data:{codigo:raw},notes:null};
+      if(raw.length<5){doubt.push(raw);continue;}
+    }
+    const key=String(item?.secret_data?.correo||item?.secret_data?.codigo||item?.title||'').toLowerCase();
+    if(existing.has(key)){dup.push(raw);continue;}
+    existing.add(key);valid.push(item);
+  }
+  if($('opsBulkValid'))$('opsBulkValid').textContent=valid.length+' válidas';
+  if($('opsBulkDoubt'))$('opsBulkDoubt').textContent=doubt.length+' dudosas';
+  if($('opsBulkDup'))$('opsBulkDup').textContent=dup.length+' duplicadas';
+  if($('opsBulkPreview'))$('opsBulkPreview').innerHTML =
+    valid.slice(0,60).map(v=>`<div class="ops-preview-item"><b>${v.stock_type==='code'?'🎟️':'🔐'} ${esc(v.title)}</b><div class="help">${esc(v.stock_type)} · ${esc(v.secret_data?.perfil||v.secret_data?.pin||'')}</div></div>`).join('')+
+    (doubt.length?`<div class="ops-preview-item"><b>⚠️ Dudosas</b><div class="help">${doubt.map(esc).join('<br>')}</div></div>`:'')+
+    (dup.length?`<div class="ops-preview-item"><b>🔁 Duplicadas omitidas</b><div class="help">${dup.map(esc).join('<br>')}</div></div>`:'') || '<div class="help">Sin datos válidos.</div>';
+  return{valid,doubt,dup};
+}
+function openOpsBulk(){
+  fillOpsSelects();
+  $('opsBulkPlan').value=$('opsPlanFilter')?.value||state.plans[0]?.id||'';
+  $('opsBulkMode').value='mixed';
+  $('opsBulkText').value='';
+  parseOpsBulk();
+  showDialog('dlgOpsBulk');
+}
+async function saveOpsBulk(){
+  const planId=$('opsBulkPlan').value;
+  if(!planId)return toast('Selecciona un plan destino','bad');
+  const {valid}=parseOpsBulk();
+  if(!valid.length)return toast('No hay válidas para guardar','bad');
+  const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));
+  const r=await db.from('stock_items').insert(rows);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgOpsBulk');toast(valid.length+' registros guardados','ok');await loadAll();switchTab('ops');
+}
+function exportUnifiedBackup(){
+  const localKeys=['pp_settings','pp_templates','pp_clients','pp_msgs','pp_accounts','pp_cdk_codes','pp_accounts_tpl','pp_acc_view_mode_v1','pp_acc_service_tpl_map_v1','pp_acc_product_tpl_v1'];
+  const local={};
+  localKeys.forEach(k=>{
+    const raw=localStorage.getItem(k);
+    if(raw!==null){try{local[k]=JSON.parse(raw)}catch(_){local[k]=raw}}
+  });
+  const data={
+    app:'Innov IA Admin fusionado',
+    exported_at:new Date().toISOString(),
+    supabase_cache:state,
+    local_recordatorio_pro:local
+  };
+  const stamp=new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download='backup-innov-ia-admin-fusionado-'+stamp+'.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast('Backup fusionado descargado','ok');
+}
+function exportBackup(){exportUnifiedBackup()}
 
 /* ---- Auto refresh ---- */
 let adminAutoRefreshBusy=false;
@@ -2588,6 +3444,8 @@ $('manualTemplate')?.addEventListener('change',()=>{const tpl=getDeliveryTemplat
 ['manualUser','manualPass','manualProfile','manualPin','manualGroup','manualUrl','manualCode','manualNote','manualStartDate','manualRestrictions','manualPlan'].forEach(id=>$(id)?.addEventListener('input',renderDeliveryMessage));
 $('btnSaveManualDelivery').onclick=saveManualDelivery;
 $('btnSaveCoupon').onclick=saveCoupon;
+if($('btnNewCoupon'))$('btnNewCoupon').onclick=blankCoupon;
+if($('btnDeleteCouponForm'))$('btnDeleteCouponForm').onclick=()=>deleteCoupon();
 $('btnNewClient').onclick=blankClient;
 $('clientForm').onsubmit=saveClient;
 $('btnDeleteClient').onclick=deleteClient;
@@ -2618,6 +3476,32 @@ $('btnExportBackup').onclick=exportBackup;
 $('btnExportProducts').onclick=exportBackup;
 $('btnSendAdminChat').onclick=sendAdminChat;
 $('chatAdminInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendAdminChat()}});
+
+
+/* ---- Operaciones PRO bindings ---- */
+if($('btnOpsAddAccount'))$('btnOpsAddAccount').onclick=()=>openOpsStockDialog('account');
+if($('btnOpsAddCode'))$('btnOpsAddCode').onclick=()=>openOpsStockDialog('code');
+if($('btnOpsBulk'))$('btnOpsBulk').onclick=openOpsBulk;
+if($('btnOpsRefresh'))$('btnOpsRefresh').onclick=loadAll;
+if($('btnOpsExport'))$('btnOpsExport').onclick=exportUnifiedBackup;
+if($('opsSearch'))$('opsSearch').oninput=renderOps;
+if($('opsPlanFilter'))$('opsPlanFilter').onchange=renderOps;
+if($('opsStatusFilter'))$('opsStatusFilter').onchange=renderOps;
+document.querySelectorAll('[data-ops-view]').forEach(b=>b.onclick=()=>{
+  state.opsView=b.dataset.opsView;
+  document.querySelectorAll('[data-ops-view]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+  renderOps();
+});
+if($('opsStockType'))$('opsStockType').onchange=syncOpsStockType;
+if($('opsStockForm'))$('opsStockForm').onsubmit=saveOpsStock;
+if($('btnOpsDeleteStock'))$('btnOpsDeleteStock').onclick=deleteOpsStock;
+if($('btnOpsCopyDeliver'))$('btnOpsCopyDeliver').onclick=()=>copyTextSafe($('opsDeliverText').value);
+if($('btnOpsSaveDeliver'))$('btnOpsSaveDeliver').onclick=saveOpsDeliver;
+if($('btnOpsPreviewBulk'))$('btnOpsPreviewBulk').onclick=parseOpsBulk;
+if($('btnOpsSaveBulk'))$('btnOpsSaveBulk').onclick=saveOpsBulk;
+if($('opsBulkText'))$('opsBulkText').oninput=parseOpsBulk;
+if($('opsBulkMode'))$('opsBulkMode').onchange=parseOpsBulk;
+if($('opsBulkPlan'))$('opsBulkPlan').onchange=parseOpsBulk;
 
 /* ---- Init ---- */
 init();
