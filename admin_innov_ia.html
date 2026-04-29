@@ -1,532 +1,1043 @@
 <!DOCTYPE html>
-<html lang="es">
+<html data-theme="light" lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin V4 | Innov IA</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <title>Innov IA Admin — Tienda & Entregas</title>
+  <meta name="theme-color" content="#2563eb"/>
+  <meta name="color-scheme" content="light dark"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+
+/* ================================================================
+   INNOV IA — Recordatorio PRO  |  Design System v8
+   Archivo CSS consolidado, limpio, sin parches duplicados.
+   ================================================================ */
+
+/* ---------- Variables / Tema ---------- */
 :root {
-  --bg:#07111f; --side:#0b1424; --card:#111c31; --card2:#17243d; --text:#f8fafc; --muted:#9badc8;
-  --line:rgba(255,255,255,.13); --green:#22c55e; --blue:#38bdf8; --red:#ef4444; --yellow:#f59e0b;
-  --radius:18px;
+  --bg-light: #f1f5f9;
+  --card-light: #ffffff;
+  --bg: var(--bg-light);
+  --card: var(--card-light);
+  --card-ink: #0f172a;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+  --primary-600: #1d4ed8;
+  --primary-alpha: rgba(37,99,235,.12);
+  --success: #16a34a;
+  --success-alpha: rgba(22,163,74,.12);
+  --warning: #d97706;
+  --warning-alpha: rgba(217,119,6,.14);
+  --danger: #dc2626;
+  --danger-alpha: rgba(220,38,38,.12);
+  --accent: #22c55e;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(2,6,23,.07);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,.06), 0 16px 40px rgba(2,6,23,.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+  --focus: 0 0 0 3px rgba(37,99,235,.3);
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --chip-bg: rgba(37,99,235,.08);
+  --chart-grid: #e2e8f0;
+  --sidenav: #ffffff;
+  --nav-active: var(--primary);
+  --header-h: 60px;
+  --bottombar-h: 64px;
+  --transition: 150ms cubic-bezier(.4,0,.2,1);
 }
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at top left,rgba(34,197,94,.16),transparent 28%),radial-gradient(circle at bottom right,rgba(56,189,248,.12),transparent 30%),var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-button,input,select,textarea{font:inherit}
-button{border:0;border-radius:13px;padding:10px 13px;font-weight:900;background:var(--green);color:#052e16;cursor:pointer}
-button:hover{filter:brightness(1.06)} button:disabled{opacity:.55;cursor:not-allowed}
-button.blue{background:var(--blue);color:#06283a} button.red{background:var(--red);color:#fff} button.yellow{background:var(--yellow);color:#111827} button.gray{background:#334155;color:#fff} button.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);color:#fff}
-input,select,textarea{width:100%;border:1px solid var(--line);border-radius:13px;background:#091225;color:#fff;padding:10px 11px;outline:none}
-textarea{min-height:90px;resize:vertical} label{display:block;margin:10px 0 5px;color:#c6d3e6;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.4px}
-.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh} .side{position:sticky;top:0;height:100vh;overflow:auto;background:rgba(7,17,31,.94);border-right:1px solid var(--line);padding:18px}
-.main{padding:22px;max-width:1450px;width:100%;margin:0 auto}
-.brand{display:flex;gap:12px;align-items:center;margin-bottom:16px} .brand b{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,var(--green),var(--blue));display:grid;place-items:center;color:#06101d} .brand h1{font-size:18px;margin:0} .brand p{margin:3px 0 0;color:var(--muted);font-size:12px}
-.nav{display:grid;gap:8px} .nav button{background:transparent;color:#d4e0f3;text-align:left;border:1px solid transparent;box-shadow:none} .nav button.active{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.28)}
-.side-card{margin-top:16px;padding:13px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.04);color:var(--muted);font-size:12px;line-height:1.45}
-.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:16px} .top h2{margin:0;font-size:28px} .top p{margin:5px 0 0;color:var(--muted)} .session{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px} .col-3{grid-column:span 3} .col-4{grid-column:span 4} .col-5{grid-column:span 5} .col-6{grid-column:span 6} .col-7{grid-column:span 7} .col-8{grid-column:span 8} .col-12{grid-column:span 12}
-.card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:var(--radius);padding:17px;box-shadow:0 18px 60px rgba(0,0,0,.30)}
-.card-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px} .card h3{margin:0} .muted{color:var(--muted)} .mini{font-size:12px;line-height:1.45}
-.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:12px;font-weight:900;color:#dbeafe;background:rgba(255,255,255,.05)} .pill.ok{color:#86efac;background:rgba(34,197,94,.10);border-color:rgba(34,197,94,.24)} .pill.bad{color:#fecaca;background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.24)} .pill.warn{color:#fde68a;background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.24)}
-.stat{min-height:112px;display:flex;flex-direction:column;justify-content:center;gap:8px;cursor:pointer} .stat b{font-size:34px} .stat span{color:var(--muted)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px} .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px} .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px} table{width:100%;border-collapse:collapse;min-width:860px} th,td{padding:11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:13px} th{background:rgba(255,255,255,.04);color:#a9b8cd;text-transform:uppercase;font-size:11px;letter-spacing:.5px} tr:hover td{background:rgba(255,255,255,.025)}
-.thumb{width:58px;height:58px;border-radius:14px;object-fit:contain;background:#fff} .hidden{display:none!important}
-.login{min-height:100vh;display:grid;place-items:center;padding:20px} .login .card{max-width:430px;width:100%}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);opacity:0;background:#0f172a;border:1px solid var(--line);border-radius:15px;padding:12px 15px;z-index:100;transition:.2s;max-width:min(94vw,760px);text-align:center} .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.code{font-family:monospace;background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:8px;padding:2px 6px}
-.plan-card{border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;background:rgba(255,255,255,.035)} .plan-card .head{display:flex;justify-content:space-between;gap:8px;align-items:center} .plan-card b{font-size:14px}
-.help-box{border:1px dashed var(--line);border-radius:16px;background:rgba(255,255,255,.035);padding:12px;margin-top:10px}
-.drop{border:2px dashed rgba(56,189,248,.35);border-radius:16px;padding:12px;background:rgba(56,189,248,.06)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;z-index:200;padding:15px} .modal.show{display:flex} .modal-card{width:min(720px,96vw);max-height:92vh;overflow:auto;background:#0f172a;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.5)} .modal-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
-pre.delivery{white-space:pre-wrap;background:#07111f;border:1px dashed var(--line);border-radius:14px;padding:12px;color:#dbeafe}
-@media(max-width:1050px){.app{grid-template-columns:1fr}.side{position:relative;height:auto}.col-3,.col-4,.col-5,.col-6,.col-7,.col-8,.col-12{grid-column:span 12}.row2,.row3{grid-template-columns:1fr}.top{flex-direction:column}}
-</style>
+[data-theme="dark"] {
+  --bg: #0c0f14;
+  --card: #161b25;
+  --card-ink: #e8edf5;
+  --text: #e8edf5;
+  --muted: #8895aa;
+  --border: #222a36;
+  --primary: #60a5fa;
+  --primary-600: #3b82f6;
+  --primary-alpha: rgba(96,165,250,.14);
+  --success: #4ade80;
+  --success-alpha: rgba(74,222,128,.12);
+  --warning: #fbbf24;
+  --warning-alpha: rgba(251,191,36,.14);
+  --danger: #f87171;
+  --danger-alpha: rgba(248,113,113,.12);
+  --accent: #34d399;
+  --shadow: 0 1px 3px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.4);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,.3), 0 16px 40px rgba(0,0,0,.5);
+  --chart-grid: #1e2a3a;
+  --sidenav: #0a0d12;
+  --chip-bg: rgba(96,165,250,.1);
+  --bg-light: #0c0f14;
+  --card-light: #161b25;
+}
+
+/* ---------- Reset base ---------- */
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  font-weight: 500;
+  font-size: 15px;
+  position: relative;
+}
+
+/* Watermark fondo */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: var(--bg-logo, url('./assets/logo.jpg'));
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: .05;
+  pointer-events: none;
+  z-index: 0;
+  filter: saturate(1.1) contrast(1.05);
+}
+[data-theme="dark"] body::before { opacity: .03; }
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- Layout ---------- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  position: relative;
+  z-index: 1;
+  padding-bottom: calc(var(--bottombar-h) + 20px);
+}
+
+/* ---------- Header ---------- */
+header.app {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: var(--bg);
+  padding-bottom: 0;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+}
+header.app::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  opacity: .5;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+.brand .l { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+}
+.logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.title { font-size: 1.05rem; font-weight: 800; letter-spacing: -.01em; color: var(--text); }
+.tag { color: var(--muted); font-size: .78rem; font-weight: 500; }
+
+/* ---------- Botones ---------- */
+button, .btn, a { touch-action: manipulation; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--card-ink);
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: .88rem;
+  font-family: var(--font);
+  transition: transform var(--transition), filter var(--transition), background var(--transition), box-shadow var(--transition);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.btn:hover { filter: saturate(1.05) brightness(1.03); box-shadow: var(--shadow); }
+.btn:active { transform: translateY(1px) scale(.98); filter: brightness(.96); }
+.btn-primary { background: var(--primary); color: #fff; border-color: transparent; }
+.btn-primary:hover { background: var(--primary-600); }
+.btn-danger { background: var(--danger); color: #fff; border-color: transparent; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--text); }
+.btn-ghost:hover { background: var(--chip-bg); }
+.btn-icon { padding: 8px; border-radius: var(--radius-sm); }
+.btn-success { background: var(--success); color: #fff; border-color: transparent; }
+
+/* Ripple */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: scale(0);
+  opacity: .3;
+  animation: ripple .45s linear;
+  background: color-mix(in srgb, var(--primary) 40%, white);
+}
+@keyframes ripple { to { transform: scale(6); opacity: 0; } }
+
+/* ---------- Inputs ---------- */
+.input, select, textarea, button { font: inherit; }
+.input, select, textarea {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--card-ink);
+  font-size: .9rem;
+  font-weight: 500;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: var(--focus);
+  border-color: var(--primary);
+}
+.input::placeholder, textarea::placeholder { color: var(--muted); font-weight: 400; }
+textarea { resize: vertical; min-height: 90px; }
+label.subtle { color: var(--muted); font-size: .82rem; font-weight: 600; display: block; margin-bottom: 4px; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--card);
+  color: var(--card-ink);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+.card + .card { margin-top: 0; }
+
+/* ---------- Grids ---------- */
+.grid { display: grid; gap: 12px; }
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid .full { grid-column: 1 / -1; }
+@media(max-width: 800px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+
+/* ---------- Toolbar / filtros ---------- */
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto auto auto;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.toolbar .full { grid-column: 1 / -1; }
+.toolbar .btn { width: 100%; }
+@media(max-width: 900px) {
+  .toolbar { grid-template-columns: 1fr 1fr; }
+}
+
+/* ---------- Table ---------- */
+.table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+table { width: 100%; border-collapse: collapse; min-width: 980px; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { text-align: left; font-size: .82rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; background: color-mix(in srgb, var(--card) 95%, var(--border) 5%); }
+tr:last-child td { border-bottom: 0; }
+tr:hover td { background: color-mix(in srgb, var(--primary) 4%, transparent); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; }
+
+/* Mobile table → cards */
+@media(max-width: 700px) {
+  table, thead, tbody, th, td, tr { display: block; }
+  thead { display: none; }
+  .table-wrap { border: 0; background: transparent; }
+  tbody { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  @media(max-width: 460px) { tbody { grid-template-columns: 1fr; } }
+  tr { margin: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); }
+  td { border: 0; border-bottom: 1px solid var(--border); padding: 10px 12px; }
+  td:last-child { border-bottom: 0; }
+  td::before { content: attr(data-label); display: block; font-size: .75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+  .num { text-align: left; }
+}
+
+/* ---------- Badges / chips ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: .78rem;
+  font-weight: 700;
+  background: var(--chip-bg);
+  border: 1px solid var(--border);
+  color: var(--card-ink);
+}
+.b-activo { background: var(--success-alpha); color: var(--success); border-color: color-mix(in srgb, var(--success) 30%, transparent); }
+.b-vencido { background: var(--danger-alpha); color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+.b-reof { background: var(--warning-alpha); color: var(--warning); border-color: color-mix(in srgb, var(--warning) 30%, transparent); }
+.b-pagado { background: var(--primary-alpha); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 30%, transparent); }
+
+/* Mini estado circular (móvil) */
+.sbadge { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 999px; font-weight: 800; font-size: .78rem; line-height: 1; border: 1.5px solid var(--border); }
+.s-activo { background: var(--success-alpha); color: var(--success); border-color: color-mix(in srgb, var(--success) 35%, transparent); }
+.s-vencido { background: var(--danger-alpha); color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+.s-pagado { background: var(--primary-alpha); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 35%, transparent); }
+.s-reof { background: var(--warning-alpha); color: var(--warning); border-color: color-mix(in srgb, var(--warning) 35%, transparent); }
+
+/* Pills de vencimiento */
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); font-size: .72rem; font-weight: 700; }
+.pill.due0 { background: var(--primary-alpha); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 30%, transparent); }
+.pill.dueneg { background: var(--danger-alpha); color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+.pill.duepos { background: var(--success-alpha); color: var(--success); border-color: color-mix(in srgb, var(--success) 30%, transparent); }
+
+/* Chips de filtro — estado activo bien visible */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  font-size: .83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font);
+}
+.chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-alpha); }
+.chip[aria-pressed="true"] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(37,99,235,.3);
+}
+
+/* Acc chips */
+.acc-chip {
+  padding: 6px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font);
+}
+.acc-chip:hover { border-color: var(--primary); color: var(--primary); }
+.acc-chip[aria-pressed="true"] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* chips de filtro .chips en fila */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* ---------- Dialog / Modal ---------- */
+dialog {
+  border: none;
+  border-radius: 20px;
+  width: min(920px, 96vw);
+  background: var(--card);
+  color: var(--card-ink);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  padding: 0;
+  max-width: min(720px, 96vw);
+}
+dialog::backdrop { background: rgba(0,0,0,.45); backdrop-filter: blur(4px); }
+html[data-theme="light"] dialog::backdrop { background: rgba(0,0,0,.25); }
+html[data-theme="dark"] dialog::backdrop { background: rgba(0,0,0,.65); }
+dialog[open] { display: block; }
+dialog form { max-height: min(82vh, 760px); overflow: auto; padding: 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  z-index: 5;
+  gap: 12px;
+}
+.modal-header strong { font-size: 1rem; font-weight: 800; }
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  position: sticky;
+  bottom: 0;
+  background: var(--card);
+  z-index: 5;
+}
+
+/* ---------- Toasts ---------- */
+#toastContainer, .toasts {
+  position: fixed;
+  right: 14px;
+  bottom: calc(var(--bottombar-h) + 16px);
+  display: grid;
+  gap: 10px;
+  z-index: 80;
+  max-width: 380px;
+  width: calc(100vw - 28px);
+}
+.toast {
+  background: var(--card);
+  color: var(--card-ink);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 13px 16px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  font-size: .88rem;
+  animation: slideInRight .25s ease;
+}
+.toast .actions { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+@keyframes slideInRight { from { transform: translateX(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---------- Sidenav ---------- */
+.sidenav {
+  position: fixed;
+  left: -290px;
+  top: 0;
+  height: 100%;
+  width: 270px;
+  background: var(--sidenav);
+  color: var(--text);
+  border-right: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 16px;
+  z-index: 90;
+  transition: left .22s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto;
+}
+.sidenav.open { left: 0; }
+.sidenav .group { margin: 14px 0; }
+.sidenav .group .g-title { font-weight: 700; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+.sidenav .nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 4px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  font-weight: 600;
+  font-size: .9rem;
+}
+.sidenav .nav-btn:hover { background: var(--primary-alpha); color: var(--primary); }
+.backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; z-index: 85; }
+.backdrop.show { display: block; }
+
+/* ---------- Bottom navigation bar ---------- */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  z-index: 75;
+  height: var(--bottombar-h);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom);
+  display: flex;
+  align-items: stretch;
+}
+.bottom-actions {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  width: 100%;
+  gap: 2px;
+}
+.bottom-actions .btn {
+  padding: 6px 2px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  line-height: 1.1;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 600;
+  transition: color var(--transition), background var(--transition);
+  height: 100%;
+}
+.bottom-actions .btn .ico { font-size: 1.2rem; }
+.bottom-actions .btn.active,
+.bottom-actions .btn[aria-pressed="true"] {
+  color: var(--primary);
+  background: var(--primary-alpha);
+  border-radius: 10px;
+}
+.bottom-actions .btn:hover { color: var(--primary); }
+@media(min-width: 800px) { .bottom-bar { display: none; } }
+
+/* ---------- FAB ---------- */
+.fab {
+  position: fixed;
+  right: 18px;
+  bottom: calc(var(--bottombar-h) + 14px);
+  z-index: 76;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(37,99,235,.4);
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(37,99,235,.5); }
+.fab:active { transform: scale(.96); }
+@media(min-width: 800px) { .fab { bottom: 20px; } }
+
+/* ---------- Burbuja recordatorios ---------- */
+.rem-bubble {
+  position: fixed;
+  left: 18px;
+  bottom: calc(var(--bottombar-h) + 14px);
+  z-index: 76;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media(min-width: 800px) { .rem-bubble { bottom: 20px; } }
+.rem-count {
+  position: absolute;
+  top: -4px; right: -4px;
+  background: var(--danger);
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 1px 5px;
+  min-width: 18px;
+  text-align: center;
+  border: 2px solid var(--bg);
+}
+
+/* ---------- Mobile bar ---------- */
+.mobile-bar { display: none; align-items: center; gap: 8px; margin: 0 0 12px; }
+.mobile-bar .spacer { flex: 1; }
+@media(max-width: 800px) {
+  .mobile-bar { display: flex; }
+  .mobile-bar.mobile-only { display: flex !important; }
+  .mobile-list.mobile-only { display: grid !important; gap: 10px; }
+}
+
+/* ---------- Desktop vs mobile visibility ---------- */
+.desktop-only { display: block; }
+.mobile-only { display: none; }
+@media(max-width: 800px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+  .container { padding: 12px; }
+  header.app { height: 54px; }
+  .title { font-size: .95rem; }
+  .tag { display: none; }
+  #btnMenu .lbl, #btnTheme .lbl { display: none; }
+  #btnMenu, #btnTheme { padding: 7px 9px; }
+  .logo { width: 34px; height: 34px; }
+}
+
+/* ---------- Toolbars colapsables en móvil ---------- */
+@media(max-width: 800px) {
+  .toolbar { display: none; }
+  .toolbar.is-open { display: grid; }
+  .gmail-toolbar { display: none; }
+  .gmail-toolbar.is-open { display: flex; }
+  .cuentas-toolbar { display: none; }
+  .cuentas-toolbar.is-open { display: flex; }
+  .cdk-toolbar { display: none; }
+  .cdk-toolbar.is-open { display: grid; }
+  .toolbar.is-open, .gmail-toolbar.is-open, .cuentas-toolbar.is-open, .cdk-toolbar.is-open {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .btn { padding: 9px 11px; }
+  .btn-icon { padding: 7px 9px; }
+}
+
+/* ---------- Misc helpers ---------- */
+.help { color: var(--muted); font-size: .82rem; font-weight: 500; }
+.subtle { color: var(--muted); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+.skip:focus { left: 8px; top: 8px; width: auto; height: auto; background: var(--card); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); z-index: 1000; }
+.kbd { display: inline-block; background: var(--chip-bg); border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; font-weight: 700; font-size: .8em; }
+
+/* ---------- KPI Cards mejoradas ---------- */
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.kpi-card.kpi-blue::before { background: var(--primary); }
+.kpi-card.kpi-green::before { background: var(--success); }
+.kpi-card.kpi-amber::before { background: var(--warning); }
+.kpi-card.kpi-purple::before { background: #8b5cf6; }
+.kpi-icon { font-size: 1.6rem; margin-bottom: 6px; display: block; }
+.kpi-label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.kpi-value { font-size: 1.6rem; font-weight: 900; color: var(--card-ink); margin: 2px 0; letter-spacing: -.02em; }
+.kpi-sub { font-size: .75rem; color: var(--muted); font-weight: 500; }
+
+/* ---------- Charts ---------- */
+.charts { display: grid; gap: 14px; }
+canvas.chart {
+  width: 100%;
+  height: 300px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+.legend { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.legend .item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .83rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.legend .swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+/* ---------- Sección / tab ---------- */
+.section.card { padding: 18px; }
+
+/* ---------- Cuentas UI ---------- */
+.cuentas-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.cuentas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 12px;
+}
+.cuenta-card {
+  background: var(--card);
+  color: var(--card-ink);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.cuenta-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+.cuenta-card h3 { margin: 0 0 8px 0; font-size: 1rem; display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.cuenta-meta { font-size: .87rem; line-height: 1.45; }
+.cuenta-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.cuenta-card .cuenta-actions .btn { padding: 6px 10px; font-size: .82rem; }
+@media(max-width: 700px) {
+  .cuentas-grid { grid-template-columns: 1fr; }
+  .cuenta-card { padding: 14px; }
+  .cuenta-card h3 { font-size: .95rem; }
+}
+
+/* ---------- Gmail/CDK toolbar ---------- */
+.gmail-toolbar, .cdk-toolbar {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.gmail-toolbar .left, .gmail-toolbar .right,
+.cdk-toolbar .left, .cdk-toolbar .right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.cdk-toolbar .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+
+.cdk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.cdk-card {
+  background: var(--card);
+  color: var(--card-ink);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+.cdk-card h3 { margin: 0 0 8px 0; font-size: 1rem; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+.cdk-meta { font-size: .9rem; line-height: 1.45; opacity: .94; }
+.cdk-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.cdk-actions .btn { padding: 6px 10px; }
+.cdk-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9rem; word-break: break-all; }
+.cdk-item { border: 1px solid var(--border); border-radius: 12px; padding: 11px; background: var(--card); color: var(--card-ink); }
+.cdk-kv { display: flex; justify-content: space-between; gap: 12px; font-size: .88rem; margin-top: 6px; }
+.cdk-kv .k { color: var(--muted); font-weight: 600; }
+.cdk-kv .v { text-align: right; font-weight: 700; word-break: break-word; }
+.cdk-inline { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.cdk-list-wrap { display: grid; gap: 8px; max-height: 62vh; overflow: auto; padding-right: 4px; }
+.cdk-item-top { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.cdk-item-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.cdk-top-badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+@media(max-width: 800px) {
+  .cdk-toolbar { display: none; }
+  .cdk-toolbar.is-open { display: grid; }
+  .cdk-grid { grid-template-columns: 1fr; }
+  .cdk-card { padding: 14px; }
+  .cdk-actions .btn { flex: 1 1 calc(50% - 8px); justify-content: center; }
+}
+
+/* ---------- Segmented chips (acc) ---------- */
+.acc-seg-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+#accSort { min-width: 180px; }
+
+/* ---------- Mobile client cards ---------- */
+.mitem {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.mhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 12px 14px 8px; }
+.mhead .left { flex: 1; min-width: 0; }
+.mname { font-weight: 800; font-size: .96rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msub { font-size: .78rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-top: 2px; }
+.mmeta { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 10px 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+.mmeta .btn { flex: 1; min-width: 0; }
+.mdetails { padding: 10px 14px; border-top: 1px solid var(--border); background: color-mix(in srgb, var(--card) 95%, var(--border)); }
+.kv { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px dashed var(--border); font-size: .84rem; }
+.kv:last-child { border-bottom: 0; }
+.kv .k { color: var(--muted); font-weight: 600; }
+.kv .v { font-weight: 700; text-align: right; word-break: break-word; }
+.btn-info-mini {
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  background: var(--primary-alpha);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- Quick summary bubble ---------- */
+.quick-item { padding: 10px !important; }
+.quick-item .meta { font-size: .75rem !important; }
+.quick-tabs { display: flex; gap: 8px; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--border); }
+.quick-list { max-height: 55vh; overflow: auto; padding: 8px 20px; }
+.qstate { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 999px; font-weight: 800; font-size: .75rem; }
+.qstate.v { background: var(--danger-alpha); color: var(--danger); }
+.qstate.a { background: var(--success-alpha); color: var(--success); }
+.qstate.p { background: var(--primary-alpha); color: var(--primary); }
+
+/* ---------- Historial dialog ---------- */
+#dlgAccHist .histrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+#dlgAccHist .histlist { max-height: 45vh; overflow: auto; padding-right: 4px; }
+
+/* ---------- Perfiles repeater ---------- */
+.pfrow { display: grid; grid-template-columns: 90px 1fr 1fr auto; gap: 8px; }
+
+/* ---------- Table-like ---------- */
+.table-like th, .table-like td { border-bottom: 1px dashed var(--border); }
+
+/* ---------- Batch accounts ---------- */
+.accx-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.accx-group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; margin-top: 12px; }
+.accx-card { background: var(--card); color: var(--card-ink); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; }
+.accx-card h4 { margin: 0; display: flex; justify-content: space-between; gap: 8px; align-items: center; font-size: 1rem; }
+.accx-meta { font-size: .88rem; color: var(--card-ink); line-height: 1.4; margin-top: 6px; }
+.accx-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.accx-actions .btn { padding: 6px 10px; }
+.accx-muted { color: var(--muted); }
+.accx-tiny { font-size: .8rem; }
+.accx-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.accx-kv { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--border); font-size: .88rem; }
+.accx-kv:last-child { border-bottom: 0; }
+.accx-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.accx-table { display: grid; gap: 8px; max-height: 55vh; overflow: auto; padding-right: 2px; }
+.accx-item { border: 1px solid var(--border); border-radius: 12px; padding: 9px; background: var(--card); }
+.accx-item .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.accx-item .row2 { margin-top: 5px; font-size: .85rem; color: var(--muted); }
+.accx-item .row3 { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+.accx-badge-ok { background: var(--success-alpha); color: var(--success); border: 1px solid color-mix(in srgb, var(--success) 25%, transparent); padding: 2px 8px; border-radius: 999px; font-size: .78rem; font-weight: 800; }
+.accx-badge-no { background: var(--danger-alpha); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 25%, transparent); padding: 2px 8px; border-radius: 999px; font-size: .78rem; font-weight: 800; }
+.accx-helpbox { padding: 10px; border: 1px dashed var(--border); border-radius: 10px; background: color-mix(in srgb, var(--card) 88%, var(--primary) 12%); }
+.accx-maprows { display: grid; gap: 8px; }
+.accx-maprow { display: grid; grid-template-columns: 1.2fr 1fr 1fr auto; gap: 8px; align-items: center; }
+.accx-jsonhint { white-space: pre-wrap; font-size: .8rem; color: var(--muted); }
+@media(max-width: 850px) { .accx-maprow { grid-template-columns: 1fr; align-items: stretch; } }
+@media(max-width: 700px) { .accx-group-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Micro-interacciones botones ---------- */
+.btn:hover { filter: saturate(1.05) brightness(1.03); }
+.btn:active { transform: translateY(1px) scale(.98); filter: brightness(.97); }
+
+/* ---------- Gmail UI ---------- */
+.gm-pass { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.gm-chip[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--primary); }
+.chiprow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.chip.check { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border); cursor: pointer; user-select: none; }
+.chip.check input { accent-color: var(--primary); }
+.checkchips { background: var(--card); padding: 8px; border: 1px solid var(--border); border-radius: 12px; }
+
+/* ---------- Backup section ---------- */
+.backup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.backup-stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.backup-stat .bk-icon { font-size: 1.8rem; }
+.backup-stat .bk-info .bk-val { font-size: 1.3rem; font-weight: 900; color: var(--primary); }
+.backup-stat .bk-info .bk-lbl { font-size: .78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.backup-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.backup-log {
+  background: color-mix(in srgb, var(--card) 90%, var(--border) 10%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: .82rem;
+  color: var(--muted);
+  min-height: 48px;
+  font-family: ui-monospace, monospace;
+  max-height: 140px;
+  overflow-y: auto;
+}
+.backup-log .log-ok { color: var(--success); }
+.backup-log .log-err { color: var(--danger); }
+.backup-log .log-info { color: var(--primary); }
+
+/* ---------- Ajustes: responsive ---------- */
+@media(max-width: 700px) {
+  .pfrow { grid-template-columns: 1fr 1fr auto; }
+  .pfrow > :first-child { grid-column: 1 / -1; }
+}
+
+
+/* ====== Admin Supabase Adaptación Tienda ====== */
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:18px;position:relative;z-index:2}.auth-card{max-width:440px;width:100%}.hidden{display:none!important}.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.admin-tabs .nav-btn[aria-pressed="true"]{background:var(--primary);color:#fff;border-color:var(--primary)}.admin-section{display:none}.admin-section.active{display:block}.mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:12px}.mini-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;color:var(--card-ink)}.mini-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.thumb{width:52px;height:52px;border-radius:14px;object-fit:contain;background:#fff;border:1px solid var(--border)}.line-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.admin-toolbar{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;margin:0 0 14px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}.admin-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.admin-kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;position:relative;overflow:hidden}.admin-kpi::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:var(--primary)}.admin-kpi.green::before{background:var(--success)}.admin-kpi.amber::before{background:var(--warning)}.admin-kpi.red::before{background:var(--danger)}.admin-kpi .lbl{font-size:.78rem;font-weight:900;text-transform:uppercase;color:var(--muted);letter-spacing:.05em}.admin-kpi .val{font-size:1.75rem;font-weight:950}.admin-kpi .sub{font-size:.75rem;color:var(--muted)}.b-ok{background:var(--success-alpha);color:var(--success);border-color:color-mix(in srgb,var(--success) 30%,transparent)}.b-bad{background:var(--danger-alpha);color:var(--danger);border-color:color-mix(in srgb,var(--danger) 30%,transparent)}.b-warn{background:var(--warning-alpha);color:var(--warning);border-color:color-mix(in srgb,var(--warning) 30%,transparent)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-word}.stock-box{border:1px dashed var(--border);border-radius:14px;background:color-mix(in srgb,var(--card) 88%,var(--primary) 12%);padding:12px}.preview-list{display:grid;gap:8px;max-height:230px;overflow:auto;margin-top:8px}.preview-item{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:9px}.bottom-actions{grid-template-columns:repeat(6,1fr)}.bottom-actions .btn{font-size:.72rem}.login-logo{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--primary);color:#fff;font-weight:950;font-size:1.1rem;box-shadow:var(--shadow)}.status-dot{width:9px;height:9px;border-radius:50%;background:var(--success);display:inline-block;margin-right:5px}.sync-note{font-size:.78rem;color:var(--muted)}
+@media(max-width:900px){.admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-toolbar{grid-template-columns:1fr 1fr}.admin-toolbar .input{grid-column:1/-1}.admin-tabs{display:none}}
+@media(max-width:520px){.admin-kpis{grid-template-columns:1fr}.mini-grid{grid-template-columns:1fr}.line-actions .btn{flex:1 1 calc(50% - 8px)}}
+
+  </style>
 </head>
 <body>
-<div id="login" class="login">
-  <div class="card">
-    <div class="brand"><b>IA</b><div><h1>Innov IA Admin V4</h1><p>Cupos simples + entrega real.</p></div></div>
-    <label>Correo</label><input id="loginEmail" type="email">
-    <label>Contraseña</label><input id="loginPass" type="password">
-    <div class="actions"><button id="btnLogin">Entrar</button></div>
-    <p class="muted mini">Tu usuario debe estar en Supabase Authentication y admin_users.</p>
+
+<div class="toasts" id="toastContainer" aria-live="polite"></div>
+<div id="auth" class="auth-wrap">
+  <div class="card auth-card">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div class="login-logo">IA</div>
+      <div><div class="title">Innov IA Admin</div><div class="tag">Panel estilo Recordatorio PRO conectado a Supabase</div></div>
+    </div>
+    <label class="subtle">Correo administrador</label>
+    <input class="input" id="loginEmail" type="email" autocomplete="email" placeholder="admin@correo.com">
+    <label class="subtle" style="margin-top:10px">Contraseña</label>
+    <input class="input" id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="btnLogin" type="button">🔐 Entrar</button>
+      <button class="btn" id="btnLoginHelp" type="button">Ayuda</button>
+    </div>
+    <p class="help">Protegido con Supabase Auth. El usuario también debe existir en <strong>admin_users</strong> para que las políticas permitan editar.</p>
   </div>
 </div>
-
-<div id="app" class="app hidden">
-<aside class="side">
-  <div class="brand"><b>IA</b><div><h1>Admin V4</h1><p>Innov IA Tienda</p></div></div>
-  <nav class="nav">
-    <button class="active" data-tab="dashboard">📊 Dashboard</button>
-    <button data-tab="products">🧩 Productos</button>
-    <button data-tab="inventory">📦 Cupos y entregas</button>
-    <button data-tab="orders">🧾 Pagos y pedidos</button>
-    <button data-tab="coupons">🎟️ Cupones</button>
-    <button data-tab="settings">⚙️ Pagos / QR</button>
-  </nav>
-  <div class="side-card">
-    <b>Nuevo flujo:</b><br>
-    Solo hay 2 modos:<br>
-    <b>Automático</b>: cargas cuentas/códigos por lote.<br>
-    <b>Manual</b>: colocas cupos y al aprobar te pedirá datos reales de entrega.
+<div class="container hidden" id="app">
+  <header class="app" role="banner">
+    <div class="brand">
+      <div class="l">
+        <button class="btn btn-ghost btn-icon" id="btnMenu" type="button">☰</button>
+        <div class="logo"><span>IA</span></div>
+        <div><div class="title">Innov IA Admin</div><div class="tag">Productos • Cupos • Pagos • Entregas</div></div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="badge b-ok"><span class="status-dot"></span><span id="connText">Supabase</span></span>
+        <button class="btn btn-ghost btn-icon" id="btnTheme" type="button">🌓</button>
+        <button class="btn btn-ghost" id="btnLogout" type="button">Salir</button>
+      </div>
+    </div>
+  </header>
+  <div class="admin-tabs" role="tablist">
+    <button class="btn nav-btn" data-tab="dashboard" aria-pressed="true">📊 Dashboard</button>
+    <button class="btn nav-btn" data-tab="products">🧩 Productos</button>
+    <button class="btn nav-btn" data-tab="inventory">📦 Cupos y entregas</button>
+    <button class="btn nav-btn" data-tab="orders">🧾 Pagos y pedidos</button>
+    <button class="btn nav-btn" data-tab="coupons">🎟️ Cupones</button>
+    <button class="btn nav-btn" data-tab="settings">⚙️ Ajustes</button>
   </div>
-  <div class="side-card" id="connectionStatus">Conectando...</div>
-</aside>
-
-<main class="main">
-  <div class="top">
-    <div><h2 id="title">Dashboard</h2><p id="subtitle">Resumen general de tu tienda.</p></div>
-    <div class="session"><span id="email" class="pill ok"></span><button class="blue" id="reload">Actualizar</button><button class="gray" id="logout">Salir</button></div>
-  </div>
-
-  <section id="tab-dashboard">
-    <div class="grid">
-      <div class="card col-3 stat" data-jump="products"><span>Productos activos</span><b id="stProducts">0</b><span class="mini">Con plan activo aparecen en tienda.</span></div>
-      <div class="card col-3 stat" data-jump="inventory"><span>Planes activos</span><b id="stPlans">0</b><span class="mini">Cupos y entregas.</span></div>
-      <div class="card col-3 stat" data-jump="inventory"><span>Cupos visibles</span><b id="stCupos">0</b><span class="mini">Manual + automático.</span></div>
-      <div class="card col-3 stat" data-jump="orders"><span>Pagos por revisar</span><b id="stOrders">0</b><span class="mini">Clic para revisar.</span></div>
-      <div class="card col-12">
-        <div class="card-title"><h3>Resumen de productos y cupos</h3><button class="blue" onclick="loadAll()">Actualizar</button></div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Producto</th><th>Plan</th><th>Tipo entrega</th><th>Cupos visibles</th><th>Estado</th><th>Acción</th></tr></thead>
-          <tbody id="summaryRows"></tbody>
-        </table></div>
+  <main id="main">
+    <section id="tab-dashboard" class="admin-section active">
+      <div class="admin-kpis">
+        <div class="admin-kpi"><div class="lbl">Productos activos</div><div class="val" id="kpiProducts">0</div><div class="sub">Visibles si tienen plan activo</div></div>
+        <div class="admin-kpi green"><div class="lbl">Cupos disponibles</div><div class="val" id="kpiStock">0</div><div class="sub">Automático + manual</div></div>
+        <div class="admin-kpi amber"><div class="lbl">Pagos por revisar</div><div class="val" id="kpiOrders">0</div><div class="sub">Yape / operación</div></div>
+        <div class="admin-kpi red"><div class="lbl">Entrega pendiente</div><div class="val" id="kpiDelivery">0</div><div class="sub">Falta cuenta/código real</div></div>
       </div>
-    </div>
-  </section>
-
-  <section id="tab-products" class="hidden">
-    <div class="grid">
-      <div class="card col-5">
-        <h3>Crear / editar producto</h3>
-        <label>Producto existente</label><select id="productSelect"></select>
-        <div class="actions"><button class="blue" id="loadProduct">Cargar</button><button id="newProduct">Nuevo producto</button></div>
-        <label>Nombre</label><input id="pName" placeholder="Netflix, ChatGPT Plus...">
-        <label>Slug</label><input id="pSlug" placeholder="se genera automático si lo dejas vacío">
-        <div class="row2">
-          <div><label>Categoría</label><select id="pCategory"><option value="ai">IA</option><option value="streaming">Streaming</option><option value="musica">Edición / Video</option><option value="otros">Herramientas</option></select></div>
-          <div><label>Tipo tienda</label><select id="pSale"><option value="retail">Por menor</option><option value="wholesale">Proveedores</option></select></div>
+      <div class="card" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><strong>📌 Resumen de productos y cupos</strong><button class="btn" id="btnReload1" type="button">Actualizar</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Producto</th><th>Plan</th><th>Tipo</th><th>Cupos</th><th>Estado</th><th>Acción</th></tr></thead><tbody id="summaryRows"></tbody></table></div>
+      </div>
+    </section>
+    <section id="tab-products" class="admin-section">
+      <div class="admin-toolbar"><input class="input" id="productSearch" type="search" placeholder="Buscar producto..."><button class="btn btn-primary" id="btnNewProduct" type="button">＋ Producto</button><button class="btn" id="btnReload2" type="button">Actualizar</button><button class="btn" id="btnExportProducts" type="button">Exportar</button></div>
+      <div class="mini-grid" id="productsGrid"></div>
+    </section>
+    <section id="tab-inventory" class="admin-section">
+      <div class="admin-toolbar"><input class="input" id="planSearch" type="search" placeholder="Buscar plan, producto..."><button class="btn btn-primary" id="btnNewPlan" type="button">＋ Plan</button><button class="btn" id="btnReload3" type="button">Actualizar</button><button class="btn" id="btnOnlyEmpty" type="button">Sin cupos</button></div>
+      <div class="mini-grid" id="plansGrid"></div>
+    </section>
+    <section id="tab-orders" class="admin-section">
+      <div class="admin-toolbar"><input class="input" id="orderSearch" type="search" placeholder="Buscar pedido, nombre, WhatsApp..."><button class="btn" id="btnReload4" type="button">Actualizar</button><button class="btn" id="btnOnlyReview" type="button">Por revisar</button><button class="btn" id="btnOnlyManual" type="button">Entrega manual</button></div>
+      <div class="mini-grid" id="ordersGrid"></div>
+    </section>
+    <section id="tab-coupons" class="admin-section">
+      <div class="grid grid-2">
+        <div class="card"><strong>🎟️ Crear cupón</strong>
+          <label class="subtle">Código</label><input class="input" id="cpCode" placeholder="PROMO10">
+          <div class="grid grid-2"><div><label class="subtle">Tipo</label><select id="cpType" class="input"><option value="fixed">Monto fijo S/</option><option value="percent">Porcentaje %</option></select></div><div><label class="subtle">Valor</label><input class="input" id="cpValue" type="number" step="0.01"></div></div>
+          <div class="grid grid-2"><div><label class="subtle">Máx. usos</label><input class="input" id="cpMax" type="number" value="1"></div><div><label class="subtle">Mínimo compra</label><input class="input" id="cpMin" type="number" value="0"></div></div>
+          <div style="margin-top:10px"><button class="btn btn-primary" id="btnSaveCoupon" type="button">Guardar cupón</button></div>
         </div>
-        <label>Imagen URL</label><input id="pImage" placeholder="https://... o img/producto.png">
-        <label>Descripción</label><textarea id="pDesc"></textarea>
-        <div class="row2"><div><label>Prioridad</label><input id="pPriority" type="number" value="100"></div><div><label>Estado</label><select id="pActive"><option value="true">Activo</option><option value="false">Oculto</option></select></div></div>
-        <div class="help-box mini">
-          Importante: un producto <b>solo aparece en la tienda si tiene al menos un plan activo</b>. Por eso puedes crear un plan base al guardar.
-        </div>
-        <label><input id="createBasePlan" type="checkbox" style="width:auto"> Crear plan base si es producto nuevo</label>
-        <div class="actions"><button id="saveProduct">Guardar producto</button><button class="yellow" id="hideProduct">Ocultar</button><button class="red" id="deleteProduct">Eliminar definitivo</button></div>
+        <div class="card"><strong>Cupones actuales</strong><div id="couponsList" class="mini-grid" style="margin-top:10px"></div></div>
       </div>
-      <div class="card col-7">
-        <div class="card-title"><h3>Productos actuales</h3><input id="productSearch" placeholder="Buscar producto..."></div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Imagen</th><th>Producto</th><th>Categoría</th><th>Tipo</th><th>Planes</th><th>Estado</th><th>Acción</th></tr></thead>
-          <tbody id="productRows"></tbody>
-        </table></div>
+    </section>
+    <section id="tab-settings" class="admin-section">
+      <div class="grid grid-2">
+        <div class="card"><strong>💳 Pago / QR</strong><label class="subtle">Número Yape</label><input class="input" id="setYape" placeholder="991564053"><label class="subtle">URL QR</label><input class="input" id="setQr" placeholder="img/yape-qr.png o https://..."><label class="subtle">Subir QR a Supabase Storage</label><input class="input" id="qrFile" type="file" accept="image/*"><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" id="btnUploadQr" type="button">Subir QR</button><button class="btn btn-primary" id="btnSavePayment" type="button">Guardar pago</button></div><img id="qrPreview" style="margin-top:12px;max-width:190px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:8px" src="img/yape-qr.png" alt="QR"></div>
+        <div class="card"><strong>💾 Respaldo</strong><p class="help">Exporta productos, planes, stock, pedidos, entregas y cupones.</p><button class="btn btn-success" id="btnExportBackup" type="button">Descargar JSON</button><button class="btn" id="btnSyncAll" style="margin-left:8px" type="button">Sincronizar ahora</button><div id="syncStatus" class="sync-note" style="margin-top:10px">—</div></div>
       </div>
-    </div>
-  </section>
-
-  <section id="tab-inventory" class="hidden">
-    <div class="grid">
-      <div class="card col-5">
-        <h3>Cupos y entrega del plan</h3>
-        <label>Producto</label><select id="planProduct"></select>
-        <label>Plan</label><select id="planSelect"></select>
-        <div class="actions"><button class="blue" id="loadPlan">Editar plan</button><button id="newPlan">Nuevo plan</button></div>
-
-        <label>Nombre del plan</label><input id="plName">
-        <label>Slug</label><input id="plSlug">
-        <div class="row2"><div><label>Precio S/</label><input id="plPrice" type="number" step="0.01"></div><div><label>Periodo</label><input id="plPeriod" value="Mensual"></div></div>
-        <label>Imagen específica</label><input id="plImage">
-        <label>Descripción</label><textarea id="plDesc"></textarea>
-        <label>Beneficios, uno por línea</label><textarea id="plBenefits"></textarea>
-        <label>Chips, separados por coma</label><input id="plChips">
-
-        <div class="row2">
-          <div>
-            <label>Tipo de entrega</label>
-            <select id="plDeliveryType">
-              <option value="automatic">Automática: cuentas/códigos cargados</option>
-              <option value="manual">Manual: cupos escritos por mí</option>
-            </select>
-          </div>
-          <div>
-            <label>Disponibilidad</label>
-            <select id="plAvailability"><option value="available">Disponible</option><option value="consult">Consultar</option><option value="unavailable">No disponible</option></select>
-          </div>
-        </div>
-
-        <div id="manualBox" class="help-box">
-          <label>Cupos manuales</label><input id="plManualStock" type="number" min="0" placeholder="Ej: 20">
-          <p class="muted mini">Se muestra como cupos disponibles, pero al aprobar el pago el admin te pedirá la cuenta/código real a entregar.</p>
-        </div>
-
-        <div id="autoBox" class="help-box">
-          <p class="muted mini"><b>Automático:</b> los cupos salen de las cuentas/códigos cargados abajo. Si cargas 10 líneas válidas, la tienda mostrará 10 cupos.</p>
-          <label>Importar cuentas/códigos por lote</label>
-          <textarea id="bulkText" placeholder="correo1@gmail.com|clave123|nota opcional&#10;correo2@gmail.com|clave456&#10;CODIGO-CDK-123"></textarea>
-          <div class="row2"><div><span class="pill ok" id="validCount">0 válidas</span></div><div><span class="pill warn" id="doubtCount">0 dudosas</span></div></div>
-          <div class="actions"><button class="blue" id="previewBulk">Detectar lote</button><button id="bulkStock">Guardar lote válido</button></div>
-          <div id="bulkPreview" class="mini muted"></div>
-        </div>
-
-        <div class="row2"><div><label>Prioridad</label><input id="plPriority" type="number" value="100"></div><div><label>Estado</label><select id="plActive"><option value="true">Activo</option><option value="false">Oculto</option></select></div></div>
-        <div class="actions"><button id="savePlan">Guardar plan/cupos</button><button class="yellow" id="hidePlan">Ocultar plan</button><button class="red" id="deletePlan">Eliminar plan</button></div>
-      </div>
-
-      <div class="card col-7">
-        <div class="card-title"><h3>Planes y cupos actuales</h3><input id="planSearch" placeholder="Buscar plan..."></div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Producto</th><th>Plan</th><th>Precio</th><th>Tipo</th><th>Cupos</th><th>Estado</th><th>Acción</th></tr></thead>
-          <tbody id="planRows"></tbody>
-        </table></div>
-        <div class="help-box">
-          <h3>Stock cargado del plan seleccionado</h3>
-          <div class="table-wrap"><table>
-            <thead><tr><th>Título</th><th>Estado</th><th>Dato</th><th>Acción</th></tr></thead>
-            <tbody id="stockRows"></tbody>
-          </table></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="tab-orders" class="hidden">
-    <div class="card">
-      <div class="card-title"><div><h3>Pagos y pedidos</h3><p class="muted mini">Aprobar pago no inventa entregas. Si no hay cuenta/código, usa Entregar manual.</p></div><button class="blue" onclick="loadAll()">Actualizar</button></div>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Pedido</th><th>Cliente</th><th>Monto</th><th>Pago</th><th>Items</th><th>Estado</th><th>Acciones</th></tr></thead>
-        <tbody id="orderRows"></tbody>
-      </table></div>
-    </div>
-  </section>
-
-  <section id="tab-coupons" class="hidden">
-    <div class="grid">
-      <div class="card col-4">
-        <h3>Cupón</h3><label>Código</label><input id="cpCode" placeholder="PROMO10">
-        <div class="row2"><div><label>Tipo</label><select id="cpType"><option value="fixed">Monto fijo S/</option><option value="percent">Porcentaje %</option></select></div><div><label>Valor</label><input id="cpValue" type="number" step="0.01"></div></div>
-        <div class="row2"><div><label>Máx. usos</label><input id="cpMax" type="number" value="1"></div><div><label>Mínimo compra</label><input id="cpMin" type="number" value="0"></div></div>
-        <label>Activo</label><select id="cpActive"><option value="true">Sí</option><option value="false">No</option></select>
-        <div class="actions"><button id="saveCoupon">Guardar cupón</button></div>
-      </div>
-      <div class="card col-8"><div class="table-wrap"><table><thead><tr><th>Código</th><th>Descuento</th><th>Usos</th><th>Estado</th><th>Acción</th></tr></thead><tbody id="couponRows"></tbody></table></div></div>
-    </div>
-  </section>
-
-  <section id="tab-settings" class="hidden">
-    <div class="grid">
-      <div class="card col-6">
-        <h3>Yape / QR</h3>
-        <label>Número Yape</label><input id="setYape" value="991564053">
-        <label>URL del QR</label><input id="setQr" placeholder="img/yape-qr.png o https://...">
-        <div class="drop">
-          <label>Subir imagen QR</label><input id="qrFile" type="file" accept="image/*">
-          <div class="actions"><button class="blue" id="uploadQr">Subir QR a Supabase</button></div>
-          <p class="muted mini">También puedes subirlo manualmente como <span class="code">img/yape-qr.png</span> en Vercel.</p>
-        </div>
-        <div class="actions"><button id="savePayment">Guardar pago</button></div>
-        <img id="qrPreview" src="img/yape-qr.png" style="width:180px;background:#fff;border-radius:14px;padding:8px;margin-top:12px">
-      </div>
-      <div class="card col-6">
-        <h3>WhatsApp / tienda</h3>
-        <label>Nombre tienda</label><input id="setStore">
-        <label>WhatsApp principal</label><input id="setWa1">
-        <label>WhatsApp secundario</label><input id="setWa2">
-        <div class="actions"><button id="saveStore">Guardar tienda</button></div>
-      </div>
-    </div>
-  </section>
-</main>
+    </section>
+  </main>
 </div>
+<div class="bottom-bar"><div class="bottom-actions"><button class="btn active" data-tab="dashboard" type="button"><span class="ico">📊</span><span>Inicio</span></button><button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Productos</span></button><button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Cupos</span></button><button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pagos</span></button><button class="btn" data-tab="coupons" type="button"><span class="ico">🎟️</span><span>Cupones</span></button><button class="btn" data-tab="settings" type="button"><span class="ico">⚙️</span><span>Ajustes</span></button></div></div>
+<dialog id="dlgProduct"><div class="modal-header"><strong id="productDlgTitle">Producto</strong><button class="btn btn-ghost" data-close="dlgProduct" type="button">✖</button></div><form id="productForm"><input type="hidden" id="pId"><div class="grid grid-2"><div><label class="subtle">Nombre</label><input class="input" id="pName" required></div><div><label class="subtle">Slug</label><input class="input" id="pSlug" placeholder="automático"></div><div><label class="subtle">Categoría</label><select class="input" id="pCategory"><option value="ai">IA</option><option value="streaming">Streaming</option><option value="musica">Edición / Video</option><option value="otros">Herramientas</option></select></div><div><label class="subtle">Tipo tienda</label><select class="input" id="pSale"><option value="retail">Por menor</option><option value="wholesale">Proveedor</option></select></div><div class="full"><label class="subtle">Imagen URL</label><input class="input" id="pImage"></div><div class="full"><label class="subtle">Descripción</label><textarea class="input" id="pDesc"></textarea></div><div><label class="subtle">Prioridad</label><input class="input" id="pPriority" type="number" value="100"></div><div><label class="subtle">Estado</label><select class="input" id="pActive"><option value="true">Activo</option><option value="false">Oculto</option></select></div><label class="help full"><input id="pBasePlan" type="checkbox"> Crear plan base si es nuevo</label></div><div class="modal-actions"><button class="btn btn-danger" type="button" id="btnDeleteProduct">Eliminar</button><button class="btn" type="button" data-close="dlgProduct">Cancelar</button><button class="btn btn-primary" type="submit">Guardar</button></div></form></dialog>
+<dialog id="dlgPlan"><div class="modal-header"><strong id="planDlgTitle">Plan / cupos</strong><button class="btn btn-ghost" data-close="dlgPlan" type="button">✖</button></div><form id="planForm"><input type="hidden" id="plId"><div class="grid grid-2"><div><label class="subtle">Producto</label><select class="input" id="plProduct" required></select></div><div><label class="subtle">Nombre del plan</label><input class="input" id="plName" required></div><div><label class="subtle">Slug</label><input class="input" id="plSlug" placeholder="automático"></div><div><label class="subtle">Precio S/</label><input class="input" id="plPrice" type="number" step="0.01"></div><div><label class="subtle">Periodo</label><input class="input" id="plPeriod" value="Mensual"></div><div><label class="subtle">Estado</label><select class="input" id="plActive"><option value="true">Activo</option><option value="false">Oculto</option></select></div><div class="full"><label class="subtle">Imagen específica</label><input class="input" id="plImage"></div><div class="full"><label class="subtle">Descripción</label><textarea class="input" id="plDesc"></textarea></div><div class="full"><label class="subtle">Beneficios, uno por línea</label><textarea class="input" id="plBenefits"></textarea></div><div class="full"><label class="subtle">Chips, separados por coma</label><input class="input" id="plChips"></div><div><label class="subtle">Tipo de entrega</label><select class="input" id="plDeliveryType"><option value="automatic">Automática: cuentas/códigos cargados</option><option value="manual">Manual: cupos escritos</option></select></div><div><label class="subtle">Disponibilidad</label><select class="input" id="plAvailability"><option value="available">Disponible</option><option value="consult">Consultar</option><option value="unavailable">No disponible</option></select></div><div id="manualBox" class="stock-box full"><label class="subtle">Cupos manuales</label><input class="input" id="plManualStock" type="number" min="0" placeholder="Ej: 20"><p class="help">Se muestran cupos, pero al aprobar pago se pedirá cuenta/código real si no existe stock cargado.</p></div><div id="autoBox" class="stock-box full"><label class="subtle">Importar cuentas/códigos por lote</label><textarea class="input" id="bulkText" placeholder="correo@gmail.com|clave123|nota opcional&#10;CODIGO-CDK-123"></textarea><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><span class="badge b-ok" id="validCount">0 válidas</span><span class="badge b-warn" id="doubtCount">0 dudosas</span><button class="btn" type="button" id="btnPreviewBulk">Detectar</button><button class="btn btn-success" type="button" id="btnSaveBulk">Guardar lote</button></div><div id="bulkPreview" class="preview-list help" style="margin-top:8px"></div></div><div><label class="subtle">Prioridad</label><input class="input" id="plPriority" type="number" value="100"></div></div><div class="modal-actions"><button class="btn btn-danger" type="button" id="btnDeletePlan">Eliminar</button><button class="btn" type="button" data-close="dlgPlan">Cancelar</button><button class="btn btn-primary" type="submit">Guardar plan</button></div></form></dialog>
+<dialog id="dlgManual"><div class="modal-header"><strong>Entrega manual real</strong><button class="btn btn-ghost" data-close="dlgManual" type="button">✖</button></div><div class="dlg-body"><input type="hidden" id="manualOrderId"><label class="subtle">Plan del pedido</label><select class="input" id="manualPlan"></select><div class="grid grid-2"><div><label class="subtle">Correo / usuario</label><input class="input" id="manualUser"></div><div><label class="subtle">Clave</label><input class="input" id="manualPass"></div></div><label class="subtle">Código / perfil</label><input class="input" id="manualCode"><label class="subtle">Nota</label><textarea class="input" id="manualNote">No cambiar datos. Soporte por WhatsApp.</textarea><label class="subtle">Mensaje final</label><textarea class="input" id="manualMessage"></textarea></div><div class="modal-actions"><button class="btn" id="btnGenerateManualMsg" type="button">Generar mensaje</button><button class="btn btn-primary" id="btnSaveManualDelivery" type="button">Registrar entrega</button></div></dialog>
 
-<div id="manualModal" class="modal">
-  <div class="modal-card">
-    <div class="modal-head"><h3>Entrega manual real</h3><button class="ghost" id="closeManual">Cerrar</button></div>
-    <p class="muted mini" id="manualInfo">Ingresa la cuenta/código que recibirá el cliente. Esto quedará guardado como entregado.</p>
-    <label>Producto / plan</label><select id="manualPlan"></select>
-    <div class="row2"><div><label>Correo / usuario</label><input id="manualUser"></div><div><label>Clave</label><input id="manualPass"></div></div>
-    <label>Código / token / perfil</label><input id="manualCode">
-    <label>Nota para el cliente</label><textarea id="manualNote">No cambiar datos. Soporte por WhatsApp.</textarea>
-    <label>Mensaje final de entrega</label><textarea id="manualMessage"></textarea>
-    <div class="actions"><button id="saveManualDelivery">Registrar entrega real</button><button class="gray" id="autoMessage">Generar mensaje</button></div>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
 
 <script>
-const SUPABASE_URL="https://rfjvskrimsoqlyofhidj.supabase.co";
-const SUPABASE_KEY="sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh";
+const SUPABASE_URL='https://rfjvskrimsoqlyofhidj.supabase.co';
+const SUPABASE_KEY='sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
-
-let sessionUser=null, products=[], plans=[], stock=[], orders=[], orderItems=[], proofs=[], deliveries=[], coupons=[], settings=[], summary=[];
-let currentProductId=null, currentPlanId=null, currentManualOrderId=null;
-
-function esc(s){return String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
-function toast(m,bad=false){const t=$('toast');t.textContent=m;t.style.borderColor=bad?'rgba(239,68,68,.45)':'rgba(34,197,94,.45)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
-function money(n){return n==null?'Consultar':'S/ '+Number(n||0).toFixed(2)}
-function slugify(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
-function lines(s){return String(s||'').split('\n').map(x=>x.trim()).filter(Boolean)}
-function csv(s){return String(s||'').split(',').map(x=>x.trim()).filter(Boolean)}
-function prodName(id){return products.find(p=>p.id===id)?.name||'Producto'}
-function planName(id){const p=plans.find(x=>x.id===id);return p?prodName(p.product_id)+' — '+p.name:'Plan'}
-function planById(id){return plans.find(p=>p.id===id)}
-function stockModeLabel(p){return (p.stock_mode==='controlled')?'Automática':'Manual'}
-function visibleStock(plan){const s=summary.find(x=>x.plan_id===plan.id); if(!s)return 0; return Number(s.available_stock||0)}
-function stockLabel(plan){const n=visibleStock(plan); return n>=999999?'Ilimitado':n+' cupos'}
-function deliveryTypeFromPlan(p){return p.stock_mode==='controlled'?'automatic':'manual'}
-
-function switchTab(tab){
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-  document.querySelectorAll('main > section').forEach(s=>s.classList.add('hidden'));
-  $('tab-'+tab).classList.remove('hidden');
-  const map={dashboard:['Dashboard','Resumen general de tu tienda.'],products:['Productos','Crea, edita y ordena productos.'],inventory:['Cupos y entregas','Planes, cupos manuales y cuentas automáticas.'],orders:['Pagos y pedidos','Aprueba pagos y registra entrega real.'],coupons:['Cupones','Descuentos y usos.'],settings:['Pagos / QR','Número, QR e imagen de pago.']};
-  $('title').textContent=map[tab][0]; $('subtitle').textContent=map[tab][1];
-}
-
-async function login(){const email=$('loginEmail').value.trim(),password=$('loginPass').value;const r=await db.auth.signInWithPassword({email,password});if(r.error)return toast(r.error.message,true);sessionUser=r.data.user;showApp(r.data.user.email)}
-async function logout(){await db.auth.signOut();location.reload()}
-async function init(){const r=await db.auth.getSession();if(r.data.session){sessionUser=r.data.session.user;showApp(sessionUser.email)}}
-async function showApp(email){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('email').textContent=email;await loadAll()}
-
-async function loadAll(){
-  try{
-    await Promise.all([loadProducts(),loadPlans(),loadStock(),loadOrders(),loadCoupons(),loadSettings(),loadSummary()]);
-    fillSelects(); renderAll(); $('connectionStatus').textContent='Supabase conectado ✅';
-  }catch(e){toast('Error cargando: '+e.message,true)}
-}
-async function loadProducts(){const r=await db.from('products').select('*').order('priority'); if(r.error)throw r.error; products=r.data||[]}
-async function loadPlans(){const r=await db.from('product_plans').select('*').order('priority'); if(r.error)throw r.error; plans=r.data||[]}
-async function loadStock(){const r=await db.from('stock_items').select('*').order('created_at',{ascending:false}).limit(800); if(r.error)throw r.error; stock=r.data||[]}
-async function loadOrders(){const [o,i,p,d]=await Promise.all([db.from('orders').select('*').order('created_at',{ascending:false}).limit(250),db.from('order_items').select('*').limit(700),db.from('payment_proofs').select('*').limit(700),db.from('deliveries').select('*').limit(700)]); if(o.error)throw o.error;if(i.error)throw i.error;if(p.error)throw p.error;if(d.error)throw d.error;orders=o.data||[];orderItems=i.data||[];proofs=p.data||[];deliveries=d.data||[]}
-async function loadCoupons(){const r=await db.from('coupons').select('*').order('created_at',{ascending:false}); if(r.error){coupons=[]; return} coupons=r.data||[]}
-async function loadSettings(){const r=await db.from('app_settings').select('*'); if(r.error){settings=[]; return} settings=r.data||[]}
-async function loadSummary(){const r=await db.rpc('admin_plan_stock_summary'); if(r.error){summary=[]; return} summary=r.data||[]}
-
-function fillSelects(){
-  const po=products.map(p=>`<option value="${p.id}">${esc(p.name)} / ${esc(p.slug)}</option>`).join('');
-  $('productSelect').innerHTML=po||'<option value="">Sin productos</option>';
-  $('planProduct').innerHTML=po||'<option value="">Sin productos</option>';
-  updatePlanSelects();
-}
-function updatePlanSelects(){
-  const pid=$('planProduct').value||products[0]?.id;
-  const opts=plans.filter(p=>p.product_id===pid).map(p=>`<option value="${p.id}">${esc(p.name)} · ${stockLabel(p)} · ${stockModeLabel(p)}</option>`).join('');
-  $('planSelect').innerHTML=opts||'<option value="">Sin planes</option>';
-}
-
-function renderAll(){renderStats();renderSummary();renderProducts();renderPlans();renderStockForSelected();renderOrders();renderCoupons();renderSettings()}
-function renderStats(){$('stProducts').textContent=products.filter(p=>p.active!==false).length;$('stPlans').textContent=plans.filter(p=>p.active!==false).length;$('stCupos').textContent=summary.reduce((a,b)=>a+(Number(b.available_stock)>=999999?0:Number(b.available_stock||0)),0);$('stOrders').textContent=orders.filter(o=>['payment_review','pending_payment','paid'].includes(o.status)&&o.delivery_status!=='delivered').length}
-function renderSummary(){$('summaryRows').innerHTML=summary.map(s=>`<tr><td><b>${esc(s.product_name)}</b></td><td>${esc(s.plan_name)}</td><td>${s.stock_mode==='controlled'?'Automática':'Manual'}</td><td><span class="pill ${Number(s.available_stock)>0?'ok':'bad'}">${Number(s.available_stock)>=999999?'Ilimitado':esc(s.available_stock+' cupos')}</span></td><td><span class="pill ${s.availability_status==='available'?'ok':s.availability_status==='consult'?'warn':'bad'}">${esc(s.availability_status)}</span></td><td><button class="blue" data-edit-plan="${s.plan_id}">Editar</button></td></tr>`).join('')||'<tr><td colspan="6">Sin datos</td></tr>'}
-
-function renderProducts(){
-  const term=($('productSearch').value||'').toLowerCase();
-  $('productRows').innerHTML=products.filter(p=>(p.name+' '+p.slug).toLowerCase().includes(term)).map(p=>{
-    const planCount=plans.filter(pl=>pl.product_id===p.id).length;
-    return `<tr><td><img class="thumb" src="${esc(p.image_url||'img/placeholder.jpg')}" onerror="this.src='img/placeholder.jpg'"></td><td><b>${esc(p.name)}</b><br><span class="muted mini">${esc(p.slug)}</span></td><td>${esc(p.category)}</td><td>${esc(p.sale_mode||'retail')}</td><td><span class="pill ${planCount?'ok':'bad'}">${planCount} planes</span></td><td><span class="pill ${p.active?'ok':'bad'}">${p.active?'Activo':'Oculto'}</span></td><td><button class="blue" data-edit-product="${p.id}">Editar</button></td></tr>`
-  }).join('') || '<tr><td colspan="7">Sin productos</td></tr>';
-}
-
-function renderPlans(){
-  const term=($('planSearch').value||'').toLowerCase();
-  $('planRows').innerHTML=plans.filter(p=>(p.name+' '+prodName(p.product_id)).toLowerCase().includes(term)).map(p=>`<tr><td>${esc(prodName(p.product_id))}</td><td><b>${esc(p.name)}</b><br><span class="muted mini">${esc(p.slug)}</span></td><td><b>${money(p.price)}</b></td><td>${stockModeLabel(p)}</td><td><span class="pill ${visibleStock(p)>0?'ok':'bad'}">${stockLabel(p)}</span></td><td><span class="pill ${p.active&&p.availability_status!=='unavailable'?'ok':'bad'}">${p.active?esc(p.availability_status||'available'):'Oculto'}</span></td><td><button class="blue" data-edit-plan="${p.id}">Editar</button></td></tr>`).join('')||'<tr><td colspan="7">Sin planes</td></tr>';
-}
-
-function renderStockForSelected(){
-  const planId=currentPlanId||$('planSelect').value;
-  const rows=stock.filter(s=>s.plan_id===planId);
-  $('stockRows').innerHTML=rows.map(s=>`<tr><td><b>${esc(s.title||'Stock')}</b><br><span class="muted mini">${esc(s.stock_type)}</span></td><td><span class="pill ${s.status==='available'?'ok':s.status==='blocked'?'bad':'warn'}">${esc(s.status)}</span></td><td><span class="code">${esc(JSON.stringify(s.secret_data||{})).slice(0,140)}</span></td><td><button class="yellow" data-toggle-stock="${s.id}">${s.status==='available'?'Bloquear':'Activar'}</button><button class="red" data-delete-stock="${s.id}">Eliminar</button></td></tr>`).join('')||'<tr><td colspan="4">No hay cuentas/códigos cargados para este plan.</td></tr>';
-}
-
-function renderOrders(){
-  $('orderRows').innerHTML=orders.map(o=>{
-    const pr=proofs.find(p=>p.order_id===o.id);
-    const its=orderItems.filter(i=>i.order_id===o.id);
-    const items=its.map(i=>planName(i.plan_id)+' x'+i.quantity).join('<br>');
-    const delCount=deliveries.filter(d=>d.order_id===o.id).length;
-    return `<tr><td><b>${esc(o.order_code)}</b><br><span class="muted mini">${new Date(o.created_at).toLocaleString()}</span></td><td>${esc(o.customer_name||'')}<br><span class="muted mini">${esc(o.customer_whatsapp||'')}</span></td><td><b>${money(o.total)}</b><br><span class="muted mini">Desc: ${money(o.discount_amount)}</span></td><td>${esc(o.payment_method)}<br><span class="muted mini">Op: ${esc(pr?.operation_code||'pendiente')}</span></td><td>${items||'Sin items'}</td><td><span class="pill ${o.status==='delivered'?'ok':o.delivery_status==='waiting_manual_delivery'?'warn':o.status==='rejected'?'bad':''}">${esc(o.status)}</span><br><span class="muted mini">${esc(o.delivery_status||'pending')} · entregas: ${delCount}</span></td><td><button class="blue" data-approve="${o.id}">Aprobar pago</button><button class="yellow" data-manual="${o.id}">Entregar manual</button><button class="ghost" data-view-delivery="${o.id}">Ver entrega</button><button class="red" data-reject="${o.id}">Rechazar</button></td></tr>`
-  }).join('')||'<tr><td colspan="7">Sin pedidos.</td></tr>';
-}
-
-function renderCoupons(){$('couponRows').innerHTML=coupons.map(c=>`<tr><td><b>${esc(c.code)}</b></td><td>${c.discount_type==='percent'?esc(c.discount_value+'%'):money(c.discount_value)}</td><td>${esc(c.used_count)} / ${esc(c.max_uses)}</td><td><span class="pill ${c.active?'ok':'bad'}">${c.active?'Activo':'Inactivo'}</span></td><td><button class="yellow" data-toggle-coupon="${c.id}">${c.active?'Desactivar':'Activar'}</button></td></tr>`).join('')||'<tr><td colspan="5">Sin cupones.</td></tr>'}
-function renderSettings(){const pay=settings.find(s=>s.key==='payment_public')?.value||{}; const store=settings.find(s=>s.key==='store_public')?.value||{}; $('setYape').value=pay.yape_number||'991564053';$('setQr').value=pay.yape_qr_url||'img/yape-qr.png';$('qrPreview').src=$('setQr').value||'img/yape-qr.png';$('setStore').value=store.store_name||'Innov IA Tienda';$('setWa1').value=store.whatsapp_primary||'51930264550';$('setWa2').value=store.whatsapp_secondary||'51991564053'}
-
-function clearProduct(){currentProductId=null;['pName','pSlug','pImage','pDesc'].forEach(id=>$(id).value='');$('pPriority').value=100;$('pActive').value='true';$('createBasePlan').checked=true}
-function loadProduct(id){const p=products.find(x=>x.id===id); if(!p)return; currentProductId=id;$('productSelect').value=id;$('pName').value=p.name||'';$('pSlug').value=p.slug||'';$('pCategory').value=p.category||'otros';$('pSale').value=p.sale_mode||'retail';$('pImage').value=p.image_url||'';$('pDesc').value=p.description||'';$('pPriority').value=p.priority||100;$('pActive').value=String(p.active!==false);$('createBasePlan').checked=false}
-
-async function saveProduct(){
-  const name=$('pName').value.trim(); if(!name)return toast('Falta nombre',true);
-  const priority=Number($('pPriority').value||100);
-  const payload={name,slug:$('pSlug').value.trim()||slugify(name),category:$('pCategory').value,sale_mode:$('pSale').value,image_url:$('pImage').value.trim()||null,description:$('pDesc').value.trim()||null,priority,active:$('pActive').value==='true'};
-  let r;
-  if(currentProductId) r=await db.from('products').update(payload).eq('id',currentProductId).select().single();
-  else r=await db.from('products').insert(payload).select().single();
-  if(r.error)return toast(r.error.message,true);
-
-  if(!currentProductId && $('createBasePlan').checked){
-    const planPayload={product_id:r.data.id,slug:'plan-principal',name:'Plan principal',price:0,currency:'PEN',period:'Mensual',stock_mode:'manual',manual_stock_count:0,availability_status:'consult',delivery_mode:'manual',active:true,priority:1,benefits:[],chips:['Nuevo']};
-    const pr=await db.from('product_plans').insert(planPayload);
-    if(pr.error) toast('Producto guardado, pero no se creó plan base: '+pr.error.message,true);
-  }
-
-  toast('Producto guardado');
-  await loadAll();
-  loadProduct(r.data.id);
-}
-
-async function deleteProduct(){if(!currentProductId)return toast('Selecciona producto',true); if(!confirm('¿Eliminar producto, planes y stock relacionado?'))return; const r=await db.from('products').delete().eq('id',currentProductId); if(r.error)return toast(r.error.message,true);toast('Producto eliminado');clearProduct();await loadAll()}
-
-function clearPlan(){currentPlanId=null;['plName','plSlug','plPrice','plImage','plDesc','plBenefits','plChips','plManualStock','bulkText'].forEach(id=>$(id).value='');$('plPeriod').value='Mensual';$('plDeliveryType').value='automatic';$('plAvailability').value='available';$('plPriority').value=100;$('plActive').value='true';syncDeliveryBoxes();renderStockForSelected()}
-function loadPlan(id){const p=plans.find(x=>x.id===id); if(!p)return; currentPlanId=id;$('planProduct').value=p.product_id;updatePlanSelects();$('planSelect').value=id;$('plName').value=p.name||'';$('plSlug').value=p.slug||'';$('plPrice').value=p.price??'';$('plPeriod').value=p.period||'Mensual';$('plImage').value=p.image_url||'';$('plDesc').value=p.description||'';$('plBenefits').value=Array.isArray(p.benefits)?p.benefits.join('\n'):'';$('plChips').value=Array.isArray(p.chips)?p.chips.join(', '):'';$('plDeliveryType').value=deliveryTypeFromPlan(p);$('plManualStock').value=p.manual_stock_count??'';$('plAvailability').value=p.availability_status||'available';$('plPriority').value=p.priority||100;$('plActive').value=String(p.active!==false);syncDeliveryBoxes();renderStockForSelected();switchTab('inventory')}
-function syncDeliveryBoxes(){const type=$('plDeliveryType').value;$('manualBox').classList.toggle('hidden', type!=='manual');$('autoBox').classList.toggle('hidden', type!=='automatic')}
-
-async function savePlan(){
-  const product_id=$('planProduct').value, name=$('plName').value.trim(); if(!product_id||!name)return toast('Falta producto o nombre del plan',true);
-  const isAuto=$('plDeliveryType').value==='automatic';
-  const payload={product_id,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:$('plPeriod').value||'Mensual',image_url:$('plImage').value.trim()||null,description:$('plDesc').value.trim()||null,benefits:lines($('plBenefits').value),chips:csv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true'};
-  const r=currentPlanId?await db.from('product_plans').update(payload).eq('id',currentPlanId).select().single():await db.from('product_plans').insert(payload).select().single();
-  if(r.error)return toast(r.error.message,true);
-  currentPlanId=r.data.id;
-  toast('Plan/cupos guardado');
-  await loadAll();
-  loadPlan(currentPlanId);
-}
-
-async function deletePlan(){if(!currentPlanId)return toast('Selecciona plan',true); if(!confirm('¿Eliminar plan y stock relacionado?'))return; const r=await db.from('product_plans').delete().eq('id',currentPlanId); if(r.error)return toast(r.error.message,true);toast('Plan eliminado');clearPlan();await loadAll()}
-
-function parseBulk(){
-  const linesArr=lines($('bulkText').value);
-  const valid=[], doubt=[];
-  linesArr.forEach(line=>{
-    const parts=line.split('|').map(x=>x.trim()).filter(Boolean);
-    if(parts.length>=2 && /@/.test(parts[0])) valid.push({type:'account',title:parts[0],data:{correo:parts[0],clave:parts[1],nota:parts[2]||''},notes:parts[2]||null});
-    else if(parts.length===1 && parts[0].length>=5) valid.push({type:'code',title:parts[0],data:{codigo:parts[0]},notes:null});
-    else doubt.push(line);
-  });
-  $('validCount').textContent=valid.length+' válidas';
-  $('doubtCount').textContent=doubt.length+' dudosas';
-  $('bulkPreview').innerHTML='<b>Válidas:</b><br>'+valid.slice(0,8).map(v=>esc(v.title)).join('<br>')+(valid.length>8?'<br>...':'')+(doubt.length?'<br><br><b>Dudosas:</b><br>'+doubt.map(esc).join('<br>'):'');
-  return {valid,doubt};
-}
-
-async function bulkStock(){
-  if(!currentPlanId)return toast('Primero selecciona/guarda un plan',true);
-  const {valid}=parseBulk();
-  if(!valid.length)return toast('No hay líneas válidas para guardar',true);
-  const rows=valid.map(v=>({plan_id:currentPlanId,stock_type:v.type,title:v.title,secret_data:v.data,notes:v.notes,status:'available'}));
-  const r=await db.from('stock_items').insert(rows);
-  if(r.error)return toast(r.error.message,true);
-  toast(rows.length+' cuentas/códigos cargados');
-  $('bulkText').value='';
-  await loadAll();
-  loadPlan(currentPlanId);
-}
-
-async function toggleStock(id){const s=stock.find(x=>x.id===id); const ns=s.status==='available'?'blocked':'available'; const r=await db.from('stock_items').update({status:ns}).eq('id',id); if(r.error)return toast(r.error.message,true); await loadAll(); renderStockForSelected()}
-async function deleteStock(id){if(!confirm('¿Eliminar stock definitivo?'))return; const r=await db.from('stock_items').delete().eq('id',id); if(r.error)return toast(r.error.message,true); await loadAll(); renderStockForSelected()}
-
-async function approveOrder(id){
-  if(!confirm('¿Aprobar pago? Si hay stock automático, se entregará. Si no hay, quedará esperando entrega manual.'))return;
-  const r=await db.rpc('admin_approve_payment_and_deliver',{p_order_id:id});
-  if(r.error)return toast(r.error.message,true);
-  const msg=r.data?.[0]?.message||'Pago procesado';
-  toast(msg);
-  await loadAll();
-  const row=r.data?.[0];
-  if(row && ['waiting_manual_delivery','partial'].includes(row.delivery_status)){
-    openManualDelivery(id);
-  }
-}
-
-async function rejectOrder(id){const r=await db.from('orders').update({status:'rejected'}).eq('id',id); if(r.error)return toast(r.error.message,true);toast('Pedido rechazado');await loadAll()}
-function viewDelivery(id){const ds=deliveries.filter(d=>d.order_id===id); alert(ds.length?ds.map(d=>d.delivered_message).join('\n\n---\n\n'):'Sin entrega todavía')}
-function openManualDelivery(id){
-  currentManualOrderId=id;
-  const its=orderItems.filter(i=>i.order_id===id);
-  $('manualPlan').innerHTML=its.map(i=>`<option value="${i.plan_id}">${esc(planName(i.plan_id))} x${i.quantity}</option>`).join('');
-  $('manualUser').value=''; $('manualPass').value=''; $('manualCode').value=''; $('manualNote').value='No cambiar datos. Soporte por WhatsApp.'; $('manualMessage').value='';
-  $('manualModal').classList.add('show');
-  generateManualMessage();
-}
-function generateManualMessage(){
-  const pid=$('manualPlan').value;
-  const p=planById(pid);
-  const user=$('manualUser').value.trim(), pass=$('manualPass').value.trim(), code=$('manualCode').value.trim(), note=$('manualNote').value.trim();
-  const msg=[];
-  msg.push('✅ Pago confirmado');
-  msg.push('Producto: '+(p?.name||planName(pid)));
-  if(user) msg.push('Correo/Usuario: '+user);
-  if(pass) msg.push('Clave: '+pass);
-  if(code) msg.push('Código/Perfil: '+code);
-  if(note) msg.push('Nota: '+note);
-  msg.push('');
-  msg.push('Gracias por tu compra. Si tienes inconvenientes, escríbenos por WhatsApp.');
-  $('manualMessage').value=msg.join('\n');
-}
-async function saveManualDelivery(){
-  if(!currentManualOrderId)return;
-  const data={};
-  if($('manualUser').value.trim())data.correo=$('manualUser').value.trim();
-  if($('manualPass').value.trim())data.clave=$('manualPass').value.trim();
-  if($('manualCode').value.trim())data.codigo=$('manualCode').value.trim();
-  if($('manualNote').value.trim())data.nota=$('manualNote').value.trim();
-  if(!Object.keys(data).length)return toast('Ingresa correo/clave/código para entregar',true);
-  const r=await db.rpc('admin_manual_deliver_order',{p_order_id:currentManualOrderId,p_plan_id:$('manualPlan').value,p_delivery_data:data,p_delivery_message:$('manualMessage').value});
-  if(r.error)return toast(r.error.message,true);
-  toast(r.data?.[0]?.message||'Entrega registrada');
-  $('manualModal').classList.remove('show');
-  await loadAll();
-}
-
-async function saveCoupon(){const code=$('cpCode').value.trim().toUpperCase(); if(!code)return toast('Falta código',true); const r=await db.from('coupons').upsert({code,discount_type:$('cpType').value,discount_value:Number($('cpValue').value||0),max_uses:Number($('cpMax').value||1),min_amount:Number($('cpMin').value||0),active:$('cpActive').value==='true'},{onConflict:'code'}); if(r.error)return toast(r.error.message,true);toast('Cupón guardado');await loadAll()}
-async function toggleCoupon(id){const c=coupons.find(x=>x.id===id); const r=await db.from('coupons').update({active:!c.active}).eq('id',id); if(r.error)return toast(r.error.message,true);await loadAll()}
-
-async function saveSetting(key,value){const r=await db.from('app_settings').upsert({key,value}); if(r.error)return toast(r.error.message,true);toast('Configuración guardada');await loadAll()}
-async function uploadQr(){
-  const file=$('qrFile').files[0]; if(!file)return toast('Selecciona una imagen QR',true);
-  const ext=(file.name.split('.').pop()||'png').toLowerCase();
-  const path='qr-yape-'+Date.now()+'.'+ext;
-  const r=await db.storage.from('innov-payment-assets').upload(path,file,{upsert:true,contentType:file.type});
-  if(r.error)return toast(r.error.message,true);
-  const pub=db.storage.from('innov-payment-assets').getPublicUrl(path).data.publicUrl;
-  $('setQr').value=pub; $('qrPreview').src=pub;
-  toast('QR subido. Ahora guarda pago.');
-}
-
-document.addEventListener('click',e=>{
-  const b=e.target.closest('button'); if(!b)return;
-  if(b.dataset.jump)switchTab(b.dataset.jump);
-  if(b.dataset.editProduct){switchTab('products');loadProduct(b.dataset.editProduct)}
-  if(b.dataset.editPlan)loadPlan(b.dataset.editPlan);
-  if(b.dataset.toggleStock)toggleStock(b.dataset.toggleStock);
-  if(b.dataset.deleteStock)deleteStock(b.dataset.deleteStock);
-  if(b.dataset.approve)approveOrder(b.dataset.approve);
-  if(b.dataset.manual)openManualDelivery(b.dataset.manual);
-  if(b.dataset.reject)rejectOrder(b.dataset.reject);
-  if(b.dataset.viewDelivery)viewDelivery(b.dataset.viewDelivery);
-  if(b.dataset.toggleCoupon)toggleCoupon(b.dataset.toggleCoupon);
-});
-
-document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
-$('btnLogin').onclick=login; $('loginPass').onkeydown=e=>{if(e.key==='Enter')login()};
-$('logout').onclick=logout; $('reload').onclick=loadAll;
-$('productSearch').oninput=renderProducts; $('planSearch').oninput=renderPlans;
-$('newProduct').onclick=clearProduct; $('loadProduct').onclick=()=>loadProduct($('productSelect').value); $('saveProduct').onclick=saveProduct;
-$('hideProduct').onclick=async()=>{if(!currentProductId)return toast('Selecciona producto',true);await db.from('products').update({active:false}).eq('id',currentProductId);await loadAll();loadProduct(currentProductId)};
-$('deleteProduct').onclick=deleteProduct;
-$('planProduct').onchange=()=>{updatePlanSelects();clearPlan()}; $('newPlan').onclick=clearPlan; $('loadPlan').onclick=()=>loadPlan($('planSelect').value); $('savePlan').onclick=savePlan; $('deletePlan').onclick=deletePlan;
-$('hidePlan').onclick=async()=>{if(!currentPlanId)return toast('Selecciona plan',true);await db.from('product_plans').update({active:false}).eq('id',currentPlanId);await loadAll();loadPlan(currentPlanId)};
-$('plDeliveryType').onchange=syncDeliveryBoxes; $('previewBulk').onclick=parseBulk; $('bulkStock').onclick=bulkStock;
-$('bulkText').oninput=()=>{parseBulk()};
-$('closeManual').onclick=()=>$('manualModal').classList.remove('show'); $('autoMessage').onclick=generateManualMessage; $('saveManualDelivery').onclick=saveManualDelivery; ['manualUser','manualPass','manualCode','manualNote','manualPlan'].forEach(id=>$(id).addEventListener('input',generateManualMessage));
-$('saveCoupon').onclick=saveCoupon;
-$('uploadQr').onclick=uploadQr; $('savePayment').onclick=()=>saveSetting('payment_public',{yape_number:$('setYape').value.trim()||'991564053',yape_qr_url:$('setQr').value.trim()||'img/yape-qr.png'});
-$('saveStore').onclick=()=>saveSetting('store_public',{store_name:$('setStore').value,whatsapp_primary:$('setWa1').value,whatsapp_secondary:$('setWa2').value});
+let state={products:[],plans:[],stock:[],orders:[],items:[],proofs:[],deliveries:[],coupons:[],settings:[],summary:[],tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false};
+const esc=s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+const money=n=>n==null?'Consultar':'S/ '+Number(n||0).toFixed(2);
+const slugify=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const arrLines=s=>String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
+const arrCsv=s=>String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
+function toast(msg,type='info'){const d=document.createElement('div');d.className='toast';d.innerHTML=msg;d.style.borderLeftColor=type==='bad'?'var(--danger)':type==='ok'?'var(--success)':'var(--primary)';$('toastContainer').appendChild(d);setTimeout(()=>d.remove(),3600)}
+function showDialog(id){try{$(id).showModal()}catch(e){$(id).setAttribute('open','')}}function closeDialog(id){try{$(id).close()}catch(e){$(id).removeAttribute('open')}}document.addEventListener('click',e=>{const c=e.target.closest('[data-close]');if(c)closeDialog(c.dataset.close)});
+function prod(id){return state.products.find(p=>p.id===id)}function plan(id){return state.plans.find(p=>p.id===id)}function prodName(id){return prod(id)?.name||'Producto'}function planName(id){const p=plan(id);return p?`${prodName(p.product_id)} — ${p.name}`:'Plan'}
+function visibleStock(pl){const s=state.summary.find(x=>x.plan_id===pl.id);return Number(s?.available_stock||0)}function typeLabel(pl){return pl.stock_mode==='controlled'?'Automática':'Manual'}function typeBadge(pl){return pl.stock_mode==='controlled'?'b-ok':'b-warn'}
+async function login(){const r=await db.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPass').value});if(r.error)return toast(r.error.message,'bad');$('auth').classList.add('hidden');$('app').classList.remove('hidden');await loadAll()}async function init(){const r=await db.auth.getSession();if(r.data.session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');await loadAll()}}async function logout(){await db.auth.signOut();location.reload()}
+async function loadAll(){try{await Promise.all([loadProducts(),loadPlans(),loadStock(),loadOrders(),loadCoupons(),loadSettings(),loadSummary()]);fillProductSelects();renderAll();$('syncStatus')&&($('syncStatus').textContent='Última sincronización: '+new Date().toLocaleString());$('connText').textContent='Supabase activo'}catch(e){toast('Error cargando: '+e.message,'bad')}}
+async function loadProducts(){const r=await db.from('products').select('*').order('priority');if(r.error)throw r.error;state.products=r.data||[]}async function loadPlans(){const r=await db.from('product_plans').select('*').order('priority');if(r.error)throw r.error;state.plans=r.data||[]}async function loadStock(){const r=await db.from('stock_items').select('*').order('created_at',{ascending:false}).limit(1000);if(r.error)throw r.error;state.stock=r.data||[]}async function loadOrders(){const [o,i,p,d]=await Promise.all([db.from('orders').select('*').order('created_at',{ascending:false}).limit(300),db.from('order_items').select('*').limit(900),db.from('payment_proofs').select('*').limit(900),db.from('deliveries').select('*').limit(900)]);if(o.error)throw o.error;if(i.error)throw i.error;if(p.error)throw p.error;if(d.error)throw d.error;state.orders=o.data||[];state.items=i.data||[];state.proofs=p.data||[];state.deliveries=d.data||[]}async function loadCoupons(){const r=await db.from('coupons').select('*').order('created_at',{ascending:false});if(r.error){state.coupons=[];return}state.coupons=r.data||[]}async function loadSettings(){const r=await db.from('app_settings').select('*');state.settings=r.error?[]:r.data||[]}async function loadSummary(){const r=await db.rpc('admin_plan_stock_summary');state.summary=r.error?[]:r.data||[]}
+function fillProductSelects(){const opts=state.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');$('plProduct').innerHTML=opts||'<option value="">Sin productos</option>'}
+function renderAll(){renderKPIs();renderSummary();renderProducts();renderPlans();renderOrders();renderCoupons();renderSettings()}
+function renderKPIs(){$('kpiProducts').textContent=state.products.filter(p=>p.active!==false).length;$('kpiStock').textContent=state.summary.reduce((a,b)=>a+(Number(b.available_stock)>=999999?0:Number(b.available_stock||0)),0);$('kpiOrders').textContent=state.orders.filter(o=>['pending_payment','payment_review'].includes(o.status)).length;$('kpiDelivery').textContent=state.orders.filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length}
+function renderSummary(){$('summaryRows').innerHTML=state.summary.map(s=>`<tr><td><b>${esc(s.product_name)}</b></td><td>${esc(s.plan_name)}</td><td><span class="badge ${s.stock_mode==='controlled'?'b-ok':'b-warn'}">${s.stock_mode==='controlled'?'Automática':'Manual'}</span></td><td><span class="badge ${Number(s.available_stock)>0?'b-ok':'b-bad'}">${Number(s.available_stock)>=999999?'Ilimitado':s.available_stock+' cupos'}</span></td><td>${esc(s.availability_status)}</td><td><button class="btn" onclick="editPlan('${s.plan_id}')">Editar</button></td></tr>`).join('')||'<tr><td colspan="6">Sin datos</td></tr>'}
+function renderProducts(){const q=($('productSearch')?.value||'').toLowerCase();let arr=state.products.filter(p=>(p.name+' '+(p.slug||'')).toLowerCase().includes(q));$('productsGrid').innerHTML=arr.map(p=>{const pls=state.plans.filter(x=>x.product_id===p.id);const cups=pls.reduce((a,pl)=>a+(visibleStock(pl)>=999999?0:visibleStock(pl)),0);return `<div class="mini-card"><div class="mini-head"><div><b>${esc(p.name)}</b><div class="help">${esc(p.category||'otros')} · ${esc(p.sale_mode||'retail')}</div></div><img class="thumb" src="${esc(p.image_url||'img/placeholder.jpg')}" onerror="this.src='img/placeholder.jpg'"></div><div style="margin-top:8px"><span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span> <span class="badge">${pls.length} planes</span> <span class="badge b-ok">${cups} cupos</span></div><p class="help">${esc(p.description||'Sin descripción').slice(0,120)}</p><div class="line-actions"><button class="btn btn-primary" onclick="editProduct('${p.id}')">Editar</button><button class="btn" onclick="newPlanFor('${p.id}')">＋ Plan</button><button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="toggleProduct('${p.id}')">${p.active?'Ocultar':'Activar'}</button></div></div>`}).join('')||'<div class="card">No hay productos.</div>'}
+function renderPlans(){const q=($('planSearch')?.value||'').toLowerCase();let arr=state.plans.filter(p=>(p.name+' '+prodName(p.product_id)).toLowerCase().includes(q));if(state.onlyEmpty)arr=arr.filter(p=>visibleStock(p)<=0);$('plansGrid').innerHTML=arr.map(p=>`<div class="mini-card"><div class="mini-head"><div><b>${esc(prodName(p.product_id))}</b><div>${esc(p.name)}</div><div class="help">${money(p.price)} · ${esc(p.period||'')}</div></div><span class="badge ${typeBadge(p)}">${typeLabel(p)}</span></div><div style="margin-top:9px"><span class="badge ${visibleStock(p)>0?'b-ok':'b-bad'}">${visibleStock(p)} cupos</span> <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span> <span class="badge">${esc(p.availability_status||'available')}</span></div><div class="line-actions"><button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar cupos</button><button class="btn" onclick="openAddStock('${p.id}')">Cargar cuentas</button><button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button></div></div>`).join('')||'<div class="card">Sin planes.</div>'}
+function renderOrders(){const q=($('orderSearch')?.value||'').toLowerCase();let arr=state.orders.filter(o=>(`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''}`).toLowerCase().includes(q));if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(o.status));if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status));$('ordersGrid').innerHTML=arr.map(o=>{const pr=state.proofs.find(p=>p.order_id===o.id);const items=state.items.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join('<br>');const del=state.deliveries.filter(d=>d.order_id===o.id).length;return `<div class="mini-card"><div class="mini-head"><div><b>${esc(o.order_code)}</b><div class="help">${new Date(o.created_at).toLocaleString()}</div></div><span class="badge ${o.delivery_status==='delivered'?'b-ok':o.delivery_status==='waiting_manual_delivery'?'b-warn':'b-bad'}">${esc(o.delivery_status||'pending')}</span></div><p><b>${esc(o.customer_name||'')}</b><br><span class="help">${esc(o.customer_whatsapp||'')}</span></p><p>${items||'Sin items'}</p><p><b>${money(o.total)}</b> · Op: <span class="mono">${esc(pr?.operation_code||'pendiente')}</span> · Entregas: ${del}</p><div class="line-actions"><button class="btn btn-success" onclick="approveOrder('${o.id}')">Aprobar pago</button><button class="btn btn-warning" onclick="openManualDelivery('${o.id}')">Entregar manual</button><button class="btn" onclick="viewDelivery('${o.id}')">Ver entrega</button><button class="btn btn-danger" onclick="rejectOrder('${o.id}')">Rechazar</button></div></div>`}).join('')||'<div class="card">Sin pedidos.</div>'}
+function renderCoupons(){$('couponsList').innerHTML=state.coupons.map(c=>`<div class="mini-card"><b>${esc(c.code)}</b><p>${c.discount_type==='percent'?c.discount_value+'%':money(c.discount_value)} · ${c.used_count}/${c.max_uses} usos</p><button class="btn ${c.active?'btn-warning':'btn-success'}" onclick="toggleCoupon('${c.id}')">${c.active?'Desactivar':'Activar'}</button></div>`).join('')||'<p class="help">Sin cupones.</p>'}
+function renderSettings(){const pay=state.settings.find(s=>s.key==='payment_public')?.value||{};$('setYape').value=pay.yape_number||'991564053';$('setQr').value=pay.yape_qr_url||'img/yape-qr.png';$('qrPreview').src=$('setQr').value||'img/yape-qr.png'}
+function switchTab(tab){state.tab=tab;document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));$('tab-'+tab).classList.add('active');document.querySelectorAll('[data-tab]').forEach(b=>{const on=b.dataset.tab===tab;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false')})}
+function blankProduct(){['pId','pName','pSlug','pImage','pDesc'].forEach(id=>$(id).value='');$('pCategory').value='otros';$('pSale').value='retail';$('pPriority').value=100;$('pActive').value='true';$('pBasePlan').checked=true;$('productDlgTitle').textContent='Nuevo producto';showDialog('dlgProduct')}function editProduct(id){const p=prod(id);if(!p)return;$('pId').value=p.id;$('pName').value=p.name||'';$('pSlug').value=p.slug||'';$('pCategory').value=p.category||'otros';$('pSale').value=p.sale_mode||'retail';$('pImage').value=p.image_url||'';$('pDesc').value=p.description||'';$('pPriority').value=p.priority||100;$('pActive').value=String(p.active!==false);$('pBasePlan').checked=false;$('productDlgTitle').textContent='Editar producto';showDialog('dlgProduct')}
+async function saveProduct(ev){ev.preventDefault();const id=$('pId').value;const name=$('pName').value.trim();if(!name)return toast('Falta nombre','bad');const payload={name,slug:$('pSlug').value.trim()||slugify(name),category:$('pCategory').value,sale_mode:$('pSale').value,image_url:$('pImage').value.trim()||null,description:$('pDesc').value.trim()||null,priority:Number($('pPriority').value||100),active:$('pActive').value==='true'};let r=id?await db.from('products').update(payload).eq('id',id).select().single():await db.from('products').insert(payload).select().single();if(r.error)return toast(r.error.message,'bad');if(!id&&$('pBasePlan').checked){await db.from('product_plans').insert({product_id:r.data.id,name:'Plan principal',slug:'plan-principal',price:0,currency:'PEN',period:'Mensual',stock_mode:'manual',manual_stock_count:0,availability_status:'consult',delivery_mode:'manual',active:true,priority:1,benefits:[],chips:['Nuevo']})}closeDialog('dlgProduct');toast('Producto guardado','ok');await loadAll();switchTab('products')}
+async function toggleProduct(id){const p=prod(id);const r=await db.from('products').update({active:!p.active}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}async function deleteProduct(){const id=$('pId').value;if(!id)return;if(!confirm('¿Eliminar producto y sus planes?'))return;const r=await db.from('products').delete().eq('id',id);if(r.error)return toast(r.error.message,'bad');closeDialog('dlgProduct');await loadAll()}
+function blankPlan(pid=''){fillProductSelects();$('plId').value='';$('plProduct').value=pid||state.products[0]?.id||'';['plName','plSlug','plPrice','plImage','plDesc','plBenefits','plChips','plManualStock','bulkText'].forEach(id=>$(id).value='');$('plPeriod').value='Mensual';$('plDeliveryType').value='automatic';$('plAvailability').value='available';$('plPriority').value=100;$('plActive').value='true';syncDeliveryBoxes();$('planDlgTitle').textContent='Nuevo plan';showDialog('dlgPlan')}function newPlanFor(pid){blankPlan(pid)}function editPlan(id){const p=plan(id);if(!p)return;fillProductSelects();$('plId').value=p.id;$('plProduct').value=p.product_id;$('plName').value=p.name||'';$('plSlug').value=p.slug||'';$('plPrice').value=p.price??'';$('plPeriod').value=p.period||'Mensual';$('plImage').value=p.image_url||'';$('plDesc').value=p.description||'';$('plBenefits').value=Array.isArray(p.benefits)?p.benefits.join('\n'):'';$('plChips').value=Array.isArray(p.chips)?p.chips.join(', '):'';$('plDeliveryType').value=p.stock_mode==='controlled'?'automatic':'manual';$('plManualStock').value=p.manual_stock_count??'';$('plAvailability').value=p.availability_status||'available';$('plPriority').value=p.priority||100;$('plActive').value=String(p.active!==false);syncDeliveryBoxes();$('planDlgTitle').textContent='Editar plan / cupos';showDialog('dlgPlan')}function openAddStock(id){editPlan(id);$('bulkText').focus()}
+function syncDeliveryBoxes(){const auto=$('plDeliveryType').value==='automatic';$('autoBox').classList.toggle('hidden',!auto);$('manualBox').classList.toggle('hidden',auto)}async function savePlan(ev){ev.preventDefault();const id=$('plId').value;const isAuto=$('plDeliveryType').value==='automatic';const name=$('plName').value.trim();if(!name)return toast('Falta nombre del plan','bad');const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:$('plPeriod').value||'Mensual',image_url:$('plImage').value.trim()||null,description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true'};let r=id?await db.from('product_plans').update(payload).eq('id',id).select().single():await db.from('product_plans').insert(payload).select().single();if(r.error)return toast(r.error.message,'bad');$('plId').value=r.data.id;await saveBulkIfAny(r.data.id);closeDialog('dlgPlan');toast('Plan/cupos guardado','ok');await loadAll();switchTab('inventory')}
+async function togglePlan(id){const p=plan(id);const r=await db.from('product_plans').update({active:!p.active}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}async function deletePlan(){const id=$('plId').value;if(!id)return;if(!confirm('¿Eliminar plan y stock relacionado?'))return;const r=await db.from('product_plans').delete().eq('id',id);if(r.error)return toast(r.error.message,'bad');closeDialog('dlgPlan');await loadAll()}
+function parseBulk(){const valid=[],doubt=[];arrLines($('bulkText').value).forEach(line=>{const parts=line.split('|').map(x=>x.trim()).filter(Boolean);if(parts.length>=2&&/@/.test(parts[0]))valid.push({stock_type:'account',title:parts[0],secret_data:{correo:parts[0],clave:parts[1],nota:parts[2]||''},notes:parts[2]||null});else if(parts.length===1&&parts[0].length>=5)valid.push({stock_type:'code',title:parts[0],secret_data:{codigo:parts[0]},notes:null});else doubt.push(line)});$('validCount').textContent=valid.length+' válidas';$('doubtCount').textContent=doubt.length+' dudosas';$('bulkPreview').innerHTML=valid.slice(0,10).map(v=>`<div class="preview-item"><b>${esc(v.title)}</b><div class="help">${esc(v.stock_type)}</div></div>`).join('')+(doubt.length?'<div class="preview-item"><b>Dudosas</b><br>'+doubt.map(esc).join('<br>')+'</div>':'');return{valid,doubt}}
+async function saveBulkIfAny(planId){const txt=$('bulkText').value.trim();if(!txt)return;const {valid}=parseBulk();if(!valid.length)return;const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));const r=await db.from('stock_items').insert(rows);if(r.error)throw r.error;$('bulkText').value=''}
+async function approveOrder(id){if(!confirm('¿Aprobar pago? Si no hay cuenta real, quedará para entrega manual.'))return;const r=await db.rpc('admin_approve_payment_and_deliver',{p_order_id:id});if(r.error)return toast(r.error.message,'bad');toast(r.data?.[0]?.message||'Pago aprobado','ok');await loadAll();if(['waiting_manual_delivery','partial'].includes(r.data?.[0]?.delivery_status))openManualDelivery(id)}async function rejectOrder(id){const r=await db.from('orders').update({status:'rejected'}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}function viewDelivery(id){const ds=state.deliveries.filter(d=>d.order_id===id);alert(ds.length?ds.map(d=>d.delivered_message).join('\n\n---\n\n'):'Sin entrega todavía')}
+function openManualDelivery(id){$('manualOrderId').value=id;const its=state.items.filter(i=>i.order_id===id);$('manualPlan').innerHTML=its.map(i=>`<option value="${i.plan_id}">${esc(planName(i.plan_id))} x${i.quantity}</option>`).join('');$('manualUser').value='';$('manualPass').value='';$('manualCode').value='';$('manualNote').value='No cambiar datos. Soporte por WhatsApp.';generateManualMsg();showDialog('dlgManual')}function generateManualMsg(){const p=plan($('manualPlan').value);const u=$('manualUser').value.trim(),pa=$('manualPass').value.trim(),c=$('manualCode').value.trim(),n=$('manualNote').value.trim();const msg=['✅ Pago confirmado','Producto: '+(p?.name||'Producto')];if(u)msg.push('Correo/Usuario: '+u);if(pa)msg.push('Clave: '+pa);if(c)msg.push('Código/Perfil: '+c);if(n)msg.push('Nota: '+n);msg.push('','Gracias por tu compra. Soporte por WhatsApp.');$('manualMessage').value=msg.join('\n')}async function saveManualDelivery(){const data={};if($('manualUser').value.trim())data.correo=$('manualUser').value.trim();if($('manualPass').value.trim())data.clave=$('manualPass').value.trim();if($('manualCode').value.trim())data.codigo=$('manualCode').value.trim();if($('manualNote').value.trim())data.nota=$('manualNote').value.trim();if(!Object.keys(data).length)return toast('Ingresa datos reales para entregar','bad');const r=await db.rpc('admin_manual_deliver_order',{p_order_id:$('manualOrderId').value,p_plan_id:$('manualPlan').value,p_delivery_data:data,p_delivery_message:$('manualMessage').value});if(r.error)return toast(r.error.message,'bad');closeDialog('dlgManual');toast('Entrega registrada','ok');await loadAll()}
+async function saveCoupon(){const code=$('cpCode').value.trim().toUpperCase();if(!code)return toast('Falta código','bad');const r=await db.from('coupons').upsert({code,discount_type:$('cpType').value,discount_value:Number($('cpValue').value||0),max_uses:Number($('cpMax').value||1),min_amount:Number($('cpMin').value||0),active:true},{onConflict:'code'});if(r.error)return toast(r.error.message,'bad');toast('Cupón guardado','ok');await loadAll()}async function toggleCoupon(id){const c=state.coupons.find(x=>x.id===id);const r=await db.from('coupons').update({active:!c.active}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}
+async function uploadQr(){const file=$('qrFile').files[0];if(!file)return toast('Selecciona imagen','bad');const path='qr-yape-'+Date.now()+'.'+(file.name.split('.').pop()||'png');const r=await db.storage.from('innov-payment-assets').upload(path,file,{upsert:true,contentType:file.type});if(r.error)return toast(r.error.message,'bad');const url=db.storage.from('innov-payment-assets').getPublicUrl(path).data.publicUrl;$('setQr').value=url;$('qrPreview').src=url;toast('QR subido. Guarda configuración.','ok')}async function savePayment(){const r=await db.from('app_settings').upsert({key:'payment_public',value:{yape_number:$('setYape').value.trim()||'991564053',yape_qr_url:$('setQr').value.trim()||'img/yape-qr.png'}});if(r.error)return toast(r.error.message,'bad');toast('Pago guardado','ok');await loadAll()}
+function exportBackup(){const data={...state,exported_at:new Date().toISOString()};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='innov-ia-backup-admin.json';a.click()}
+$('btnLogin').onclick=login;$('loginPass').onkeydown=e=>{if(e.key==='Enter')login()};$('btnLogout').onclick=logout;$('btnTheme').onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark'};$('btnLoginHelp').onclick=()=>toast('Primero crea usuario en Supabase Authentication y agrégalo a admin_users.','info');document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));['btnReload1','btnReload2','btnReload3','btnReload4','btnSyncAll'].forEach(id=>$(id).onclick=loadAll);$('btnNewProduct').onclick=blankProduct;$('btnNewPlan').onclick=()=>blankPlan();$('productForm').onsubmit=saveProduct;$('btnDeleteProduct').onclick=deleteProduct;$('planForm').onsubmit=savePlan;$('plDeliveryType').onchange=syncDeliveryBoxes;$('btnDeletePlan').onclick=deletePlan;$('btnPreviewBulk').onclick=parseBulk;$('bulkText').oninput=parseBulk;$('btnSaveBulk').onclick=async()=>{try{const id=$('plId').value;if(!id)return toast('Guarda o selecciona un plan primero','bad');await saveBulkIfAny(id);toast('Stock cargado','ok');await loadAll()}catch(e){toast(e.message,'bad')}};$('productSearch').oninput=renderProducts;$('planSearch').oninput=renderPlans;$('orderSearch').oninput=renderOrders;$('btnOnlyEmpty').onclick=()=>{state.onlyEmpty=!state.onlyEmpty;renderPlans()};$('btnOnlyReview').onclick=()=>{state.onlyReview=!state.onlyReview;renderOrders()};$('btnOnlyManual').onclick=()=>{state.onlyManual=!state.onlyManual;renderOrders()};$('btnGenerateManualMsg').onclick=generateManualMsg;['manualUser','manualPass','manualCode','manualNote','manualPlan'].forEach(id=>$(id).addEventListener('input',generateManualMsg));$('btnSaveManualDelivery').onclick=saveManualDelivery;$('btnSaveCoupon').onclick=saveCoupon;$('btnUploadQr').onclick=uploadQr;$('btnSavePayment').onclick=savePayment;$('btnExportBackup').onclick=exportBackup;$('btnExportProducts').onclick=exportBackup;
 init();
 </script>
+
 </body>
 </html>
