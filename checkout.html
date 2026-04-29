@@ -30,7 +30,15 @@
 #orderChatBox.hidden{display:none!important}
 .chat-header-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .btn-whatsapp{background:#22c55e;color:#fff;border-color:#22c55e}
-@media(max-width:720px){.chat-input-row{grid-template-columns:1fr}.special-box{padding:8px}#orderChatBox{right:8px;left:8px;bottom:8px;width:auto}.chat-list{max-height:190px}}.fab{position:fixed;right:18px;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:#25d366;color:#fff;font-size:28px;box-shadow:0 10px 28px rgba(0,0,0,.25);z-index:30}.fab.one{bottom:86px}.fab.two{bottom:18px}.alert-wait{border:1px solid rgba(245,158,11,.35);background:#fff8e5;color:#7b5700;border-radius:12px;padding:8px;font-size:12.5px}.alert-ok{border:1px solid rgba(22,163,74,.25);background:#f0fdf4;color:#166534;border-radius:12px;padding:8px;font-size:12.5px}.step-title{font-size:13px;color:var(--muted)}
+.order-management{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.activation-box{border:2px dashed rgba(13,110,253,.25);background:#f7fbff;border-radius:14px;padding:10px;margin:12px 0}
+.activation-box h4{margin:0 0 6px;font-size:14px}
+.activation-instructions{white-space:pre-wrap;background:#fff;border:1px solid #dce7f8;border-radius:12px;padding:10px;margin:8px 0;font-size:12.5px}
+.activation-grid{display:grid;gap:9px}
+.activation-grid textarea{min-height:150px}
+.payment-extra-note{font-size:12px;color:#7b5700;margin-top:7px;background:#fff8e1;border:1px solid #facc15;border-radius:10px;padding:7px}
+.qr-img{display:block}
+@media(max-width:720px){.chat-input-row{grid-template-columns:1fr}.special-box{padding:8px}#orderChatBox{right:8px;left:8px;bottom:8px;width:auto}.chat-list{max-height:190px}}.alert-wait{border:1px solid rgba(245,158,11,.35);background:#fff8e5;color:#7b5700;border-radius:12px;padding:8px;font-size:12.5px}.alert-ok{border:1px solid rgba(22,163,74,.25);background:#f0fdf4;color:#166534;border-radius:12px;padding:8px;font-size:12.5px}.step-title{font-size:13px;color:var(--muted)}
     @media(max-width:1000px){.head .container{grid-template-columns:1fr;gap:10px}.support{text-align:left}.navlinks{gap:14px}.layout{grid-template-columns:1fr}.payment-box{grid-template-columns:1fr;text-align:center}.qr-img{margin:auto}.lookup-fields{grid-template-columns:1fr}.operation-row{grid-template-columns:1fr}.agent-row{grid-template-columns:1fr}.compact-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:620px){.topbar .container{display:none}.head .container{padding:11px 0}.logo{font-size:22px}.navlinks a:nth-child(n+3){display:none}.cartpill{font-size:12px}.checkout-wrap{padding-top:10px}.steps{padding:.45rem .55rem;gap:.35rem}.step-pill{font-size:11.5px;padding:.2rem .5rem}.compact-grid{grid-template-columns:1fr}.card-body{padding:.62rem}.field input,.field select{padding:7px 9px}.thin-note{width:100%;border-radius:10px}.btn-mid{width:100%;min-width:0}.fab{width:52px;height:52px}.summary-list{max-height:220px}}
   </style>
@@ -73,14 +81,19 @@
 
             <div id="generatedView" class="order-generated hidden">
               <div class="order-id-box">⚠️ Guardar ID de tu pedido: <strong id="orderCodeText">---</strong></div>
+              <div class="order-management">
+                <button class="btn btn-small" id="btnBackToData" type="button"><i class="fa fa-arrow-left"></i> Editar datos</button>
+                <button class="btn btn-small btn-danger" id="btnCancelOrder" type="button"><i class="fa fa-ban"></i> Cancelar pedido</button>
+                <a class="btn btn-small" href="shop.html"><i class="fa fa-shopping-cart"></i> Hacer otra compra</a>
+              </div>
               <div class="payment-box">
-                <img id="qrImage" class="qr-img" src="img/yape-qr.png" alt="QR Yape / Plin" onerror="this.style.display='none'">
+                <img id="qrImage" class="qr-img" src="img/yape-qr.png" alt="QR Yape / Plin" onerror="this.style.display='none'; document.getElementById('qrMissingNote')?.classList.remove('hidden')">
                 <div>
-                  <div class="mini-muted">Paga por Yape / Plin</div>
+                  <div class="mini-muted">Paga por Yape / Plin</div><div id="qrMissingNote" class="mini-muted hidden">QR no disponible. Usa el número mostrado.</div>
                   <div class="yape-number" id="paymentNumber">991564053</div>
                   <div class="mini-muted">Monto exacto:</div>
                   <div class="yape-number" id="orderTotalText">S/ 0.00</div>
-                  <div class="alert-wait" style="margin-top:8px">Después de pagar, coloca el código de operación y envía a revisión.</div>
+                  <div class="alert-wait" style="margin-top:8px">Después de pagar, coloca el código de operación y envía a revisión.</div><div class="payment-extra-note">Importante: al pagar por Yape/Plin, no escribas nada en notas o descripción del pago.</div>
                 </div>
               </div>
               <div class="operation-row">
@@ -88,6 +101,14 @@
                 <button class="btn btn-success" id="btnSendReview" style="align-self:end"><i class="fa fa-paper-plane"></i> Enviar pago a revisión</button>
               </div>
               <div class="field"><label>Nota opcional</label><textarea id="customerNote" rows="2" placeholder="Pagué desde mi cuenta..."></textarea></div>
+              <div id="activationBox" class="activation-box hidden">
+                <h4>📌 Datos de activación requeridos</h4>
+                <div class="mini-muted">Completa estos datos después de pagar. El administrador los verá en tu pedido.</div>
+                <div id="activationInstructions" class="activation-instructions hidden"></div>
+                <div id="activationFields" class="activation-grid"></div>
+                <button class="btn btn-primary btn-small" id="btnSendActivationData" type="button" style="margin-top:8px"><i class="fa fa-paper-plane"></i> Enviar datos de activación</button>
+                <div id="activationResult" style="margin-top:8px"></div>
+              </div>
               <div id="statusBox" class="status-box">
                 <div class="mini-muted">Cuando envíes tu pago, verificaremos automáticamente cada 2 segundos si tu entrega ya está lista.</div>
               </div>
@@ -95,7 +116,6 @@
                 <b>💬 Chat del pedido</b>
                 <div class="mini-muted">Puedes escribir al administrador sobre este pedido. Se actualiza automáticamente.</div>
                 <div class="chat-header-actions">
-                  <a id="chatWhatsappSupport" class="btn btn-small btn-whatsapp" target="_blank" href="https://wa.me/51991564053"><i class="fab fa-whatsapp"></i> Soporte WhatsApp</a>
                   <button id="btnMinimizeChat" class="btn btn-small" type="button">Minimizar</button>
                 </div>
                 <div id="orderChatList" class="chat-list" style="margin-top:8px"></div>
@@ -152,9 +172,6 @@
       </aside>
     </div>
   </main>
-
-  <a class="fab one" href="https://wa.me/51930264550" target="_blank"><i class="fab fa-whatsapp"></i></a>
-  <a class="fab two" href="https://wa.me/51991564053" target="_blank"><i class="fab fa-whatsapp"></i></a>
   <div class="toast" id="toast"></div>
 
   <script>
@@ -163,7 +180,7 @@
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const CART_KEY = 'innov_cart_v1';
-    const CURRENT_ORDER_KEY = 'innov_current_checkout_order_v3';
+    const CURRENT_ORDER_KEY = 'innov_current_checkout_order_v5';
     const APPLIED_COUPON_KEY = 'innov_applied_coupon_v1';
     const POLL_MS = 2000;
     const $ = id => document.getElementById(id);
@@ -192,6 +209,7 @@
     function toast(msg){ const el=$('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2600); }
     function setStep(n){ document.querySelectorAll('[data-step]').forEach(x => x.classList.toggle('active', Number(x.dataset.step) === Number(n))); }
     function subtotal(){ return cart.reduce((a,b)=>a + Number(b.precio || 0) * Number(b.qty || 1), 0); }
+    function cartSignature(){ return JSON.stringify(cartDbItems().map(x=>({p:x.plan_id,q:x.qty})).sort((a,b)=>String(a.p).localeCompare(String(b.p)))); }
     function cartDbItems(){ return cart.map(i => ({ plan_id: i.plan_id || i.planId || i.supabase_plan_id || null, qty: Number(i.qty || 1) })).filter(i => i.plan_id); }
 
     function uniqueBy(arr, keyFn){
@@ -254,6 +272,9 @@
             required: req.required !== false,
             placeholder: req.placeholder || '',
             help: req.help || '',
+            domain: req.domain || '',
+            min_length: req.min_length || 0,
+            after_payment: req.after_payment !== false,
             title: plan?.metadata?.requirement_title || product?.metadata?.requirement_title || 'Datos requeridos'
           });
         });
@@ -271,52 +292,81 @@
       box.classList.toggle('hidden', !hasData);
       if(!hasData){ fields.innerHTML = ''; return; }
       const groupedTitle = [...new Set([...specialRequirements.map(r => r.title), ...specialNotices.map(n => n.title)].filter(Boolean))].join(' / ') || 'Datos requeridos';
-      $('specialRequirementsHelp').textContent = groupedTitle + '. Esta información llegará al administrador junto con tu pedido.';
+      $('specialRequirementsHelp').textContent = groupedTitle + '. Si el producto requiere activación, los datos se pedirán después de generar el pedido y enviar el pago a revisión.';
       const noticesHtml = uniqueBy(specialNotices, x => x.plan_id + '::' + x.text).map(n => `
         <div class="special-notice">
           <strong>ℹ️ ${esc(n.product_name)} — ${esc(n.plan_name)}</strong>
           <div>${esc(n.text)}</div>
         </div>`).join('');
-      const fieldsHtml = specialRequirements.map((r, idx) => {
-        const id = 'req_' + idx;
-        const required = r.required ? 'data-required="1"' : '';
-        const label = `${esc(r.label)} <span class="mini-muted">(${esc(r.product_name)} — ${esc(r.plan_name)})</span>${r.required?' *':''}`;
-        const common = `id="${id}" class="special-input" data-key="${esc(r.key)}" data-plan="${esc(r.plan_id)}" data-label="${esc(r.label)}" data-product="${esc(r.product_name)}" data-plan-name="${esc(r.plan_name)}" ${required} placeholder="${esc(r.placeholder)}"`;
-        const input = r.type === 'textarea'
-          ? `<textarea ${common} rows="3"></textarea>`
-          : `<input ${common} type="${r.type === 'email' ? 'email' : 'text'}">`;
-        return `<div class="special-item field"><label>${label}</label>${input}${r.help?`<small>${esc(r.help)}</small>`:''}</div>`;
-      }).join('');
-      fields.innerHTML = noticesHtml + fieldsHtml;
+      const reqHint = specialRequirements.length ? `<div class="special-item"><b>📩 Datos posteriores al pago</b><br><span class="mini-muted">Este producto solicitará datos de activación cuando envíes tu pago a revisión.</span></div>` : '';
+      fields.innerHTML = noticesHtml + reqHint;
     }
 
     function collectSpecialInputs(){
       const inputs = [];
-      let summaryLines = specialNotices.length ? ['AVISOS / INSTRUCCIONES DEL SERVICIO:', ...uniqueBy(specialNotices, x => x.plan_id + '::' + x.text).map(n => `- ${n.product_name} / ${n.plan_name}: ${n.text}`), 'DATOS DEL CLIENTE:'] : [];
-      let ok = true;
-      document.querySelectorAll('.special-input').forEach(el => {
-        const value = el.value.trim();
-        const required = el.dataset.required === '1';
-        if(required && !value){
-          ok = false;
-          el.style.borderColor = '#dc2626';
-        }else{
-          el.style.borderColor = '#cfd5df';
-        }
+      const summaryLines = specialNotices.length ? ['AVISOS / INSTRUCCIONES DEL SERVICIO:', ...uniqueBy(specialNotices, x => x.plan_id + '::' + x.text).map(n => `- ${n.product_name} / ${n.plan_name}: ${n.text}`)] : [];
+      return { ok:true, data:{ items:inputs }, summary:summaryLines.join('\n') };
+    }
+
+    function renderActivationBox(show=false){
+      const box=$('activationBox'), fields=$('activationFields'), instructions=$('activationInstructions');
+      if(!box||!fields||!instructions)return;
+      const hasReq=specialRequirements.length>0;
+      const shouldShow=hasReq && (show || currentOrder?._paymentSent || currentOrder?._activationSent);
+      box.classList.toggle('hidden', !shouldShow);
+      if(!hasReq){ fields.innerHTML=''; instructions.classList.add('hidden'); return; }
+      const allInstructions = uniqueBy(specialNotices, x=>x.plan_id+'::'+x.text).map(n=>`${n.product_name} — ${n.plan_name}\n${n.text}`).join('\n\n');
+      instructions.textContent=allInstructions;
+      instructions.classList.toggle('hidden', !allInstructions);
+      fields.innerHTML = specialRequirements.map((r,idx)=>{
+        const id='act_'+idx;
+        const common=`id="${id}" class="activation-input" data-key="${esc(r.key)}" data-plan="${esc(r.plan_id)}" data-label="${esc(r.label)}" data-product="${esc(r.product_name)}" data-plan-name="${esc(r.plan_name)}" data-required="${r.required?'1':'0'}" data-domain="${esc(r.domain||'')}" data-min-length="${Number(r.min_length||0)}" placeholder="${esc(r.placeholder)}"`;
+        const label=`${esc(r.label)} <span class="mini-muted">(${esc(r.product_name)} — ${esc(r.plan_name)})</span>${r.required?' *':''}`;
+        const input=r.type==='textarea'
+          ? `<textarea ${common} rows="${r.key==='chatgpt_session_text'?8:4}"></textarea>`
+          : `<input ${common} type="${r.type==='email'?'email':'text'}">`;
+        return `<div class="field"><label>${label}</label>${input}${r.help?`<small>${esc(r.help)}</small>`:''}</div>`;
+      }).join('');
+      if(currentOrder?._activationSent){
+        $('activationResult').innerHTML='<div class="alert-ok">✅ Datos enviados. La confirmación llegará a tu WhatsApp. Tiempo máximo según producto: ChatGPT hasta 12 horas; Gemini/Autodesk/Canva hasta 1 hora y puede ser antes.</div>';
+      }
+    }
+
+    function collectActivationInputs(){
+      const inputs=[]; let ok=true; const summary=[];
+      document.querySelectorAll('.activation-input').forEach(el=>{
+        const value=el.value.trim();
+        const req=el.dataset.required==='1';
+        const domain=(el.dataset.domain||'').toLowerCase();
+        const minLen=Number(el.dataset.minLength||0);
+        el.style.borderColor='#cfd5df';
+        if(req && !value){ ok=false; el.style.borderColor='#dc2626'; }
+        if(value && el.type==='email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)){ ok=false; el.style.borderColor='#dc2626'; toast('Revisa el correo ingresado.'); }
+        if(value && domain && !value.toLowerCase().endsWith('@'+domain)){ ok=false; el.style.borderColor='#dc2626'; toast('Este producto solo acepta correo @'+domain); }
+        if(value && minLen && value.length<minLen){ ok=false; el.style.borderColor='#dc2626'; toast('El texto enviado parece incompleto. Copia todo el texto solicitado.'); }
         if(value){
-          const item = {
-            plan_id: el.dataset.plan,
-            product_name: el.dataset.product,
-            plan_name: el.dataset.planName,
-            key: el.dataset.key,
-            label: el.dataset.label,
-            value
-          };
+          const item={plan_id:el.dataset.plan,product_name:el.dataset.product,plan_name:el.dataset.planName,key:el.dataset.key,label:el.dataset.label,value};
           inputs.push(item);
-          summaryLines.push(`- ${item.product_name} / ${item.plan_name} / ${item.label}: ${value}`);
+          summary.push(`- ${item.product_name} / ${item.plan_name} / ${item.label}: ${value}`);
         }
       });
-      return { ok, data:{ items:inputs }, summary:summaryLines.join('\n') };
+      if(!inputs.length && specialRequirements.length){ ok=false; toast('Completa los datos de activación.'); }
+      return {ok,data:{items:inputs},summary:summary.join('\n')};
+    }
+
+    async function sendActivationData(){
+      if(!currentOrder?.order_code){toast('Primero genera el pedido.');return}
+      const phone=($('phone').value.trim()||currentOrder._phone||$('lookupPhone').value.trim());
+      if(!phone){toast('Falta WhatsApp para validar el pedido.');return}
+      const payload=collectActivationInputs();
+      if(!payload.ok)return;
+      const btn=$('btnSendActivationData'); btn.disabled=true; btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Enviando...';
+      const r=await db.rpc('update_order_customer_inputs_public',{p_order_code:currentOrder.order_code,p_customer_whatsapp:phone,p_customer_inputs:payload.data,p_requirement_summary:payload.summary});
+      btn.disabled=false; btn.innerHTML='<i class="fa fa-paper-plane"></i> Enviar datos de activación';
+      if(r.error){toast(r.error.message);return}
+      currentOrder._activationSent=true; persistOrder();
+      $('activationResult').innerHTML='<div class="alert-ok">✅ Datos enviados. La confirmación llegará a tu WhatsApp. El tiempo máximo es: ChatGPT hasta 12 horas; Gemini/Autodesk/Canva hasta 1 hora, puede validarse antes.</div>';
+      await checkStatus({target:'statusBox',silent:true});
     }
 
     function renderChat(messages){
@@ -324,8 +374,6 @@
       const list = $('orderChatList');
       if(!box || !list) return;
       box.classList.toggle('hidden', !currentOrder?.order_code || chatMinimized);
-      const wa = $('chatWhatsappSupport');
-      if(wa && currentOrder?.order_code){ wa.href = 'https://wa.me/51991564053?text=' + encodeURIComponent('Hola, necesito soporte con mi pedido ' + currentOrder.order_code); }
       const arr = Array.isArray(messages) ? messages : [];
       list.innerHTML = arr.length ? arr.map(m => `
         <div class="chat-msg ${esc(m.role||'system')}">
@@ -340,7 +388,7 @@
       if(!currentOrder?.order_code){ toast('Primero genera el pedido.'); return; }
       const msg = $('orderChatInput').value.trim();
       if(!msg){ toast('Escribe un mensaje.'); return; }
-      const phone = $('phone').value.trim() || $('lookupPhone').value.trim();
+      const phone = $('phone').value.trim() || currentOrder?._phone || $('lookupPhone').value.trim();
       const r = await db.rpc('public_send_order_message', {
         p_order_code: currentOrder.order_code,
         p_customer_whatsapp: phone,
@@ -356,7 +404,7 @@
       const r = await db.from('app_settings').select('*').eq('key','payment_public').maybeSingle();
       if(!r.error && r.data?.value){ settings = {...settings, ...r.data.value}; }
       $('paymentNumber').textContent = settings.yape_number || '991564053';
-      $('qrImage').src = settings.yape_qr_url || 'img/yape-qr.png';
+      if($('qrImage')){ $('qrImage').style.display='block'; $('qrImage').src = settings.yape_qr_url || 'img/yape-qr.png'; }
     }
 
     async function detectDeliveryMode(){
@@ -430,8 +478,42 @@
       renderCart(); toast('Cupón aplicado.');
     }
 
-    function persistOrder(){ if(currentOrder) sessionStorage.setItem(CURRENT_ORDER_KEY, JSON.stringify(currentOrder)); }
-    function restoreOrder(){ currentOrder = safeParse(sessionStorage.getItem(CURRENT_ORDER_KEY), null); if(currentOrder?.order_code) showGeneratedView(currentOrder, false); }
+    function persistOrder(){
+      if(currentOrder){
+        currentOrder._phone = $('phone').value.trim() || currentOrder._phone || $('lookupPhone').value.trim();
+        currentOrder._cartSig = cartSignature();
+        sessionStorage.setItem(CURRENT_ORDER_KEY, JSON.stringify(currentOrder));
+      }
+    }
+    function clearCurrentOrderLocal(){
+      currentOrder=null; sessionStorage.removeItem(CURRENT_ORDER_KEY); stopPolling();
+    }
+    function showFormView(){
+      clearCurrentOrderLocal();
+      $('generatedView').classList.add('hidden');
+      $('formView').classList.remove('hidden');
+      $('mainCardTitle').textContent='🧾 Datos para generar pedido';
+      setStep(2);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function restoreOrder(){
+      const saved = safeParse(sessionStorage.getItem(CURRENT_ORDER_KEY), null);
+      if(!saved?.order_code) return;
+      const sig=cartSignature();
+      if(cart.length && saved._cartSig && saved._cartSig!==sig){
+        sessionStorage.removeItem(CURRENT_ORDER_KEY);
+        return;
+      }
+      if(!saved._phone && !$('phone').value.trim()){
+        sessionStorage.removeItem(CURRENT_ORDER_KEY);
+        return;
+      }
+      currentOrder = saved;
+      if(saved._phone){ $('phone').value=saved._phone; $('lookupPhone').value=saved._phone; }
+      showGeneratedView(currentOrder, false);
+      startPolling();
+      checkStatus({ target:'statusBox', silent:true });
+    }
 
     function showGeneratedView(order, scroll=true){
       $('formView').classList.add('hidden');
@@ -440,8 +522,10 @@
       $('orderCodeText').textContent = order.order_code;
       $('orderTotalText').textContent = money(order.total);
       $('lookupOrderCode').value = order.order_code;
-      if(!$('lookupPhone').value) $('lookupPhone').value = $('phone').value.trim();
+      const phone=order._phone || $('phone').value.trim();
+      if(phone && !$('lookupPhone').value) $('lookupPhone').value = phone;
       setStep(3);
+      renderActivationBox(false);
       if(scroll) $('mainCard').scrollIntoView({behavior:'smooth', block:'start'});
     }
 
@@ -473,18 +557,33 @@
       });
       btn.disabled = false; btn.innerHTML = '<i class="fa fa-qrcode"></i> Generar pedido y pagar';
       if(r.error){ toast(r.error.message); return; }
-      currentOrder = r.data[0];
+      currentOrder = {...r.data[0], _phone:phone, _cartSig:cartSignature(), _paymentSent:false, _activationSent:false};
       persistOrder();
       renderCart(currentOrder);
       showGeneratedView(currentOrder);
       toast('Pedido generado. Guarda tu ID y realiza el pago.');
     }
 
-    async function sendPaymentReview(){
+    
+    async function cancelCurrentOrder(){
+      if(!currentOrder?.order_code){ showFormView(); return; }
+      if(!confirm('¿Cancelar este pedido? Si ya pagaste, no lo canceles y espera revisión.')) return;
+      const phone = $('phone').value.trim() || currentOrder._phone || $('lookupPhone').value.trim();
+      const r = await db.rpc('public_cancel_order',{p_order_code:currentOrder.order_code,p_customer_whatsapp:phone});
+      if(r.error){ toast(r.error.message); return; }
+      clearCurrentOrderLocal();
+      $('generatedView').classList.add('hidden');
+      $('formView').classList.remove('hidden');
+      $('mainCardTitle').textContent='🧾 Datos para generar pedido';
+      setStep(2);
+      toast('Pedido cancelado. Puedes editar tus datos o hacer otra compra.');
+    }
+
+async function sendPaymentReview(){
       if(!currentOrder?.order_code){ toast('Primero genera el pedido.'); return; }
       const operation = $('operationCode').value.trim();
       if(!operation){ toast('Coloca el código de operación.'); return; }
-      const phone = $('phone').value.trim();
+      const phone = $('phone').value.trim() || currentOrder._phone || $('lookupPhone').value.trim();
       const r = await db.rpc('report_payment_public', {
         p_order_code:currentOrder.order_code,
         p_customer_whatsapp:phone,
@@ -493,6 +592,7 @@
         p_proof_image_url:''
       });
       if(r.error){ toast(r.error.message); return; }
+      currentOrder._paymentSent=true; persistOrder(); renderActivationBox(true);
       setStep(4);
       $('statusBox').innerHTML = '<div class="alert-wait">Pago enviado a revisión. Verificando entrega cada 2 segundos...</div>';
       startPolling();
@@ -506,7 +606,7 @@
     async function checkStatus(opts={}){
       if(!opts.silent) chatMinimized = false;
       const orderCode = (opts.orderCode || currentOrder?.order_code || $('lookupOrderCode').value || '').trim().toUpperCase();
-      const phone = (opts.phone || $('phone').value || $('lookupPhone').value || '').trim();
+      const phone = (opts.phone || $('phone').value || currentOrder?._phone || $('lookupPhone').value || '').trim();
       const target = opts.target || 'lookupResult';
       if(!orderCode || !phone){ if(!opts.silent) toast('Coloca ID de pedido y WhatsApp.'); return; }
       const box = $(target);
@@ -515,13 +615,17 @@
       if(r.error){ if(!opts.silent) box.innerHTML = '<div class="alert-wait">' + esc(r.error.message) + '</div>'; return; }
       const info = r.data?.[0];
       if(!info){ box.innerHTML = '<div class="alert-wait">No se encontró información.</div>'; return; }
+      if(info.status && info.status !== 'pending_payment'){ currentOrder = {...(currentOrder||{}), _paymentSent:true}; persistOrder(); renderActivationBox(true); }
       const delivered = Array.isArray(info.deliveries) && info.deliveries.length;
       let content = `<div class="${delivered?'alert-ok':'alert-wait'}"><b>ID:</b> ${esc(orderCode)}<br><b>Estado:</b> ${esc(info.status)} / ${esc(info.delivery_status)}<br><b>Total:</b> ${money(info.total)}</div>`;
       renderChat(info.chat_messages || []);
       if(info.requirement_summary){
         content += `<div class="special-box" style="margin-top:8px"><b>📌 Datos enviados al administrador</b><div style="white-space:pre-wrap;margin-top:5px">${esc(info.requirement_summary)}</div></div>`;
       }
-      if(delivered){
+      if(['rejected','cancelled'].includes(String(info.status)) || ['cancelled'].includes(String(info.delivery_status))){
+        content += `<div class="alert-wait" style="margin-top:8px"><b>❌ Pedido ${esc(info.status)}</b><br>Este pedido fue rechazado o cancelado. Si crees que es un error, genera un nuevo pedido.</div>`;
+        stopPolling();
+      } else if(delivered){
         const deliveryText = buildDeliveryText(info, orderCode);
         content += '<div style="margin-top:8px"><b>✅ Cuenta / datos entregados:</b></div>';
         content += `<div class="delivery-data">${esc(deliveryText)}</div>`;
@@ -562,6 +666,9 @@
     $('couponInput').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); applyCoupon(); }});
     $('btnGenerateOrder').addEventListener('click', generateOrder);
     $('btnSendReview').addEventListener('click', sendPaymentReview);
+      $('btnBackToData')?.addEventListener('click', showFormView);
+      $('btnCancelOrder')?.addEventListener('click', cancelCurrentOrder);
+      $('btnSendActivationData')?.addEventListener('click', sendActivationData);
     $('btnLookupOrder').addEventListener('click', ()=>checkStatus({ orderCode:$('lookupOrderCode').value, phone:$('lookupPhone').value, target:'lookupResult' }));
     $('btnSendChatMessage')?.addEventListener('click', sendChatMessage);
     $('btnMinimizeChat')?.addEventListener('click', ()=> { chatMinimized = true; $('orderChatBox')?.classList.add('hidden'); toast('Chat minimizado. Se volverá a mostrar al consultar el pedido.'); });
@@ -582,5 +689,6 @@
   </script>
 </body>
 </html>
+
 
 
