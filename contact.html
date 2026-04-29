@@ -1,806 +1,741 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <link rel="icon" type="image/png" href="Diseño sin título.png">
-<link rel="shortcut icon" href="Diseño sin título.png">
-  <!-- Libraries Stylesheet -->
-  <link href="lib/animate/animate.min.css" rel="stylesheet" />
-  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
-
-  <!-- Customized Bootstrap Stylesheet -->
-  <link href="css/style.css" rel="stylesheet" />
-  <meta charset="utf-8" />
-  <title>Innov AI Tienda — Contacto</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ponte en contacto con Innov AI Tienda. Soporte 24/7 y entrega inmediata de servicios digitales." />
-  <meta name="keywords" content="Innov AI Tienda, contacto, soporte, servicios digitales, streaming, IA, ChatGPT Plus" />
-  <link href="img/favicon.ico" rel="icon" />
-
-  <!-- Open Graph (opcional, deja tu dominio real cuando lo tengas) -->
-  <meta property="og:title" content="Innov AI Tienda — Contacto" />
-  <meta property="og:description" content="¿Dudas o soporte? Escríbenos. Entrega inmediata y atención por WhatsApp." />
-  <meta property="og:image" content="img/og-cover.jpg" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="contact.html" />
-
-  <!-- Fonts (cómico como carrito/checkout) -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Comic+Neue:wght@400;700&family=Bangers&display=swap" rel="stylesheet" />
-
-  <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
-
-  <!-- Libs -->
-  <link href="lib/animate/animate.min.css" rel="stylesheet" />
-  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
-
-  <!-- Template CSS -->
-  <link href="css/style.css" rel="stylesheet" />
-
-  <style>
-    :root{
-      --brand-primary:#0d6efd;
-      --brand-secondary:#6c757d;
-
-      --sticky-offset:110px;
-
-      --toast-bg:rgba(0,0,0,.86);
-      --toast-fg:#fff;
-
-      --wa-size:64px;
-      --wa-bg:#25D366;
-      --wa-fg:#fff;
-      --wa-shadow:0 10px 22px rgba(0,0,0,.28);
-      --wa-attention:3.2s;
-    }
-    @media (min-width: 992px){
-      :root{ --sticky-offset:180px; }
-    }
-    @media (prefers-reduced-motion: reduce){
-      :root{ --wa-attention:0s; }
-      *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
-    }
-
-    /* Comic skin */
-    body{
-      font-family:'Comic Neue','Roboto',sans-serif;
-      background:
-        radial-gradient(circle at 10px 10px, rgba(0,0,0,.04) 2px, transparent 2.2px) 0 0/22px 22px,
-        #fff;
-    }
-    h1,h2,h3,.h1,.h2,.h3{
-      font-family:'Bangers','Comic Neue',cursive;
-      letter-spacing:.6px;
-    }
-    .site-header.sticky-top{ z-index:1045; box-shadow:0 2px 8px rgba(0,0,0,.15); }
-
-    .btn, .custom-select, .form-control{ border-width:2px; }
-    .btn{ box-shadow:3px 3px 0 rgba(0,0,0,.20); }
-    .btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 rgba(0,0,0,.20); }
-
-    .section-title > span{ box-shadow:inset 0 -2px 0 var(--brand-primary); }
-
-    /* Cards */
-    .comic-card{
-      background:#fff;
-      border:2px solid rgba(0,0,0,.12);
-      border-radius:16px;
-      box-shadow:8px 8px 0 rgba(0,0,0,.08);
-      overflow:hidden;
-    }
-    .comic-card .card-head{
-      padding:.9rem 1rem;
-      background:rgba(13,110,253,.10);
-      border-bottom:2px solid rgba(0,0,0,.08);
-      font-weight:900;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:.75rem;
-    }
-    .comic-card .card-body{ padding:1rem; }
-
-    /* Right column sticky */
-    .sticky-col{
-      position: sticky;
-      top: calc(var(--sticky-offset) + 10px);
-    }
-    @media (max-width: 991.98px){
-      .sticky-col{ position: static; top:auto; }
-    }
-
-    /* Contact quick buttons */
-    .quick-grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:.65rem;
-    }
-    .quick-btn{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:.75rem;
-      padding:.85rem 1rem;
-      border:2px solid rgba(0,0,0,.12);
-      border-radius:14px;
-      background:#fff;
-      box-shadow:5px 5px 0 rgba(0,0,0,.06);
-      text-decoration:none;
-      color:inherit;
-      transition:transform .15s ease;
-    }
-    .quick-btn:hover{ transform:translateY(-2px); text-decoration:none; }
-    .quick-left{
-      display:flex; align-items:center; gap:.75rem; min-width:0;
-    }
-    .quick-ico{
-      width:44px; height:44px;
-      border-radius:12px;
-      border:2px solid rgba(0,0,0,.10);
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:3px 3px 0 rgba(0,0,0,.06);
-      background:#fff;
-      flex:0 0 auto;
-    }
-    .quick-ico i{ font-size:20px; }
-    .quick-title{
-      font-weight:900;
-      line-height:1.1;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .quick-sub{
-      font-size:12px;
-      color:rgba(0,0,0,.55);
-      font-weight:700;
-      margin-top:2px;
-    }
-
-    /* Map */
-    .map-frame{
-      width:100%;
-      height:250px;
-      border:0;
-      border-radius:14px;
-      border:2px solid rgba(0,0,0,.12);
-      box-shadow:6px 6px 0 rgba(0,0,0,.06);
-      overflow:hidden;
-    }
-
-    /* Toast */
-    .toast-mini{
-      position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(20px);
-      background:var(--toast-bg); color:var(--toast-fg);
-      padding:10px 14px; border-radius:12px;
-      font-size:14px; z-index:1600; opacity:0;
-      transition:opacity .2s, transform .2s;
-      display:flex; align-items:center; gap:.5rem;
-      max-width:min(92vw,520px);
-      box-shadow:10px 10px 0 rgba(0,0,0,.18);
-    }
-    .toast-mini.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-
-    /* Footer (mismo que carrito/checkout) */
-    .footer-wrap{
-      background:
-        radial-gradient(circle at 20% 0%, rgba(13,110,253,.22), transparent 55%),
-        radial-gradient(circle at 85% 100%, rgba(37,211,102,.16), transparent 55%),
-        #0f1115;
-    }
-    .footer-title{ font-family:'Bangers','Comic Neue',cursive; letter-spacing:.7px; }
-    .footer-links a{ color: rgba(255,255,255,.70); text-decoration:none; }
-    .footer-links a:hover{ color:#fff; text-decoration: underline; }
-    .social-btn{
-      width:44px; height:44px;
-      display:inline-flex; align-items:center; justify-content:center;
-      border-radius:12px;
-      border:2px solid rgba(255,255,255,.18);
-      background:rgba(255,255,255,.06);
-      color:#fff;
-      margin-right:.5rem;
-      box-shadow:4px 4px 0 rgba(0,0,0,.35);
-      transition:transform .15s, background .15s, border-color .15s;
-    }
-    .social-btn:hover{
-      transform:translateY(-2px) rotate(-1deg);
-      background:rgba(13,110,253,.22);
-      border-color:rgba(255,255,255,.30);
-      color:#fff;
-      text-decoration:none;
-    }
-    .tiktok-svg{ width:18px; height:18px; fill: currentColor; display:block; }
-
-    /* WhatsApp FABs (2) */
-    .whatsapp-fab,
-    .whatsapp-fab-2{
-      position:fixed; right:18px; width:var(--wa-size); height:var(--wa-size);
-      border-radius:50%; background:var(--wa-bg); color:var(--wa-fg);
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:var(--wa-shadow); z-index:1200; transition:transform .18s, filter .18s;
-      isolation:isolate;
-      animation:float-y 5.4s ease-in-out infinite;
-    }
-    .whatsapp-fab{ bottom:18px; }
-    .whatsapp-fab-2{ bottom:98px; }
-    .whatsapp-fab i, .whatsapp-fab-2 i{ font-size:calc(var(--wa-size)*.45); line-height:1; }
-    .whatsapp-fab:hover, .whatsapp-fab-2:hover{ transform:translateY(-3px); filter:saturate(1.08) brightness(1.04); }
-    .whatsapp-fab::after, .whatsapp-fab-2::after{
-      content:""; position:absolute; inset:-10px; border-radius:inherit;
-      box-shadow:0 0 0 0 rgba(37,211,102,.30);
-      animation:wa-pulse var(--wa-attention) infinite ease-out; z-index:-1;
-    }
-    @keyframes wa-pulse{
-      0%{ box-shadow:0 0 0 0 rgba(37,211,102,.33); }
-      70%{ box-shadow:0 0 0 20px rgba(37,211,102,0); }
-      100%{ box-shadow:0 0 0 0 rgba(37,211,102,0); }
-    }
-    .whatsapp-badge{
-      position:absolute; top:-4px; right:-2px; min-width:18px; height:18px; padding:0 4px;
-      border-radius:10px; background:#ff3b30; color:#fff; font-size:11px; font-weight:900;
-      display:inline-flex; align-items:center; justify-content:center;
-      box-shadow:0 2px 8px rgba(0,0,0,.25);
-      animation:pulse 1.6s infinite;
-    }
-    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
-    @keyframes float-y{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+eef6ff}
+.chat-msg.system{background:#fff8df;border-color:rgba(245,158,11,.3)}
+.chat-input-row{display:grid;grid-template-columns:1fr auto;gap:7px}
+.special-notice{border:1px solid #dbe5f5;background:#fff;border-radius:12px;padding:9px;margin-bottom:8px;white-space:pre-wrap}
+.special-notice strong{display:block;margin-bottom:3px}
+#orderChatBox{position:fixed;right:18px;bottom:18px;width:min(390px,calc(100vw - 28px));z-index:99;box-shadow:0 18px 42px rgba(2,6,23,.22)}
+#orderChatBox.hidden{display:none!important}
+.chat-header-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.btn-whatsapp{background:#22c55e;color:#fff;border-color:#22c55e}
+.order-management{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.activation-box{border:2px dashed rgba(13,110,253,.25);background:#f7fbff;border-radius:14px;padding:10px;margin:12px 0}
+.activation-box h4{margin:0 0 6px;font-size:14px}
+.activation-instructions{white-space:pre-wrap;background:#fff;border:1px solid #dce7f8;border-radius:12px;padding:10px;margin:8px 0;font-size:12.5px}
+.activation-grid{display:grid;gap:9px}
+.activation-grid textarea{min-height:150px}
+.payment-extra-note{font-size:12px;color:#7b5700;margin-top:7px;background:#fff8e1;border:1px solid #facc15;border-radius:10px;padding:7px}
+.qr-img{display:block}
+@media(max-width:720px){.chat-input-row{grid-template-columns:1fr}.special-box{padding:8px}#orderChatBox{right:8px;left:8px;bottom:8px;width:auto}.chat-list{max-height:190px}.support-red{top:58px;right:10px;font-size:12px;padding:8px 10px}.support-card-actions .btn{flex:1}}.alert-wait{border:1px solid rgba(245,158,11,.35);background:#fff8e5;color:#7b5700;border-radius:12px;padding:8px;font-size:12.5px}.alert-ok{border:1px solid rgba(22,163,74,.25);background:#f0fdf4;color:#166534;border-radius:12px;padding:8px;font-size:12.5px}.step-title{font-size:13px;color:var(--muted)}
+    @media(max-width:1000px){.head .container{grid-template-columns:1fr;gap:10px}.support{text-align:left}.navlinks{gap:14px}.layout{grid-template-columns:1fr}.payment-box{grid-template-columns:1fr;text-align:center}.qr-img{margin:auto}.lookup-fields{grid-template-columns:1fr}.operation-row{grid-template-columns:1fr}.agent-row{grid-template-columns:1fr}.compact-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:620px){.topbar .container{display:none}.head .container{padding:11px 0}.logo{font-size:22px}.navlinks a:nth-child(n+3){display:none}.cartpill{font-size:12px}.checkout-wrap{padding-top:10px}.steps{padding:.45rem .55rem;gap:.35rem}.step-pill{font-size:11.5px;padding:.2rem .5rem}.compact-grid{grid-template-columns:1fr}.card-body{padding:.62rem}.field input,.field select{padding:7px 9px}.thin-note{width:100%;border-radius:10px}.btn-mid{width:100%;min-width:0}.fab{width:52px;height:52px}.summary-list{max-height:220px}}
   </style>
 </head>
-
 <body>
-
-  <!-- ===== HEADER (igual a carrito/checkout) ===== -->
-  <header class="site-header sticky-top">
-    <div class="container-fluid">
-      <div class="row bg-secondary py-1 px-xl-5">
-        <div class="col-lg-6 d-none d-lg-block">
-          <div class="d-inline-flex align-items-center h-100">
-            <a class="text-body mr-3" href="acerca.html">Acerca de</a>
-            <a class="text-body mr-3" href="contact.html">Contacto</a>
-            <a class="text-body mr-3" href="ayuda.html">Ayuda</a>
-            <a class="text-body mr-3" href="faq.html">Preguntas frecuentes</a>
-          </div>
-        </div>
-
-        <div class="col-lg-6 text-center text-lg-right">
-          <div class="d-inline-flex align-items-center">
-            <div class="btn-group">
-              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Mi cuenta</button>
-              <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="login.html">Ingresar</a>
-                <a class="dropdown-item" href="register.html">Registrarse</a>
-              </div>
-            </div>
-
-            <div class="btn-group mx-2">
-              <button id="currencyBtn" type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Soles</button>
-              <div class="dropdown-menu dropdown-menu-right">
-                <button class="dropdown-item js-set-currency" data-currency="PEN" type="button">Soles</button>
-                <button class="dropdown-item js-set-currency" data-currency="USD" type="button">USD</button>
-              </div>
-            </div>
-
-            <div class="btn-group">
-              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">ES</button>
-              <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="?lang=en">EN</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="d-inline-flex align-items-center d-block d-lg-none">
-            <a href="favoritos.html" class="btn px-0 ml-2" aria-label="Favoritos">
-              <i class="fas fa-heart text-dark"></i>
-              <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
-            </a>
-            <a href="cart.html" class="btn px-0 ml-2" aria-label="Carrito">
-              <i class="fas fa-shopping-cart text-dark"></i>
-              <span id="headerCartBadgeSm" class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
-            </a>
-          </div>
-        </div>
+  <button class="btn support-red" id="btnOpenSupport" type="button"><i class="fa fa-life-ring"></i> Soporte pedido</button>
+  <div id="supportModal" class="support-modal hidden">
+    <div class="support-card">
+      <div class="support-card-head">
+        <span>🆘 Solicitar soporte de pedido</span>
+        <button class="btn btn-small" id="btnCloseSupport" type="button">Cerrar</button>
       </div>
-
-      <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
-        <div class="col-lg-4">
-          <a href="index.html" class="text-decoration-none">
-            <span class="h1 text-uppercase text-primary bg-dark px-2">INNOV</span>
-            <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">TIENDA</span>
-          </a>
-        </div>
-
-        <div class="col-lg-4 col-6 text-left">
-          <form action="buscar.html">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Buscar productos" aria-label="Buscar productos" />
-              <div class="input-group-append">
-                <button class="input-group-text bg-transparent text-primary" aria-label="Buscar" type="submit">
-                  <i class="fa fa-search"></i>
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="col-lg-4 col-6 text-right">
-          <p class="m-0">Servicio al cliente</p>
-          <h5 class="m-0"><a href="tel:+51991564053" class="text-dark">+51 991564053</a></h5>
-        </div>
+      <div class="support-card-body">
+        <div class="mini-muted" style="margin-bottom:10px">Valida tu pedido con el ID y el WhatsApp registrado. El administrador recibirá la alerta en su panel.</div>
+        <div class="field"><label>ID de pedido</label><input id="supportOrderCode" placeholder="Ej: 5F71834ABE"></div>
+        <div class="field"><label>WhatsApp registrado</label><input id="supportPhone" placeholder="Ej: 954156822"></div>
+        <div class="field"><label>Mensaje para soporte</label><textarea id="supportReason" rows="3" placeholder="Describe brevemente tu problema..."></textarea></div>
+        <div id="supportResult"></div>
       </div>
-    </div>
-
-    <div class="container-fluid bg-dark mb-30">
-      <div class="row px-xl-5">
-        <div class="col-lg-3 d-none d-lg-block">
-          <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#navbar-vertical" style="height:65px;padding:0 30px;">
-            <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>Categorías</h6>
-            <i class="fa fa-angle-down text-dark"></i>
-          </a>
-          <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light"
-               id="navbar-vertical" style="width:calc(100% - 30px);z-index:999;">
-            <div class="navbar-nav w-100">
-              <a href="shop.html" class="nav-item nav-link"><i class="fas fa-robot mr-2"></i>IA</a>
-              <a href="shop.html" class="nav-item nav-link"><i class="fas fa-tv mr-2"></i>Streaming</a>
-              <a href="shop.html" class="nav-item nav-link"><i class="fas fa-film mr-2"></i>Edición / Video</a>
-              <a href="shop.html" class="nav-item nav-link"><i class="fas fa-cubes mr-2"></i>Herramientas</a>
-            </div>
-          </nav>
-        </div>
-
-        <div class="col-lg-9">
-          <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
-            <a href="index.html" class="text-decoration-none d-block d-lg-none">
-              <span class="h1 text-uppercase text-dark bg-light px-2">INNOV</span>
-              <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">TIENDA</span>
-            </a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-              <div class="navbar-nav mr-auto py-0">
-                <a href="index.html" class="nav-item nav-link">Inicio</a>
-                <a href="shop.html" class="nav-item nav-link">Tienda</a>
-                <div class="nav-item dropdown">
-                  <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Páginas <i class="fa fa-angle-down mt-1"></i></a>
-                  <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
-                    <a href="cart.html" class="dropdown-item">Carrito</a>
-                    <a href="checkout.html" class="dropdown-item">Pagar</a>
-                  </div>
-                </div>
-                <a href="contact.html" class="nav-item nav-link active">Contacto</a>
-              </div>
-
-              <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
-                <a href="favoritos.html" class="btn px-0" aria-label="Favoritos">
-                  <i class="fas fa-heart text-primary"></i>
-                  <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
-                </a>
-                <a href="cart.html" class="btn px-0 ml-3" aria-label="Carrito">
-                  <i class="fas fa-shopping-cart text-primary"></i>
-                  <span id="headerCartBadge" class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
-                </a>
-              </div>
-            </div>
-          </nav>
-        </div>
-
-      </div>
-    </div>
-  </header>
-  <!-- ===== /HEADER ===== -->
-
-  <!-- Breadcrumb -->
-  <div class="container-fluid">
-    <div class="row px-xl-5">
-      <div class="col-12">
-        <nav class="breadcrumb bg-light mb-30">
-          <a class="breadcrumb-item text-dark" href="index.html">Inicio</a>
-          <span class="breadcrumb-item active">Contacto</span>
-        </nav>
+      <div class="support-card-actions">
+        <button class="btn" id="btnSupportFillCurrent" type="button">Usar pedido actual</button>
+        <button class="btn btn-danger" id="btnSendSupportRequest" type="button"><i class="fa fa-bell"></i> Enviar alerta al admin</button>
       </div>
     </div>
   </div>
+  <div class="topbar"><div class="container"><div><a href="acerca.html">Acerca de</a><a href="contact.html">Contacto</a><a href="ayuda.html">Ayuda</a><a href="faq.html">Preguntas frecuentes</a></div><div>Servicio al cliente: <b>+51 991564053</b></div></div></div>
+  <header class="head"><div class="container"><a class="logo" href="shop.html">INNOV TIENDA</a><div class="search"><input placeholder="Buscar productos"><button><i class="fa fa-search"></i></button></div><div class="support">Servicio al cliente<br><b>+51 991564053</b></div></div></header>
+  <nav class="nav"><div class="container"><div class="navlinks"><a href="index.html">Inicio</a><a href="shop.html">Tienda</a><a href="contact.html">Contacto</a></div><div class="cartpill"><i class="fa fa-shopping-cart"></i> Carrito <span id="cartCount">0</span></div></div></nav>
 
-  <!-- Contact -->
-  <div class="container-fluid">
-    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
-      <span class="bg-secondary pr-3">Contáctanos</span>
-    </h2>
+  <main class="container checkout-wrap">
+    <div class="steps" id="steps">
+      <span class="step-pill" data-step="1"><i class="fa fa-shopping-cart"></i> 1) Carrito</span>
+      <span class="step-pill active" data-step="2"><i class="fa fa-user"></i> 2) Pago</span>
+      <span class="step-pill" data-step="3"><i class="fa fa-qrcode"></i> 3) Generar</span>
+      <span class="step-pill" data-step="4"><i class="fa fa-check-circle"></i> 4) Confirmación</span>
+      <span class="step-title"><i class="fa fa-shield-alt"></i> Compra rápida • Entrega digital</span>
+    </div>
 
-    <div class="row px-xl-5">
-
-      <!-- Left: Form -->
-      <div class="col-lg-7 mb-5">
-        <div class="comic-card">
-          <div class="card-head">
-            <span>📝 Envíanos un mensaje</span>
-            <span class="text-muted small">Te respondemos por WhatsApp</span>
-          </div>
-
+    <div class="layout">
+      <section>
+        <div class="card" id="mainCard">
+          <div class="card-head"><span id="mainCardTitle">🧾 Datos para generar pedido</span><span class="mini-muted">Campos con * obligatorios</span></div>
           <div class="card-body">
-            <div id="success" aria-live="polite"></div>
-
-            <form name="sentMessage" id="contactForm" novalidate>
-              <!-- Honeypot anti-spam -->
-              <input type="text" name="website" id="website" style="display:none" tabindex="-1" autocomplete="off" />
-
-              <div class="form-row">
-                <div class="control-group col-md-6 mb-3">
-                  <label class="small font-weight-bold">Nombre</label>
-                  <input type="text" class="form-control" id="name" placeholder="Tu nombre" required
-                         data-validation-required-message="Por favor ingresa tu nombre" />
-                  <p class="help-block text-danger"></p>
-                </div>
-
-                <div class="control-group col-md-6 mb-3">
-                  <label class="small font-weight-bold">Correo (opcional)</label>
-                  <input type="email" class="form-control" id="email" placeholder="tu@gmail.com"
-                         data-validation-required-message="Por favor ingresa tu correo" />
-                  <p class="help-block text-danger"></p>
-                </div>
+            <div id="formView">
+              <div class="compact-grid">
+                <div class="field"><label>Nombres *</label><input id="fullName" type="text" autocomplete="name" placeholder="Tu nombre"></div>
+                <div class="field"><label>Celular WhatsApp *</label><input id="phone" type="tel" autocomplete="tel" placeholder="991564053"><small>Aquí validarás tu entrega.</small></div>
+                <div class="field"><label>País *</label><select id="country"><option value="PE" selected>Perú</option><option value="PY">Paraguay</option><option value="BO">Bolivia</option><option value="CL">Chile</option><option value="CO">Colombia</option><option value="EC">Ecuador</option><option value="AR">Argentina</option><option value="MX">México</option><option value="OTRO">Otro</option></select></div>
+                <div class="field"><label>Entrega</label><div id="deliveryModeBadge" class="delivery-mode"><i class="fa fa-bolt"></i> Verificando entrega...</div><small id="deliveryModeHelp">Se detecta según el producto de tu carrito.</small></div>
               </div>
-
-              <div class="control-group mb-3">
-                <label class="small font-weight-bold">Asunto</label>
-                <input type="text" class="form-control" id="subject" placeholder="Ej: Quiero comprar ChatGPT Plus"
-                       required data-validation-required-message="Por favor ingresa un asunto" />
-                <p class="help-block text-danger"></p>
+              <div id="specialRequirementsBox" class="special-box hidden">
+                <h4>📌 Datos necesarios para esta compra</h4>
+                <div class="mini-muted" id="specialRequirementsHelp">Completa los datos adicionales solicitados por el producto.</div>
+                <div id="specialRequirementsFields" class="special-grid" style="margin-top:8px"></div>
               </div>
+              <div class="checkline"><input id="terms" type="checkbox"> <label for="terms">Acepto los Términos y Condiciones y la Política de Privacidad *</label></div>
+              <div class="thin-note"><i class="fa fa-info-circle"></i> Guardar el ID de pedido es IMPORTANTE para consultar tu cuenta entregada.</div>
+              <div class="order-actions"><button class="btn btn-primary btn-mid" id="btnGenerateOrder"><i class="fa fa-qrcode"></i> Generar pedido y pagar</button></div>
+            </div>
 
-              <div class="control-group mb-3">
-                <label class="small font-weight-bold">Mensaje</label>
-                <textarea class="form-control" rows="7" id="message" placeholder="Escribe tu mensaje..."
-                          required data-validation-required-message="Por favor escribe tu mensaje"></textarea>
-                <p class="help-block text-danger"></p>
+            <div id="generatedView" class="order-generated hidden">
+              <div class="order-id-box">⚠️ Guardar ID de tu pedido: <strong id="orderCodeText">---</strong></div>
+              <div class="order-management">
+                <button class="btn btn-small" id="btnBackToData" type="button"><i class="fa fa-arrow-left"></i> Editar datos</button>
+                <button class="btn btn-small btn-danger" id="btnCancelOrder" type="button"><i class="fa fa-ban"></i> Cancelar pedido</button>
+                <a class="btn btn-small" href="shop.html"><i class="fa fa-shopping-cart"></i> Hacer otra compra</a>
               </div>
-
-              <div class="form-group form-check mb-3">
-                <input type="checkbox" class="form-check-input" id="consent" required />
-                <label class="form-check-label" for="consent">
-                  Acepto la <a href="privacidad.html" target="_blank" rel="noopener">política de privacidad</a>.
-                </label>
-              </div>
-
-              <div class="d-flex flex-wrap" style="gap:.5rem;">
-                <button class="btn btn-primary py-2 px-4" type="submit" id="sendMessageButton">
-                  <i class="fa fa-paper-plane mr-1"></i> Enviar
-                </button>
-
-                <button class="btn btn-outline-success py-2 px-4" type="button" id="sendWhatsApp">
-                  <i class="fab fa-whatsapp mr-1"></i> Enviar por WhatsApp
-                </button>
-
-                <a class="btn btn-outline-dark py-2 px-4" href="faq.html">
-                  <i class="fa fa-life-ring mr-1"></i> Ver FAQ
-                </a>
-              </div>
-
-              <small class="d-block mt-3 text-muted">
-                Tip: si necesitas respuesta rápida, usa <strong>Enviar por WhatsApp</strong>.
-              </small>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: Quick contact + Map -->
-      <div class="col-lg-5 mb-5">
-        <div class="sticky-col">
-
-          <div class="comic-card mb-4">
-            <div class="card-head">
-              <span>⚡ Contacto rápido</span>
-              <span class="text-muted small">24/7</span>
-            </div>
-            <div class="card-body">
-              <div class="quick-grid">
-
-                <a class="quick-btn" href="https://wa.me/51991564053?text=¡Hola!%20👋%20Vengo%20de%20su%20página%20web%20y%20necesito%20ayuda%20✅" target="_blank" rel="noopener">
-                  <div class="quick-left">
-                    <div class="quick-ico"><i class="fab fa-whatsapp text-success"></i></div>
-                    <div style="min-width:0;">
-                      <div class="quick-title">WhatsApp soporte</div>
-                      <div class="quick-sub">Respuesta rápida</div>
-                    </div>
-                  </div>
-                  <i class="fa fa-arrow-right text-muted"></i>
-                </a>
-
-                <a class="quick-btn" href="tel:+51991564053">
-                  <div class="quick-left">
-                    <div class="quick-ico"><i class="fa fa-phone-alt text-primary"></i></div>
-                    <div style="min-width:0;">
-                      <div class="quick-title">Llamar</div>
-                      <div class="quick-sub">+51 991 564 053</div>
-                    </div>
-                  </div>
-                  <i class="fa fa-arrow-right text-muted"></i>
-                </a>
-
-                <a class="quick-btn" href="mailto:ainnov611@gmail.com">
-                  <div class="quick-left">
-                    <div class="quick-ico"><i class="fa fa-envelope text-primary"></i></div>
-                    <div style="min-width:0;">
-                      <div class="quick-title">Correo</div>
-                      <div class="quick-sub">ainnov611@gmail.com</div>
-                    </div>
-                  </div>
-                  <i class="fa fa-arrow-right text-muted"></i>
-                </a>
-
-              </div>
-
-              <hr style="border-color: rgba(0,0,0,.10);" />
-
-              <div class="small text-muted">
-                <i class="fa fa-map-marker-alt text-primary mr-2"></i>
-                Lima — San Isidro — Perú
-              </div>
-            </div>
-          </div>
-
-          <div class="comic-card">
-            <div class="card-head">
-              <span>📍 Ubicación</span>
-              <span class="text-muted small">San Isidro</span>
-            </div>
-            <div class="card-body">
-              <iframe
-                class="map-frame"
-                title="Mapa - San Isidro, Lima"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3900.829753083374!2d-77.036525!3d-12.096573!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c83c5e2f5a4d%3A0x7f1f1f1f1f1f1f1f!2sSan%20Isidro%2C%20Lima%2C%20Per%C3%BA!5e0!3m2!1ses!2spe!4v1700000000000"
-                allowfullscreen=""
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-  <!-- /Contact -->
-
-  <!-- Toast -->
-  <div id="toastMini" class="toast-mini" role="status" aria-live="polite" aria-atomic="true">
-    <i class="fas fa-check-circle"></i>
-    <span id="toastText">Listo</span>
-  </div>
-
-  <!-- WhatsApp FABs -->
-  <a id="whatsappFab" class="whatsapp-fab"
-     href="https://wa.me/51930264550?text=¡Hola!%20👋%20Vengo%20de%20su%20página%20web%20y%20quiero%20información%20✨"
-     target="_blank" rel="noopener" aria-label="WhatsApp principal">
-    <i class="fab fa-whatsapp"></i>
-    <span id="whatsappBadge" class="whatsapp-badge" aria-hidden="true">1</span>
-  </a>
-
-  <a id="whatsappFab2" class="whatsapp-fab-2"
-     href="https://wa.me/51991564053?text=¡Hola!%20👋%20Necesito%20soporte%20por%20favor%20✅"
-     target="_blank" rel="noopener" aria-label="WhatsApp secundario">
-    <i class="fab fa-whatsapp"></i>
-    <span id="whatsappBadge2" class="whatsapp-badge" aria-hidden="true">1</span>
-  </a>
-
-  <!-- Footer (mejorado + redes reales) -->
-  <footer class="container-fluid footer-wrap text-secondary mt-5 pt-5">
-    <div class="row px-xl-5 pt-4">
-      <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
-        <h4 class="footer-title text-light mb-3">Innov AI Tienda</h4>
-        <p class="mb-3" style="color: rgba(255,255,255,.72);">
-          Servicios digitales con entrega rápida y soporte por WhatsApp.
-        </p>
-
-        <div class="p-3" style="background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.10); border-radius:14px; box-shadow:6px 6px 0 rgba(0,0,0,.25);">
-          <p class="mb-2" style="color: rgba(255,255,255,.72);"><i class="fa fa-map-marker-alt text-primary mr-2"></i>Lima — San Isidro — Perú</p>
-          <p class="mb-2"><i class="fa fa-envelope text-primary mr-2"></i><a href="mailto:ainnov611@gmail.com" class="text-light">ainnov611@gmail.com</a></p>
-          <p class="mb-0"><i class="fa fa-phone-alt text-primary mr-2"></i><a href="tel:+51991564053" class="text-light">+51 991564053</a></p>
-
-          <hr style="border-color: rgba(255,255,255,.10);" />
-
-          <div>
-            <div class="small mb-2" style="color: rgba(255,255,255,.70); font-weight:900;">Síguenos</div>
-
-            <a class="social-btn" href="https://www.facebook.com/profile.php?id=61585560703359" target="_blank" rel="noopener" aria-label="Facebook">
-              <i class="fab fa-facebook-f"></i>
-            </a>
-
-            <a class="social-btn" href="https://www.instagram.com/innov_iaa/" target="_blank" rel="noopener" aria-label="Instagram">
-              <i class="fab fa-instagram"></i>
-            </a>
-
-            <a class="social-btn" href="https://www.tiktok.com/@innoovia" target="_blank" rel="noopener" aria-label="TikTok">
-              <svg class="tiktok-svg" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M17.5 3c.6 2.7 2.6 4.9 5.2 5.6v3.4c-2.2 0-4.2-.7-5.9-2v6.3c0 4-3.2 7.2-7.2 7.2S2.4 20.3 2.4 16.3c0-4 3.2-7.2 7.2-7.2.4 0 .8 0 1.2.1v3.8c-.4-.2-.8-.3-1.2-.3-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5V1.9h3.2c.1.4.2.7.3 1.1z"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-8 col-md-12">
-        <div class="row">
-          <div class="col-md-4 mb-5 footer-links">
-            <h5 class="footer-title text-light mb-3">Compra rápida</h5>
-            <div class="d-flex flex-column justify-content-start">
-              <a class="mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Inicio</a>
-              <a class="mb-2" href="shop.html"><i class="fa fa-angle-right mr-2"></i>Tienda</a>
-              <a class="mb-2" href="cart.html"><i class="fa fa-angle-right mr-2"></i>Carrito</a>
-              <a class="mb-2" href="checkout.html"><i class="fa fa-angle-right mr-2"></i>Pagar</a>
-              <a href="contact.html"><i class="fa fa-angle-right mr-2"></i>Contacto</a>
-            </div>
-          </div>
-
-          <div class="col-md-4 mb-5 footer-links">
-            <h5 class="footer-title text-light mb-3">Soporte</h5>
-            <div class="d-flex flex-column justify-content-start">
-              <a class="mb-2" href="faq.html"><i class="fa fa-angle-right mr-2"></i>Preguntas frecuentes</a>
-              <a class="mb-2" href="ayuda.html"><i class="fa fa-angle-right mr-2"></i>Ayuda</a>
-              <a class="mb-2" href="contact.html"><i class="fa fa-angle-right mr-2"></i>Soporte</a>
-            </div>
-            <div class="mt-3 p-3" style="background: rgba(255,255,255,.06); border:2px dashed rgba(255,255,255,.16); border-radius:14px;">
-              <div class="text-light" style="font-weight:900;">Entrega inmediata</div>
-              <div style="color: rgba(255,255,255,.70);">Te atendemos rápido por WhatsApp.</div>
-            </div>
-          </div>
-
-          <div class="col-md-4 mb-5">
-            <h5 class="footer-title text-light mb-3">Boletín</h5>
-            <p style="color: rgba(255,255,255,.70);">Recibe ofertas y novedades.</p>
-            <form action="/suscribirse" method="post">
-              <div class="input-group">
-                <input type="email" class="form-control" placeholder="Tu correo" required />
-                <div class="input-group-append">
-                  <button class="btn btn-primary" type="submit">Inscribirse</button>
+              <div class="payment-box">
+                <img id="qrImage" class="qr-img" src="img/yape-qr.png" alt="QR Yape / Plin" onerror="this.style.display='none'; document.getElementById('qrMissingNote')?.classList.remove('hidden')">
+                <div>
+                  <div class="mini-muted">Paga por Yape / Plin</div><div id="qrMissingNote" class="mini-muted hidden">QR no disponible. Usa el número mostrado.</div>
+                  <div class="yape-number" id="paymentNumber">991564053</div>
+                  <div class="mini-muted">Monto exacto:</div>
+                  <div class="yape-number" id="orderTotalText">S/ 0.00</div>
+                  <div class="alert-wait" style="margin-top:8px">Después de pagar, coloca el código de operación y envía a revisión.</div><div class="payment-extra-note">Importante: al pagar por Yape/Plin, no escribas nada en notas o descripción del pago.</div>
                 </div>
               </div>
-            </form>
-
-            <div class="mt-4 p-3" style="background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.10); border-radius:14px;">
-              <div class="small" style="color: rgba(255,255,255,.70);">
-                <strong class="text-light">Tip:</strong> Escribe por WhatsApp para respuesta inmediata ✅
+              <div class="operation-row">
+                <div class="field"><label>Código de operación Yape / Plin</label><input id="operationCode" placeholder="Ej: 123456"></div>
+                <button class="btn btn-success" id="btnSendReview" style="align-self:end"><i class="fa fa-paper-plane"></i> Enviar pago a revisión</button>
+              </div>
+              <div class="field"><label>Nota opcional</label><textarea id="customerNote" rows="2" placeholder="Pagué desde mi cuenta..."></textarea></div>
+              <div id="activationBox" class="activation-box hidden">
+                <h4>📌 Datos de activación requeridos</h4>
+                <div class="mini-muted">Si necesitas corregir algún dato después de pagar, puedes enviarlo aquí. Si ya lo completaste antes de generar el pedido, no es necesario repetirlo.</div>
+                <div id="activationInstructions" class="activation-instructions hidden"></div>
+                <div id="activationFields" class="activation-grid"></div>
+                <button class="btn btn-primary btn-small" id="btnSendActivationData" type="button" style="margin-top:8px"><i class="fa fa-paper-plane"></i> Enviar datos de activación</button>
+                <div id="activationResult" style="margin-top:8px"></div>
+              </div>
+              <div id="statusBox" class="status-box">
+                <div class="mini-muted">Cuando envíes tu pago, verificaremos automáticamente cada 2 segundos si tu entrega ya está lista.</div>
+              </div>
+              <div id="orderChatBox" class="chat-box hidden">
+                <b>💬 Chat del pedido</b>
+                <div class="mini-muted">Puedes escribir al administrador sobre este pedido. Se actualiza automáticamente.</div>
+                <div class="chat-header-actions">
+                  <button id="btnMinimizeChat" class="btn btn-small" type="button">Minimizar</button>
+                </div>
+                <div id="orderChatList" class="chat-list" style="margin-top:8px"></div>
+                <div class="chat-input-row">
+                  <input id="orderChatInput" placeholder="Escribe un mensaje para soporte..." style="border:2px solid #cfd5df;padding:8px 10px">
+                  <button class="btn btn-small btn-primary" id="btnSendChatMessage"><i class="fa fa-paper-plane"></i> Enviar</button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <aside>
+        <div class="card">
+          <div class="card-head"><span>📦 Resumen del pedido</span><span class="mini-muted" id="itemsCountText">0 item</span></div>
+          <div class="card-body">
+            <div id="emptyNote" class="mini-muted hidden">Tu carrito está vacío. <a href="shop.html">Ir a la tienda</a></div>
+            <div id="checkoutProducts" class="summary-list"></div>
+            <div class="coupon-box">
+              <label style="font-weight:900;font-size:13px"><i class="fa fa-tag"></i> ¿Tienes un cupón?</label>
+              <div class="coupon-row"><input id="couponInput" placeholder="Código de cupón"><button class="btn btn-primary btn-small" id="btnApplyCoupon">Aplicar</button></div>
+              <small id="couponHelp" class="mini-muted">Se valida al aplicar y se confirma al generar pedido.</small>
+            </div>
+            <div style="margin-top:10px">
+              <div class="sum-row"><b>Subtotal</b><span id="subtotalText">S/ 0.00</span></div>
+              <div class="sum-row hidden" id="discountRow"><b>Descuento <span id="discountCodeLabel" class="mini-muted"></span></b><span id="discountText">- S/ 0.00</span></div>
+              <div class="sum-row"><b>Envío</b><span>Digital gratis</span></div>
+              <div class="sum-total"><span>Total</span><span id="totalText">S/ 0.00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <div class="card-head"><span>💳 Pago</span><span class="mini-muted">único método</span></div>
+          <div class="card-body">
+            <div class="pay-card"><div class="pay-head"><i class="fa fa-mobile-alt"></i> Yape / Plin</div><div class="pay-body">Paga al número o QR mostrado luego de generar tu pedido.</div></div>
+            <div class="agent-row">
+              <button class="btn btn-outline btn-small agent-btn active" data-agent="ROOM"><span>🤵 Room</span></button>
+              <button class="btn btn-outline btn-small agent-btn" data-agent="RUTH"><span>👩‍✈️ Ruth</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="lookup-panel">
+          <b>🔎 Consultar cuenta entregada</b>
+          <div class="lookup-fields" style="margin-top:8px">
+            <input id="lookupOrderCode" placeholder="ID del pedido" style="border:2px solid #cfd5df;padding:8px 10px">
+            <input id="lookupPhone" placeholder="WhatsApp usado" style="border:2px solid #cfd5df;padding:8px 10px">
+            <button class="btn btn-small" id="btnLookupOrder"><i class="fa fa-search"></i> Consultar</button>
+          </div>
+          <div id="lookupResult" style="margin-top:8px"></div>
+        </div>
+      </aside>
     </div>
-
-    <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
-      <div class="col-md-6 px-xl-0">
-        <p class="mb-md-0 text-center text-md-left" style="color: rgba(255,255,255,.70);">
-          &copy; <a class="text-primary" href="#">Innov AI Tienda</a>. Todos los derechos reservados.
-        </p>
-      </div>
-      <div class="col-md-6 px-xl-0 text-center text-md-right">
-        <img class="img-fluid" src="img/payments.png" alt="Métodos de pago" />
-      </div>
-    </div>
-  </footer>
-
-  <!-- Back to Top -->
-  <a href="#" class="btn btn-primary back-to-top" aria-label="Volver arriba">
-    <i class="fa fa-angle-double-up"></i>
-  </a>
-
-  <!-- JS -->
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-  <script src="lib/easing/easing.min.js"></script>
-  <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-
-  <!-- Validación Contacto (si ya lo usas) -->
-  <script src="mail/jqBootstrapValidation.min.js"></script>
-  <script src="mail/contact.js"></script>
-
-  <script src="js/main.js"></script>
+  </main>
+  <div class="toast" id="toast"></div>
 
   <script>
-    (function(){
-      /* ========= Toast ========= */
-      function showToast(msg, iconClass){
-        const toast = document.getElementById('toastMini');
-        const text = document.getElementById('toastText');
-        const icon = toast.querySelector('i');
-        if(iconClass) icon.className = iconClass;
-        text.textContent = msg;
-        toast.classList.add('show');
-        clearTimeout(showToast._t);
-        showToast._t = setTimeout(()=>toast.classList.remove('show'), 1400);
+    const SUPABASE_URL = "https://rfjvskrimsoqlyofhidj.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const CART_KEY = 'innov_cart_v1';
+    const CURRENT_ORDER_KEY = 'innov_current_checkout_order_v5';
+    const APPLIED_COUPON_KEY = 'innov_applied_coupon_v1';
+    const POLL_MS = 2000;
+    const $ = id => document.getElementById(id);
+
+    let cart = [];
+    let currentOrder = null;
+    let currentCoupon = '';
+    let couponPreview = null;
+    let pollTimer = null;
+    let settings = { yape_number:'991564053', yape_qr_url:'img/yape-qr.png' };
+    let deliverySummary = { type:'manual', label:'Entrega manual', help:'Se requiere revisión/entrega por administrador.' };
+    let planRequirementMap = new Map();
+    let specialRequirements = [];
+    let specialNotices = [];
+    let chatMinimized = false;
+
+    function safeParse(v, fallback){ try { return JSON.parse(v || ''); } catch(e){ return fallback; } }
+    function readCart(){
+      let c = safeParse(sessionStorage.getItem(CART_KEY), []);
+      if(!c.length) c = safeParse(localStorage.getItem(CART_KEY), []);
+      return c || [];
+    }
+    function clearCart(){ sessionStorage.removeItem(CART_KEY); localStorage.removeItem(CART_KEY); }
+    function money(n){ return 'S/ ' + Number(n || 0).toFixed(2); }
+    function esc(s){ return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
+    function toast(msg){ const el=$('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2600); }
+    function setStep(n){ document.querySelectorAll('[data-step]').forEach(x => x.classList.toggle('active', Number(x.dataset.step) === Number(n))); }
+    function subtotal(){ return cart.reduce((a,b)=>a + Number(b.precio || 0) * Number(b.qty || 1), 0); }
+    function cartSignature(){ return JSON.stringify(cartDbItems().map(x=>({p:x.plan_id,q:x.qty})).sort((a,b)=>String(a.p).localeCompare(String(b.p)))); }
+    function cartDbItems(){ return cart.map(i => ({ plan_id: i.plan_id || i.planId || i.supabase_plan_id || null, qty: Number(i.qty || 1) })).filter(i => i.plan_id); }
+
+    function uniqueBy(arr, keyFn){
+      const seen = new Set();
+      return arr.filter(x => {
+        const k = keyFn(x);
+        if(seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+    }
+
+    async function loadSpecialRequirements(){
+      cart = readCart();
+      const ids = [...new Set(cartDbItems().map(x => x.plan_id).filter(Boolean))];
+      planRequirementMap = new Map();
+      specialRequirements = [];
+      specialNotices = [];
+      if(!ids.length){ renderSpecialRequirements(); return; }
+
+      const pr = await db.from('product_plans').select('id,name,slug,metadata,product_id').in('id', ids);
+      if(pr.error || !pr.data){ renderSpecialRequirements(); return; }
+
+      const productIds = [...new Set(pr.data.map(p => p.product_id).filter(Boolean))];
+      let productsMap = new Map();
+      if(productIds.length){
+        const rr = await db.from('products').select('id,name,slug,metadata').in('id', productIds);
+        if(!rr.error && rr.data) productsMap = new Map(rr.data.map(p => [p.id, p]));
       }
 
-      /* ========= Moneda (solo UI) ========= */
-      const currencyBtn = document.getElementById('currencyBtn');
-      const state = { currency: localStorage.getItem('innov_currency') || 'PEN' };
-      function setCurrency(cur){
-        state.currency = cur;
-        localStorage.setItem('innov_currency', cur);
-        currencyBtn.textContent = (cur === 'USD') ? 'USD' : 'Soles';
-        showToast('Moneda actualizada 💱', 'fas fa-exchange-alt');
-      }
-      currencyBtn.textContent = (state.currency === 'USD') ? 'USD' : 'Soles';
-      document.querySelectorAll('.js-set-currency').forEach(btn=>{
-        btn.addEventListener('click', ()=> setCurrency(btn.getAttribute('data-currency')));
+      pr.data.forEach(plan => {
+        const product = productsMap.get(plan.product_id) || {};
+        const pReq = Array.isArray(product?.metadata?.requirements) ? product.metadata.requirements : [];
+        const planReq = Array.isArray(plan?.metadata?.requirements) ? plan.metadata.requirements : [];
+        const reqs = planReq.length ? planReq : pReq;
+        planRequirementMap.set(plan.id, { plan, product, requirements:reqs });
+        const meta = Object.assign({}, product?.metadata || {}, plan?.metadata || {});
+        const noticeParts = [];
+        if(meta.checkout_notice) noticeParts.push(meta.checkout_notice);
+        if(meta.checkout_instructions) noticeParts.push(meta.checkout_instructions);
+        if(meta.delivery_eta_text) noticeParts.push('Tiempo/estado: ' + meta.delivery_eta_text);
+        if(meta.customer_chat_message) noticeParts.push('Mensaje automático: ' + meta.customer_chat_message);
+        if(noticeParts.length){
+          specialNotices.push({
+            plan_id: plan.id,
+            product_name: product.name || 'Producto',
+            plan_name: plan.name || 'Plan',
+            title: meta.requirement_title || 'Aviso importante',
+            text: noticeParts.join('\n\n')
+          });
+        }
+        reqs.forEach(req => {
+          specialRequirements.push({
+            plan_id: plan.id,
+            product_name: product.name || 'Producto',
+            plan_name: plan.name || 'Plan',
+            key: req.key || 'dato',
+            label: req.label || 'Dato requerido',
+            type: req.type || 'text',
+            required: req.required !== false,
+            placeholder: req.placeholder || '',
+            help: req.help || '',
+            domain: req.domain || '',
+            min_length: req.min_length || 0,
+            after_payment: req.after_payment !== false,
+            title: plan?.metadata?.requirement_title || product?.metadata?.requirement_title || 'Datos requeridos'
+          });
+        });
       });
 
-      /* ========= Badges carrito (sessionStorage) ========= */
-      const CART_KEY = 'innov_cart_v1';
-      function safeParse(s){ try{ return JSON.parse(s||'[]'); } catch(e){ return []; } }
-      function readCart(){
-        const cur = safeParse(sessionStorage.getItem(CART_KEY));
-        if(cur && cur.length) return cur;
-        // compat: si quedó algo viejo en localStorage, lo migra y lo borra
-        const legacy = safeParse(localStorage.getItem(CART_KEY));
-        if(legacy && legacy.length){
-          sessionStorage.setItem(CART_KEY, JSON.stringify(legacy));
-          localStorage.removeItem(CART_KEY);
-          return legacy;
+      specialRequirements = uniqueBy(specialRequirements, x => x.plan_id + '::' + x.key);
+      renderSpecialRequirements();
+    }
+
+    function renderSpecialRequirements(){
+      const box = $('specialRequirementsBox');
+      const fields = $('specialRequirementsFields');
+      if(!box || !fields) return;
+      const hasData = specialRequirements.length > 0 || specialNotices.length > 0;
+      box.classList.toggle('hidden', !hasData);
+      box.classList.toggle('pay-stage', hasData);
+      if(!hasData){ fields.innerHTML = ''; return; }
+
+      const groupedTitle = [...new Set([...specialRequirements.map(r => r.title), ...specialNotices.map(n => n.title)].filter(Boolean))].join(' / ') || 'Datos requeridos';
+      $('specialRequirementsHelp').innerHTML = `<div class="special-title">📌 ${esc(groupedTitle)}</div><div class="special-subtitle">Completa estos datos aquí mismo para que tu pedido llegue listo al administrador. Si falta información, no se generará el pedido.</div>`;
+
+      const noticesHtml = uniqueBy(specialNotices, x => x.plan_id + '::' + x.text).map(n => `
+        <div class="special-notice">
+          <strong>ℹ️ ${esc(n.product_name)} — ${esc(n.plan_name)}</strong>
+          <div>${esc(n.text)}</div>
+        </div>`).join('');
+
+      const fieldsHtml = specialRequirements.map((r, idx) => {
+        const id = 'req_' + idx;
+        const required = r.required ? 'data-required="1"' : '';
+        const label = `${esc(r.label)} <span class="mini-muted">(${esc(r.product_name)} — ${esc(r.plan_name)})</span>${r.required?' *':''}`;
+        const common = `id="${id}" class="special-input" data-key="${esc(r.key)}" data-plan="${esc(r.plan_id)}" data-label="${esc(r.label)}" data-product="${esc(r.product_name)}" data-plan-name="${esc(r.plan_name)}" data-domain="${esc(r.domain||'')}" data-min-length="${Number(r.min_length||0)}" ${required} placeholder="${esc(r.placeholder)}"`;
+        const input = r.type === 'textarea'
+          ? `<textarea ${common} rows="${r.key==='chatgpt_session_text'?9:4}"></textarea>`
+          : `<input ${common} type="${r.type === 'email' ? 'email' : 'text'}">`;
+        return `<div class="special-item required"><label>${label}</label>${input}${r.help?`<small>${esc(r.help)}</small>`:''}</div>`;
+      }).join('');
+
+      fields.innerHTML = noticesHtml + fieldsHtml;
+    }
+
+    function collectSpecialInputs(){
+      const inputs = [];
+      let ok = true;
+      const summaryLines = specialNotices.length ? ['AVISOS / INSTRUCCIONES DEL SERVICIO:', ...uniqueBy(specialNotices, x => x.plan_id + '::' + x.text).map(n => `- ${n.product_name} / ${n.plan_name}: ${n.text}`), '', 'DATOS INGRESADOS POR EL CLIENTE:'] : ['DATOS INGRESADOS POR EL CLIENTE:'];
+
+      document.querySelectorAll('.special-input').forEach(el => {
+        const value = el.value.trim();
+        const required = el.dataset.required === '1';
+        const domain = (el.dataset.domain || '').toLowerCase();
+        const minLength = Number(el.dataset.minLength || 0);
+        let valid = true;
+
+        if(required && !value) valid = false;
+        if(valid && el.type === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) valid = false;
+        if(valid && domain && value && !value.toLowerCase().endsWith('@' + domain)) valid = false;
+        if(valid && minLength && value.length < minLength) valid = false;
+
+        el.style.borderColor = valid ? '#d0d7e2' : '#dc2626';
+        if(!valid) ok = false;
+
+        if(value){
+          const item = {
+            plan_id: el.dataset.plan,
+            product_name: el.dataset.product,
+            plan_name: el.dataset.planName,
+            key: el.dataset.key,
+            label: el.dataset.label,
+            value
+          };
+          inputs.push(item);
+          summaryLines.push(`- ${item.product_name} / ${item.plan_name} / ${item.label}: ${value}`);
         }
-        return [];
-      }
-      function syncHeaderBadges(){
-        const items = readCart();
-        const count = items.reduce((a,b)=>a + (Number(b.qty)||0), 0);
-        const b1 = document.getElementById('headerCartBadge');
-        const b2 = document.getElementById('headerCartBadgeSm');
-        if(b1) b1.textContent = count;
-        if(b2) b2.textContent = count;
-      }
-      syncHeaderBadges();
-
-      /* ========= Enviar por WhatsApp desde el formulario ========= */
-      document.getElementById('sendWhatsApp')?.addEventListener('click', function(){
-        const name = (document.getElementById('name').value||'').trim();
-        const email = (document.getElementById('email').value||'').trim();
-        const subject = (document.getElementById('subject').value||'').trim();
-        const message = (document.getElementById('message').value||'').trim();
-
-        if(!name || !subject || !message){
-          showToast('Completa Nombre, Asunto y Mensaje ✍️', 'fas fa-exclamation-circle');
-          return;
-        }
-        if(!document.getElementById('consent').checked){
-          showToast('Acepta la política de privacidad ✅', 'fas fa-exclamation-circle');
-          return;
-        }
-
-        const lines = [];
-        lines.push('Hola, quiero contactarlos desde la web *Innov AI Tienda* ✅');
-        lines.push('');
-        lines.push(`*Nombre:* ${name}`);
-        if(email) lines.push(`*Correo:* ${email}`);
-        lines.push(`*Asunto:* ${subject}`);
-        lines.push('');
-        lines.push(message);
-
-        const WA = '51991564053';
-        const url = `https://wa.me/${WA}?text=${encodeURIComponent(lines.join('\n'))}`;
-        window.open(url, '_blank', 'noopener');
-        showToast('WhatsApp abierto ✅', 'fab fa-whatsapp');
       });
 
-      /* ========= WhatsApp FAB badges (hide) ========= */
-      (function(){
-        var badge1 = document.getElementById('whatsappBadge');
-        var badge2 = document.getElementById('whatsappBadge2');
-        try {
-          if (sessionStorage.getItem('waBadgeHidden')==='1') badge1 && (badge1.style.display='none');
-          if (sessionStorage.getItem('waBadge2Hidden')==='1') badge2 && (badge2.style.display='none');
-        } catch(e){}
-        document.getElementById('whatsappFab')?.addEventListener('click', function(){
-          if(badge1) badge1.style.display='none';
-          try { sessionStorage.setItem('waBadgeHidden','1'); } catch(e){}
+      if(!ok){
+        toast('Revisa los datos requeridos. Gemini solo acepta @gmail.com y ChatGPT requiere el texto completo.');
+      }
+
+      return { ok, data:{ items:inputs }, summary:summaryLines.join('\n') };
+    }
+
+    function renderActivationBox(show=false){
+      const box=$('activationBox'), fields=$('activationFields'), instructions=$('activationInstructions');
+      if(!box||!fields||!instructions)return;
+      const hasReq=specialRequirements.length>0;
+      const shouldShow=hasReq && (show || currentOrder?._paymentSent || currentOrder?._activationSent);
+      box.classList.toggle('hidden', !shouldShow);
+      if(!hasReq){ fields.innerHTML=''; instructions.classList.add('hidden'); return; }
+      const allInstructions = uniqueBy(specialNotices, x=>x.plan_id+'::'+x.text).map(n=>`${n.product_name} — ${n.plan_name}\n${n.text}`).join('\n\n');
+      instructions.textContent=allInstructions;
+      instructions.classList.toggle('hidden', !allInstructions);
+      fields.innerHTML = specialRequirements.map((r,idx)=>{
+        const id='act_'+idx;
+        const common=`id="${id}" class="activation-input" data-key="${esc(r.key)}" data-plan="${esc(r.plan_id)}" data-label="${esc(r.label)}" data-product="${esc(r.product_name)}" data-plan-name="${esc(r.plan_name)}" data-required="${r.required?'1':'0'}" data-domain="${esc(r.domain||'')}" data-min-length="${Number(r.min_length||0)}" placeholder="${esc(r.placeholder)}"`;
+        const label=`${esc(r.label)} <span class="mini-muted">(${esc(r.product_name)} — ${esc(r.plan_name)})</span>${r.required?' *':''}`;
+        const input=r.type==='textarea'
+          ? `<textarea ${common} rows="${r.key==='chatgpt_session_text'?8:4}"></textarea>`
+          : `<input ${common} type="${r.type==='email'?'email':'text'}">`;
+        return `<div class="field"><label>${label}</label>${input}${r.help?`<small>${esc(r.help)}</small>`:''}</div>`;
+      }).join('');
+      if(currentOrder?._activationSent){
+        $('activationResult').innerHTML='<div class="alert-ok">✅ Datos enviados. La confirmación llegará a tu WhatsApp. Tiempo máximo según producto: ChatGPT hasta 12 horas; Gemini/Autodesk/Canva hasta 1 hora y puede ser antes.</div>';
+      }
+    }
+
+    function collectActivationInputs(){
+      const inputs=[]; let ok=true; const summary=[];
+      document.querySelectorAll('.activation-input').forEach(el=>{
+        const value=el.value.trim();
+        const req=el.dataset.required==='1';
+        const domain=(el.dataset.domain||'').toLowerCase();
+        const minLen=Number(el.dataset.minLength||0);
+        el.style.borderColor='#cfd5df';
+        if(req && !value){ ok=false; el.style.borderColor='#dc2626'; }
+        if(value && el.type==='email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)){ ok=false; el.style.borderColor='#dc2626'; toast('Revisa el correo ingresado.'); }
+        if(value && domain && !value.toLowerCase().endsWith('@'+domain)){ ok=false; el.style.borderColor='#dc2626'; toast('Este producto solo acepta correo @'+domain); }
+        if(value && minLen && value.length<minLen){ ok=false; el.style.borderColor='#dc2626'; toast('El texto enviado parece incompleto. Copia todo el texto solicitado.'); }
+        if(value){
+          const item={plan_id:el.dataset.plan,product_name:el.dataset.product,plan_name:el.dataset.planName,key:el.dataset.key,label:el.dataset.label,value};
+          inputs.push(item);
+          summary.push(`- ${item.product_name} / ${item.plan_name} / ${item.label}: ${value}`);
+        }
+      });
+      if(!inputs.length && specialRequirements.length){ ok=false; toast('Completa los datos de activación.'); }
+      return {ok,data:{items:inputs},summary:summary.join('\n')};
+    }
+
+    async function sendActivationData(){
+      if(!currentOrder?.order_code){toast('Primero genera el pedido.');return}
+      const phone=($('phone').value.trim()||currentOrder._phone||$('lookupPhone').value.trim());
+      if(!phone){toast('Falta WhatsApp para validar el pedido.');return}
+      const payload=collectActivationInputs();
+      if(!payload.ok)return;
+      const btn=$('btnSendActivationData'); btn.disabled=true; btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Enviando...';
+      const r=await db.rpc('update_order_customer_inputs_public',{p_order_code:currentOrder.order_code,p_customer_whatsapp:phone,p_customer_inputs:payload.data,p_requirement_summary:payload.summary});
+      btn.disabled=false; btn.innerHTML='<i class="fa fa-paper-plane"></i> Enviar datos de activación';
+      if(r.error){toast(r.error.message);return}
+      currentOrder._activationSent=true; persistOrder();
+      $('activationResult').innerHTML='<div class="alert-ok">✅ Datos enviados. La confirmación llegará a tu WhatsApp. El tiempo máximo es: ChatGPT hasta 12 horas; Gemini/Autodesk/Canva hasta 1 hora, puede validarse antes.</div>';
+      await checkStatus({target:'statusBox',silent:true});
+    }
+
+    function renderChat(messages){
+      const box = $('orderChatBox');
+      const list = $('orderChatList');
+      if(!box || !list) return;
+      box.classList.toggle('hidden', !currentOrder?.order_code || chatMinimized);
+      const arr = Array.isArray(messages) ? messages : [];
+      list.innerHTML = arr.length ? arr.map(m => `
+        <div class="chat-msg ${esc(m.role||'system')}">
+          <b>${esc(m.name || (m.role==='admin'?'Soporte':'Cliente'))}</b>
+          <span class="mini-muted"> · ${m.created_at ? new Date(m.created_at).toLocaleString() : ''}</span>
+          <div style="white-space:pre-wrap">${esc(m.message||'')}</div>
+        </div>`).join('') : '<div class="mini-muted">Aún no hay mensajes.</div>';
+      list.scrollTop = list.scrollHeight;
+    }
+
+    async function sendChatMessage(){
+      if(!currentOrder?.order_code){ toast('Primero genera el pedido.'); return; }
+      const msg = $('orderChatInput').value.trim();
+      if(!msg){ toast('Escribe un mensaje.'); return; }
+      const phone = $('phone').value.trim() || currentOrder?._phone || $('lookupPhone').value.trim();
+      const r = await db.rpc('public_send_order_message', {
+        p_order_code: currentOrder.order_code,
+        p_customer_whatsapp: phone,
+        p_message: msg
+      });
+      if(r.error){ toast(r.error.message); return; }
+      $('orderChatInput').value = '';
+      await checkStatus({target:'statusBox', silent:true});
+      toast('Mensaje enviado al administrador.');
+    }
+
+    async function loadSettings(){
+      const r = await db.from('app_settings').select('*').eq('key','payment_public').maybeSingle();
+      if(!r.error && r.data?.value){ settings = {...settings, ...r.data.value}; }
+      $('paymentNumber').textContent = settings.yape_number || '991564053';
+      if($('qrImage')){ $('qrImage').style.display='block'; $('qrImage').src = settings.yape_qr_url || 'img/yape-qr.png'; }
+    }
+
+    async function detectDeliveryMode(){
+      const ids = [...new Set(cartDbItems().map(x => x.plan_id))];
+      let modes = [];
+      if(ids.length){
+        const r = await db.from('product_plans').select('id,stock_mode,delivery_mode').in('id',ids);
+        if(!r.error && r.data?.length){
+          modes = r.data.map(p => (p.stock_mode === 'controlled' || p.delivery_mode === 'auto') ? 'auto' : 'manual');
+        }
+      }
+      if(!modes.length){
+        modes = cart.map(i => {
+          const m = String(i?.meta?.delivery_mode || i.delivery_mode || '').toLowerCase();
+          return m === 'auto' ? 'auto' : 'manual';
         });
-        document.getElementById('whatsappFab2')?.addEventListener('click', function(){
-          if(badge2) badge2.style.display='none';
-          try { sessionStorage.setItem('waBadge2Hidden','1'); } catch(e){}
-        });
-      })();
-    })();
+      }
+      const unique = [...new Set(modes.filter(Boolean))];
+      if(unique.length === 1 && unique[0] === 'auto') deliverySummary = { type:'auto', label:'Entrega automática', help:'Se entrega automáticamente cuando el pago sea aprobado.' };
+      else if(unique.length > 1) deliverySummary = { type:'mixed', label:'Entrega mixta', help:'Hay productos automáticos y manuales en tu compra.' };
+      else deliverySummary = { type:'manual', label:'Entrega manual', help:'El administrador registrará la cuenta/código luego de validar el pago.' };
+      renderDeliveryMode();
+    }
+
+    function renderDeliveryMode(){
+      const b = $('deliveryModeBadge');
+      b.classList.toggle('manual', deliverySummary.type !== 'auto');
+      b.innerHTML = deliverySummary.type === 'auto' ? '<i class="fa fa-bolt"></i> Entrega automática' : '<i class="fa fa-user-check"></i> ' + deliverySummary.label;
+      $('deliveryModeHelp').textContent = deliverySummary.help;
+    }
+
+    function renderCart(totals){
+      cart = readCart();
+      $('cartCount').textContent = cart.reduce((a,b)=>a+Number(b.qty||1),0);
+      $('itemsCountText').textContent = $('cartCount').textContent + ' item' + ($('cartCount').textContent === '1' ? '' : 's');
+      $('emptyNote').classList.toggle('hidden', cart.length > 0);
+      $('checkoutProducts').innerHTML = cart.map(i => `
+        <div class="item">
+          <div class="item-left">
+            <img class="thumb" src="${esc(i.imagen || i.image || 'img/placeholder.jpg')}" onerror="this.src='img/placeholder.jpg'">
+            <div><div class="item-name">${esc(i.nombre || 'Producto')}</div><div class="item-meta">${esc(i.plan_name || i.plan || 'Plan')} · Cantidad: ${Number(i.qty||1)}</div></div>
+          </div>
+          <b>${money(Number(i.precio||0)*Number(i.qty||1))}</b>
+        </div>`).join('');
+      const sub = totals ? Number(totals.subtotal||0) : subtotal();
+      const disc = totals ? Number(totals.discount_amount||0) : (couponPreview ? Number(couponPreview.amount||0) : 0);
+      const total = totals ? Number(totals.total||0) : Math.max(0, sub - disc);
+      $('subtotalText').textContent = money(sub);
+      $('totalText').textContent = money(total);
+      $('discountRow').classList.toggle('hidden', disc <= 0);
+      $('discountText').textContent = '- ' + money(disc);
+      $('discountCodeLabel').textContent = currentCoupon ? '(' + currentCoupon + ')' : '';
+    }
+
+    async function applyCoupon(){
+      const code = $('couponInput').value.trim().toUpperCase();
+      if(!code){ toast('Escribe un cupón.'); return; }
+      currentCoupon = code;
+      couponPreview = null;
+      try{ sessionStorage.setItem(APPLIED_COUPON_KEY, JSON.stringify({ code })); }catch(e){}
+      const r = await db.from('coupons').select('*').eq('code', code).eq('active', true).maybeSingle();
+      if(r.error || !r.data){ $('couponHelp').textContent = 'Cupón guardado, se validará al generar pedido.'; renderCart(); toast('Cupón guardado para validar.'); return; }
+      const c = r.data;
+      const sub = subtotal();
+      if(Number(c.used_count||0) >= Number(c.max_uses||0)){ $('couponHelp').textContent = 'Cupón sin usos disponibles.'; renderCart(); return; }
+      if(sub < Number(c.min_amount||0)){ $('couponHelp').textContent = 'El cupón requiere compra mínima de ' + money(c.min_amount); renderCart(); return; }
+      let amount = c.discount_type === 'percent' ? sub * Number(c.discount_value||0) / 100 : Number(c.discount_value||0);
+      amount = Math.max(0, Math.min(amount, sub));
+      couponPreview = { amount };
+      $('couponHelp').textContent = 'Cupón aplicado: descuento aproximado ' + money(amount) + '. Se confirmará al generar pedido.';
+      renderCart(); toast('Cupón aplicado.');
+    }
+
+    function persistOrder(){
+      if(currentOrder){
+        currentOrder._phone = $('phone').value.trim() || currentOrder._phone || $('lookupPhone').value.trim();
+        currentOrder._cartSig = cartSignature();
+        sessionStorage.setItem(CURRENT_ORDER_KEY, JSON.stringify(currentOrder));
+      }
+    }
+    function clearCurrentOrderLocal(){
+      currentOrder=null; sessionStorage.removeItem(CURRENT_ORDER_KEY); stopPolling();
+    }
+    function showFormView(){
+      clearCurrentOrderLocal();
+      $('generatedView').classList.add('hidden');
+      $('formView').classList.remove('hidden');
+      $('mainCardTitle').textContent='🧾 Datos para generar pedido';
+      setStep(2);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function restoreOrder(){
+      const saved = safeParse(sessionStorage.getItem(CURRENT_ORDER_KEY), null);
+      if(!saved?.order_code) return;
+      const sig=cartSignature();
+      if(cart.length && saved._cartSig && saved._cartSig!==sig){
+        sessionStorage.removeItem(CURRENT_ORDER_KEY);
+        return;
+      }
+      if(!saved._phone && !$('phone').value.trim()){
+        sessionStorage.removeItem(CURRENT_ORDER_KEY);
+        return;
+      }
+      currentOrder = saved;
+      if(saved._phone){ $('phone').value=saved._phone; $('lookupPhone').value=saved._phone; }
+      showGeneratedView(currentOrder, false);
+      startPolling();
+      checkStatus({ target:'statusBox', silent:true });
+    }
+
+    function showGeneratedView(order, scroll=true){
+      $('formView').classList.add('hidden');
+      $('generatedView').classList.remove('hidden');
+      $('mainCardTitle').textContent = '📌 Pedido generado';
+      $('orderCodeText').textContent = order.order_code;
+      $('orderTotalText').textContent = money(order.total);
+      $('lookupOrderCode').value = order.order_code;
+      const phone=order._phone || $('phone').value.trim();
+      if(phone && !$('lookupPhone').value) $('lookupPhone').value = phone;
+      setStep(3);
+      renderActivationBox(false);
+      if(scroll) $('mainCard').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    async function generateOrder(){
+      cart = readCart();
+      if(!cart.length){ toast('Tu carrito está vacío.'); return; }
+      const name = $('fullName').value.trim();
+      const phone = $('phone').value.trim();
+      const country = $('country').value;
+      if(!name || !phone || !country){ toast('Completa nombre, celular y país.'); return; }
+      if(!$('terms').checked){ toast('Acepta los términos para continuar.'); return; }
+      const items = cartDbItems();
+      if(!items.length){ toast('Tus productos no están conectados a Supabase. Agrégalos otra vez desde la tienda.'); return; }
+      const special = collectSpecialInputs();
+      if(!special.ok){ toast('Completa los datos necesarios del producto.'); return; }
+      const btn = $('btnGenerateOrder');
+      btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generando...';
+      const r = await db.rpc('create_public_order_v2', {
+        p_customer_name:name,
+        p_customer_whatsapp:phone,
+        p_customer_email:'',
+        p_delivery_method:deliverySummary.label,
+        p_country:country,
+        p_payment_method:'yape_manual',
+        p_coupon_code:currentCoupon,
+        p_items:items,
+        p_customer_inputs:special.data,
+        p_requirement_summary:special.summary
+      });
+      btn.disabled = false; btn.innerHTML = '<i class="fa fa-qrcode"></i> Generar pedido y pagar';
+      if(r.error){ toast(r.error.message); return; }
+      currentOrder = {...r.data[0], _phone:phone, _cartSig:cartSignature(), _paymentSent:false, _activationSent:false};
+      persistOrder();
+      renderCart(currentOrder);
+      showGeneratedView(currentOrder);
+      toast('Pedido generado. Guarda tu ID y realiza el pago.');
+    }
+
+    
+    async function cancelCurrentOrder(){
+      if(!currentOrder?.order_code){ showFormView(); return; }
+      if(!confirm('¿Cancelar este pedido? Si ya pagaste, no lo canceles y espera revisión.')) return;
+      const phone = $('phone').value.trim() || currentOrder._phone || $('lookupPhone').value.trim();
+      const r = await db.rpc('public_cancel_order',{p_order_code:currentOrder.order_code,p_customer_whatsapp:phone});
+      if(r.error){ toast(r.error.message); return; }
+      clearCurrentOrderLocal();
+      $('generatedView').classList.add('hidden');
+      $('formView').classList.remove('hidden');
+      $('mainCardTitle').textContent='🧾 Datos para generar pedido';
+      setStep(2);
+      toast('Pedido cancelado. Puedes editar tus datos o hacer otra compra.');
+    }
+
+async function sendPaymentReview(){
+      if(!currentOrder?.order_code){ toast('Primero genera el pedido.'); return; }
+      const operation = $('operationCode').value.trim();
+      if(!operation){ toast('Coloca el código de operación.'); return; }
+      const phone = $('phone').value.trim() || currentOrder._phone || $('lookupPhone').value.trim();
+      const r = await db.rpc('report_payment_public', {
+        p_order_code:currentOrder.order_code,
+        p_customer_whatsapp:phone,
+        p_operation_code:operation,
+        p_customer_note:$('customerNote').value.trim(),
+        p_proof_image_url:''
+      });
+      if(r.error){ toast(r.error.message); return; }
+      currentOrder._paymentSent=true; persistOrder(); renderActivationBox(true);
+      setStep(4);
+      $('statusBox').innerHTML = '<div class="alert-wait">Pago enviado a revisión. Verificando entrega cada 2 segundos...</div>';
+      startPolling();
+      await checkStatus({ target:'statusBox', silent:true });
+      toast('Pago enviado a revisión.');
+    }
+
+    function startPolling(){ stopPolling(); pollTimer = setInterval(()=>checkStatus({target:'statusBox', silent:true}), POLL_MS); }
+    function stopPolling(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+
+    async function checkStatus(opts={}){
+      if(!opts.silent) chatMinimized = false;
+      const orderCode = (opts.orderCode || currentOrder?.order_code || $('lookupOrderCode').value || '').trim().toUpperCase();
+      const phone = (opts.phone || $('phone').value || currentOrder?._phone || $('lookupPhone').value || '').trim();
+      const target = opts.target || 'lookupResult';
+      if(!orderCode || !phone){ if(!opts.silent) toast('Coloca ID de pedido y WhatsApp.'); return; }
+      const box = $(target);
+      if(!opts.silent) box.innerHTML = '<div class="mini-muted">Consultando pedido...</div>';
+      const r = await db.rpc('get_public_order_status_v2', { p_order_code:orderCode, p_customer_whatsapp:phone });
+      if(r.error){ if(!opts.silent) box.innerHTML = '<div class="alert-wait">' + esc(r.error.message) + '</div>'; return; }
+      const info = r.data?.[0];
+      if(!info){ box.innerHTML = '<div class="alert-wait">No se encontró información.</div>'; return; }
+      if(info.status && info.status !== 'pending_payment'){ currentOrder = {...(currentOrder||{}), _paymentSent:true}; persistOrder(); renderActivationBox(true); }
+      const delivered = Array.isArray(info.deliveries) && info.deliveries.length;
+      let content = `<div class="${delivered?'alert-ok':'alert-wait'}"><b>ID:</b> ${esc(orderCode)}<br><b>Estado:</b> ${esc(info.status)} / ${esc(info.delivery_status)}<br><b>Total:</b> ${money(info.total)}</div>`;
+      renderChat(info.chat_messages || []);
+      if(info.requirement_summary){
+        content += `<div class="special-box" style="margin-top:8px"><b>📌 Datos enviados al administrador</b><div style="white-space:pre-wrap;margin-top:5px">${esc(info.requirement_summary)}</div></div>`;
+      }
+      if(['rejected','cancelled'].includes(String(info.status)) || ['cancelled'].includes(String(info.delivery_status))){
+        content += `<div class="alert-wait" style="margin-top:8px"><b>❌ Pedido ${esc(info.status)}</b><br>Este pedido fue rechazado o cancelado. Si crees que es un error, genera un nuevo pedido.</div>`;
+        stopPolling();
+      } else if(delivered){
+        const deliveryText = buildDeliveryText(info, orderCode);
+        content += '<div style="margin-top:8px"><b>✅ Cuenta / datos entregados:</b></div>';
+        content += `<div class="delivery-data">${esc(deliveryText)}</div>`;
+        content += `<div class="download-row"><button class="btn btn-primary btn-small" onclick="downloadDeliveryTxt('${esc(orderCode)}')"><i class="fa fa-download"></i> Descargar bloc de notas</button></div>`;
+        stopPolling(); clearCart(); renderCart(); setStep(4);
+      } else {
+        content += '<div class="mini-muted" style="margin-top:8px">Aún no hay entrega registrada. Si ya enviaste el pago, espera aprobación del administrador.</div>';
+      }
+      box.innerHTML = content;
+    }
+
+    function buildDeliveryText(info, code){
+      const name = $('fullName').value.trim() || info.customer_name || '';
+      const phone = $('phone').value.trim() || $('lookupPhone').value.trim() || '';
+      const date = new Date().toLocaleString();
+      const items = cart.map(i => `- ${i.nombre || 'Producto'} ${i.plan_name ? '('+i.plan_name+')' : ''} x${i.qty||1}`).join('\n') || '- Producto comprado';
+      const deliveries = (info.deliveries || []).map(d => d.message || '').join('\n\n---\n\n');
+      return `INNOV IA TIENDA\nID del pedido: ${code}\nFecha de consulta: ${date}\nCliente: ${name}\nWhatsApp: ${phone}\nTotal: ${money(info.total)}\n\nProductos:\n${items}\n\nDatos enviados por el cliente:\n${info.requirement_summary || 'Sin datos especiales'}\n\nDatos de entrega:\n${deliveries}`;
+    }
+
+    window.downloadDeliveryTxt = function(code){
+      const statusText = document.querySelector('.delivery-data')?.textContent || '';
+      if(!statusText){ toast('Aún no hay entrega para descargar.'); return; }
+      const blob = new Blob([statusText], {type:'text/plain;charset=utf-8'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `pedido-${code || 'innov-ia'}-entrega.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    document.querySelectorAll('.agent-btn').forEach(btn=>btn.addEventListener('click',()=>{
+      document.querySelectorAll('.agent-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      toast('Agente seleccionado.');
+    }));
+    $('btnApplyCoupon').addEventListener('click', applyCoupon);
+    $('couponInput').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); applyCoupon(); }});
+    $('btnGenerateOrder').addEventListener('click', generateOrder);
+    $('btnSendReview').addEventListener('click', sendPaymentReview);
+      $('btnBackToData')?.addEventListener('click', showFormView);
+      $('btnCancelOrder')?.addEventListener('click', cancelCurrentOrder);
+      $('btnSendActivationData')?.addEventListener('click', sendActivationData);
+    $('btnLookupOrder').addEventListener('click', ()=>checkStatus({ orderCode:$('lookupOrderCode').value, phone:$('lookupPhone').value, target:'lookupResult' }));
+    $('btnSendChatMessage')?.addEventListener('click', sendChatMessage);
+    $('btnOpenSupport')?.addEventListener('click', openSupportModal);
+    $('btnCloseSupport')?.addEventListener('click', closeSupportModal);
+    $('btnSupportFillCurrent')?.addEventListener('click', fillSupportFromCurrent);
+    $('btnSendSupportRequest')?.addEventListener('click', sendSupportRequest);
+    $('btnMinimizeChat')?.addEventListener('click', ()=> { chatMinimized = true; $('orderChatBox')?.classList.add('hidden'); toast('Chat minimizado. Se volverá a mostrar al consultar el pedido.'); });
+    $('orderChatInput')?.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); sendChatMessage(); }});
+
+    async function init(){
+      cart = readCart();
+      const savedCoupon = safeParse(sessionStorage.getItem(APPLIED_COUPON_KEY), null);
+      if(savedCoupon?.code){ currentCoupon = savedCoupon.code; $('couponInput').value = currentCoupon; }
+      await loadSettings();
+      renderCart();
+      await detectDeliveryMode();
+      await loadSpecialRequirements();
+      restoreOrder();
+      if(currentOrder?.order_code){ checkStatus({ target:'statusBox', silent:true }); }
+    }
+    init();
   </script>
 </body>
 </html>
-
-
