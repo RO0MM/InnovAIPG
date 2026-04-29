@@ -492,7 +492,7 @@ dialog form { max-height: min(82vh, 760px); overflow: auto; padding: 20px; paddi
 }
 .bottom-actions {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(9, 1fr);
   width: 100%;
   gap: 2px;
 }
@@ -907,6 +907,17 @@ canvas.chart {
 .crm-meta .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .whatsapp-link{color:var(--success);font-weight:900;text-decoration:none}
 .whatsapp-link:hover{text-decoration:underline}
+.order-extra{border:1px dashed var(--border);background:color-mix(in srgb,var(--card) 90%,var(--primary) 10%);border-radius:12px;padding:9px;margin:8px 0;white-space:pre-wrap}
+.order-chat-preview{font-size:.78rem;color:var(--muted);margin-top:6px;max-height:70px;overflow:auto}
+.chat-thread{display:grid;gap:8px;max-height:420px;overflow:auto}
+.chat-bubble{border:1px solid var(--border);border-radius:12px;padding:9px;background:var(--card)}
+.chat-bubble.admin{border-color:color-mix(in srgb,var(--success) 35%,var(--border));background:var(--success-alpha)}
+.chat-bubble.customer{border-color:color-mix(in srgb,var(--primary) 35%,var(--border));background:var(--primary-alpha)}
+.chat-bubble.system{border-color:color-mix(in srgb,var(--warning) 35%,var(--border));background:var(--warning-alpha)}
+.delivery-preview{white-space:pre-wrap;background:#052e1a;color:#ecfdf5;border-radius:14px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86rem;line-height:1.45}
+.delivery-template-card{border-left:4px solid var(--success)}
+.delivery-vars{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.delivery-vars span{font-size:.74rem}
 
 </style>
 </head>
@@ -952,6 +963,7 @@ canvas.chart {
     <button class="btn nav-btn" data-tab="orders">🧾 Pagos y pedidos</button>
     <button class="btn nav-btn" data-tab="clients">👥 Clientes</button>
     <button class="btn nav-btn" data-tab="reminders">🔔 Recordatorios</button>
+    <button class="btn nav-btn" data-tab="templates">📝 Plantillas</button>
     <button class="btn nav-btn" data-tab="coupons">🎟️ Cupones</button>
     <button class="btn nav-btn" data-tab="settings">⚙️ Ajustes</button>
   </div>
@@ -1007,7 +1019,24 @@ canvas.chart {
       <div class="mini-grid" id="remindersGrid"></div>
     </section>
 
-<section id="tab-coupons" class="admin-section">
+<section id="tab-templates" class="admin-section">
+      <div class="admin-toolbar">
+        <input class="input" id="templateSearch" type="search" placeholder="Buscar plantilla de pago o entrega...">
+        <button class="btn btn-primary" id="btnNewTemplate" type="button">＋ Plantilla pago</button>
+        <button class="btn btn-success" id="btnNewDeliveryTemplate" type="button">＋ Plantilla entrega</button>
+        <button class="btn" id="btnResetDefaultTemplate" type="button">Crear plantilla base</button>
+      </div>
+      <div class="card" style="margin-bottom:12px;border-left:4px solid var(--primary)">
+        <strong>📝 Variables disponibles</strong>
+        <p class="help" style="margin:6px 0 0">
+          Pago: <span class="mono">{cliente}</span>, <span class="mono">{servicio}</span>, <span class="mono">{monto}</span>, <span class="mono">{vence}</span>, <span class="mono">{dias}</span>, <span class="mono">{pedido}</span>, <span class="mono">{telefono}</span>, <span class="mono">{yape}</span>, <span class="mono">{tienda}</span>.<br>
+          Entrega: <span class="mono">{pedido}</span>, <span class="mono">{producto}</span>, <span class="mono">{correo}</span>, <span class="mono">{contraseña}</span>, <span class="mono">{perfil}</span>, <span class="mono">{pin}</span>, <span class="mono">{grupo}</span>, <span class="mono">{url}</span>, <span class="mono">{codigo}</span>, <span class="mono">{fecha_inicio}</span>, <span class="mono">{restricciones}</span>.
+        </p>
+      </div>
+      <h3 style="margin:12px 0 8px">💬 Plantillas de pago / recordatorio</h3><div class="mini-grid" id="templatesGrid"></div><h3 style="margin:16px 0 8px">📦 Plantillas de entrega</h3><div class="mini-grid" id="deliveryTemplatesGrid"></div>
+    </section>
+
+    <section id="tab-coupons" class="admin-section">
       <div class="grid grid-2">
         <div class="card"><strong>🎟️ Crear cupón</strong>
           <label class="subtle">Código</label><input class="input" id="cpCode" placeholder="PROMO10">
@@ -1026,10 +1055,29 @@ canvas.chart {
     </section>
   </main>
 </div>
-<div class="bottom-bar"><div class="bottom-actions"><button class="btn active" data-tab="dashboard" type="button"><span class="ico">📊</span><span>Inicio</span></button><button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Productos</span></button><button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Cupos</span></button><button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pagos</span></button><button class="btn" data-tab="clients" type="button"><span class="ico">👥</span><span>Clientes</span></button><button class="btn" data-tab="reminders" type="button"><span class="ico">🔔</span><span>Record.</span></button><button class="btn" data-tab="coupons" type="button"><span class="ico">🎟️</span><span>Cupones</span></button><button class="btn" data-tab="settings" type="button"><span class="ico">⚙️</span><span>Ajustes</span></button></div></div>
+<div class="bottom-bar"><div class="bottom-actions"><button class="btn active" data-tab="dashboard" type="button"><span class="ico">📊</span><span>Inicio</span></button><button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Productos</span></button><button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Cupos</span></button><button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pagos</span></button><button class="btn" data-tab="clients" type="button"><span class="ico">👥</span><span>Clientes</span></button><button class="btn" data-tab="reminders" type="button"><span class="ico">🔔</span><span>Record.</span></button><button class="btn" data-tab="templates" type="button"><span class="ico">📝</span><span>Plant.</span></button><button class="btn" data-tab="coupons" type="button"><span class="ico">🎟️</span><span>Cupones</span></button><button class="btn" data-tab="settings" type="button"><span class="ico">⚙️</span><span>Ajustes</span></button></div></div>
 <dialog id="dlgProduct"><div class="modal-header"><strong id="productDlgTitle">Producto</strong><button class="btn btn-ghost" data-close="dlgProduct" type="button">✖</button></div><form id="productForm"><input type="hidden" id="pId"><div class="grid grid-2"><div><label class="subtle">Nombre</label><input class="input" id="pName" required></div><div><label class="subtle">Slug</label><input class="input" id="pSlug" placeholder="automático"></div><div><label class="subtle">Categoría</label><select class="input" id="pCategory"><option value="ai">IA</option><option value="streaming">Streaming</option><option value="musica">Edición / Video</option><option value="otros">Herramientas</option></select></div><div><label class="subtle">Tipo tienda</label><select class="input" id="pSale"><option value="retail">Por menor</option><option value="wholesale">Proveedor</option></select></div><div class="full"><label class="subtle">Imagen URL</label><input class="input" id="pImage"></div><div class="full"><label class="subtle">Descripción</label><textarea class="input" id="pDesc"></textarea></div><div><label class="subtle">Prioridad</label><input class="input" id="pPriority" type="number" value="100"></div><div><label class="subtle">Estado</label><select class="input" id="pActive"><option value="true">Activo</option><option value="false">Oculto</option></select></div><label class="help full"><input id="pBasePlan" type="checkbox"> Crear plan base si es nuevo</label></div><div class="modal-actions"><button class="btn btn-danger" type="button" id="btnDeleteProduct">Eliminar</button><button class="btn" type="button" data-close="dlgProduct">Cancelar</button><button class="btn btn-primary" type="submit">Guardar</button></div></form></dialog>
 <dialog id="dlgPlan"><div class="modal-header"><strong id="planDlgTitle">Plan / cupos</strong><button class="btn btn-ghost" data-close="dlgPlan" type="button">✖</button></div><form id="planForm"><input type="hidden" id="plId"><div class="grid grid-2"><div><label class="subtle">Producto</label><select class="input" id="plProduct" required></select></div><div><label class="subtle">Nombre del plan</label><input class="input" id="plName" required></div><div><label class="subtle">Slug</label><input class="input" id="plSlug" placeholder="automático"></div><div><label class="subtle">Precio S/</label><input class="input" id="plPrice" type="number" step="0.01"></div><div><label class="subtle">Periodo</label><input class="input" id="plPeriod" value="Mensual"></div><div><label class="subtle">Estado</label><select class="input" id="plActive"><option value="true">Activo</option><option value="false">Oculto</option></select></div><div class="full"><label class="subtle">Imagen específica</label><input class="input" id="plImage"></div><div class="full"><label class="subtle">Descripción</label><textarea class="input" id="plDesc"></textarea></div><div class="full"><label class="subtle">Beneficios, uno por línea</label><textarea class="input" id="plBenefits"></textarea></div><div class="full"><label class="subtle">Chips, separados por coma</label><input class="input" id="plChips"></div><div><label class="subtle">Tipo de entrega</label><select class="input" id="plDeliveryType"><option value="automatic">Automática: cuentas/códigos cargados</option><option value="manual">Manual: cupos escritos</option></select></div><div><label class="subtle">Disponibilidad</label><select class="input" id="plAvailability"><option value="available">Disponible</option><option value="consult">Consultar</option><option value="unavailable">No disponible</option></select></div><div id="manualBox" class="stock-box full"><label class="subtle">Cupos manuales</label><input class="input" id="plManualStock" type="number" min="0" placeholder="Ej: 20"><p class="help">Se muestran cupos, pero al aprobar pago se pedirá cuenta/código real si no existe stock cargado.</p></div><div id="autoBox" class="stock-box full"><label class="subtle">Importar cuentas/códigos por lote</label><textarea class="input" id="bulkText" placeholder="correo@gmail.com|clave123|nota opcional&#10;CODIGO-CDK-123"></textarea><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><span class="badge b-ok" id="validCount">0 válidas</span><span class="badge b-warn" id="doubtCount">0 dudosas</span><button class="btn" type="button" id="btnPreviewBulk">Detectar</button><button class="btn btn-success" type="button" id="btnSaveBulk">Guardar lote</button></div><div id="bulkPreview" class="preview-list help" style="margin-top:8px"></div></div><div><label class="subtle">Prioridad</label><input class="input" id="plPriority" type="number" value="100"></div></div><div class="modal-actions"><button class="btn btn-danger" type="button" id="btnDeletePlan">Eliminar</button><button class="btn" type="button" data-close="dlgPlan">Cancelar</button><button class="btn btn-primary" type="submit">Guardar plan</button></div></form></dialog>
-<dialog id="dlgManual"><div class="modal-header"><strong>Entrega manual real</strong><button class="btn btn-ghost" data-close="dlgManual" type="button">✖</button></div><div class="dlg-body"><input type="hidden" id="manualOrderId"><label class="subtle">Plan del pedido</label><select class="input" id="manualPlan"></select><div class="grid grid-2"><div><label class="subtle">Correo / usuario</label><input class="input" id="manualUser"></div><div><label class="subtle">Clave</label><input class="input" id="manualPass"></div></div><label class="subtle">Código / perfil</label><input class="input" id="manualCode"><label class="subtle">Nota</label><textarea class="input" id="manualNote">No cambiar datos. Soporte por WhatsApp.</textarea><label class="subtle">Mensaje final</label><textarea class="input" id="manualMessage"></textarea></div><div class="modal-actions"><button class="btn" id="btnGenerateManualMsg" type="button">Generar mensaje</button><button class="btn btn-primary" id="btnSaveManualDelivery" type="button">Registrar entrega</button></div></dialog>
+<dialog id="dlgManual"><div class="modal-header"><strong>Entrega manual real</strong><button class="btn btn-ghost" data-close="dlgManual" type="button">✖</button></div><div class="dlg-body"><input type="hidden" id="manualOrderId"><label class="subtle">Plan del pedido</label><select class="input" id="manualPlan"></select>
+<div class="grid grid-2">
+  <div><label class="subtle">Plantilla de entrega</label><select class="input" id="manualTemplate"></select></div>
+  <div><label class="subtle">Fecha de inicio</label><input class="input" id="manualStartDate" type="date"></div>
+  <div><label class="subtle">Correo / usuario</label><input class="input" id="manualUser"></div>
+  <div><label class="subtle">Contraseña</label><input class="input" id="manualPass"></div>
+  <div><label class="subtle">Perfil</label><input class="input" id="manualProfile" placeholder="Ej: 4"></div>
+  <div><label class="subtle">PIN</label><input class="input" id="manualPin" placeholder="Ej: 1992"></div>
+  <div><label class="subtle">Grupo WhatsApp</label><input class="input" id="manualGroup" placeholder="https://chat.whatsapp.com/..."></div>
+  <div><label class="subtle">URL / Link / Servidor</label><input class="input" id="manualUrl" placeholder="URL si aplica"></div>
+  <div><label class="subtle">Código / CDK</label><input class="input" id="manualCode"></div>
+  <div><label class="subtle">Nota adicional</label><input class="input" id="manualNote" placeholder="Soporte por WhatsApp"></div>
+  <div class="full"><label class="subtle">Restricciones editables</label><textarea class="input" id="manualRestrictions">🚫 RESTRICCIONES:
+❌ Respetar el horario de soporte
+❌ No modificar nada sin autorización
+❌ No compartir la cuenta
+✅ Uso permitido en un solo dispositivo</textarea></div>
+</div>
+<label class="subtle">Mensaje final</label><textarea class="input" id="manualMessage" style="min-height:220px"></textarea>
+<div class="delivery-preview" id="manualPreview" style="margin-top:10px"></div></div><div class="modal-actions"><button class="btn" id="btnGenerateManualMsg" type="button">Generar mensaje</button><button class="btn" id="btnCopyManualMsg" type="button">Copiar mensaje</button><button class="btn btn-primary" id="btnSaveManualDelivery" type="button">Registrar entrega</button></div></dialog>
 
 <dialog id="dlgClient">
   <div class="modal-header"><strong id="clientDlgTitle">Cliente</strong><button class="btn btn-ghost" data-close="dlgClient" type="button">✖</button></div>
@@ -1046,6 +1094,38 @@ canvas.chart {
   </form>
 </dialog>
 
+<dialog id="dlgTemplate">
+  <div class="modal-header"><strong id="templateDlgTitle">Plantilla de pago</strong><button class="btn btn-ghost" data-close="dlgTemplate" type="button">✖</button></div>
+  <form id="templateForm">
+    <input type="hidden" id="tplId">
+    <div class="grid grid-2">
+      <div><label class="subtle">Nombre de plantilla</label><input class="input" id="tplName" required placeholder="Recordatorio mensual"></div>
+      <div><label class="subtle">Estado</label><select class="input" id="tplActive"><option value="true">Activa</option><option value="false">Oculta</option></select></div>
+      <label class="help full"><input id="tplDefault" type="checkbox"> Usar como plantilla principal</label>
+      <div class="full"><label class="subtle">Mensaje</label><textarea class="input" id="tplBody" style="min-height:210px" required></textarea></div>
+      <div class="full"><p class="help">Tip: al presionar “Enviar WhatsApp” en un recordatorio, el sistema abrirá WhatsApp usando esta plantilla y reemplazará las variables automáticamente.</p></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-danger" type="button" id="btnDeleteTemplate">Eliminar</button><button class="btn" type="button" data-close="dlgTemplate">Cancelar</button><button class="btn btn-primary" type="submit">Guardar plantilla</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgDeliveryTemplate">
+  <div class="modal-header"><strong id="deliveryTemplateDlgTitle">Plantilla de entrega</strong><button class="btn btn-ghost" data-close="dlgDeliveryTemplate" type="button">✖</button></div>
+  <form id="deliveryTemplateForm">
+    <input type="hidden" id="dtId">
+    <div class="grid grid-2">
+      <div><label class="subtle">Nombre</label><input class="input" id="dtName" required placeholder="Disney / Netflix con perfil"></div>
+      <div><label class="subtle">Clave</label><input class="input" id="dtKey" required placeholder="streaming_profile"></div>
+      <div><label class="subtle">Estado</label><select class="input" id="dtActive"><option value="true">Activa</option><option value="false">Oculta</option></select></div>
+      <label class="help"><input id="dtDefault" type="checkbox"> Usar como plantilla principal</label>
+      <div class="full"><label class="subtle">Cuerpo de plantilla</label><textarea class="input" id="dtBody" style="min-height:240px" required></textarea></div>
+      <div class="full"><label class="subtle">Restricciones por defecto</label><textarea class="input" id="dtRestrictions" style="min-height:120px"></textarea></div>
+      <div class="full"><p class="help">Variables: {pedido}, {producto}, {plan}, {correo}, {contraseña}, {perfil}, {pin}, {grupo}, {url}, {codigo}, {nota}, {fecha_inicio}, {restricciones}, {soporte}, {tienda}</p></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-danger" type="button" id="btnDeleteDeliveryTemplate">Eliminar</button><button class="btn" type="button" data-close="dlgDeliveryTemplate">Cancelar</button><button class="btn btn-primary" type="submit">Guardar plantilla</button></div>
+  </form>
+</dialog>
+
 <dialog id="dlgReminder">
   <div class="modal-header"><strong id="reminderDlgTitle">Recordatorio</strong><button class="btn btn-ghost" data-close="dlgReminder" type="button">✖</button></div>
   <form id="reminderForm">
@@ -1058,7 +1138,7 @@ canvas.chart {
       <div><label class="subtle">Monto S/</label><input class="input" id="rAmount" type="number" step="0.01"></div>
       <div><label class="subtle">Vence</label><input class="input" id="rDue" type="date" required></div>
       <div><label class="subtle">Estado</label><select class="input" id="rStatus"><option value="pending">Pendiente</option><option value="sent">Mensaje enviado</option><option value="paid">Pagado/Renovado</option><option value="cancelled">Cancelado</option></select></div>
-      <div class="full"><label class="subtle">Mensaje WhatsApp</label><textarea class="input" id="rMsg"></textarea></div>
+      <div class="full"><label class="subtle">Plantilla de pago</label><select class="input" id="rTemplate"></select><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" type="button" id="btnApplyTemplate">Aplicar plantilla</button><button class="btn btn-success" type="button" id="btnSaveReminderOpen">Guardar y abrir WhatsApp</button></div></div><div class="full"><label class="subtle">Mensaje WhatsApp</label><textarea class="input" id="rMsg"></textarea></div>
     </div>
     <div class="modal-actions"><button class="btn btn-danger" type="button" id="btnDeleteReminder">Eliminar</button><button class="btn" type="button" data-close="dlgReminder">Cancelar</button><button class="btn btn-primary" type="submit">Guardar recordatorio</button></div>
   </form>
@@ -1066,12 +1146,25 @@ canvas.chart {
 
 
 
+<dialog id="dlgOrderChat">
+  <div class="modal-header"><strong id="orderChatTitle">Chat del pedido</strong><button class="btn btn-ghost" data-close="dlgOrderChat" type="button">✖</button></div>
+  <div class="dlg-body">
+    <input type="hidden" id="chatOrderId">
+    <div id="chatOrderInfo" class="help"></div>
+    <div id="chatThread" class="chat-thread" style="margin-top:10px"></div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px">
+      <input class="input" id="chatAdminInput" placeholder="Responder al cliente...">
+      <button class="btn btn-primary" id="btnSendAdminChat" type="button">Enviar</button>
+    </div>
+  </div>
+</dialog>
+
 <script>
 const SUPABASE_URL='https://rfjvskrimsoqlyofhidj.supabase.co';
 const SUPABASE_KEY='sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
-let state={products:[],plans:[],stock:[],orders:[],items:[],proofs:[],deliveries:[],coupons:[],settings:[],summary:[],customers:[],reminders:[],tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlyDue:false,onlyPending:false};
+let state={products:[],plans:[],stock:[],orders:[],items:[],proofs:[],deliveries:[],coupons:[],settings:[],summary:[],customers:[],reminders:[],templates:[],deliveryTemplates:[],orderInputs:[],orderChats:[],tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlyDue:false,onlyPending:false};
 const esc=s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const money=n=>n==null?'Consultar':'S/ '+Number(n||0).toFixed(2);
 const slugify=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -1097,25 +1190,80 @@ function daysFromNow(days){const d=new Date();d.setDate(d.getDate()+Number(days|
 function todayISO(){return new Date().toISOString().slice(0,10)}
 function isOverdue(date){return String(date||'') < todayISO()}
 function reminderMessage(customer, reminder){
-  const name=customer?.name||'cliente';
-  const service=reminder?.service_name||'tu servicio';
-  const amount=reminder?.amount?money(reminder.amount):'monto pendiente';
-  const due=reminder?.due_date||'fecha pendiente';
-  return `Hola ${name} 👋\nTe recordamos que tu renovación de ${service} vence el ${due}.\nMonto: ${amount}\n\nResponde este mensaje para renovar.`;
+  return buildTemplateMessage(getDefaultTemplate(), customer, reminder);
 }
 function waLink(phone,msg){const digits=whatsappDigits(phone);return digits?`https://wa.me/${digits}?text=${encodeURIComponent(msg||'')}`:'#'}
+const DEFAULT_PAYMENT_TEMPLATE=`Hola {cliente} 👋
+
+Te recordamos que tu renovación de {servicio} vence el {vence}.
+Monto: {monto}
+
+Puedes pagar por Yape/Plin al número: {yape}
+
+Cuando realices el pago, envíanos tu comprobante para renovar tu servicio ✅
+
+Atte: {tienda}`;
+function getPaymentSettings(){return state.settings.find(s=>s.key==='payment_public')?.value||{}}
+function getStoreSettings(){return state.settings.find(s=>s.key==='store_public')?.value||{}}
+function getDefaultTemplate(){
+  return state.templates.find(t=>t.is_default&&t.active!==false)||state.templates.find(t=>t.active!==false)||{name:'Plantilla base',body:DEFAULT_PAYMENT_TEMPLATE,active:true,is_default:true};
+}
+function calcDaysLeft(due){
+  if(!due)return '';
+  const a=new Date(new Date().toISOString().slice(0,10));
+  const b=new Date(String(due)+'T00:00:00');
+  return Math.ceil((b-a)/86400000);
+}
+function buildTemplateMessage(template, customer, reminder){
+  const pay=getPaymentSettings(), store=getStoreSettings();
+  const days=calcDaysLeft(reminder?.due_date);
+  const vars={
+    cliente: customer?.name||'cliente',
+    servicio: reminder?.service_name||'tu servicio',
+    monto: reminder?.amount?money(reminder.amount):'monto pendiente',
+    vence: reminder?.due_date||'fecha pendiente',
+    dias: days===''?'':String(days),
+    pedido: reminder?.order_id||'',
+    telefono: customer?.phone_e164||'',
+    yape: pay.yape_number||'991564053',
+    tienda: store.store_name||'Innov IA'
+  };
+  return String(template?.body||DEFAULT_PAYMENT_TEMPLATE).replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m);
+}
+function currentReminderDraft(){
+  const c=state.customers.find(x=>x.id===$('rCustomer')?.value)||{};
+  return {customer_id:$('rCustomer')?.value||null,product_id:$('rProduct')?.value||null,plan_id:$('rPlan')?.value||null,service_name:$('rService')?.value||'',amount:$('rAmount')?.value===''?null:Number($('rAmount')?.value||0),currency:'PEN',due_date:$('rDue')?.value||todayISO(),status:$('rStatus')?.value||'pending',whatsapp_message:$('rMsg')?.value||null};
+}
+function selectedTemplate(){
+  const id=$('rTemplate')?.value;
+  return state.templates.find(t=>t.id===id)||getDefaultTemplate();
+}
+function applySelectedTemplate(){
+  const c=state.customers.find(x=>x.id===$('rCustomer')?.value)||{};
+  const draft=currentReminderDraft();
+  $('rMsg').value=buildTemplateMessage(selectedTemplate(),c,draft);
+}
+
 
 async function login(){const r=await db.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPass').value});if(r.error)return toast(r.error.message,'bad');$('auth').classList.add('hidden');$('app').classList.remove('hidden');await loadAll()}async function init(){const r=await db.auth.getSession();if(r.data.session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');await loadAll()}}async function logout(){await db.auth.signOut();location.reload()}
-async function loadAll(){try{await Promise.all([loadProducts(),loadPlans(),loadStock(),loadOrders(),loadCoupons(),loadSettings(),loadSummary(),loadCustomers(),loadReminders()]);fillProductSelects();renderAll();$('syncStatus')&&($('syncStatus').textContent='Última sincronización: '+new Date().toLocaleString());$('connText').textContent='Supabase activo'}catch(e){toast('Error cargando: '+e.message,'bad')}}
-async function loadProducts(){const r=await db.from('products').select('*').order('priority');if(r.error)throw r.error;state.products=r.data||[]}async function loadPlans(){const r=await db.from('product_plans').select('*').order('priority');if(r.error)throw r.error;state.plans=r.data||[]}async function loadStock(){const r=await db.from('stock_items').select('*').order('created_at',{ascending:false}).limit(1000);if(r.error)throw r.error;state.stock=r.data||[]}async function loadOrders(){const [o,i,p,d]=await Promise.all([db.from('orders').select('*').order('created_at',{ascending:false}).limit(300),db.from('order_items').select('*').limit(900),db.from('payment_proofs').select('*').limit(900),db.from('deliveries').select('*').limit(900)]);if(o.error)throw o.error;if(i.error)throw i.error;if(p.error)throw p.error;if(d.error)throw d.error;state.orders=o.data||[];state.items=i.data||[];state.proofs=p.data||[];state.deliveries=d.data||[]}async function loadCoupons(){const r=await db.from('coupons').select('*').order('created_at',{ascending:false});if(r.error){state.coupons=[];return}state.coupons=r.data||[]}async function loadSettings(){const r=await db.from('app_settings').select('*');state.settings=r.error?[]:r.data||[]}async function loadSummary(){const r=await db.rpc('admin_plan_stock_summary');state.summary=r.error?[]:r.data||[]}async function loadCustomers(){const r=await db.from('crm_customers').select('*').order('created_at',{ascending:false}).limit(1000);state.customers=r.error?[]:r.data||[]}
-async function loadReminders(){const r=await db.from('payment_reminders').select('*').order('due_date',{ascending:true}).limit(1200);state.reminders=r.error?[]:r.data||[]}
+async function loadAll(){try{await Promise.all([loadProducts(),loadPlans(),loadStock(),loadOrders(),loadCoupons(),loadSettings(),loadSummary(),loadCustomers(),loadReminders(),loadTemplates(),loadDeliveryTemplates()]);fillProductSelects();renderAll();$('syncStatus')&&($('syncStatus').textContent='Última sincronización: '+new Date().toLocaleString());$('connText').textContent='Supabase activo'}catch(e){toast('Error cargando: '+e.message,'bad')}}
+async function loadProducts(){const r=await db.from('products').select('*').order('priority');if(r.error)throw r.error;state.products=r.data||[]}async function loadPlans(){const r=await db.from('product_plans').select('*').order('priority');if(r.error)throw r.error;state.plans=r.data||[]}async function loadStock(){const r=await db.from('stock_items').select('*').order('created_at',{ascending:false}).limit(1000);if(r.error)throw r.error;state.stock=r.data||[]}async function loadOrders(){const [o,i,p,d,inp,ch]=await Promise.all([
+  db.from('orders').select('*').order('created_at',{ascending:false}).limit(300),
+  db.from('order_items').select('*').limit(900),
+  db.from('payment_proofs').select('*').limit(900),
+  db.from('deliveries').select('*').limit(900),
+  db.from('order_customer_inputs').select('*').limit(900),
+  db.from('order_chat_messages').select('*').order('created_at',{ascending:true}).limit(1500)
+]);if(o.error)throw o.error;if(i.error)throw i.error;if(p.error)throw p.error;if(d.error)throw d.error;state.orders=o.data||[];state.items=i.data||[];state.proofs=p.data||[];state.deliveries=d.data||[];state.orderInputs=inp.error?[]:inp.data||[];state.orderChats=ch.error?[]:ch.data||[]}async function loadCoupons(){const r=await db.from('coupons').select('*').order('created_at',{ascending:false});if(r.error){state.coupons=[];return}state.coupons=r.data||[]}async function loadSettings(){const r=await db.from('app_settings').select('*');state.settings=r.error?[]:r.data||[]}async function loadSummary(){const r=await db.rpc('admin_plan_stock_summary');state.summary=r.error?[]:r.data||[]}async function loadCustomers(){const r=await db.from('crm_customers').select('*').order('created_at',{ascending:false}).limit(1000);state.customers=r.error?[]:r.data||[]}
+async function loadReminders(){const r=await db.from('payment_reminders').select('*').order('due_date',{ascending:true}).limit(1200);state.reminders=r.error?[]:r.data||[]}async function loadTemplates(){const r=await db.from('payment_message_templates').select('*').order('is_default',{ascending:false}).order('created_at',{ascending:false});state.templates=r.error?[]:r.data||[]}async function loadDeliveryTemplates(){const r=await db.from('delivery_message_templates').select('*').order('is_default',{ascending:false}).order('created_at',{ascending:false});state.deliveryTemplates=r.error?[]:r.data||[]}
 function fillProductSelects(){const opts=state.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');$('plProduct').innerHTML=opts||'<option value="">Sin productos</option>';fillReminderSelects()}
 function fillReminderSelects(){
   if($('rCustomer')) $('rCustomer').innerHTML=state.customers.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.phone_e164||'')}</option>`).join('')||'<option value="">Sin clientes</option>';
   if($('rProduct')) $('rProduct').innerHTML='<option value="">Sin producto específico</option>'+state.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   if($('rPlan')) $('rPlan').innerHTML='<option value="">Sin plan específico</option>'+state.plans.map(p=>`<option value="${p.id}">${esc(prodName(p.product_id))} — ${esc(p.name)}</option>`).join('');
+  if($('rTemplate')) $('rTemplate').innerHTML=state.templates.filter(t=>t.active!==false).map(t=>`<option value="${t.id}">${esc(t.name)}${t.is_default?' · principal':''}</option>`).join('')||'<option value="">Plantilla base</option>';
 }
-function renderAll(){renderKPIs();renderSummary();renderProducts();renderPlans();renderOrders();renderClients();renderReminders();renderCoupons();renderSettings()}
+function renderAll(){renderKPIs();renderSummary();renderProducts();renderPlans();renderOrders();renderClients();renderReminders();renderTemplates();renderDeliveryTemplates();renderCoupons();renderSettings()}
 function renderKPIs(){
   $('kpiProducts').textContent=state.products.filter(p=>p.active!==false).length;
   $('kpiStock').textContent=state.summary.reduce((a,b)=>a+(Number(b.available_stock)>=999999?0:Number(b.available_stock||0)),0);
@@ -1127,7 +1275,7 @@ function renderKPIs(){
 function renderSummary(){$('summaryRows').innerHTML=state.summary.map(s=>`<tr><td><b>${esc(s.product_name)}</b></td><td>${esc(s.plan_name)}</td><td><span class="badge ${s.stock_mode==='controlled'?'b-ok':'b-warn'}">${s.stock_mode==='controlled'?'Automática':'Manual'}</span></td><td><span class="badge ${Number(s.available_stock)>0?'b-ok':'b-bad'}">${Number(s.available_stock)>=999999?'Ilimitado':s.available_stock+' cupos'}</span></td><td>${esc(s.availability_status)}</td><td><button class="btn" onclick="editPlan('${s.plan_id}')">Editar</button></td></tr>`).join('')||'<tr><td colspan="6">Sin datos</td></tr>'}
 function renderProducts(){const q=($('productSearch')?.value||'').toLowerCase();let arr=state.products.filter(p=>(p.name+' '+(p.slug||'')).toLowerCase().includes(q));$('productsGrid').innerHTML=arr.map(p=>{const pls=state.plans.filter(x=>x.product_id===p.id);const cups=pls.reduce((a,pl)=>a+(visibleStock(pl)>=999999?0:visibleStock(pl)),0);return `<div class="mini-card"><div class="mini-head"><div><b>${esc(p.name)}</b><div class="help">${esc(p.category||'otros')} · ${esc(p.sale_mode||'retail')}</div></div><img class="thumb" src="${esc(p.image_url||'img/placeholder.jpg')}" onerror="this.src='img/placeholder.jpg'"></div><div style="margin-top:8px"><span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span> <span class="badge">${pls.length} planes</span> <span class="badge b-ok">${cups} cupos</span></div><p class="help">${esc(p.description||'Sin descripción').slice(0,120)}</p><div class="line-actions"><button class="btn btn-primary" onclick="editProduct('${p.id}')">Editar</button><button class="btn" onclick="newPlanFor('${p.id}')">＋ Plan</button><button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="toggleProduct('${p.id}')">${p.active?'Ocultar':'Activar'}</button></div></div>`}).join('')||'<div class="card">No hay productos.</div>'}
 function renderPlans(){const q=($('planSearch')?.value||'').toLowerCase();let arr=state.plans.filter(p=>(p.name+' '+prodName(p.product_id)).toLowerCase().includes(q));if(state.onlyEmpty)arr=arr.filter(p=>visibleStock(p)<=0);$('plansGrid').innerHTML=arr.map(p=>`<div class="mini-card"><div class="mini-head"><div><b>${esc(prodName(p.product_id))}</b><div>${esc(p.name)}</div><div class="help">${money(p.price)} · ${esc(p.period||'')}</div></div><span class="badge ${typeBadge(p)}">${typeLabel(p)}</span></div><div style="margin-top:9px"><span class="badge ${visibleStock(p)>0?'b-ok':'b-bad'}">${visibleStock(p)} cupos</span> <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span> <span class="badge">${esc(p.availability_status||'available')}</span></div><div class="line-actions"><button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar cupos</button><button class="btn" onclick="openAddStock('${p.id}')">Cargar cuentas</button><button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button></div></div>`).join('')||'<div class="card">Sin planes.</div>'}
-function renderOrders(){const q=($('orderSearch')?.value||'').toLowerCase();let arr=state.orders.filter(o=>(`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''}`).toLowerCase().includes(q));if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(o.status));if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status));$('ordersGrid').innerHTML=arr.map(o=>{const pr=state.proofs.find(p=>p.order_id===o.id);const items=state.items.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join('<br>');const del=state.deliveries.filter(d=>d.order_id===o.id).length;return `<div class="mini-card"><div class="mini-head"><div><b>${esc(o.order_code)}</b><div class="help">${new Date(o.created_at).toLocaleString()}</div></div><span class="badge ${o.delivery_status==='delivered'?'b-ok':o.delivery_status==='waiting_manual_delivery'?'b-warn':'b-bad'}">${esc(o.delivery_status||'pending')}</span></div><p><b>${esc(o.customer_name||'')}</b><br><span class="help">${esc(o.customer_whatsapp||'')}</span></p><p>${items||'Sin items'}</p><p><b>${money(o.total)}</b> · Op: <span class="mono">${esc(pr?.operation_code||'pendiente')}</span> · Entregas: ${del}</p><div class="line-actions"><button class="btn btn-success" onclick="approveOrder('${o.id}')">Aprobar pago</button><button class="btn btn-warning" onclick="openManualDelivery('${o.id}')">Entregar manual</button><button class="btn" onclick="viewDelivery('${o.id}')">Ver entrega</button><button class="btn btn-danger" onclick="rejectOrder('${o.id}')">Rechazar</button></div></div>`}).join('')||'<div class="card">Sin pedidos.</div>'}
+function renderOrders(){const q=($('orderSearch')?.value||'').toLowerCase();let arr=state.orders.filter(o=>(`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''}`).toLowerCase().includes(q));if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(o.status));if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status));$('ordersGrid').innerHTML=arr.map(o=>{const pr=state.proofs.find(p=>p.order_id===o.id);const items=state.items.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join('<br>');const del=state.deliveries.filter(d=>d.order_id===o.id).length;const inp=state.orderInputs.find(x=>x.order_id===o.id);const chats=state.orderChats.filter(m=>m.order_id===o.id);const lastChat=chats[chats.length-1];return `<div class="mini-card"><div class="mini-head"><div><b>${esc(o.order_code)}</b><div class="help">${new Date(o.created_at).toLocaleString()}</div></div><span class="badge ${o.delivery_status==='delivered'?'b-ok':o.delivery_status==='waiting_manual_delivery'?'b-warn':'b-bad'}">${esc(o.delivery_status||'pending')}</span></div><p><b>${esc(o.customer_name||'')}</b><br><span class="help">${esc(o.customer_whatsapp||'')}</span></p><p>${items||'Sin items'}</p>${inp?.requirement_summary?`<div class="order-extra"><b>📌 Datos especiales:</b>\n${esc(inp.requirement_summary)}</div>`:''}<p><b>${money(o.total)}</b> · Op: <span class="mono">${esc(pr?.operation_code||'pendiente')}</span> · Entregas: ${del} · Chat: ${chats.length}</p>${lastChat?`<div class="order-chat-preview"><b>Último mensaje:</b> ${esc(lastChat.sender_role)} — ${esc(lastChat.message)}</div>`:''}<div class="line-actions"><button class="btn btn-success" onclick="approveOrder('${o.id}')">Aprobar pago</button><button class="btn btn-warning" onclick="openManualDelivery('${o.id}')">Entregar manual</button><button class="btn" onclick="openOrderChat('${o.id}')">Chat</button><button class="btn" onclick="copyOrderSummary('${o.id}')">Copiar datos</button><button class="btn" onclick="viewDelivery('${o.id}')">Ver entrega</button><button class="btn btn-danger" onclick="rejectOrder('${o.id}')">Rechazar</button></div></div>`}).join('')||'<div class="card">Sin pedidos.</div>'}
 function renderClients(){
   if(!$('clientsGrid'))return;
   const q=($('clientSearch')?.value||'').toLowerCase();
@@ -1161,9 +1309,30 @@ function renderReminders(){
     return `<div class="mini-card crm-card ${cls}">
       <div class="mini-head"><div><b>${esc(r.service_name||'Servicio')}</b><div class="help">${esc(c.name||'Cliente')} · ${esc(c.phone_e164||'')}</div></div><span class="badge ${r.status==='pending'?(overdue?'b-bad':'b-warn'):'b-ok'}">${esc(r.status||'pending')}</span></div>
       <div class="crm-meta"><div class="row"><span class="badge">Vence: ${esc(r.due_date||'')}</span><span class="badge">${money(r.amount)}</span></div><div class="help">${esc(msg).slice(0,180)}</div></div>
-      <div class="line-actions"><a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}" onclick="markReminderSent('${r.id}')">Enviar WhatsApp</a><button class="btn btn-primary" onclick="editReminder('${r.id}')">Editar</button><button class="btn" onclick="renewReminder('${r.id}')">Renovar +30 días</button><button class="btn btn-warning" onclick="markReminderPaid('${r.id}')">Pagado</button></div>
+      <div class="line-actions"><button class="btn btn-success" type="button" onclick="openReminderWhatsApp('${r.id}')">Abrir WhatsApp</button><button class="btn btn-primary" onclick="editReminder('${r.id}')">Editar</button><button class="btn" onclick="renewReminder('${r.id}')">Renovar +30 días</button><button class="btn btn-warning" onclick="markReminderPaid('${r.id}')">Pagado</button></div>
     </div>`;
   }).join('')||'<div class="card">Sin recordatorios.</div>';
+}
+
+function renderTemplates(){
+  if(!$('templatesGrid'))return;
+  const q=($('templateSearch')?.value||'').toLowerCase();
+  const data=state.templates.filter(t=>(`${t.name||''} ${t.body||''}`).toLowerCase().includes(q));
+  $('templatesGrid').innerHTML=data.map(t=>`<div class="mini-card crm-card">
+    <div class="mini-head"><div><b>${esc(t.name||'Plantilla')}</b><div class="help">${t.is_default?'Plantilla principal':'Plantilla adicional'}</div></div><span class="badge ${t.active?'b-ok':'b-bad'}">${t.active?'Activa':'Oculta'}</span></div>
+    <p class="help" style="white-space:pre-wrap;max-height:150px;overflow:auto">${esc(t.body||'').slice(0,500)}</p>
+    <div class="line-actions"><button class="btn btn-primary" onclick="editTemplate('${t.id}')">Editar</button><button class="btn" onclick="duplicateTemplate('${t.id}')">Duplicar</button><button class="btn ${t.is_default?'btn-warning':'btn-success'}" onclick="setDefaultTemplate('${t.id}')">${t.is_default?'Principal':'Hacer principal'}</button></div>
+  </div>`).join('')||'<div class="card">Sin plantillas todavía. Crea una plantilla base.</div>';
+}
+function renderDeliveryTemplates(){
+  if(!$('deliveryTemplatesGrid'))return;
+  const q=($('templateSearch')?.value||'').toLowerCase();
+  const data=state.deliveryTemplates.filter(t=>(`${t.name||''} ${t.body||''} ${t.template_key||''}`).toLowerCase().includes(q));
+  $('deliveryTemplatesGrid').innerHTML=data.map(t=>`<div class="mini-card crm-card delivery-template-card">
+    <div class="mini-head"><div><b>${esc(t.name||'Plantilla entrega')}</b><div class="help">${esc(t.template_key||'')} ${t.is_default?' · principal':''}</div></div><span class="badge ${t.active?'b-ok':'b-bad'}">${t.active?'Activa':'Oculta'}</span></div>
+    <p class="help" style="white-space:pre-wrap;max-height:150px;overflow:auto">${esc(t.body||'').slice(0,500)}</p>
+    <div class="line-actions"><button class="btn btn-primary" onclick="editDeliveryTemplate('${t.id}')">Editar</button><button class="btn" onclick="duplicateDeliveryTemplate('${t.id}')">Duplicar</button><button class="btn ${t.is_default?'btn-warning':'btn-success'}" onclick="setDefaultDeliveryTemplate('${t.id}')">${t.is_default?'Principal':'Hacer principal'}</button></div>
+  </div>`).join('')||'<div class="card">Sin plantillas de entrega. Ejecuta el SQL de plantillas de entrega.</div>';
 }
 function renderCoupons(){$('couponsList').innerHTML=state.coupons.map(c=>`<div class="mini-card"><b>${esc(c.code)}</b><p>${c.discount_type==='percent'?c.discount_value+'%':money(c.discount_value)} · ${c.used_count}/${c.max_uses} usos</p><button class="btn ${c.active?'btn-warning':'btn-success'}" onclick="toggleCoupon('${c.id}')">${c.active?'Desactivar':'Activar'}</button></div>`).join('')||'<p class="help">Sin cupones.</p>'}
 function renderSettings(){const pay=state.settings.find(s=>s.key==='payment_public')?.value||{};$('setYape').value=pay.yape_number||'991564053';$('setQr').value=pay.yape_qr_url||'img/yape-qr.png';$('qrPreview').src=$('setQr').value||'img/yape-qr.png'}
@@ -1177,8 +1346,91 @@ async function togglePlan(id){const p=plan(id);const r=await db.from('product_pl
 function parseBulk(){const valid=[],doubt=[];arrLines($('bulkText').value).forEach(line=>{const parts=line.split('|').map(x=>x.trim()).filter(Boolean);if(parts.length>=2&&/@/.test(parts[0]))valid.push({stock_type:'account',title:parts[0],secret_data:{correo:parts[0],clave:parts[1],nota:parts[2]||''},notes:parts[2]||null});else if(parts.length===1&&parts[0].length>=5)valid.push({stock_type:'code',title:parts[0],secret_data:{codigo:parts[0]},notes:null});else doubt.push(line)});$('validCount').textContent=valid.length+' válidas';$('doubtCount').textContent=doubt.length+' dudosas';$('bulkPreview').innerHTML=valid.slice(0,10).map(v=>`<div class="preview-item"><b>${esc(v.title)}</b><div class="help">${esc(v.stock_type)}</div></div>`).join('')+(doubt.length?'<div class="preview-item"><b>Dudosas</b><br>'+doubt.map(esc).join('<br>')+'</div>':'');return{valid,doubt}}
 async function saveBulkIfAny(planId){const txt=$('bulkText').value.trim();if(!txt)return;const {valid}=parseBulk();if(!valid.length)return;const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));const r=await db.from('stock_items').insert(rows);if(r.error)throw r.error;$('bulkText').value=''}
 async function approveOrder(id){if(!confirm('¿Aprobar pago? Si no hay cuenta real, quedará para entrega manual.'))return;const r=await db.rpc('admin_approve_payment_and_deliver',{p_order_id:id});if(r.error)return toast(r.error.message,'bad');toast(r.data?.[0]?.message||'Pago aprobado','ok');await createRemindersFromOrder(id);await loadAll();if(['waiting_manual_delivery','partial'].includes(r.data?.[0]?.delivery_status))openManualDelivery(id)}async function rejectOrder(id){const r=await db.from('orders').update({status:'rejected'}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}function viewDelivery(id){const ds=state.deliveries.filter(d=>d.order_id===id);alert(ds.length?ds.map(d=>d.delivered_message).join('\n\n---\n\n'):'Sin entrega todavía')}
-function openManualDelivery(id){$('manualOrderId').value=id;const its=state.items.filter(i=>i.order_id===id);$('manualPlan').innerHTML=its.map(i=>`<option value="${i.plan_id}">${esc(planName(i.plan_id))} x${i.quantity}</option>`).join('');$('manualUser').value='';$('manualPass').value='';$('manualCode').value='';$('manualNote').value='No cambiar datos. Soporte por WhatsApp.';generateManualMsg();showDialog('dlgManual')}function generateManualMsg(){const p=plan($('manualPlan').value);const u=$('manualUser').value.trim(),pa=$('manualPass').value.trim(),c=$('manualCode').value.trim(),n=$('manualNote').value.trim();const msg=['✅ Pago confirmado','Producto: '+(p?.name||'Producto')];if(u)msg.push('Correo/Usuario: '+u);if(pa)msg.push('Clave: '+pa);if(c)msg.push('Código/Perfil: '+c);if(n)msg.push('Nota: '+n);msg.push('','Gracias por tu compra. Soporte por WhatsApp.');$('manualMessage').value=msg.join('\n')}async function saveManualDelivery(){const data={};if($('manualUser').value.trim())data.correo=$('manualUser').value.trim();if($('manualPass').value.trim())data.clave=$('manualPass').value.trim();if($('manualCode').value.trim())data.codigo=$('manualCode').value.trim();if($('manualNote').value.trim())data.nota=$('manualNote').value.trim();if(!Object.keys(data).length)return toast('Ingresa datos reales para entregar','bad');const r=await db.rpc('admin_manual_deliver_order',{p_order_id:$('manualOrderId').value,p_plan_id:$('manualPlan').value,p_delivery_data:data,p_delivery_message:$('manualMessage').value});if(r.error)return toast(r.error.message,'bad');closeDialog('dlgManual');toast('Entrega registrada','ok');await createRemindersFromOrder($('manualOrderId').value);await loadAll()}
-
+function openManualDelivery(id){$('manualOrderId').value=id;const its=state.items.filter(i=>i.order_id===id);$('manualPlan').innerHTML=its.map(i=>`<option value="${i.plan_id}">${esc(planName(i.plan_id))} x${i.quantity}</option>`).join('');$('manualUser').value='';$('manualPass').value='';$('manualProfile').value='';$('manualPin').value='';$('manualGroup').value='';$('manualUrl').value='';$('manualCode').value='';$('manualNote').value='';$('manualStartDate').value=todayInput();deliveryTemplateOptions();const productText=planProductName($('manualPlan').value).toLowerCase();let match=null;if(productText.includes('disney')||productText.includes('netflix'))match=state.deliveryTemplates.find(t=>t.template_key==='streaming_profile');else if(productText.includes('iptv'))match=state.deliveryTemplates.find(t=>t.template_key==='iptv');else match=state.deliveryTemplates.find(t=>t.is_default)||state.deliveryTemplates[0];if(match)$('manualTemplate').value=match.id;$('manualRestrictions').value=(match?.restrictions)||`🚫 RESTRICCIONES:
+❌ Respetar el horario de soporte
+❌ No modificar nada sin autorización
+❌ No compartir la cuenta
+✅ Uso permitido en un solo dispositivo`;renderDeliveryMessage();showDialog('dlgManual')}
+function generateManualMsg(){renderDeliveryMessage()}
+async function saveManualDelivery(){
+  renderDeliveryMessage();
+  const data={};
+  if($('manualUser').value.trim())data.correo=$('manualUser').value.trim();
+  if($('manualPass').value.trim())data.clave=$('manualPass').value.trim();
+  if($('manualProfile').value.trim())data.perfil=$('manualProfile').value.trim();
+  if($('manualPin').value.trim())data.pin=$('manualPin').value.trim();
+  if($('manualGroup').value.trim())data.grupo=$('manualGroup').value.trim();
+  if($('manualUrl').value.trim())data.url=$('manualUrl').value.trim();
+  if($('manualCode').value.trim())data.codigo=$('manualCode').value.trim();
+  if($('manualNote').value.trim())data.nota=$('manualNote').value.trim();
+  if($('manualStartDate').value)data.fecha_inicio=displayDateFromInput($('manualStartDate').value);
+  if($('manualRestrictions').value.trim())data.restricciones=$('manualRestrictions').value.trim();
+  const tpl=getDeliveryTemplate();
+  if(tpl?.template_key)data.template_key=tpl.template_key;
+  if(!Object.keys(data).some(k=>!['restricciones','fecha_inicio','template_key'].includes(k)))return toast('Ingresa datos reales para entregar','bad');
+  const r=await db.rpc('admin_manual_deliver_order',{p_order_id:$('manualOrderId').value,p_plan_id:$('manualPlan').value,p_delivery_data:data,p_delivery_message:$('manualMessage').value});
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgManual');toast('Entrega registrada','ok');await createRemindersFromOrder($('manualOrderId').value);await loadAll()
+}
+function editTemplate(id){
+  const t=state.templates.find(x=>x.id===id);if(!t)return;
+  $('tplId').value=t.id;$('tplName').value=t.name||'';$('tplActive').value=String(t.active!==false);$('tplDefault').checked=!!t.is_default;$('tplBody').value=t.body||DEFAULT_PAYMENT_TEMPLATE;
+  $('templateDlgTitle').textContent='Editar plantilla';
+  showDialog('dlgTemplate');
+}
+function duplicateTemplate(id){
+  const t=state.templates.find(x=>x.id===id);if(!t)return;
+  $('tplId').value='';$('tplName').value=(t.name||'Plantilla')+' copia';$('tplActive').value='true';$('tplDefault').checked=false;$('tplBody').value=t.body||DEFAULT_PAYMENT_TEMPLATE;
+  $('templateDlgTitle').textContent='Duplicar plantilla';
+  showDialog('dlgTemplate');
+}
+async function saveTemplate(ev){
+  ev.preventDefault();
+  const id=$('tplId').value;
+  const payload={name:$('tplName').value.trim()||'Plantilla',body:$('tplBody').value.trim()||DEFAULT_PAYMENT_TEMPLATE,active:$('tplActive').value==='true',is_default:$('tplDefault').checked};
+  if(payload.is_default) await db.from('payment_message_templates').update({is_default:false}).neq('id',id||'00000000-0000-0000-0000-000000000000');
+  const r=id?await db.from('payment_message_templates').update(payload).eq('id',id):await db.from('payment_message_templates').insert(payload);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgTemplate');toast('Plantilla guardada','ok');await loadAll();switchTab('templates');
+}
+async function deleteTemplate(){
+  const id=$('tplId').value;if(!id)return;
+  if(!confirm('¿Eliminar plantilla?'))return;
+  const r=await db.from('payment_message_templates').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgTemplate');await loadAll();
+}
+async function setDefaultTemplate(id){
+  await db.from('payment_message_templates').update({is_default:false}).neq('id',id);
+  const r=await db.from('payment_message_templates').update({is_default:true,active:true}).eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Plantilla principal actualizada','ok');await loadAll();
+}
+async function createBaseTemplate(){
+  const exists=state.templates.find(t=>t.is_default)||state.templates[0];
+  if(exists){editTemplate(exists.id);return}
+  const r=await db.from('payment_message_templates').insert({name:'Recordatorio mensual',body:DEFAULT_PAYMENT_TEMPLATE,active:true,is_default:true});
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Plantilla base creada','ok');await loadAll();switchTab('templates');
+}
+async function openReminderWhatsApp(id){
+  const r=state.reminders.find(x=>x.id===id);if(!r)return;
+  const c=state.customers.find(x=>x.id===r.customer_id)||{};
+  const msg=r.whatsapp_message||buildTemplateMessage(getDefaultTemplate(),c,r);
+  const url=waLink(c.phone_e164,msg);
+  if(url==='#')return toast('El cliente no tiene WhatsApp válido','bad');
+  window.open(url,'_blank','noopener,noreferrer');
+  await markReminderSent(id);
+  toast('WhatsApp abierto y recordatorio marcado como enviado','ok');
+  await loadAll();
+}
+async function saveReminderAndOpen(){
+  const idBefore=$('rId').value;
+  const saved=await saveReminder(null,true);
+  if(!saved)return;
+  const id=saved.id||idBefore;
+  if(id) await openReminderWhatsApp(id);
+}
 function blankClient(){
   ['cId','cName','cPhone','cEmail','cSource','cNotes'].forEach(id=>$(id).value='');
   $('cSource').value='manual';
@@ -1214,7 +1466,7 @@ function blankReminder(cid=''){
   $('rProduct').value='';
   $('rPlan').value='';
   $('rDue').value=daysFromNow(30);
-  $('rStatus').value='pending';
+  $('rStatus').value='pending';fillReminderSelects();if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
   $('reminderDlgTitle').textContent='Nuevo recordatorio';
   showDialog('dlgReminder');
 }
@@ -1222,16 +1474,20 @@ function newReminderFor(cid){blankReminder(cid)}
 function editReminder(id){
   const r=state.reminders.find(x=>x.id===id);if(!r)return;
   fillReminderSelects();
-  $('rId').value=r.id;$('rCustomer').value=r.customer_id||'';$('rProduct').value=r.product_id||'';$('rPlan').value=r.plan_id||'';$('rService').value=r.service_name||'';$('rAmount').value=r.amount??'';$('rDue').value=r.due_date||todayISO();$('rStatus').value=r.status||'pending';$('rMsg').value=r.whatsapp_message||'';
+  $('rId').value=r.id;$('rCustomer').value=r.customer_id||'';$('rProduct').value=r.product_id||'';$('rPlan').value=r.plan_id||'';$('rService').value=r.service_name||'';$('rAmount').value=r.amount??'';$('rDue').value=r.due_date||todayISO();$('rStatus').value=r.status||'pending';$('rMsg').value=r.whatsapp_message||'';if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
   $('reminderDlgTitle').textContent='Editar recordatorio';showDialog('dlgReminder');
 }
-async function saveReminder(ev){
-  ev.preventDefault();
-  const payload={customer_id:$('rCustomer').value||null,product_id:$('rProduct').value||null,plan_id:$('rPlan').value||null,service_name:$('rService').value.trim(),amount:$('rAmount').value===''?null:Number($('rAmount').value),currency:'PEN',due_date:$('rDue').value,status:$('rStatus').value,whatsapp_message:$('rMsg').value.trim()||null};
+async function saveReminder(ev,silent=false){
+  if(ev) ev.preventDefault();
+  const c=state.customers.find(x=>x.id===$('rCustomer').value)||{};
+  const draft={customer_id:$('rCustomer').value||null,product_id:$('rProduct').value||null,plan_id:$('rPlan').value||null,service_name:$('rService').value.trim(),amount:$('rAmount').value===''?null:Number($('rAmount').value),currency:'PEN',due_date:$('rDue').value,status:$('rStatus').value,whatsapp_message:$('rMsg').value.trim()||null};
+  if(!draft.whatsapp_message) draft.whatsapp_message=buildTemplateMessage(selectedTemplate(),c,draft);
   const id=$('rId').value;
-  const r=id?await db.from('payment_reminders').update(payload).eq('id',id):await db.from('payment_reminders').insert(payload);
-  if(r.error)return toast(r.error.message,'bad');
-  closeDialog('dlgReminder');toast('Recordatorio guardado','ok');await loadAll();switchTab('reminders');
+  const r=id?await db.from('payment_reminders').update(draft).eq('id',id).select().single():await db.from('payment_reminders').insert(draft).select().single();
+  if(r.error){toast(r.error.message,'bad');return null}
+  if(!silent){closeDialog('dlgReminder');toast('Recordatorio guardado','ok');await loadAll();switchTab('reminders')}
+  else {await loadAll()}
+  return r.data;
 }
 async function deleteReminder(){
   const id=$('rId').value;if(!id)return;
@@ -1286,12 +1542,114 @@ async function createRemindersFromOrder(orderId){
   }
   toast('Cliente y recordatorio de pago creados a 30 días','ok');
 }
+
+function copyTextSafe(text){
+  navigator.clipboard?.writeText(text).then(()=>toast('Copiado','ok')).catch(()=>{ prompt('Copia manual:', text); });
+}
+function copyOrderSummary(id){
+  const o=state.orders.find(x=>x.id===id); if(!o)return;
+  const inp=state.orderInputs.find(x=>x.order_id===id);
+  const items=state.items.filter(i=>i.order_id===id).map(i=>planName(i.plan_id)+' x'+i.quantity).join('\n');
+  const pr=state.proofs.find(p=>p.order_id===id);
+  const text=`PEDIDO ${o.order_code}\nCliente: ${o.customer_name||''}\nWhatsApp: ${o.customer_whatsapp||''}\nTotal: ${money(o.total)}\nOperación: ${pr?.operation_code||''}\n\nProductos:\n${items}\n\nDatos / instrucciones:\n${inp?.requirement_summary||'Sin datos especiales'}`;
+  copyTextSafe(text);
+}
+function openOrderChat(id){
+  const o=state.orders.find(x=>x.id===id);if(!o)return;
+  $('chatOrderId').value=id;
+  $('orderChatTitle').textContent='Chat pedido '+(o.order_code||'');
+  $('chatOrderInfo').innerHTML=`Cliente: <b>${esc(o.customer_name||'')}</b> · WhatsApp: <b>${esc(o.customer_whatsapp||'')}</b> · Estado: ${esc(o.status||'')} / ${esc(o.delivery_status||'')}`;
+  renderOrderChatThread(id);
+  showDialog('dlgOrderChat');
+}
+function renderOrderChatThread(id){
+  const list=$('chatThread'); if(!list)return;
+  const msgs=state.orderChats.filter(m=>m.order_id===id);
+  list.innerHTML=msgs.length?msgs.map(m=>`<div class="chat-bubble ${esc(m.sender_role||'system')}"><b>${esc(m.sender_name||m.sender_role||'')}</b><span class="help"> · ${m.created_at?new Date(m.created_at).toLocaleString():''}</span><div style="white-space:pre-wrap">${esc(m.message||'')}</div></div>`).join(''):'<div class="help">Sin mensajes aún.</div>';
+  list.scrollTop=list.scrollHeight;
+}
+async function sendAdminChat(){
+  const id=$('chatOrderId').value;
+  const msg=$('chatAdminInput').value.trim();
+  if(!id||!msg)return toast('Escribe un mensaje','bad');
+  const r=await db.rpc('admin_send_order_message',{p_order_id:id,p_message:msg});
+  if(r.error)return toast(r.error.message,'bad');
+  $('chatAdminInput').value='';
+  await loadOrders();
+  renderOrders();
+  renderOrderChatThread(id);
+  toast('Mensaje enviado','ok');
+}
+let adminAutoRefreshBusy=false;
+async function adminAutoRefresh(){
+  if($('app')?.classList.contains('hidden')) return;
+  if(adminAutoRefreshBusy) return;
+  adminAutoRefreshBusy=true;
+  try{
+    await loadOrders();
+    renderKPIs();
+    if(state.tab==='orders') renderOrders();
+    if($('dlgOrderChat')?.open && $('chatOrderId').value) renderOrderChatThread($('chatOrderId').value);
+  }catch(e){ console.warn('Auto refresh admin', e); }
+  finally{ adminAutoRefreshBusy=false; }
+}
 async function saveCoupon(){const code=$('cpCode').value.trim().toUpperCase();if(!code)return toast('Falta código','bad');const r=await db.from('coupons').upsert({code,discount_type:$('cpType').value,discount_value:Number($('cpValue').value||0),max_uses:Number($('cpMax').value||1),min_amount:Number($('cpMin').value||0),active:true},{onConflict:'code'});if(r.error)return toast(r.error.message,'bad');toast('Cupón guardado','ok');await loadAll()}async function toggleCoupon(id){const c=state.coupons.find(x=>x.id===id);const r=await db.from('coupons').update({active:!c.active}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}
 async function uploadQr(){const file=$('qrFile').files[0];if(!file)return toast('Selecciona imagen','bad');const path='qr-yape-'+Date.now()+'.'+(file.name.split('.').pop()||'png');const r=await db.storage.from('innov-payment-assets').upload(path,file,{upsert:true,contentType:file.type});if(r.error)return toast(r.error.message,'bad');const url=db.storage.from('innov-payment-assets').getPublicUrl(path).data.publicUrl;$('setQr').value=url;$('qrPreview').src=url;toast('QR subido. Guarda configuración.','ok')}async function savePayment(){const r=await db.from('app_settings').upsert({key:'payment_public',value:{yape_number:$('setYape').value.trim()||'991564053',yape_qr_url:$('setQr').value.trim()||'img/yape-qr.png'}});if(r.error)return toast(r.error.message,'bad');toast('Pago guardado','ok');await loadAll()}
 function exportBackup(){const data={...state,exported_at:new Date().toISOString()};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='innov-ia-backup-admin.json';a.click()}
-$('btnLogin').onclick=login;$('loginPass').onkeydown=e=>{if(e.key==='Enter')login()};$('btnLogout').onclick=logout;$('btnTheme').onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark'};$('btnLoginHelp').onclick=()=>toast('Primero crea usuario en Supabase Authentication y agrégalo a admin_users.','info');document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));['btnReload1','btnReload2','btnReload3','btnReload4','btnSyncAll'].forEach(id=>$(id).onclick=loadAll);$('btnNewProduct').onclick=blankProduct;$('btnNewPlan').onclick=()=>blankPlan();$('productForm').onsubmit=saveProduct;$('btnDeleteProduct').onclick=deleteProduct;$('planForm').onsubmit=savePlan;$('plDeliveryType').onchange=syncDeliveryBoxes;$('btnDeletePlan').onclick=deletePlan;$('btnPreviewBulk').onclick=parseBulk;$('bulkText').oninput=parseBulk;$('btnSaveBulk').onclick=async()=>{try{const id=$('plId').value;if(!id)return toast('Guarda o selecciona un plan primero','bad');await saveBulkIfAny(id);toast('Stock cargado','ok');await loadAll()}catch(e){toast(e.message,'bad')}};$('productSearch').oninput=renderProducts;$('planSearch').oninput=renderPlans;$('orderSearch').oninput=renderOrders;$('btnOnlyEmpty').onclick=()=>{state.onlyEmpty=!state.onlyEmpty;renderPlans()};$('btnOnlyReview').onclick=()=>{state.onlyReview=!state.onlyReview;renderOrders()};$('btnOnlyManual').onclick=()=>{state.onlyManual=!state.onlyManual;renderOrders()};$('btnGenerateManualMsg').onclick=generateManualMsg;['manualUser','manualPass','manualCode','manualNote','manualPlan'].forEach(id=>$(id).addEventListener('input',generateManualMsg));$('btnSaveManualDelivery').onclick=saveManualDelivery;$('btnSaveCoupon').onclick=saveCoupon;$('btnNewClient').onclick=blankClient;$('clientForm').onsubmit=saveClient;$('btnDeleteClient').onclick=deleteClient;$('btnNewReminder').onclick=()=>blankReminder();$('reminderForm').onsubmit=saveReminder;$('btnDeleteReminder').onclick=deleteReminder;$('clientSearch').oninput=renderClients;$('reminderSearch').oninput=renderReminders;$('btnReloadClients').onclick=loadAll;$('btnOnlyDue').onclick=()=>{state.onlyDue=!state.onlyDue;renderReminders()};$('btnOnlyPending').onclick=()=>{state.onlyPending=!state.onlyPending;renderReminders()};$('rPlan').onchange=()=>{const p=plan($('rPlan').value);if(p){$('rProduct').value=p.product_id;$('rService').value=planName(p.id);if(!$('rAmount').value)$('rAmount').value=p.price??''}};$('rCustomer').onchange=()=>{const c=state.customers.find(x=>x.id===$('rCustomer').value);const r={service_name:$('rService').value,amount:$('rAmount').value,due_date:$('rDue').value};$('rMsg').value=reminderMessage(c,r)};$('btnSaveCoupon').onclick=saveCoupon;$('btnUploadQr').onclick=uploadQr;$('btnSavePayment').onclick=savePayment;$('btnExportBackup').onclick=exportBackup;$('btnExportProducts').onclick=exportBackup;
+$('btnLogin').onclick=login;$('loginPass').onkeydown=e=>{if(e.key==='Enter')login()};$('btnLogout').onclick=logout;$('btnTheme').onclick=()=>{const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark'};$('btnLoginHelp').onclick=()=>toast('Primero crea usuario en Supabase Authentication y agrégalo a admin_users.','info');document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));['btnReload1','btnReload2','btnReload3','btnReload4','btnSyncAll'].forEach(id=>$(id).onclick=loadAll);$('btnNewProduct').onclick=blankProduct;$('btnNewPlan').onclick=()=>blankPlan();$('productForm').onsubmit=saveProduct;$('btnDeleteProduct').onclick=deleteProduct;$('planForm').onsubmit=savePlan;$('plDeliveryType').onchange=syncDeliveryBoxes;$('btnDeletePlan').onclick=deletePlan;$('btnPreviewBulk').onclick=parseBulk;$('bulkText').oninput=parseBulk;$('btnSaveBulk').onclick=async()=>{try{const id=$('plId').value;if(!id)return toast('Guarda o selecciona un plan primero','bad');await saveBulkIfAny(id);toast('Stock cargado','ok');await loadAll()}catch(e){toast(e.message,'bad')}};$('productSearch').oninput=renderProducts;$('planSearch').oninput=renderPlans;$('orderSearch').oninput=renderOrders;$('btnOnlyEmpty').onclick=()=>{state.onlyEmpty=!state.onlyEmpty;renderPlans()};$('btnOnlyReview').onclick=()=>{state.onlyReview=!state.onlyReview;renderOrders()};$('btnOnlyManual').onclick=()=>{state.onlyManual=!state.onlyManual;renderOrders()};$('btnGenerateManualMsg').onclick=generateManualMsg;$('btnCopyManualMsg').onclick=()=>copyTextSafe($('manualMessage').value);$('manualTemplate')?.addEventListener('change',()=>{const tpl=getDeliveryTemplate();$('manualRestrictions').value=tpl.restrictions||$('manualRestrictions').value;renderDeliveryMessage();});['manualUser','manualPass','manualProfile','manualPin','manualGroup','manualUrl','manualCode','manualNote','manualStartDate','manualRestrictions','manualPlan'].forEach(id=>$(id)?.addEventListener('input',renderDeliveryMessage));['manualUser','manualPass','manualCode','manualNote','manualPlan'].forEach(id=>$(id).addEventListener('input',generateManualMsg));$('btnSaveManualDelivery').onclick=saveManualDelivery;$('btnSaveCoupon').onclick=saveCoupon;$('btnNewClient').onclick=blankClient;$('clientForm').onsubmit=saveClient;$('btnDeleteClient').onclick=deleteClient;$('btnNewTemplate').onclick=blankTemplate;$('btnNewDeliveryTemplate').onclick=blankDeliveryTemplate;$('deliveryTemplateForm').onsubmit=saveDeliveryTemplate;$('btnDeleteDeliveryTemplate').onclick=deleteDeliveryTemplate;$('templateForm').onsubmit=saveTemplate;$('btnDeleteTemplate').onclick=deleteTemplate;$('templateSearch').oninput=renderTemplates;$('btnResetDefaultTemplate').onclick=createBaseTemplate;$('btnNewReminder').onclick=()=>blankReminder();$('reminderForm').onsubmit=saveReminder;$('btnDeleteReminder').onclick=deleteReminder;$('btnApplyTemplate').onclick=applySelectedTemplate;$('btnSaveReminderOpen').onclick=saveReminderAndOpen;$('rTemplate').onchange=applySelectedTemplate;$('clientSearch').oninput=renderClients;$('reminderSearch').oninput=renderReminders;$('btnReloadClients').onclick=loadAll;$('btnOnlyDue').onclick=()=>{state.onlyDue=!state.onlyDue;renderReminders()};$('btnOnlyPending').onclick=()=>{state.onlyPending=!state.onlyPending;renderReminders()};$('rPlan').onchange=()=>{const p=plan($('rPlan').value);if(p){$('rProduct').value=p.product_id;$('rService').value=planName(p.id);if(!$('rAmount').value)$('rAmount').value=p.price??'';applySelectedTemplate()}};$('rCustomer').onchange=applySelectedTemplate;$('btnSaveCoupon').onclick=saveCoupon;$('btnUploadQr').onclick=uploadQr;$('btnSavePayment').onclick=savePayment;$('btnExportBackup').onclick=exportBackup;$('btnExportProducts').onclick=exportBackup;$('btnSendAdminChat').onclick=sendAdminChat;$('chatAdminInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendAdminChat()}});
 init();
+setInterval(adminAutoRefresh,2000);
 </script>
 
 </body>
-</html>
+</html
+function blankDeliveryTemplate(){
+  $('dtId').value='';
+  $('dtName').value='Streaming con perfil y PIN';
+  $('dtKey').value='streaming_profile';
+  $('dtActive').value='true';
+  $('dtDefault').checked=state.deliveryTemplates.length===0;
+  $('dtBody').value=DEFAULT_DELIVERY_BODY;
+  $('dtRestrictions').value=`🚫 RESTRICCIONES:
+❌ Respetar el horario de soporte
+❌ No modificar nada sin autorización
+❌ No compartir la cuenta
+✅ Uso permitido en un solo dispositivo`;
+  $('deliveryTemplateDlgTitle').textContent='Nueva plantilla de entrega';
+  showDialog('dlgDeliveryTemplate');
+}
+function editDeliveryTemplate(id){
+  const t=state.deliveryTemplates.find(x=>x.id===id);if(!t)return;
+  $('dtId').value=t.id;$('dtName').value=t.name||'';$('dtKey').value=t.template_key||'';$('dtActive').value=String(t.active!==false);$('dtDefault').checked=!!t.is_default;$('dtBody').value=t.body||DEFAULT_DELIVERY_BODY;$('dtRestrictions').value=t.restrictions||'';
+  $('deliveryTemplateDlgTitle').textContent='Editar plantilla de entrega';
+  showDialog('dlgDeliveryTemplate');
+}
+function duplicateDeliveryTemplate(id){
+  const t=state.deliveryTemplates.find(x=>x.id===id);if(!t)return;
+  $('dtId').value='';$('dtName').value=(t.name||'Plantilla entrega')+' copia';$('dtKey').value=(t.template_key||'plantilla')+'_copia_'+Date.now();$('dtActive').value='true';$('dtDefault').checked=false;$('dtBody').value=t.body||DEFAULT_DELIVERY_BODY;$('dtRestrictions').value=t.restrictions||'';
+  $('deliveryTemplateDlgTitle').textContent='Duplicar plantilla de entrega';
+  showDialog('dlgDeliveryTemplate');
+}
+async function saveDeliveryTemplate(ev){
+  ev.preventDefault();
+  const id=$('dtId').value;
+  const payload={name:$('dtName').value.trim()||'Plantilla entrega',template_key:$('dtKey').value.trim()||('plantilla_'+Date.now()),body:$('dtBody').value.trim()||DEFAULT_DELIVERY_BODY,restrictions:$('dtRestrictions').value.trim()||'',active:$('dtActive').value==='true',is_default:$('dtDefault').checked};
+  if(payload.is_default) await db.from('delivery_message_templates').update({is_default:false}).neq('id',id||'00000000-0000-0000-0000-000000000000');
+  const r=id?await db.from('delivery_message_templates').update(payload).eq('id',id):await db.from('delivery_message_templates').insert(payload);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgDeliveryTemplate');toast('Plantilla de entrega guardada','ok');await loadAll();switchTab('templates');
+}
+async function deleteDeliveryTemplate(){
+  const id=$('dtId').value;if(!id)return;
+  if(!confirm('¿Eliminar plantilla de entrega?'))return;
+  const r=await db.from('delivery_message_templates').delete().eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgDeliveryTemplate');await loadAll();
+}
+async function setDefaultDeliveryTemplate(id){
+  await db.from('delivery_message_templates').update({is_default:false}).neq('id',id);
+  const r=await db.from('delivery_message_templates').update({is_default:true,active:true}).eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Plantilla principal de entrega actualizada','ok');await loadAll();
+}
+>
