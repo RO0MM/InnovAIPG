@@ -1183,6 +1183,10 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
             <button class="btn chip" id="btnOnlyManual" type="button" aria-pressed="false">Entrega manual</button>
           </div>
         </div>
+        <div class="card" style="margin-bottom:12px;border-left:3px solid var(--warning)">
+          <strong>⚡ Activaciones manuales</strong>
+          <p class="help" style="margin:6px 0 0">Para ChatGPT cuenta propia, Gemini, Canva y Autodesk: primero aprueba el pago, luego usa <b>Confirmar activación</b>. No uses “Entregar cuenta” si solo debes confirmar una activación por correo/texto.</p>
+        </div>
         <div class="mini-grid" id="ordersGrid"></div>
       </section>
 
@@ -1970,11 +1974,13 @@ function renderOrders(){
       ${lastChat?`<div class="order-chat-preview"><b>Último:</b> ${esc(lastChat.sender_role)} — ${esc(lastChat.message)}</div>`:''}
       <div class="line-actions">
         <button class="btn btn-success" onclick="approveOrder('${o.id}')">✅ Aprobar</button>
-        <button class="btn" onclick="openManualDelivery('${o.id}')">📦 Entregar</button>
+        <button class="btn btn-warning" onclick="confirmActivation('${o.id}')">⚡ Confirmar activación</button>
+        <button class="btn" onclick="openManualDelivery('${o.id}')">📦 Entregar cuenta</button>
         <button class="btn" onclick="openOrderChat('${o.id}')">💬 Chat</button>
         <button class="btn" onclick="copyOrderSummary('${o.id}')">📋 Copiar</button>
         <button class="btn" onclick="viewDelivery('${o.id}')">👁 Ver entrega</button>
         <button class="btn btn-danger" onclick="rejectOrder('${o.id}')">✕ Rechazar</button>
+        <button class="btn btn-danger" onclick="deleteOrder('${o.id}')">🗑 Eliminar</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">🧾</span><p>Sin pedidos.</p></div>';
@@ -2185,14 +2191,41 @@ async function saveBulkIfAny(planId){
 
 /* ---- Orders ---- */
 async function approveOrder(id){
-  if(!confirm('¿Aprobar pago? Si no hay cuenta real, quedará para entrega manual.'))return;
+  if(!confirm('¿Aprobar pago? Si es activación por correo/texto, luego usa “Confirmar activación”. Si es cuenta, usa “Entregar cuenta”.'))return;
   const r=await db.rpc('admin_approve_payment_and_deliver',{p_order_id:id});
   if(r.error)return toast(r.error.message,'bad');
   toast(r.data?.[0]?.message||'Pago aprobado','ok');
   await createRemindersFromOrder(id);await loadAll();
   if(['waiting_manual_delivery','partial'].includes(r.data?.[0]?.delivery_status))openManualDelivery(id);
 }
-async function rejectOrder(id){const r=await db.from('orders').update({status:'rejected'}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}
+async function rejectOrder(id){
+  const motivo=prompt('Motivo del rechazo para mostrar al cliente:', 'Pago no validado. Si fue un error, escríbenos por el chat del pedido.');
+  if(motivo===null)return;
+  const r=await db.rpc('admin_reject_order',{p_order_id:id,p_reason:motivo});
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Pedido rechazado y notificado al cliente','ok');
+  await loadAll();
+}
+async function deleteOrder(id){
+  const o=state.orders.find(x=>x.id===id)||{};
+  if(!confirm('¿Eliminar definitivamente el pedido '+(o.order_code||'')+'? Esta acción no se puede deshacer.'))return;
+  const r=await db.rpc('admin_delete_order',{p_order_id:id});
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Pedido eliminado','ok');
+  await loadAll();
+}
+async function confirmActivation(id){
+  const o=state.orders.find(x=>x.id===id)||{};
+  const inp=state.orderInputs.find(x=>x.order_id===id);
+  const extra = inp?.requirement_summary ? '\n\nDatos recibidos:\n'+inp.requirement_summary.slice(0,500) : '';
+  const msg=prompt('Mensaje de confirmación que verá el cliente:', '✅ Activación completada\n\nTu servicio ya fue activado correctamente. La confirmación también será enviada por WhatsApp.\n\nPedido: '+(o.order_code||'')+extra);
+  if(msg===null)return;
+  const r=await db.rpc('admin_confirm_manual_activation',{p_order_id:id,p_message:msg});
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Activación confirmada y entrega registrada','ok');
+  await createRemindersFromOrder(id);
+  await loadAll();
+}
 function viewDelivery(id){const ds=state.deliveries.filter(d=>d.order_id===id);alert(ds.length?ds.map(d=>d.delivered_message).join('\n\n---\n\n'):'Sin entrega todavía')}
 
 function openManualDelivery(id){
@@ -2239,7 +2272,22 @@ function copyOrderSummary(id){
   const inp=state.orderInputs.find(x=>x.order_id===id);
   const items=state.items.filter(i=>i.order_id===id).map(i=>planName(i.plan_id)+' x'+i.quantity).join('\n');
   const pr=state.proofs.find(p=>p.order_id===id);
-  const text=`PEDIDO ${o.order_code}\nCliente: ${o.customer_name||''}\nWhatsApp: ${o.customer_whatsapp||''}\nTotal: ${money(o.total)}\nOperación: ${pr?.operation_code||''}\n\nProductos:\n${items}\n\nDatos / instrucciones:\n${inp?.requirement_summary||'Sin datos especiales'}`;
+  const chats=state.orderChats.filter(m=>m.order_id===id);
+  const text=`PEDIDO ${o.order_code}
+Cliente: ${o.customer_name||''}
+WhatsApp: ${o.customer_whatsapp||''}
+Estado: ${o.status||''} / ${o.delivery_status||''}
+Total: ${money(o.total)}
+Operación: ${pr?.operation_code||''}
+
+Productos:
+${items||'Sin items'}
+
+Datos / instrucciones / activación:
+${inp?.requirement_summary||'Sin datos especiales'}
+
+Últimos mensajes:
+${chats.slice(-5).map(m=>`[${m.sender_role}] ${m.message}`).join('\n')||'Sin mensajes'}`;
   copyTextSafe(text);
 }
 function openOrderChat(id){
@@ -2577,4 +2625,6 @@ setInterval(adminAutoRefresh,2000);
 </script>
 </body>
 </html>
+
+
 
