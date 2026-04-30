@@ -1329,6 +1329,32 @@ input, select, textarea, button { min-width: 0; }
   .ops-title > div:last-child { grid-template-columns: 1fr; }
 }
 
+
+/* ---------- TOTP Access Manager ---------- */
+.totp-hero{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-bottom:14px}
+.totp-hero .card{position:relative;overflow:hidden}
+.totp-hero .card::after{content:"";position:absolute;right:-60px;bottom:-90px;width:210px;height:210px;border-radius:999px;background:var(--primary-alpha);pointer-events:none}
+.totp-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.totp-title h2{margin:0;font-size:1.2rem;letter-spacing:-.02em}
+.totp-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.totp-kpi{border:1px solid var(--border);background:var(--card2);border-radius:14px;padding:10px}
+.totp-kpi .v{font-weight:900;font-size:1.25rem;color:var(--card-ink);line-height:1.1;font-variant-numeric:tabular-nums}
+.totp-kpi .l{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.totp-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.totp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.totp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-xs);padding:14px;transition:box-shadow var(--tr),transform var(--tr)}
+.totp-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.totp-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.totp-name{font-weight:900;color:var(--card-ink);line-height:1.25;word-break:break-word}
+.totp-sub{color:var(--muted);font-size:.82rem;margin-top:3px;word-break:break-word}
+.totp-secret{font-family:var(--mono);font-size:.82rem;word-break:break-all;background:var(--card2);border:1px dashed var(--border);border-radius:12px;padding:8px;margin:8px 0;color:var(--muted)}
+.totp-kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--border);font-size:.84rem}
+.totp-kv:last-child{border-bottom:0}
+.totp-kv .k{color:var(--muted);font-weight:700}.totp-kv .v{text-align:right;font-weight:800;word-break:break-word}
+.totp-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.totp-actions .btn{padding:7px 10px;font-size:.8rem}
+.totp-events{display:grid;gap:8px;max-height:420px;overflow:auto;padding-right:4px}.totp-event{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:10px;font-size:.84rem}.totp-event .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:800}.totp-event .sub{color:var(--muted);margin-top:4px;word-break:break-word}.totp-mini-help{border-left:3px solid var(--primary);padding:10px 12px;background:var(--primary-alpha2);border-radius:12px;color:var(--muted);font-size:.84rem}
+@media(max-width:800px){.totp-hero{grid-template-columns:1fr}.totp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.totp-grid{grid-template-columns:1fr}.totp-actions .btn{flex:1 1 calc(50% - 7px)}}
+
 </style>
 </head>
 <body>
@@ -1363,6 +1389,7 @@ input, select, textarea, button { min-width: 0; }
   <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">👥 Clientes</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="reminders" type="button">🔔 Recordatorios</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="ops" type="button">🔐 Operaciones PRO</button>
+  <button class="btn btn-ghost nav-btn-side" data-tab="totp" type="button">🛡️ Accesos TOTP</button>
   <div class="g-title">Configuración</div>
   <button class="btn btn-ghost nav-btn-side" data-tab="templates" type="button">📝 Plantillas</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="coupons" type="button">🎟️ Cupones</button>
@@ -1421,6 +1448,7 @@ input, select, textarea, button { min-width: 0; }
     <button class="btn nav-btn" data-tab="clients">👥 Clientes</button>
     <button class="btn nav-btn" data-tab="reminders">🔔 Recordatorios <span class="tab-badge" id="tbReminders" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="ops">🔐 Operaciones PRO</button>
+    <button class="btn nav-btn" data-tab="totp">🛡️ Accesos TOTP</button>
     <button class="btn nav-btn" data-tab="templates">📝 Plantillas</button>
     <button class="btn nav-btn" data-tab="coupons">🎟️ Cupones</button>
     <button class="btn nav-btn" data-tab="settings">⚙️ Ajustes</button>
@@ -1583,6 +1611,64 @@ input, select, textarea, button { min-width: 0; }
         </div>
 
         <div id="opsGrid" class="ops-grid"></div>
+      </section>
+
+
+      <!-- Accesos TOTP -->
+      <section id="tab-totp" class="admin-section">
+        <div class="totp-hero">
+          <div class="card">
+            <div class="totp-title">
+              <div>
+                <h2>🛡️ Accesos TOTP para clientes</h2>
+                <p class="help" style="margin:4px 0 0">Administra cuentas TOTP, códigos de acceso, usos, vencimientos y actividad del cliente.</p>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-primary" id="btnTotpNewAccount" type="button">＋ Cuenta TOTP</button>
+                <button class="btn btn-success" id="btnTotpNewCode" type="button">＋ Código acceso</button>
+              </div>
+            </div>
+            <div class="totp-kpis">
+              <div class="totp-kpi"><div class="v" id="totpKpiAccounts">0</div><div class="l">Cuentas</div></div>
+              <div class="totp-kpi"><div class="v" id="totpKpiCodes">0</div><div class="l">Códigos</div></div>
+              <div class="totp-kpi"><div class="v" id="totpKpiUsed">0</div><div class="l">Usados</div></div>
+              <div class="totp-kpi"><div class="v" id="totpKpiExpired">0</div><div class="l">Vencidos</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <strong>🔗 Flujo conectado a Supabase</strong>
+            <div class="totp-mini-help" style="margin-top:10px">
+              1) Agrega una cuenta con su secreto TOTP.<br>
+              2) Crea un código de acceso y vincúlalo a la cuenta.<br>
+              3) El cliente usa el código en la web TOTP limpia.<br>
+              4) Aquí verás si ya fue usado, cuántas veces y cuándo vence.
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="input-wrap"><input class="input" id="totpSearch" type="search" placeholder="🔍 Buscar cuenta, código, cliente, WhatsApp..."></div>
+          <select class="input" id="totpStatusFilter" style="max-width:210px">
+            <option value="">Todos</option>
+            <option value="available">Disponibles</option>
+            <option value="used">Con usos</option>
+            <option value="exhausted">Agotados</option>
+            <option value="expired">Vencidos</option>
+            <option value="inactive">Inactivos</option>
+          </select>
+          <div class="actions">
+            <button class="btn" id="btnTotpRefresh" type="button">↻</button>
+            <button class="btn btn-success" id="btnTotpExport" type="button">⬇ Backup</button>
+          </div>
+        </div>
+
+        <div class="totp-tabs" role="tablist" aria-label="Vista TOTP">
+          <button class="chip" data-totp-view="codes" aria-pressed="true" type="button">🎫 Códigos de acceso</button>
+          <button class="chip" data-totp-view="accounts" type="button">🔑 Cuentas TOTP</button>
+          <button class="chip" data-totp-view="events" type="button">📜 Actividad</button>
+        </div>
+
+        <div id="totpGrid" class="totp-grid"></div>
       </section>
 
       <!-- Plantillas -->
@@ -2068,6 +2154,61 @@ input, select, textarea, button { min-width: 0; }
 </dialog>
 
 
+
+<!-- TOTP: Cuenta -->
+<dialog id="dlgTotpAccount">
+  <div class="modal-header">
+    <strong id="totpAccountDlgTitle">Cuenta TOTP</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgTotpAccount" type="button">✕</button>
+  </div>
+  <form id="totpAccountForm">
+    <input type="hidden" id="totpAccId">
+    <div class="grid grid-2">
+      <div><label class="subtle">Nombre / cuenta *</label><input class="input" id="totpAccLabel" required placeholder="Ejemplo: ChatGPT cliente 01"></div>
+      <div><label class="subtle">Emisor</label><input class="input" id="totpAccIssuer" placeholder="Innov IA / ChatGPT"></div>
+      <div class="full"><label class="subtle">Secreto TOTP Base32 *</label><textarea class="input mono" id="totpAccSecret" required placeholder="Pega aquí el código largo que genera el TOTP"></textarea></div>
+      <div><label class="subtle">Dígitos</label><select class="input" id="totpAccDigits"><option value="6">6 dígitos</option><option value="8">8 dígitos</option></select></div>
+      <div><label class="subtle">Periodo</label><select class="input" id="totpAccPeriod"><option value="30">30 segundos</option><option value="60">60 segundos</option></select></div>
+      <div><label class="subtle">Estado</label><select class="input" id="totpAccActive"><option value="true">Activo</option><option value="false">Desactivado</option></select></div>
+      <div class="full"><label class="subtle">Notas</label><textarea class="input" id="totpAccNotes" placeholder="Observaciones internas"></textarea></div>
+    </div>
+  </form>
+  <div class="modal-actions">
+    <button class="btn btn-danger" id="btnTotpDeleteAccount" type="button">Eliminar</button>
+    <button class="btn" data-close="dlgTotpAccount" type="button">Cancelar</button>
+    <button class="btn btn-primary" type="submit" form="totpAccountForm">Guardar cuenta</button>
+  </div>
+</dialog>
+
+<!-- TOTP: Código de acceso -->
+<dialog id="dlgTotpCode">
+  <div class="modal-header">
+    <strong id="totpCodeDlgTitle">Código de acceso</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgTotpCode" type="button">✕</button>
+  </div>
+  <form id="totpCodeForm">
+    <input type="hidden" id="totpCodeId">
+    <div class="grid grid-2">
+      <div class="full"><label class="subtle">Vincular a cuenta TOTP *</label><select class="input" id="totpCodeAccount" required></select></div>
+      <div><label class="subtle">Código de acceso *</label><input class="input mono" id="totpAccessCode" required placeholder="Escribe el código para el cliente"></div>
+      <div style="display:flex;align-items:end"><button class="btn" id="btnTotpGenerateCode" type="button" style="width:100%">🎲 Generar aleatorio</button></div>
+      <div><label class="subtle">Nombre cliente</label><input class="input" id="totpCustomerName" placeholder="Opcional"></div>
+      <div><label class="subtle">WhatsApp cliente</label><input class="input" id="totpCustomerPhone" placeholder="Opcional"></div>
+      <div><label class="subtle">Usos máximos</label><input class="input" id="totpMaxUses" type="number" min="1" value="2"></div>
+      <div><label class="subtle">Vigencia en días</label><input class="input" id="totpValidDays" type="number" min="1" value="30"></div>
+      <div><label class="subtle">Estado</label><select class="input" id="totpCodeActive"><option value="true">Activo</option><option value="false">Desactivado</option></select></div>
+      <div class="full"><label class="subtle">Notas</label><textarea class="input" id="totpCodeNotes" placeholder="Observaciones internas"></textarea></div>
+      <div class="full"><div class="sync-note" id="totpCodeUsageInfo">El conteo de usos aparecerá aquí cuando edites un código existente.</div></div>
+    </div>
+  </form>
+  <div class="modal-actions">
+    <button class="btn btn-warning" id="btnTotpResetCode" type="button">Reset usos</button>
+    <button class="btn btn-danger" id="btnTotpDeleteCode" type="button">Eliminar</button>
+    <button class="btn" data-close="dlgTotpCode" type="button">Cancelar</button>
+    <button class="btn btn-primary" type="submit" form="totpCodeForm">Guardar código</button>
+  </div>
+</dialog>
+
 <!-- Chat pedido -->
 <dialog id="dlgOrderChat">
   <div class="modal-header">
@@ -2098,6 +2239,7 @@ let state={
   products:[],plans:[],stock:[],orders:[],items:[],proofs:[],deliveries:[],
   coupons:[],settings:[],summary:[],customers:[],reminders:[],templates:[],
   deliveryTemplates:[],orderInputs:[],orderChats:[],
+  totpAccounts:[],totpCodes:[],totpEvents:[],totpView:'codes',totpDbError:null,
   tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyPending:false
 };
 
@@ -2303,7 +2445,7 @@ function hideLoading(){_loading=false;$('loadingOverlay').classList.add('hidden'
 async function loadAll(){
   showLoading();
   try{
-    await Promise.all([loadProducts(),loadPlans(),loadStock(),loadOrders(),loadCoupons(),loadSettings(),loadSummary(),loadCustomers(),loadReminders(),loadTemplates(),loadDeliveryTemplates()]);
+    await Promise.all([loadProducts(),loadPlans(),loadStock(),loadOrders(),loadCoupons(),loadSettings(),loadSummary(),loadCustomers(),loadReminders(),loadTemplates(),loadDeliveryTemplates(),loadTotpAccounts(),loadTotpCodes(),loadTotpEvents()]);
     fillProductSelects();
     renderAll();
     if($('syncStatus'))$('syncStatus').textContent='Última sincronización: '+new Date().toLocaleString();
@@ -2336,6 +2478,23 @@ async function loadReminders(){const r=await db.from('payment_reminders').select
 async function loadTemplates(){const r=await db.from('payment_message_templates').select('*').order('is_default',{ascending:false}).order('created_at',{ascending:false});state.templates=r.error?[]:r.data||[]}
 async function loadDeliveryTemplates(){const r=await db.from('delivery_message_templates').select('*').order('is_default',{ascending:false}).order('created_at',{ascending:false});state.deliveryTemplates=r.error?[]:r.data||[]}
 
+async function loadTotpAccounts(){
+  const r=await db.from('totp_accounts').select('*').order('created_at',{ascending:false});
+  if(r.error){state.totpAccounts=[];state.totpDbError=r.error.message;console.warn('totp_accounts',r.error.message);return}
+  state.totpAccounts=r.data||[];state.totpDbError=null;
+}
+async function loadTotpCodes(){
+  const r=await db.from('totp_access_codes').select('*').order('created_at',{ascending:false}).limit(1000);
+  if(r.error){state.totpCodes=[];state.totpDbError=state.totpDbError||r.error.message;console.warn('totp_access_codes',r.error.message);return}
+  state.totpCodes=r.data||[];
+}
+async function loadTotpEvents(){
+  const r=await db.from('totp_access_events').select('*').order('created_at',{ascending:false}).limit(300);
+  if(r.error){state.totpEvents=[];console.warn('totp_access_events',r.error.message);return}
+  state.totpEvents=r.data||[];
+}
+
+
 function fillProductSelects(){
   const opts=state.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   $('plProduct').innerHTML=opts||'<option value="">Sin productos</option>';
@@ -2349,7 +2508,7 @@ function fillReminderSelects(){
 }
 
 /* ---- Render All ---- */
-function renderAll(){renderKPIs();renderSummary();renderProducts();renderPlans();renderOrders();renderClients();renderReminders();renderOps();renderTemplates();renderDeliveryTemplates();renderCoupons();renderSettings()}
+function renderAll(){renderKPIs();renderSummary();renderProducts();renderPlans();renderOrders();renderClients();renderReminders();renderOps();renderTemplates();renderDeliveryTemplates();renderCoupons();renderSettings();renderTotp()}
 
 function renderKPIs(){
   $('kpiProducts').textContent=state.products.filter(p=>p.active!==false).length;
@@ -3438,6 +3597,140 @@ function exportUnifiedBackup(){
 }
 function exportBackup(){exportUnifiedBackup()}
 
+
+/* ---- TOTP Access Manager ---- */
+function totpMaskSecret(s){s=String(s||'').replace(/\s+/g,'').toUpperCase();return s.length>12?s.slice(0,6)+'••••••'+s.slice(-6):(s?'••••':'Sin secreto')}
+function totpAccountName(id){return state.totpAccounts.find(a=>a.id===id)?.label||'Cuenta eliminada'}
+function totpDate(v){return v?new Date(v).toLocaleString('es-PE'):'—'}
+function totpIsExpired(c){return c.expires_at&&new Date(c.expires_at).getTime()<Date.now()}
+function totpCodeStatus(c){
+  if(!c.active)return'inactive';
+  if(totpIsExpired(c))return'expired';
+  if(Number(c.used_count||0)>=Number(c.max_uses||0))return'exhausted';
+  if(Number(c.used_count||0)>0)return'used';
+  return'available';
+}
+function totpStatusBadge(status){
+  const map={available:['b-ok','Disponible'],used:['b-warn','Con usos'],exhausted:['b-bad','Agotado'],expired:['b-bad','Vencido'],inactive:['b-bad','Inactivo'],active:['b-ok','Activa']};
+  const m=map[status]||['b-pagado',status];
+  return `<span class="badge ${m[0]}">${m[1]}</span>`;
+}
+function fillTotpAccountSelect(){
+  if(!$('totpCodeAccount'))return;
+  $('totpCodeAccount').innerHTML=state.totpAccounts.filter(a=>a.active!==false).map(a=>`<option value="${a.id}">${esc(a.label)}${a.issuer?' · '+esc(a.issuer):''}</option>`).join('')||'<option value="">Primero agrega una cuenta TOTP</option>';
+}
+function renderTotp(){
+  if(!$('totpGrid'))return;
+  const q=String($('totpSearch')?.value||'').toLowerCase();
+  const filter=$('totpStatusFilter')?.value||'';
+  const codes=state.totpCodes||[], accounts=state.totpAccounts||[], events=state.totpEvents||[];
+  $('totpKpiAccounts').textContent=accounts.length;
+  $('totpKpiCodes').textContent=codes.length;
+  $('totpKpiUsed').textContent=codes.filter(c=>Number(c.used_count||0)>0).length;
+  $('totpKpiExpired').textContent=codes.filter(totpIsExpired).length;
+  fillTotpAccountSelect();
+  if(state.totpDbError){
+    $('totpGrid').innerHTML=`<div class="empty-state"><span class="icon">🛠️</span><p>Falta ejecutar el SQL de Supabase para crear las tablas TOTP.</p><p class="help">Detalle: ${esc(state.totpDbError)}</p></div>`;
+    return;
+  }
+  if(state.totpView==='accounts'){
+    let data=accounts.filter(a=>[a.label,a.issuer,a.notes,a.totp_secret].join(' ').toLowerCase().includes(q));
+    $('totpGrid').innerHTML=data.map(a=>`<div class="totp-card">
+      <div class="totp-head"><div><div class="totp-name">🔑 ${esc(a.label)}</div><div class="totp-sub">${esc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div>${totpStatusBadge(a.active!==false?'active':'inactive')}</div>
+      <div class="totp-secret">${esc(totpMaskSecret(a.totp_secret))}</div>
+      <div class="totp-kv"><span class="k">Códigos vinculados</span><span class="v">${codes.filter(c=>c.account_id===a.id).length}</span></div>
+      <div class="totp-kv"><span class="k">Creada</span><span class="v">${totpDate(a.created_at)}</span></div>
+      ${a.notes?`<div class="help" style="white-space:pre-wrap;margin-top:8px">${esc(a.notes)}</div>`:''}
+      <div class="totp-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">✏️ Editar</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Desactivar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">🗑 Eliminar</button></div>
+    </div>`).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';
+    return;
+  }
+  if(state.totpView==='events'){
+    let data=events.filter(e=>[e.access_code,e.event_type,e.ip_address,e.user_agent].join(' ').toLowerCase().includes(q));
+    $('totpGrid').innerHTML=`<div class="card" style="grid-column:1/-1"><strong>📜 Última actividad</strong><div class="totp-events" style="margin-top:10px">${data.map(e=>`<div class="totp-event"><div class="top"><span>${esc(e.event_type||'evento')}</span><span>${totpDate(e.created_at)}</span></div><div class="sub">Código: <span class="mono">${esc(e.access_code||'')}</span> · ${e.success?'Correcto':'Rechazado'}${e.reason?' · '+esc(e.reason):''}</div><div class="sub">IP: ${esc(e.ip_address||'—')}</div></div>`).join('')||'<div class="empty-state"><span class="icon">📜</span><p>Aún no hay actividad.</p></div>'}</div></div>`;
+    return;
+  }
+  let data=codes.filter(c=>{
+    const a=state.totpAccounts.find(x=>x.id===c.account_id)||{};
+    const hay=[c.access_code,c.customer_name,c.customer_phone,c.notes,a.label,a.issuer].join(' ').toLowerCase().includes(q);
+    const st=totpCodeStatus(c);
+    return hay&&(!filter||st===filter);
+  });
+  $('totpGrid').innerHTML=data.map(c=>{const st=totpCodeStatus(c);return `<div class="totp-card">
+    <div class="totp-head"><div><div class="totp-name">🎫 ${esc(c.access_code)}</div><div class="totp-sub">${esc(totpAccountName(c.account_id))}</div></div>${totpStatusBadge(st)}</div>
+    <div class="totp-kv"><span class="k">Usos</span><span class="v">${Number(c.used_count||0)} / ${Number(c.max_uses||0)}</span></div>
+    <div class="totp-kv"><span class="k">Primer uso</span><span class="v">${totpDate(c.first_used_at)}</span></div>
+    <div class="totp-kv"><span class="k">Último uso</span><span class="v">${totpDate(c.last_used_at)}</span></div>
+    <div class="totp-kv"><span class="k">Vence</span><span class="v">${totpDate(c.expires_at)}</span></div>
+    ${c.customer_name||c.customer_phone?`<div class="totp-sub">Cliente: ${esc(c.customer_name||'—')} · ${esc(c.customer_phone||'—')}</div>`:''}
+    ${c.notes?`<div class="help" style="white-space:pre-wrap;margin-top:8px">${esc(c.notes)}</div>`:''}
+    <div class="totp-actions"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">✏️ Editar</button><button class="btn" onclick="copyTextSafe('${esc(c.access_code)}')">📋 Copiar</button><button class="btn btn-warning" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">🗑 Eliminar</button></div>
+  </div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso. Crea uno desde “＋ Código acceso”.</p></div>';
+}
+function openTotpAccountDialog(id=''){
+  const a=state.totpAccounts.find(x=>x.id===id);
+  $('totpAccId').value=a?.id||'';$('totpAccLabel').value=a?.label||'';$('totpAccIssuer').value=a?.issuer||'Innov IA';$('totpAccSecret').value=a?.totp_secret||'';$('totpAccDigits').value=String(a?.digits||6);$('totpAccPeriod').value=String(a?.period||30);$('totpAccActive').value=String(a?.active!==false);$('totpAccNotes').value=a?.notes||'';
+  $('totpAccountDlgTitle').textContent=a?'Editar cuenta TOTP':'Nueva cuenta TOTP';$('btnTotpDeleteAccount').style.display=a?'inline-flex':'none';showDialog('dlgTotpAccount');
+}
+async function saveTotpAccount(e){
+  e.preventDefault();
+  const id=$('totpAccId').value;
+  const secret=$('totpAccSecret').value.replace(/\s+/g,'').toUpperCase();
+  if(!secret)return toast('Pega el secreto TOTP Base32','bad');
+  const payload={label:$('totpAccLabel').value.trim(),issuer:$('totpAccIssuer').value.trim()||'Innov IA',totp_secret:secret,digits:Number($('totpAccDigits').value||6),period:Number($('totpAccPeriod').value||30),active:$('totpAccActive').value==='true',notes:$('totpAccNotes').value.trim()||null,updated_at:new Date().toISOString()};
+  const r=id?await db.from('totp_accounts').update(payload).eq('id',id):await db.from('totp_accounts').insert(payload);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgTotpAccount');toast('Cuenta TOTP guardada','ok');await loadAll();switchTab('totp');
+}
+async function deleteTotpAccount(id=$('totpAccId').value){
+  if(!id)return;if(!confirm('¿Eliminar esta cuenta TOTP? Sus códigos vinculados también podrían quedar afectados.'))return;
+  const r=await db.from('totp_accounts').delete().eq('id',id);if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgTotpAccount');toast('Cuenta eliminada','ok');await loadAll();switchTab('totp');
+}
+async function toggleTotpAccount(id){
+  const a=state.totpAccounts.find(x=>x.id===id);if(!a)return;
+  const r=await db.from('totp_accounts').update({active:!(a.active!==false),updated_at:new Date().toISOString()}).eq('id',id);if(r.error)return toast(r.error.message,'bad');
+  await loadAll();switchTab('totp');
+}
+function openTotpCodeDialog(id=''){
+  fillTotpAccountSelect();
+  const c=state.totpCodes.find(x=>x.id===id);
+  $('totpCodeId').value=c?.id||'';$('totpCodeAccount').value=c?.account_id||state.totpAccounts[0]?.id||'';$('totpAccessCode').value=c?.access_code||'';$('totpCustomerName').value=c?.customer_name||'';$('totpCustomerPhone').value=c?.customer_phone||'';$('totpMaxUses').value=c?.max_uses||2;$('totpValidDays').value=c?.valid_days||30;$('totpCodeActive').value=String(c?.active!==false);$('totpCodeNotes').value=c?.notes||'';
+  $('totpCodeDlgTitle').textContent=c?'Editar código de acceso':'Nuevo código de acceso';$('btnTotpDeleteCode').style.display=c?'inline-flex':'none';$('btnTotpResetCode').style.display=c?'inline-flex':'none';
+  $('totpCodeUsageInfo').textContent=c?`Usos: ${c.used_count||0}/${c.max_uses||0} · Primer uso: ${totpDate(c.first_used_at)} · Último uso: ${totpDate(c.last_used_at)} · Vence: ${totpDate(c.expires_at)}`:'Código vacío por defecto. Escríbelo manualmente o usa “Generar aleatorio”.';
+  showDialog('dlgTotpCode');
+}
+function makeTotpAccessCode(){
+  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let out='';
+  crypto.getRandomValues(new Uint8Array(10)).forEach(n=>out+=alphabet[n%alphabet.length]);
+  return out;
+}
+async function saveTotpCode(e){
+  e.preventDefault();
+  const id=$('totpCodeId').value;
+  const code=$('totpAccessCode').value.trim().toUpperCase();
+  if(!code)return toast('El código de acceso está vacío','bad');
+  const payload={account_id:$('totpCodeAccount').value,access_code:code,customer_name:$('totpCustomerName').value.trim()||null,customer_phone:$('totpCustomerPhone').value.trim()||null,max_uses:Number($('totpMaxUses').value||2),valid_days:Number($('totpValidDays').value||30),active:$('totpCodeActive').value==='true',notes:$('totpCodeNotes').value.trim()||null,updated_at:new Date().toISOString()};
+  const r=id?await db.from('totp_access_codes').update(payload).eq('id',id):await db.from('totp_access_codes').insert(payload);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgTotpCode');toast('Código de acceso guardado','ok');await loadAll();switchTab('totp');
+}
+async function resetTotpCode(id=$('totpCodeId').value){
+  if(!id)return;if(!confirm('¿Resetear usos, primer uso, último uso y vencimiento?'))return;
+  const r=await db.from('totp_access_codes').update({used_count:0,first_used_at:null,last_used_at:null,expires_at:null,updated_at:new Date().toISOString()}).eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgTotpCode');toast('Usos reseteados','ok');await loadAll();switchTab('totp');
+}
+async function deleteTotpCode(id=$('totpCodeId').value){
+  if(!id)return;if(!confirm('¿Eliminar este código de acceso?'))return;
+  const r=await db.from('totp_access_codes').delete().eq('id',id);if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgTotpCode');toast('Código eliminado','ok');await loadAll();switchTab('totp');
+}
+function exportTotpBackup(){
+  const data={app:'Innov IA TOTP',exported_at:new Date().toISOString(),totp_accounts:state.totpAccounts,totp_access_codes:state.totpCodes,totp_access_events:state.totpEvents};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='backup-innov-ia-totp-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);toast('Backup TOTP descargado','ok');
+}
+
 /* ---- Auto refresh ---- */
 let adminAutoRefreshBusy=false;
 async function adminAutoRefresh(){
@@ -3549,17 +3842,25 @@ if($('opsBulkText'))$('opsBulkText').oninput=parseOpsBulk;
 if($('opsBulkMode'))$('opsBulkMode').onchange=parseOpsBulk;
 if($('opsBulkPlan'))$('opsBulkPlan').onchange=parseOpsBulk;
 
+
+/* ---- TOTP bindings ---- */
+if($('btnTotpNewAccount'))$('btnTotpNewAccount').onclick=()=>openTotpAccountDialog();
+if($('btnTotpNewCode'))$('btnTotpNewCode').onclick=()=>openTotpCodeDialog();
+if($('btnTotpRefresh'))$('btnTotpRefresh').onclick=loadAll;
+if($('btnTotpExport'))$('btnTotpExport').onclick=exportTotpBackup;
+if($('totpSearch'))$('totpSearch').oninput=renderTotp;
+if($('totpStatusFilter'))$('totpStatusFilter').onchange=renderTotp;
+document.querySelectorAll('[data-totp-view]').forEach(b=>b.onclick=()=>{state.totpView=b.dataset.totpView;document.querySelectorAll('[data-totp-view]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));renderTotp();});
+if($('totpAccountForm'))$('totpAccountForm').onsubmit=saveTotpAccount;
+if($('btnTotpDeleteAccount'))$('btnTotpDeleteAccount').onclick=()=>deleteTotpAccount();
+if($('totpCodeForm'))$('totpCodeForm').onsubmit=saveTotpCode;
+if($('btnTotpGenerateCode'))$('btnTotpGenerateCode').onclick=()=>{$('totpAccessCode').value=makeTotpAccessCode()};
+if($('btnTotpResetCode'))$('btnTotpResetCode').onclick=()=>resetTotpCode();
+if($('btnTotpDeleteCode'))$('btnTotpDeleteCode').onclick=()=>deleteTotpCode();
+
 /* ---- Init ---- */
 init();
 setInterval(adminAutoRefresh,2000);
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
