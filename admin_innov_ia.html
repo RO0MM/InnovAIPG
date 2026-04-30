@@ -2596,10 +2596,39 @@ function editProduct(id){
   $('pId').value=p.id;$('pName').value=p.name||'';$('pSlug').value=p.slug||'';$('pCategory').value=p.category||'otros';$('pSale').value=p.sale_mode||'retail';$('pImage').value=p.image_url||'';$('pDesc').value=p.description||'';$('pPriority').value=p.priority||100;$('pActive').value=String(p.active!==false);$('pBasePlan').checked=false;
   if($('btnDeleteProduct'))$('btnDeleteProduct').style.display='inline-flex';$('productDlgTitle').textContent='Editar producto';showDialog('dlgProduct');
 }
+
+function buildCheckoutMetadata(base={}, productName='', planName=''){
+  const current = (base && typeof base === 'object' && !Array.isArray(base)) ? {...base} : {};
+  if(Array.isArray(current.requirements) && current.requirements.length) return current;
+
+  const raw = `${productName||''} ${planName||''}`;
+  const name = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const gmailField = (label) => ({key:'activation_email',label,type:'email',required:true,domain:'gmail.com',placeholder:'tucorreo@gmail.com',help:'Usa un correo Gmail válido terminado en @gmail.com.'});
+
+  let rule = null;
+  if(name.includes('youtube')){
+    rule = {requirement_title:'Datos para activar YouTube', checkout_notice:'La confirmación llegará a tu WhatsApp.', checkout_instructions:'▶️ Ingresa el Gmail donde deseas la activación de YouTube.', requirements:[gmailField('Correo Gmail para YouTube')]};
+  }else if(name.includes('autodesk') || name.includes('autocad')){
+    rule = {requirement_title:'Datos para activar Autodesk Suite', checkout_notice:'Tiempo máximo de activación: 1 hora. Puede validarse antes.', checkout_instructions:'🧩 Ingresa tu Gmail y los programas Autodesk que deseas activar.', requirements:[gmailField('Correo Gmail para activar Autodesk'), {key:'autodesk_programs',label:'Programas Autodesk que deseas activar',type:'textarea',required:true,placeholder:'Ejemplo: AutoCAD, Revit, Civil 3D, Inventor',help:'Escribe los programas que necesitas activar.'}]};
+  }else if(name.includes('canva') || name.includes('canvas')){
+    rule = {requirement_title:'Datos para activar Canva / Canvas', checkout_notice:'Tiempo máximo de activación: 1 hora. Puede validarse antes.', checkout_instructions:'📩 Ingresa el Gmail donde deseas recibir la invitación o activación.', requirements:[gmailField('Correo Gmail para activar Canva / Canvas')]};
+  }else if(name.includes('spotify')){
+    rule = {requirement_title:'Datos para Spotify', checkout_notice:'La confirmación llegará a tu WhatsApp.', checkout_instructions:'🎵 Ingresa el Gmail donde deseas la activación de Spotify.', requirements:[gmailField('Correo Gmail de Spotify / activación')]};
+  }else{
+    const isSharedChatGPT = /(compartid|shared|alto trafico|alta demanda|pantalla|perfil|pc solo|celular|grupo|cupos)/.test(name);
+    const isPersonalChatGPT = name.includes('chatgpt') && !isSharedChatGPT && /(cuenta personal|personal|cuenta propia|correo propio|propio|activacion directa|directa a tu correo)/.test(name);
+    if(isPersonalChatGPT){
+      rule = {requirement_title:'Activación ChatGPT Plus cuenta personal', checkout_notice:'Tiempo máximo de activación: 12 horas. Puede validarse antes.', checkout_instructions:'✨ Ingresa el Gmail de tu cuenta y pega el texto completo de sesión solicitado.', requirements:[{key:'chatgpt_account_email',label:'Correo Gmail de tu cuenta ChatGPT',type:'email',required:true,domain:'gmail.com',placeholder:'tucorreo@gmail.com',help:'Coloca el Gmail donde deseas activar ChatGPT Plus.'},{key:'chatgpt_session_text',label:'Texto completo de sesión de ChatGPT',type:'textarea',required:true,min_length:80,placeholder:'Pega aquí todo el texto que aparece al abrir https://chatgpt.com/api/auth/session',help:'Inicia sesión en ChatGPT desde un navegador, abre el enlace y copia todo el texto.'}]};
+    }
+  }
+
+  return rule ? {...current, ...rule} : current;
+}
+
 async function saveProduct(ev){
   ev.preventDefault();
   const id=$('pId').value;const name=$('pName').value.trim();if(!name)return toast('Falta nombre','bad');
-  const payload={name,slug:$('pSlug').value.trim()||slugify(name),category:$('pCategory').value,sale_mode:$('pSale').value,image_url:$('pImage').value.trim()||null,description:$('pDesc').value.trim()||null,priority:Number($('pPriority').value||100),active:$('pActive').value==='true'};
+  const currentProduct=id?prod(id):{};const payload={name,slug:$('pSlug').value.trim()||slugify(name),category:$('pCategory').value,sale_mode:$('pSale').value,image_url:$('pImage').value.trim()||null,description:$('pDesc').value.trim()||null,priority:Number($('pPriority').value||100),active:$('pActive').value==='true',metadata:buildCheckoutMetadata(currentProduct?.metadata||{},name,'')};
   let r=id?await db.from('products').update(payload).eq('id',id).select().single():await db.from('products').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
   if(!id&&$('pBasePlan').checked){await db.from('product_plans').insert({product_id:r.data.id,name:'Plan principal',slug:'plan-principal',price:0,currency:'PEN',period:'Mensual',stock_mode:'manual',manual_stock_count:0,availability_status:'consult',delivery_mode:'manual',active:true,priority:1,benefits:[],chips:['Nuevo']})}
@@ -2630,7 +2659,7 @@ function syncDeliveryBoxes(){
 async function savePlan(ev){
   ev.preventDefault();
   const id=$('plId').value;const isAuto=$('plDeliveryType').value==='automatic';const name=$('plName').value.trim();if(!name)return toast('Falta nombre del plan','bad');
-  const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:$('plPeriod').value||'Mensual',image_url:$('plImage').value.trim()||null,description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true'};
+  const currentPlan=id?plan(id):{};const parentProduct=prod($('plProduct').value)||{};const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:$('plPeriod').value||'Mensual',image_url:$('plImage').value.trim()||null,description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true',metadata:buildCheckoutMetadata(currentPlan?.metadata||{},parentProduct?.name||'',name)};
   let r=id?await db.from('product_plans').update(payload).eq('id',id).select().single():await db.from('product_plans').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
   $('plId').value=r.data.id;await saveBulkIfAny(r.data.id);closeDialog('dlgPlan');toast('Plan/cupos guardado','ok');await loadAll();switchTab('inventory');
@@ -3509,6 +3538,10 @@ setInterval(adminAutoRefresh,2000);
 </script>
 </body>
 </html>
+
+
+
+
 
 
 
