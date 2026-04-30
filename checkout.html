@@ -49,6 +49,14 @@
 .shop-logo:hover{filter:brightness(.98)}
 .client-required-note{border:1px solid rgba(37,99,235,.22);background:#eff6ff;color:#1e3a8a;border-radius:12px;padding:8px 10px;font-size:12.5px;margin-top:8px;font-weight:800}
 @media(max-width:620px){.shop-logo .logo-a,.shop-logo .logo-b{font-size:20px;padding:7px 8px}.head .container{gap:8px}}
+/* Activación compacta: solo aparece al tocar botón */
+.activation-box.compact-activation{padding:10px;margin:8px 0;border-radius:14px;background:#f8fbff;border:1px solid #bfdbfe;box-shadow:none}
+.activation-box.compact-activation h4{font-size:13px;margin:0 0 6px;color:#1e3a8a}
+.activation-box.compact-activation .mini-muted{font-size:11.5px;line-height:1.25}
+.activation-box.compact-activation .field{padding:8px;background:#fff;border:1px solid #dbe7ff;border-radius:12px}
+.activation-box.compact-activation input{height:38px;border-radius:10px!important}
+.activation-box.compact-activation textarea,.activation-box.compact-activation .activation-instructions{display:none!important}
+
 
   </style>
 </head>
@@ -98,11 +106,6 @@
                 <div class="field"><label>País *</label><select id="country"><option value="PE" selected>Perú</option><option value="PY">Paraguay</option><option value="BO">Bolivia</option><option value="CL">Chile</option><option value="CO">Colombia</option><option value="EC">Ecuador</option><option value="AR">Argentina</option><option value="MX">México</option><option value="OTRO">Otro</option></select></div>
                 <div class="field"><label>Entrega</label><div id="deliveryModeBadge" class="delivery-mode"><i class="fa fa-bolt"></i> Verificando entrega...</div><small id="deliveryModeHelp">Se detecta según el producto de tu carrito.</small></div>
               </div>
-              <div id="specialRequirementsBox" class="special-box hidden">
-                <h4>📌 Datos necesarios para esta compra</h4>
-                <div class="mini-muted" id="specialRequirementsHelp">Completa los datos adicionales solicitados por el producto.</div>
-                <div id="specialRequirementsFields" class="special-grid" style="margin-top:8px"></div>
-              </div>
               <div class="checkline"><input id="terms" type="checkbox"> <label for="terms">Acepto los Términos y Condiciones y la Política de Privacidad *</label></div>
               <div class="thin-note"><i class="fa fa-info-circle"></i> Guardar el ID de pedido es IMPORTANTE para consultar tu cuenta entregada.</div>
               <div class="order-actions"><button class="btn btn-primary btn-mid" id="btnGenerateOrder"><i class="fa fa-qrcode"></i> Generar pedido y pagar</button></div>
@@ -134,12 +137,12 @@
                 <div class="field"><label>Código de operación Yape / Plin</label><input id="operationCode" placeholder="Ej: 123456"></div>
               </div>
               <div class="field"><label>Nota opcional</label><textarea id="customerNote" rows="2" placeholder="Pagué desde mi cuenta..."></textarea></div>
-              <div id="activationBox" class="activation-box hidden">
-                <h4>📌 Datos requeridos para activar tu producto</h4>
-                <div class="mini-muted">Completa estos datos aquí mismo antes de enviar tu pago a revisión. El administrador los recibirá junto con tu pedido.</div>
+              <div id="activationBox" class="activation-box compact-activation hidden">
+                <h4>📩 Correo de activación</h4>
+                <div class="mini-muted">Coloca el correo donde deseas activar el servicio.</div>
                 <div id="activationInstructions" class="activation-instructions hidden"></div>
                 <div id="activationFields" class="activation-grid"></div>
-                <button class="btn btn-primary btn-small hidden" id="btnSendActivationData" type="button" style="margin-top:8px"><i class="fa fa-paper-plane"></i> Actualizar datos de activación</button>
+                <button class="btn btn-primary btn-small" id="btnSendActivationData" type="button" style="margin-top:8px"><i class="fa fa-paper-plane"></i> Guardar correo</button>
                 <div id="activationResult" style="margin-top:8px"></div>
               </div>
               <div class="review-submit-row">
@@ -221,6 +224,7 @@
     let specialRequirements = [];
     let specialNotices = [];
     let chatMinimized = false;
+    let activationBoxOpen = false;
 
     function safeParse(v, fallback){ try { return JSON.parse(v || ''); } catch(e){ return fallback; } }
     function readCart(){
@@ -392,30 +396,7 @@
 
     function renderSpecialRequirements(){
       const box = $('specialRequirementsBox');
-      const fields = $('specialRequirementsFields');
-      if(!box || !fields) return;
-      const hasData = specialRequirements.length > 0 || specialNotices.length > 0;
-      box.classList.toggle('hidden', !hasData);
-      box.classList.toggle('pay-stage', hasData);
-      if(!hasData){ fields.innerHTML = ''; return; }
-
-      const groupedTitle = [...new Set([...specialRequirements.map(r => r.title), ...specialNotices.map(n => n.title)].filter(Boolean))].join(' / ') || 'Datos requeridos';
-      $('specialRequirementsHelp').innerHTML = `<div class="special-title">📌 ${esc(groupedTitle)}</div><div class="special-subtitle">Estos datos se pedirán justo después de generar el pedido, en el bloque “Agregar correo / datos de activación”.</div>`;
-
-      const noticesHtml = uniqueBy(specialNotices, x => x.plan_id + '::' + x.text).map(n => `
-        <div class="special-notice">
-          <strong>ℹ️ ${esc(n.product_name)} — ${esc(n.plan_name)}</strong>
-          <div>${esc(n.text)}</div>
-        </div>`).join('');
-
-      const customerNote = specialRequirements.length ? '<div class="client-required-note">📩 Tu compra requiere datos de activación. Después de generar el pedido verás el botón <b>Agregar correo / datos de activación</b>.</div>' : '';
-
-      const previewHtml = specialRequirements.map((r) => {
-        const label = `${esc(r.label)} <span class="mini-muted">(${esc(r.product_name)} — ${esc(r.plan_name)})</span>${r.required?' *':''}`;
-        return `<div class="special-notice"><strong>${label}</strong>${r.help?`<div>${esc(r.help)}</div>`:''}</div>`;
-      }).join('');
-
-      fields.innerHTML = noticesHtml + customerNote + previewHtml;
+      if(box) box.classList.add('hidden');
     }
 
     function collectSpecialInputs(softMode=true){
@@ -462,57 +443,49 @@
       if(!box||!fields||!instructions)return;
       const hasReq=specialRequirements.length>0;
       const shouldShow=hasReq && !!currentOrder?.order_code;
-      box.classList.toggle('hidden', !shouldShow);
       $('activationShortcutBox')?.classList.toggle('hidden', !shouldShow);
-      if(!hasReq){ fields.innerHTML=''; instructions.classList.add('hidden'); $('activationShortcutBox')?.classList.add('hidden'); return; }
+      if(!shouldShow){
+        box.classList.add('hidden');
+        fields.innerHTML='';
+        instructions.classList.add('hidden');
+        return;
+      }
+      if(!activationBoxOpen){
+        box.classList.add('hidden');
+        return;
+      }
+      box.classList.remove('hidden');
+      instructions.classList.add('hidden');
 
-      const allInstructions = uniqueBy(specialNotices, x=>x.plan_id+'::'+x.text)
-        .map(n=>`${n.product_name} — ${n.plan_name}\n${n.text}`)
-        .join('\n\n');
-      instructions.textContent=allInstructions;
-      instructions.classList.toggle('hidden', !allInstructions);
-
-      const previous = {};
-      document.querySelectorAll('.activation-input').forEach(el => previous[el.dataset.plan+'__'+el.dataset.key] = el.value);
-
-      fields.innerHTML = specialRequirements.map((r,idx)=>{
-        const id='act_'+idx;
-        const savedValue = previous[r.plan_id+'__'+r.key] || '';
-        const common=`id="${id}" class="activation-input" data-key="${esc(r.key)}" data-plan="${esc(r.plan_id)}" data-label="${esc(r.label)}" data-product="${esc(r.product_name)}" data-plan-name="${esc(r.plan_name)}" data-required="${r.required?'1':'0'}" data-domain="${esc(r.domain||'')}" data-min-length="${Number(r.min_length||0)}" placeholder="${esc(r.placeholder)}"`;
-        const label=`${esc(r.label)} <span class="mini-muted">(${esc(r.product_name)} — ${esc(r.plan_name)})</span>${r.required?' *':''}`;
-        const input=r.type==='textarea'
-          ? `<textarea ${common} rows="${r.key==='chatgpt_session_text'?9:4}">${esc(savedValue)}</textarea>`
-          : `<input ${common} value="${esc(savedValue)}" type="${r.type==='email'?'email':'text'}">`;
-        return `<div class="field"><label>${label}</label>${input}${r.help?`<small>${esc(r.help)}</small>`:''}</div>`;
-      }).join('');
+      const prev = document.querySelector('.activation-input')?.value || '';
+      const first = specialRequirements[0] || {};
+      const planTitle = [first.product_name, first.plan_name].filter(Boolean).join(' — ');
+      fields.innerHTML = `
+        <div class="field">
+          <label>Correo para activación ${planTitle?`<span class="mini-muted">(${esc(planTitle)})</span>`:''} *</label>
+          <input class="activation-input" data-key="activation_email" data-plan="${esc(first.plan_id||'')}" data-label="Correo de activación" data-product="${esc(first.product_name||'Producto')}" data-plan-name="${esc(first.plan_name||'Plan')}" data-required="1" data-domain="" data-min-length="0" value="${esc(prev)}" type="email" placeholder="correo@ejemplo.com">
+          <small>Puede ser Gmail, Hotmail u otro correo válido.</small>
+        </div>`;
 
       if(currentOrder?._activationSent){
-        $('activationResult').innerHTML='<div class="alert-ok">✅ Datos enviados. La confirmación llegará a tu WhatsApp. Tiempo máximo: ChatGPT hasta 12 horas; Gemini/Autodesk/Canva hasta 1 hora y puede ser antes.</div>';
+        $('activationResult').innerHTML='<div class="alert-ok">✅ Correo enviado al administrador.</div>';
       }else{
         $('activationResult').innerHTML='';
       }
     }
 
     function collectActivationInputs(){
-      const inputs=[]; let ok=true; const summary=[];
-      document.querySelectorAll('.activation-input').forEach(el=>{
-        const value=el.value.trim();
-        const req=el.dataset.required==='1';
-        const domain=(el.dataset.domain||'').toLowerCase();
-        const minLen=Number(el.dataset.minLength||0);
-        el.style.borderColor='#cfd5df';
-        if(req && !value){ ok=false; el.style.borderColor='#dc2626'; }
-        if(value && el.type==='email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)){ ok=false; el.style.borderColor='#dc2626'; toast('Revisa el correo ingresado.'); }
-        if(value && domain && !value.toLowerCase().endsWith('@'+domain)){ ok=false; el.style.borderColor='#dc2626'; toast('Este producto solo acepta correo @'+domain); }
-        if(value && minLen && value.length<minLen){ ok=false; el.style.borderColor='#dc2626'; toast('El texto enviado parece incompleto. Copia todo el texto solicitado.'); }
-        if(value){
-          const item={plan_id:el.dataset.plan,product_name:el.dataset.product,plan_name:el.dataset.planName,key:el.dataset.key,label:el.dataset.label,value};
-          inputs.push(item);
-          summary.push(`- ${item.product_name} / ${item.plan_name} / ${item.label}: ${value}`);
-        }
-      });
-      if(!inputs.length && specialRequirements.length){ ok=false; toast('Completa los datos de activación.'); }
-      return {ok,data:{items:inputs},summary:summary.join('\n')};
+      const el=document.querySelector('.activation-input');
+      if(!el){ toast('Presiona Agregar datos de activación.'); return {ok:false,data:{items:[]},summary:''}; }
+      const value=el.value.trim();
+      el.style.borderColor='#cfd5df';
+      if(!value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)){
+        el.style.borderColor='#dc2626';
+        toast('Coloca un correo válido.');
+        return {ok:false,data:{items:[]},summary:''};
+      }
+      const item={plan_id:el.dataset.plan,product_name:el.dataset.product,plan_name:el.dataset.planName,key:'activation_email',label:'Correo de activación',value};
+      return {ok:true,data:{items:[item]},summary:`Correo de activación: ${value}`};
     }
 
     async function sendActivationData(){
@@ -523,10 +496,10 @@
       if(!payload.ok)return;
       const btn=$('btnSendActivationData'); btn.disabled=true; btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Enviando...';
       const r=await db.rpc('update_order_customer_inputs_public',{p_order_code:currentOrder.order_code,p_customer_whatsapp:phone,p_customer_inputs:payload.data,p_requirement_summary:payload.summary});
-      btn.disabled=false; btn.innerHTML='<i class="fa fa-paper-plane"></i> Enviar datos de activación';
+      btn.disabled=false; btn.innerHTML='<i class="fa fa-paper-plane"></i> Guardar correo';
       if(r.error){toast(r.error.message);return}
       currentOrder._activationSent=true; persistOrder();
-      $('activationResult').innerHTML='<div class="alert-ok">✅ Datos enviados. La confirmación llegará a tu WhatsApp. El tiempo máximo es: ChatGPT hasta 12 horas; Gemini/Autodesk/Canva hasta 1 hora, puede validarse antes.</div>';
+      $('activationResult').innerHTML='<div class="alert-ok">✅ Correo enviado al administrador.</div>';
       await checkStatus({target:'statusBox',silent:true});
     }
 
@@ -699,7 +672,7 @@
       const phone=order._phone || $('phone').value.trim();
       if(phone && !$('lookupPhone').value) $('lookupPhone').value = phone;
       setStep(3);
-      renderActivationBox(false);
+      activationBoxOpen = false; renderActivationBox(false);
       if(scroll) $('mainCard').scrollIntoView({behavior:'smooth', block:'start'});
     }
 
@@ -909,7 +882,7 @@ async function sendPaymentReview(){
       $('btnBackToData')?.addEventListener('click', showFormView);
       $('btnCancelOrder')?.addEventListener('click', cancelCurrentOrder);
       $('btnSendActivationData')?.addEventListener('click', sendActivationData);
-      $('btnGoActivation')?.addEventListener('click', ()=>{ $('activationBox')?.scrollIntoView({behavior:'smooth', block:'start'}); const first=document.querySelector('.activation-input'); if(first) first.focus(); });
+      $('btnGoActivation')?.addEventListener('click', ()=>{ activationBoxOpen = true; renderActivationBox(true); $('activationBox')?.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>document.querySelector('.activation-input')?.focus(),80); });
     $('btnLookupOrder').addEventListener('click', ()=>checkStatus({ orderCode:$('lookupOrderCode').value, phone:$('lookupPhone').value, target:'lookupResult' }));
     $('btnSendChatMessage')?.addEventListener('click', sendChatMessage);
     $('btnOpenSupport')?.addEventListener('click', openSupportModal);
