@@ -703,7 +703,7 @@
 
     /* Estado de conexión / Supabase */
     .catalog-status{
-      display:inline-flex;
+      display:none !important;
       align-items:center;
       gap:.45rem;
       padding:.28rem .6rem;
@@ -753,7 +753,7 @@
     @media (max-width: 575.98px){
       .shop-toolbar{ display:block !important; }
       .shop-toolbar .d-flex.align-items-center{ margin-top:.55rem; justify-content:space-between; }
-      .catalog-status{ margin-top:.45rem; font-size:11px; }
+      .catalog-status{ display:none !important; }
     }
 
   </style>
@@ -983,10 +983,7 @@
               </div>
             </div>
 
-            <div class="bg-light p-3 mb-30 small text-muted">
-              <div><strong>Estado:</strong> por defecto “Disponible” (verde).</div>
-              <div>Para poner rojo: <code>disponible:false</code> o <code>cupo:0</code>.</div>
-            </div>
+            <!-- Bloque técnico oculto para clientes: la tienda debe verse limpia y sin mensajes de Supabase/admin. -->
 
           </div>
         </div>
@@ -1233,7 +1230,7 @@
     /* ================== Config ================== */
     const FX = 3.70;              // 1 USD = 3.70 S/
     const PAGE_SIZE = 16;         // cards pequeñas
-    const CATALOG_REFRESH_MS = 5000; // refresca cupos/productos de Supabase
+    const CATALOG_REFRESH_MS = 15000; // refresca cupos/productos sin parpadeo visual
 
     // Conexión pública a Supabase (segura con RLS activado)
     const SUPABASE_URL = 'https://rfjvskrimsoqlyofhidj.supabase.co';
@@ -1276,7 +1273,8 @@
       error: null,
       retail: [],
       wholesale: [],
-      updatedAt: null
+      updatedAt: null,
+      signature: ''
     };
 
     let supabaseClient = null;
@@ -2582,6 +2580,23 @@
       return [];
     }
 
+    function catalogRowsSignature(rows){
+      try{
+        return JSON.stringify((rows || []).map(r => ({
+          product_id:r.product_id, product_slug:r.product_slug, product_name:r.product_name,
+          product_active:r.product_active, product_priority:r.product_priority, sale_mode:r.sale_mode,
+          plan_id:r.plan_id, plan_slug:r.plan_slug, plan_name:r.plan_name,
+          price:r.price, currency:r.currency, period:r.period, stock_mode:r.stock_mode,
+          available_stock:r.available_stock, availability_status:r.availability_status,
+          allow_purchase_without_stock:r.allow_purchase_without_stock,
+          image_url:r.image_url, plan_image_url:r.plan_image_url,
+          chips:r.chips, benefits:r.benefits
+        })).sort((a,b)=>String(a.product_id+'-'+a.plan_id).localeCompare(String(b.product_id+'-'+b.plan_id))));
+      }catch(e){
+        return String(Date.now());
+      }
+    }
+
     function productLooksSame(localItem, dbItem){
       const a = normalizeKey(localItem?.name);
       const b = normalizeKey(dbItem?.name);
@@ -2714,36 +2729,48 @@
       return { retail, wholesale };
     }
 
-    async function loadSupabaseCatalog(){
-      const statusEl = document.getElementById('catalogStatus');
+    async function loadSupabaseCatalog(options = {}){
+      const silent = !!options.silent;
+      const wasReady = DB_CATALOG.ready;
       DB_CATALOG.loading = true;
       DB_CATALOG.error = null;
-      updateCatalogStatus('Cargando Supabase...');
+      if(!silent) updateCatalogStatus('Cargando Supabase...');
 
       if(!supabaseClient){
         DB_CATALOG.loading = false;
         DB_CATALOG.ready = false;
         DB_CATALOG.error = 'No se encontró cliente Supabase.';
-        updateCatalogStatus();
-        return;
+        if(!silent) updateCatalogStatus();
+        return false;
       }
 
       try{
         const { data, error } = await supabaseClient.rpc('get_public_catalog');
         if(error) throw error;
 
-        const built = buildDbCatalog(data || []);
-        DB_CATALOG.retail = built.retail;
-        DB_CATALOG.wholesale = built.wholesale;
+        const rows = data || [];
+        const nextSignature = catalogRowsSignature(rows);
+        const changed = nextSignature !== DB_CATALOG.signature;
+
+        // Si no cambió nada, no reconstruimos ni re-renderizamos: elimina el parpadeo visible.
+        if(changed || !wasReady){
+          const built = buildDbCatalog(rows);
+          DB_CATALOG.retail = built.retail;
+          DB_CATALOG.wholesale = built.wholesale;
+          DB_CATALOG.signature = nextSignature;
+        }
+
         DB_CATALOG.ready = true;
         DB_CATALOG.updatedAt = new Date();
         DB_CATALOG.loading = false;
-        updateCatalogStatus();
+        if(!silent) updateCatalogStatus();
+        return changed || !wasReady;
       }catch(err){
         DB_CATALOG.error = err?.message || String(err);
         DB_CATALOG.ready = false;
         DB_CATALOG.loading = false;
-        updateCatalogStatus();
+        if(!silent) updateCatalogStatus();
+        return false;
       }
     }
 
@@ -2768,7 +2795,7 @@
 
       if(DB_CATALOG.ready && totalDb > 0){
         el.classList.add('is-live');
-        el.innerHTML = `<span class="source-dot"></span> Supabase activo • ${totalDb} productos • modo admin`;
+        el.innerHTML = `<span class="source-dot"></span> Catálogo actualizado`;
         return;
       }
 
@@ -3734,7 +3761,7 @@
     // Carga inicial: muestra respaldo local al instante y luego sincroniza Supabase.
     setCurrency(state.currency);
     syncModeButtons();
-    updateCatalogStatus('Cargando catálogo...');
+    updateCatalogStatus('');
     loadSupabaseCatalog().finally(()=>{
       resetPriceInputs();
       render();
@@ -3744,9 +3771,9 @@
     // Auto-refresh de cupos/productos para que el cliente vea disponibilidad casi en vivo.
     setInterval(async ()=>{
       if(document.hidden) return;
-      const previousReady = DB_CATALOG.ready;
-      await loadSupabaseCatalog();
-      if(DB_CATALOG.ready || previousReady){
+      const changed = await loadSupabaseCatalog({silent:true});
+      if(changed){
+        resetPriceInputs();
         render();
       }
     }, CATALOG_REFRESH_MS);
@@ -3755,11 +3782,6 @@
   </script>
 </body>
 </html>
-
-
-
-
-
 
 
 
