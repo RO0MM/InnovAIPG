@@ -17,7 +17,7 @@
 .special-box h4{margin:0 0 6px;font-size:13px}
 .special-grid{display:grid;grid-template-columns:1fr;gap:9px}
 .special-item{border:1px solid #dbe5f5;background:#fff;border-radius:14px;padding:12px;box-shadow:0 5px 14px rgba(15,23,42,.04)}.special-item.required{border-color:#93c5fd}.special-item label{font-weight:900;color:#334155}.special-item input,.special-item textarea{border:2px solid #d0d7e2;border-radius:10px;padding:9px;width:100%;font:inherit}.special-item textarea{min-height:140px}.special-item small{display:block;margin-top:5px;color:#64748b}
-.chat-box{border:2px dashed rgba(0,0,0,.14);border-radius:16px;background:#f8fafc;padding:12px;margin-top:10px}.support-modal{position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:140;display:grid;place-items:center;padding:16px;backdrop-filter:blur(4px)}.support-modal.hidden{display:none!important}.support-card{width:min(520px,100%);background:#f0fdf4;border-radius:22px;box-shadow:0 24px 80px rgba(15,23,42,.3);border:1px solid #bbf7d0;overflow:hidden}.support-card:before{content:'';display:block;height:8px;background:linear-gradient(90deg,#16a34a,#22c55e,#86efac)}.support-card-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 16px;background:#dcfce7;border-bottom:1px solid #bbf7d0;color:#14532d;font-weight:1000}.support-card-body{padding:14px 16px;background:#f7fff9}.support-card-body input,.support-card-body textarea{border-radius:14px!important;border:2px solid #bbf7d0!important;background:#fff!important}.support-card-body textarea{min-height:90px}.support-card-body .mini-muted{background:#fff;border:1px solid #bbf7d0;padding:9px;border-radius:14px}.support-card-body .field{margin-bottom:10px}.support-card-actions{padding:12px 16px;border-top:1px solid #bbf7d0;background:#ecfdf5;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}.support-card-actions .btn-danger{background:#16a34a!important;border-color:#15803d!important;color:#fff!important}
+.chat-box{border:1px solid #d7dbe3;border-radius:18px;background:linear-gradient(180deg,#ffffff,#f8fbff);padding:12px 12px 10px;margin-top:12px;box-shadow:0 10px 25px rgba(15,23,42,.06)}.chat-box b{font-size:15px;color:#162235}.chat-box .mini-muted{margin-top:2px}.chat-header-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}.chat-list{max-height:280px;overflow:auto;border:1px solid #e5e7eb;border-radius:14px;background:#fff;padding:10px}.chat-msg{border:1px solid #dbe4f0;border-radius:14px;padding:10px 12px;margin-bottom:8px;background:#f8fafc}.chat-msg.customer{background:#eef4ff;border-color:#bfd1ff}.chat-msg.admin{background:#f0fdf4;border-color:#bbf7d0}.chat-msg.system{background:#fff8e5;border-color:#f6d58f}.chat-input-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}.support-red{position:fixed;top:86px;right:16px;z-index:120;background:#dc2626!important;border-color:#b91c1c!important;color:#fff!important;border-radius:14px!important;box-shadow:0 12px 30px rgba(127,29,29,.28)!important}.support-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:140;display:grid;place-items:center;padding:16px;backdrop-filter:blur(4px)}.support-modal.hidden{display:none!important}.support-card{width:min(540px,100%);background:#fff5f5;border-radius:22px;box-shadow:0 24px 80px rgba(15,23,42,.3);border:1px solid #fecaca;overflow:hidden}.support-card:before{content:'';display:block;height:8px;background:linear-gradient(90deg,#dc2626,#ef4444,#fca5a5)}.support-card-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 16px;background:#fee2e2;border-bottom:1px solid #fecaca;color:#7f1d1d;font-weight:1000}.support-card-body{padding:14px 16px;background:#fffafa}.support-card-body input,.support-card-body textarea{border-radius:14px!important;border:2px solid #fecaca!important;background:#fff!important}.support-card-body textarea{min-height:90px}.support-card-body .mini-muted{background:#fff;border:1px solid #fecaca;padding:9px;border-radius:14px}.support-card-body .field{margin-bottom:10px}.support-card-actions{padding:12px 16px;border-top:1px solid #fecaca;background:#fff1f2;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}.support-card-actions .btn-danger{background:#dc2626!important;border-color:#b91c1c!important;color:#fff!important}.payment-extra-note{display:inline-block;border:1px solid rgba(245,158,11,.45);background:#fff8df;color:#7b5700;border-radius:14px;padding:8px 10px;margin-top:8px;line-height:1.35;max-width:520px}.activation-launch{border:1px dashed rgba(37,99,235,.28);background:#f8fbff;border-radius:16px;padding:10px 12px;margin-top:10px}.activation-launch-title{font-weight:1000;color:#1d4ed8;margin-bottom:4px}
 .chat-list{display:grid;gap:7px;max-height:220px;overflow:auto;margin-bottom:8px}
 .chat-msg{border:1px solid #d7dbe3;border-radius:12px;padding:8px;background:#fff;font-size:12.5px}
 .chat-msg.admin{border-color:rgba(22,163,74,.25);background:#f0fdf4}
@@ -61,7 +61,7 @@
         <button class="btn btn-small" id="btnCloseSupport" type="button">Cerrar</button>
       </div>
       <div class="support-card-body">
-        <div class="mini-muted" style="margin-bottom:10px">Valida tu pedido con el ID y el WhatsApp registrado. El administrador recibirá la alerta en su panel.</div>
+        <div class="mini-muted" style="margin-bottom:10px">Valida tu pedido con el ID y el WhatsApp registrado. Si coincide, se abrirá el chat del pedido para que recibas soporte.</div>
         <div class="field"><label>ID de pedido</label><input id="supportOrderCode" placeholder="Ej: 5F71834ABE"></div>
         <div class="field"><label>WhatsApp registrado</label><input id="supportPhone" placeholder="Ej: 954156822"></div>
         <div class="field"><label>Mensaje para soporte</label><textarea id="supportReason" rows="3" placeholder="Describe brevemente tu problema..."></textarea></div>
@@ -69,7 +69,7 @@
       </div>
       <div class="support-card-actions">
         <button class="btn" id="btnSupportFillCurrent" type="button">Usar pedido actual</button>
-        <button class="btn btn-danger" id="btnSendSupportRequest" type="button"><i class="fa fa-bell"></i> Enviar alerta al admin</button>
+        <button class="btn btn-danger" id="btnSendSupportRequest" type="button"><i class="fa fa-comments"></i> Validar y abrir chat</button>
       </div>
     </div>
   </div>
@@ -122,8 +122,13 @@
                   <div class="yape-number" id="paymentNumber">991564053</div>
                   <div class="mini-muted">Monto exacto:</div>
                   <div class="yape-number" id="orderTotalText">S/ 0.00</div>
-                  <div class="alert-wait" style="margin-top:8px">Después de pagar, coloca el código de operación y envía a revisión.</div><div class="payment-extra-note">Importante: al pagar por Yape/Plin, no escribas nada en notas o descripción del pago.</div>
+                  <div class="alert-wait" style="margin-top:8px">Después de pagar, coloca el código de operación y envía a revisión.</div><div class="payment-extra-note">Importante: al pagar por Yape/Plin, no escribas nada en notas o descripción del pago. Solo realiza el pago exacto y luego pega tu código de operación aquí.</div>
                 </div>
+              </div>
+              <div id="activationShortcutBox" class="activation-launch hidden">
+                <div class="activation-launch-title">📩 Agregar correo / datos de activación</div>
+                <div class="mini-muted">Este pedido requiere datos extra para activar el servicio. Toca el botón y completa el correo o la información solicitada antes de enviar tu pago a revisión.</div>
+                <div style="margin-top:8px"><button class="btn btn-primary btn-small" id="btnGoActivation" type="button"><i class="fa fa-pen"></i> Agregar datos de activación</button></div>
               </div>
               <div class="operation-row">
                 <div class="field"><label>Código de operación Yape / Plin</label><input id="operationCode" placeholder="Ej: 123456"></div>
@@ -176,17 +181,6 @@
               <div class="sum-row hidden" id="discountRow"><b>Descuento <span id="discountCodeLabel" class="mini-muted"></span></b><span id="discountText">- S/ 0.00</span></div>
               <div class="sum-row"><b>Envío</b><span>Digital gratis</span></div>
               <div class="sum-total"><span>Total</span><span id="totalText">S/ 0.00</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:14px">
-          <div class="card-head"><span>💳 Pago</span><span class="mini-muted">único método</span></div>
-          <div class="card-body">
-            <div class="pay-card"><div class="pay-head"><i class="fa fa-mobile-alt"></i> Yape / Plin</div><div class="pay-body">Paga al número o QR mostrado luego de generar tu pedido.</div></div>
-            <div class="agent-row">
-              <button class="btn btn-outline btn-small agent-btn active" data-agent="ROOM"><span>🤵 Room</span></button>
-              <button class="btn btn-outline btn-small agent-btn" data-agent="RUTH"><span>👩‍✈️ Ruth</span></button>
             </div>
           </div>
         </div>
@@ -406,7 +400,7 @@
       if(!hasData){ fields.innerHTML = ''; return; }
 
       const groupedTitle = [...new Set([...specialRequirements.map(r => r.title), ...specialNotices.map(n => n.title)].filter(Boolean))].join(' / ') || 'Datos requeridos';
-      $('specialRequirementsHelp').innerHTML = `<div class="special-title">📌 ${esc(groupedTitle)}</div><div class="special-subtitle">Completa estos datos en el paso de pago antes de generar el pedido. Se enviarán al administrador para activar tu servicio.</div>`;
+      $('specialRequirementsHelp').innerHTML = `<div class="special-title">📌 ${esc(groupedTitle)}</div><div class="special-subtitle">Estos datos se pedirán justo después de generar el pedido, en el bloque “Agregar correo / datos de activación”.</div>`;
 
       const noticesHtml = uniqueBy(specialNotices, x => x.plan_id + '::' + x.text).map(n => `
         <div class="special-notice">
@@ -414,47 +408,52 @@
           <div>${esc(n.text)}</div>
         </div>`).join('');
 
-      const customerNote = specialRequirements.length ? '<div class="client-required-note">📩 Estos datos se envían junto con tu pedido al administrador. Sin este correo no se podrá activar el servicio.</div>' : '';
+      const customerNote = specialRequirements.length ? '<div class="client-required-note">📩 Tu compra requiere datos de activación. Después de generar el pedido verás el botón <b>Agregar correo / datos de activación</b>.</div>' : '';
 
-      const fieldsHtml = specialRequirements.map((r, idx) => {
-        const id = 'req_' + idx;
-        const required = r.required ? 'data-required="1"' : '';
+      const previewHtml = specialRequirements.map((r) => {
         const label = `${esc(r.label)} <span class="mini-muted">(${esc(r.product_name)} — ${esc(r.plan_name)})</span>${r.required?' *':''}`;
-        const common = `id="${id}" class="special-input" data-key="${esc(r.key)}" data-plan="${esc(r.plan_id)}" data-label="${esc(r.label)}" data-product="${esc(r.product_name)}" data-plan-name="${esc(r.plan_name)}" data-domain="${esc(r.domain||'')}" data-min-length="${Number(r.min_length||0)}" ${required} placeholder="${esc(r.placeholder)}"`;
-        const input = r.type === 'textarea'
-          ? `<textarea ${common} rows="${r.key==='chatgpt_session_text'?10:4}"></textarea>`
-          : `<input ${common} type="${r.type === 'email' ? 'email' : 'text'}">`;
-        return `<div class="special-item required"><label>${label}</label>${input}${r.help?`<small>${esc(r.help)}</small>`:''}</div>`;
+        return `<div class="special-notice"><strong>${label}</strong>${r.help?`<div>${esc(r.help)}</div>`:''}</div>`;
       }).join('');
 
-      fields.innerHTML = noticesHtml + customerNote + fieldsHtml;
+      fields.innerHTML = noticesHtml + customerNote + previewHtml;
     }
 
-    function collectSpecialInputs(){
+    function collectSpecialInputs(softMode=true){
       const inputs = [];
       let ok = true;
-      const summaryLines = specialNotices.length ? ['AVISOS / INSTRUCCIONES DEL SERVICIO:', ...uniqueBy(specialNotices, x => x.plan_id + '::' + x.text).map(n => `- ${n.product_name} / ${n.plan_name}: ${n.text}`), '', 'DATOS INGRESADOS POR EL CLIENTE:'] : ['DATOS INGRESADOS POR EL CLIENTE:'];
+      const summaryLines = [];
+      const specialInputs = Array.from(document.querySelectorAll('.special-input'));
+      if(!specialInputs.length){ return { ok:true, data:{ items:[] }, summary:'' }; }
 
-      document.querySelectorAll('.special-input').forEach(el => {
+      if(specialNotices.length){
+        summaryLines.push('AVISOS / INSTRUCCIONES DEL SERVICIO:');
+        summaryLines.push(...uniqueBy(specialNotices, x => x.plan_id + '::' + x.text).map(n => `- ${n.product_name} / ${n.plan_name}: ${n.text}`));
+      }
+
+      specialInputs.forEach(el => {
         const value = el.value.trim();
         const required = el.dataset.required === '1';
         const domain = (el.dataset.domain || '').toLowerCase();
         const minLength = Number(el.dataset.minLength || 0);
         let valid = true;
-        if(required && !value) valid = false;
+        if(!softMode && required && !value) valid = false;
         if(valid && el.type === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) valid = false;
         if(valid && domain && value && !value.toLowerCase().endsWith('@' + domain)) valid = false;
-        if(valid && minLength && value.length < minLength) valid = false;
+        if(valid && minLength && value && value.length < minLength) valid = false;
         el.style.borderColor = valid ? '#d0d7e2' : '#dc2626';
         if(!valid) ok = false;
         if(value){
-          const item = {plan_id: el.dataset.plan, product_name: el.dataset.product, plan_name: el.dataset.planName, key: el.dataset.key, label: el.dataset.label, value};
-          inputs.push(item);
-          summaryLines.push(`- ${item.product_name} / ${item.plan_name} / ${item.label}: ${value}`);
+          inputs.push({plan_id: el.dataset.plan, product_name: el.dataset.product, plan_name: el.dataset.planName, key: el.dataset.key, label: el.dataset.label, value});
         }
       });
 
-      if(!ok) toast('Revisa los datos requeridos. Revisa los datos requeridos. Los servicios de activación solicitan Gmail válido y ChatGPT cuenta personal requiere el texto completo.');
+      if(inputs.length){
+        if(summaryLines.length) summaryLines.push('', 'DATOS INGRESADOS POR EL CLIENTE:');
+        else summaryLines.push('DATOS INGRESADOS POR EL CLIENTE:');
+        inputs.forEach(item => summaryLines.push(`- ${item.product_name} / ${item.plan_name} / ${item.label}: ${item.value}`));
+      }
+
+      if(!softMode && !ok) toast('Revisa los datos requeridos. Los servicios de activación solicitan Gmail válido y ChatGPT cuenta personal requiere el texto completo.');
       return { ok, data:{ items:inputs }, summary:summaryLines.join('\n') };
     }
 
@@ -464,7 +463,8 @@
       const hasReq=specialRequirements.length>0;
       const shouldShow=hasReq && !!currentOrder?.order_code;
       box.classList.toggle('hidden', !shouldShow);
-      if(!hasReq){ fields.innerHTML=''; instructions.classList.add('hidden'); return; }
+      $('activationShortcutBox')?.classList.toggle('hidden', !shouldShow);
+      if(!hasReq){ fields.innerHTML=''; instructions.classList.add('hidden'); $('activationShortcutBox')?.classList.add('hidden'); return; }
 
       const allInstructions = uniqueBy(specialNotices, x=>x.plan_id+'::'+x.text)
         .map(n=>`${n.product_name} — ${n.plan_name}\n${n.text}`)
@@ -565,7 +565,20 @@
       const r = await db.from('app_settings').select('*').eq('key','payment_public').maybeSingle();
       if(!r.error && r.data?.value){ settings = {...settings, ...r.data.value}; }
       $('paymentNumber').textContent = settings.yape_number || '991564053';
-      if($('qrImage')){ $('qrImage').style.display='block'; $('qrImage').src = settings.yape_qr_url || 'img/yape-qr.png'; const miss=$('qrMissingNote'); if(miss) miss.classList.add('hidden'); }
+      const qr = $('qrImage');
+      const miss = $('qrMissingNote');
+      if(qr){
+        const qrUrl = String(settings.yape_qr_url || '').trim();
+        qr.onload = () => { qr.style.display='block'; miss?.classList.add('hidden'); };
+        qr.onerror = () => { qr.style.display='none'; miss?.classList.remove('hidden'); };
+        if(qrUrl){
+          qr.style.display='block';
+          qr.src = qrUrl;
+        }else{
+          qr.style.display='none';
+          miss?.classList.remove('hidden');
+        }
+      }
     }
 
     async function detectDeliveryMode(){
@@ -700,8 +713,7 @@
       if(!$('terms').checked){ toast('Acepta los términos para continuar.'); return; }
       const items = cartDbItems();
       if(!items.length){ toast('Tus productos no están conectados a Supabase. Agrégalos otra vez desde la tienda.'); return; }
-      const special = collectSpecialInputs();
-      if(!special.ok){ toast('Completa el correo/datos solicitados para este producto antes de generar el pedido.'); return; }
+      const special = collectSpecialInputs(true);
       const btn = $('btnGenerateOrder');
       btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generando...';
       const r = await db.rpc('create_public_order_v2', {
@@ -736,6 +748,8 @@
       persistOrder();
       renderCart(currentOrder);
       showGeneratedView(currentOrder);
+      try{ sessionStorage.removeItem(CART_KEY); localStorage.removeItem(CART_KEY); }catch(e){}
+      $('cartCount').textContent='0';
       toast('Pedido generado. Guarda tu ID y realiza el pago.');
     }
 
@@ -808,12 +822,13 @@ async function sendPaymentReview(){
       if(['rejected','cancelled'].includes(String(info.status)) || ['cancelled'].includes(String(info.delivery_status))){
         content += `<div class="alert-wait" style="margin-top:8px"><b>❌ Pedido ${esc(info.status)}</b><br>Este pedido fue rechazado o cancelado. Si crees que es un error, genera un nuevo pedido.</div>`;
         stopPolling();
+        clearCurrentOrderLocal();
       } else if(delivered){
         const deliveryText = buildDeliveryText(info, orderCode);
         content += '<div style="margin-top:8px"><b>✅ Cuenta / datos entregados:</b></div>';
         content += `<div class="delivery-data">${esc(deliveryText)}</div>`;
         content += `<div class="download-row"><button class="btn btn-primary btn-small" onclick="downloadDeliveryTxt('${esc(orderCode)}')"><i class="fa fa-download"></i> Descargar bloc de notas</button></div>`;
-        stopPolling(); clearCart(); renderCart(); setStep(4);
+        stopPolling(); clearCart(); renderCart(); clearCurrentOrderLocal(); try{sessionStorage.removeItem(APPLIED_COUPON_KEY);}catch(e){} setStep(4);
       } else {
         content += '<div class="mini-muted" style="margin-top:8px">Aún no hay entrega registrada. Si ya enviaste el pago, espera aprobación del administrador.</div>';
       }
@@ -840,6 +855,48 @@ async function sendPaymentReview(){
       URL.revokeObjectURL(a.href);
     }
 
+    function openSupportModal(){
+      $('supportModal')?.classList.remove('hidden');
+      $('supportResult').innerHTML='';
+    }
+    function closeSupportModal(){ $('supportModal')?.classList.add('hidden'); }
+    function fillSupportFromCurrent(){
+      if(currentOrder?.order_code) $('supportOrderCode').value = currentOrder.order_code;
+      const phone = $('phone').value.trim() || currentOrder?._phone || $('lookupPhone').value.trim();
+      if(phone) $('supportPhone').value = phone;
+      if(!$('supportReason').value.trim()) $('supportReason').value = 'Necesito ayuda con mi pedido / activación.';
+    }
+    async function sendSupportRequest(){
+      const orderCode = $('supportOrderCode').value.trim().toUpperCase();
+      const phone = $('supportPhone').value.trim();
+      const reason = $('supportReason').value.trim() || 'Necesito soporte con mi pedido.';
+      if(!orderCode || !phone){ $('supportResult').innerHTML='<div class="alert-wait">Completa el ID del pedido y el WhatsApp registrado.</div>'; return; }
+      $('supportResult').innerHTML='<div class="mini-muted">Validando pedido...</div>';
+      const verify = await db.rpc('get_public_order_status_v2', { p_order_code:orderCode, p_customer_whatsapp:phone });
+      if(verify.error || !verify.data?.[0]){ $('supportResult').innerHTML='<div class="alert-wait">No pudimos validar ese pedido con ese WhatsApp.</div>'; return; }
+      const info = verify.data[0];
+      currentOrder = Object.assign({}, currentOrder||{}, { order_code: orderCode, _phone: phone, total: info.total || currentOrder?.total || 0, _cartSig: currentOrder?._cartSig || '' });
+      persistOrder();
+      try{
+        await db.rpc('public_send_order_message', {
+          p_order_code: orderCode,
+          p_customer_whatsapp: phone,
+          p_message: '🆘 Solicitud de soporte desde la ventana flotante. ' + reason
+        });
+      }catch(e){}
+      $('lookupOrderCode').value = orderCode;
+      $('lookupPhone').value = phone;
+      chatMinimized = false;
+      closeSupportModal();
+      $('formView')?.classList.add('hidden');
+      $('generatedView')?.classList.remove('hidden');
+      setStep(3);
+      await checkStatus({ orderCode, phone, target:'statusBox', silent:true });
+      $('orderChatBox')?.classList.remove('hidden');
+      $('orderChatBox')?.scrollIntoView({behavior:'smooth', block:'start'});
+      toast('Pedido validado. Ya puedes chatear con soporte.');
+    }
+
     document.querySelectorAll('.agent-btn').forEach(btn=>btn.addEventListener('click',()=>{
       document.querySelectorAll('.agent-btn').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
@@ -852,6 +909,7 @@ async function sendPaymentReview(){
       $('btnBackToData')?.addEventListener('click', showFormView);
       $('btnCancelOrder')?.addEventListener('click', cancelCurrentOrder);
       $('btnSendActivationData')?.addEventListener('click', sendActivationData);
+      $('btnGoActivation')?.addEventListener('click', ()=>{ $('activationBox')?.scrollIntoView({behavior:'smooth', block:'start'}); const first=document.querySelector('.activation-input'); if(first) first.focus(); });
     $('btnLookupOrder').addEventListener('click', ()=>checkStatus({ orderCode:$('lookupOrderCode').value, phone:$('lookupPhone').value, target:'lookupResult' }));
     $('btnSendChatMessage')?.addEventListener('click', sendChatMessage);
     $('btnOpenSupport')?.addEventListener('click', openSupportModal);
@@ -876,4 +934,5 @@ async function sendPaymentReview(){
   </script>
 </body>
 </html>
+
 
