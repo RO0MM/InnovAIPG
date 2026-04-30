@@ -882,6 +882,10 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
   <script src="lib/easing/easing.min.js"></script>
   <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+  <!-- Catálogo compartido: usa la misma fuente de shop.html/Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/innov_catalog_bridge.js"></script>
+
 
   <script>
     (function(){
@@ -1615,6 +1619,9 @@
         }catch(err){}
       });
 
+      /* Permite que el catálogo compartido actualice imágenes/precios del carrito */
+      window.__innovRenderCart = renderCart;
+
       /* ==========================
          INIT
          ========================== */
@@ -1626,6 +1633,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
