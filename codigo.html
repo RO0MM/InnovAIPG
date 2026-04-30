@@ -2,637 +2,238 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Acceso TOTP Temporal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Acceso Temporal | Innov IA</title>
+  <meta name="theme-color" content="#eef7ff" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
-      --bg:#070b18;
-      --card:#10182b;
-      --card2:#0d1324;
-      --text:#f4f7fb;
-      --muted:#94a3b8;
-      --line:rgba(255,255,255,.12);
-      --accent:#6ee7f9;
-      --accent2:#8b5cf6;
-      --danger:#fb7185;
-      --ok:#34d399;
-      --warn:#fbbf24;
+      --bg:#eef7ff;--card:#fff;--text:#142033;--title:#0f172a;--muted:#64748b;--line:#dce8f5;
+      --primary:#0ea5e9;--primary2:#14b8a6;--primaryDark:#0369a1;--danger:#e11d48;--ok:#16a34a;
+      --shadow:0 24px 70px rgba(15,23,42,.14);--shadow2:0 12px 32px rgba(14,165,233,.20);--radius:34px;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(139,92,246,.28), transparent 35%),
-        radial-gradient(circle at bottom right, rgba(110,231,249,.18), transparent 35%),
-        var(--bg);
-      color:var(--text);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-    }
-    .wrap{
-      width:100%;
-      max-width:430px;
-    }
-    .brand{
-      text-align:center;
-      margin-bottom:14px;
-    }
-    .brand .logo{
-      width:58px;height:58px;
-      border-radius:18px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(135deg,var(--accent2),var(--accent));
-      color:#06101d;
-      font-size:28px;
-      font-weight:900;
-      box-shadow:0 18px 50px rgba(110,231,249,.16);
-    }
-    h1{
-      margin:12px 0 6px;
-      font-size:22px;
-      line-height:1.15;
-    }
-    .brand p{
-      margin:0;
-      color:var(--muted);
-      font-size:14px;
-    }
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:26px;
-      padding:18px;
-      box-shadow:0 24px 70px rgba(0,0,0,.32);
-      backdrop-filter: blur(10px);
-    }
-    .label{
-      font-size:13px;
-      color:var(--muted);
-      margin-bottom:8px;
-      display:block;
-    }
-    input{
-      width:100%;
-      border:1px solid var(--line);
-      outline:none;
-      border-radius:16px;
-      background:rgba(0,0,0,.28);
-      color:var(--text);
-      padding:15px 14px;
-      font-size:18px;
-      text-align:center;
-      letter-spacing:1px;
-      text-transform:uppercase;
-    }
-    button{
-      width:100%;
-      border:none;
-      border-radius:16px;
-      padding:15px 16px;
-      margin-top:12px;
-      font-size:16px;
-      font-weight:800;
-      cursor:pointer;
-      color:#06101d;
-      background:linear-gradient(135deg,var(--accent),#a7f3d0);
-      box-shadow:0 12px 30px rgba(110,231,249,.18);
-    }
-    button:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
-    .secondary{
-      background:rgba(255,255,255,.08);
-      color:var(--text);
-      border:1px solid var(--line);
-      box-shadow:none;
-    }
-    .hint{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.45;
-      margin:12px 0 0;
-    }
-    .status{
-      margin-top:12px;
-      padding:12px 13px;
-      border-radius:16px;
-      background:rgba(255,255,255,.06);
-      border:1px solid var(--line);
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.35;
-    }
-    .status.ok{color:#d1fae5;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)}
-    .status.warn{color:#fef3c7;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)}
-    .status.bad{color:#ffe4e6;border-color:rgba(251,113,133,.42);background:rgba(251,113,133,.09)}
-    .hidden{display:none !important}
-    .waitBox{
-      text-align:center;
-      padding:8px 0 2px;
-    }
-    .bigCountdown{
-      font-size:42px;
-      font-weight:900;
-      letter-spacing:-1px;
-      margin:8px 0 4px;
-    }
-    .codeBox{
-      text-align:center;
-      padding:10px 0 0;
-    }
-    .code{
-      display:block;
-      width:100%;
-      border:1px solid rgba(110,231,249,.28);
-      border-radius:22px;
-      background:rgba(0,0,0,.28);
-      color:#e0faff;
-      font-size:54px;
-      line-height:1;
-      letter-spacing:6px;
-      font-weight:900;
-      padding:20px 10px;
-      margin:12px 0;
-      user-select:all;
-      cursor:pointer;
-      text-shadow:0 0 26px rgba(110,231,249,.28);
-    }
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:12px;
-    }
-    .mini{
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      border-radius:16px;
-      padding:10px;
-      min-height:64px;
-    }
-    .mini b{
-      display:block;
-      font-size:18px;
-      margin-top:3px;
-    }
-    .mini span{
-      color:var(--muted);
-      font-size:12px;
-    }
-    .bar{
-      height:10px;
-      border-radius:999px;
-      overflow:hidden;
-      background:rgba(255,255,255,.09);
-      margin-top:12px;
-      border:1px solid var(--line);
-    }
-    .bar > div{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,var(--ok),var(--accent));
-      transition:width .25s linear;
-    }
-    .foot{
-      text-align:center;
-      margin-top:12px;
-      color:rgba(255,255,255,.42);
-      font-size:12px;
-      line-height:1.35;
-    }
-    .testTools{
-      margin-top:10px;
-      border-top:1px solid var(--line);
-      padding-top:10px;
-    }
-    .testTools summary{
-      color:var(--muted);
-      cursor:pointer;
-      font-size:12px;
-      text-align:center;
-    }
-    .testTools button{
-      font-size:13px;
-      padding:11px;
-      margin-top:8px;
-    }
+    html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--text);background:var(--bg)}
+    body{min-height:100dvh;display:flex;justify-content:center;overflow-x:hidden;background:radial-gradient(circle at 20% 10%,rgba(14,165,233,.18),transparent 34%),radial-gradient(circle at 82% 12%,rgba(20,184,166,.16),transparent 32%),linear-gradient(135deg,rgba(255,255,255,.92),rgba(238,247,255,.92)),#eef7ff}
+    body::before,body::after{content:"";position:fixed;left:-10vw;right:-10vw;height:280px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(14,165,233,.20),rgba(20,184,166,.14),transparent);border-radius:50%;transform:rotate(-8deg);opacity:.65}
+    body::before{top:19vh}body::after{bottom:11vh;transform:rotate(-10deg);opacity:.42}
+    button,input{font:inherit}button{border:0;cursor:pointer;background:none}button:disabled{cursor:not-allowed;opacity:.62;filter:grayscale(.25)}
+    .app{position:relative;z-index:1;width:100%;max-width:450px;min-height:100dvh;padding:18px 14px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:center;gap:12px}
+    .shell{position:relative;min-height:650px;border-radius:var(--radius);background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.82);box-shadow:var(--shadow);overflow:hidden;backdrop-filter:blur(16px)}
+    .shell::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% -8%,rgba(14,165,233,.13),transparent 31%),radial-gradient(circle at 100% 0%,rgba(20,184,166,.12),transparent 36%),linear-gradient(160deg,rgba(255,255,255,.9),rgba(255,255,255,.64));pointer-events:none}
+    .header{position:absolute;z-index:2;top:22px;left:18px;right:18px;text-align:center}
+    .logo{width:72px;height:72px;margin:0 auto 9px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#fff,#eefaff);color:var(--primaryDark);font-family:Georgia,serif;font-size:32px;font-weight:900;border:1px solid #d8edf9;box-shadow:0 14px 34px rgba(14,165,233,.15),inset 0 1px 0 rgba(255,255,255,.9)}
+    .header h1{margin:0;font-family:Georgia,"Times New Roman",serif;color:var(--title);font-size:25px;line-height:1.05;letter-spacing:-.035em}
+    .header small{display:block;margin-top:4px;color:var(--primaryDark);font-weight:800;font-size:13px}
+    .divider{display:flex;align-items:center;gap:12px;justify-content:center;margin:14px auto 0;color:var(--primary);font-size:15px}
+    .divider::before,.divider::after{content:"";width:92px;height:1px;background:linear-gradient(90deg,transparent,rgba(14,165,233,.40))}.divider::after{background:linear-gradient(90deg,rgba(14,165,233,.40),transparent)}
+    .screen{position:relative;z-index:1;min-height:650px;padding:172px 36px 34px;display:none;flex-direction:column;justify-content:center;animation:screenIn .32s ease both}.screen.active{display:flex}
+    @keyframes screenIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .center{text-align:center}.pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:999px;border:1px solid #c7e9fb;background:#f0faff;color:#0369a1;padding:8px 14px;font-size:13px;font-weight:900;margin:0 auto 18px;box-shadow:0 6px 18px rgba(14,165,233,.08)}
+    h2{margin:0;color:var(--title);font-family:Georgia,"Times New Roman",serif;font-size:32px;line-height:1.03;letter-spacing:-.055em}
+    h3{margin:0;color:var(--title);font-family:Georgia,"Times New Roman",serif;font-size:27px;line-height:1.06;letter-spacing:-.045em}
+    p{margin:12px auto 0;color:var(--muted);font-size:15px;line-height:1.48;max-width:350px}
+    .notice{display:flex;gap:12px;margin-top:22px;padding:15px;text-align:left;border-radius:20px;background:#fffaf0;border:1px solid #fde5b5;color:#6b4a13;font-size:13px;line-height:1.42}
+    .noticeIcon{width:30px;height:30px;display:grid;place-items:center;flex:0 0 auto;border-radius:12px;background:#fff4d6;color:#b7791f;font-size:18px}.notice b{color:#8a5b0a}
+    .field{display:flex;flex-direction:column;gap:9px;margin-top:20px;text-align:left}label{color:#26364d;font-size:13px;font-weight:900}.inputWrap{position:relative}
+    input{width:100%;min-height:58px;border-radius:19px;border:1px solid #d1dce9;background:#fff;color:var(--title);outline:none;padding:15px 52px;text-align:left;text-transform:uppercase;letter-spacing:.10em;font-weight:1000;box-shadow:0 7px 20px rgba(15,23,42,.05),inset 0 1px 0 rgba(255,255,255,.95)}
+    input::placeholder{text-transform:none;letter-spacing:0;color:#9ca3af;font-weight:750}input:focus{border-color:#38bdf8;box-shadow:0 0 0 4px rgba(56,189,248,.16),0 10px 26px rgba(14,165,233,.10)}
+    .inputIcon,.clearBtn{position:absolute;top:50%;transform:translateY(-50%);display:grid;place-items:center;color:#0e7490;font-size:20px}.inputIcon{left:18px}.clearBtn{right:16px;width:34px;height:34px;border-radius:12px}.clearBtn:hover{background:#eefaff}
+    .mainBtn{width:100%;min-height:58px;margin-top:17px;border-radius:18px;color:#fff;font-weight:1000;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:var(--shadow2);display:flex;align-items:center;justify-content:center;gap:9px}
+    .secondaryBtn{width:100%;min-height:50px;margin-top:10px;border-radius:18px;color:#0f172a;font-weight:900;background:#f8fafc;border:1px solid #dce8f5}
+    .msg{display:none;margin-top:15px;padding:14px 15px;border-radius:18px;font-size:13px;line-height:1.36;text-align:left}.msg.show{display:flex;align-items:center;gap:10px}.msg.info{background:#eff9ff;border:1px solid #bae6fd;color:#075985}.msg.err{background:#fff1f2;border:1px solid #fecdd3;color:#9f1239}.msg.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+    .loaderWrap{width:128px;height:128px;margin:0 auto 24px;position:relative;display:grid;place-items:center}.loaderRing{position:absolute;inset:0;border-radius:50%;border:11px solid #e5f3fb;border-top-color:var(--primary);border-right-color:var(--primary2);animation:spin 1.05s linear infinite;box-shadow:0 0 30px rgba(14,165,233,.12)}.loaderInner{width:78px;height:78px;display:grid;place-items:center;border-radius:27px;background:#fff;border:1px solid #dce8f5;color:#0e7490;font-size:33px;box-shadow:0 12px 26px rgba(15,23,42,.08)}@keyframes spin{to{transform:rotate(360deg)}}
+    .countBadge{display:inline-flex;align-items:center;justify-content:center;min-width:82px;height:38px;padding:0 14px;border-radius:999px;margin:20px auto 0;color:#075985;background:#eff9ff;border:1px solid #bae6fd;font-size:14px;font-weight:1000;font-variant-numeric:tabular-nums}
+    .tipBox{margin:20px auto 0;padding:14px;border-radius:19px;max-width:350px;background:#f8fbff;border:1px solid #dce8f5;color:#38506b;font-size:13px;line-height:1.42}
+    .codePanel{padding:18px;border-radius:28px;background:linear-gradient(180deg,#fff,#f7fcff);border:1px solid #d6eaf8;box-shadow:0 18px 40px rgba(15,23,42,.10);text-align:center}.accountName{color:#334155;font-size:13px;font-weight:900;margin-bottom:13px}
+    .otpBox{position:relative;padding:18px 10px 17px;border-radius:24px;background:#07111f;border:1px solid #0ea5e9;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 16px 38px rgba(3,105,161,.22);overflow:visible}.otpBox::before{content:"";position:absolute;inset:0;border-radius:24px;background:radial-gradient(circle at 50% 0%,rgba(14,165,233,.22),transparent 58%);pointer-events:none;z-index:0}
+    .otp{position:relative;z-index:2;display:block;width:100%;min-height:68px;margin:0 auto;border:0;color:#fff;background:transparent;font-size:50px;line-height:1;font-weight:1000;letter-spacing:.13em;text-align:center;font-variant-numeric:tabular-nums;text-shadow:none;user-select:all;word-break:keep-all;white-space:nowrap;padding-left:.13em}
+    .tapHint{position:relative;z-index:2;margin-top:7px;color:#bae6fd;font-size:12px;font-weight:850}
+    .timerBar{height:12px;background:#e7f2fb;border-radius:999px;overflow:hidden;margin:18px 0 8px}.timerFill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--primary2));transition:width .25s linear}.timerText{color:#64748b;font-size:12px;font-weight:900;font-variant-numeric:tabular-nums}
+    .thanksIcon{width:98px;height:98px;margin:0 auto 20px;border-radius:34px;display:grid;place-items:center;font-size:43px;color:#0f766e;background:linear-gradient(135deg,#ecfeff,#f0fdfa);border:1px solid #bbf7d0;box-shadow:0 18px 40px rgba(20,184,166,.13)}
+    .miniProgress{width:170px;height:9px;margin:22px auto 0;border-radius:999px;overflow:hidden;background:#dce8f5}.miniProgressFill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--primary2));animation:thanksBar 10s linear forwards}@keyframes thanksBar{from{width:100%}to{width:0%}}
+    .footerNote{text-align:center;color:#64748b;font-size:11px;line-height:1.35;padding:0 12px}
+    @media(max-width:390px){.screen{padding-left:24px;padding-right:24px}h2{font-size:29px}.otp{font-size:42px;letter-spacing:.10em}.logo{width:66px;height:66px;font-size:30px}.divider::before,.divider::after{width:66px}}
+    @media(max-height:735px){.shell{min-height:610px}.screen{min-height:610px;padding-top:154px;padding-bottom:24px}.logo{width:62px;height:62px;font-size:29px}h2{font-size:28px}.otp{font-size:43px}.notice{margin-top:16px}}
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <section class="brand">
-      <div class="logo">🔐</div>
-      <h1>Acceso temporal TOTP</h1>
-      <p>Ingresa tu código de acceso para ver el código por un ciclo completo.</p>
-    </section>
+  <main class="app">
+    <section class="shell">
+      <header class="header">
+        <div class="logo">IA</div>
+        <h1>Acceso temporal</h1>
+        <small>Verificación protegida para clientes</small>
+        <div class="divider">♢</div>
+      </header>
 
-    <section class="card">
-      <div id="loginView">
-        <label class="label" for="accessCode">Código de acceso</label>
-        <input id="accessCode" autocomplete="off" placeholder="Ej: ADMIN" />
-        <button id="unlockBtn">Ver código TOTP</button>
-        <p class="hint">
-          Este acceso permite ver el código máximo <b>2 veces</b> durante <b>30 días</b> desde el primer uso en este navegador.
-        </p>
-        <div id="loginStatus" class="status"></div>
-      </div>
-
-      <div id="waitView" class="waitBox hidden">
-        <div class="status warn">
-          Acceso correcto. Esperando el inicio del siguiente ciclo para mostrarte un código nuevo desde 0 segundos.
+      <div class="screen active" id="screenForm">
+        <div class="center">
+          <span class="pill">🛡️ Acceso seguro</span>
+          <h2>Ingresa tu código de acceso</h2>
+          <p>Usa tu código para visualizar el código temporal de verificación. Tendrás el ciclo completo para copiarlo.</p>
         </div>
-        <div class="bigCountdown" id="waitSeconds">--</div>
-        <p class="hint">No cierres esta ventana. El código aparecerá automáticamente.</p>
-      </div>
-
-      <div id="totpView" class="codeBox hidden">
-        <div class="status ok">
-          Código activo. Cópialo ahora. Al terminar este ciclo se ocultará automáticamente.
+        <div class="notice">
+          <div class="noticeIcon">⚠️</div>
+          <div><b>Importante:</b> el código de acceso tiene usos limitados. Antes de continuar, ten lista la pantalla donde te solicitan el código para evitar inconvenientes.</div>
         </div>
-        <span class="code" id="totpCode" title="Haz clic para copiar">------</span>
-        <button id="copyBtn">Copiar código</button>
-
-        <div class="bar"><div id="progress"></div></div>
-
-        <div class="grid">
-          <div class="mini">
-            <span>Tiempo restante</span>
-            <b id="remainSeconds">30s</b>
-          </div>
-          <div class="mini">
-            <span>Usos consumidos</span>
-            <b id="usesInfo">0/2</b>
+        <div class="field">
+          <label for="accessInput">Código de acceso</label>
+          <div class="inputWrap">
+            <span class="inputIcon">🔒</span>
+            <input id="accessInput" autocomplete="one-time-code" inputmode="text" placeholder="Escribe tu código aquí" />
+            <button type="button" class="clearBtn" id="clearBtn" title="Limpiar">×</button>
           </div>
         </div>
+        <button class="mainBtn" id="useCodeBtn">✨ Ver código de verificación</button>
+        <div class="msg" id="clientMsg"></div>
       </div>
 
-      <details class="testTools">
-        <summary>Opciones de prueba local</summary>
-        <button class="secondary" id="resetBtn">Reiniciar usos de este navegador</button>
-      </details>
-    </section>
+      <div class="screen center" id="screenWaiting">
+        <div class="loaderWrap"><div class="loaderRing"></div><div class="loaderInner">⏳</div></div>
+        <h3>Preparando tu código...</h3>
+        <p>Quédate atento para copiar el código antes de que caduque. Estamos esperando que el contador inicie desde 0 segundos.</p>
+        <div class="countBadge" id="waitCounter">-- s</div>
+        <div class="tipBox">📌 Recomendación: deja abierta la pantalla donde te piden el código y cópialo apenas aparezca.</div>
+      </div>
 
-    <div class="foot">
-      Versión estática para pruebas. El límite se guarda solo en este navegador.
-    </div>
+      <div class="screen" id="screenCode">
+        <div class="codePanel">
+          <div class="accountName" id="accountLabel">Cuenta</div>
+          <div class="otpBox">
+            <button class="otp" id="otpCode" title="Toca para copiar">------</button>
+            <div class="tapHint">👆 Toca el número para copiarlo</div>
+          </div>
+          <div class="timerBar"><div class="timerFill" id="timerFill"></div></div>
+          <div class="timerText" id="timerText">Tiempo restante: -- s</div>
+          <button class="mainBtn" id="copyBtn">Copiar código</button>
+          <button class="secondaryBtn" id="hideBtn">Cerrar</button>
+        </div>
+        <div class="tipBox center">🚀 Pega este código antes de que termine el contador.</div>
+      </div>
+
+      <div class="screen center" id="screenThanks">
+        <div class="thanksIcon">✨</div>
+        <h3>¡Gracias por tu compra!</h3>
+        <p>Agradecemos tu preferencia 💚<br>Esperamos que disfrutes tu servicio. Si necesitas ayuda, escríbenos por WhatsApp.</p>
+        <div class="miniProgress"><div class="miniProgressFill" id="thanksBar"></div></div>
+      </div>
+    </section>
+    <div class="footerNote">Innov IA • Acceso temporal protegido</div>
   </main>
 
-  <script>
-    // =========================
-    // CONFIGURACIÓN PRINCIPAL
-    // =========================
-    const CONFIG = {
-      ACCESS_CODE: "ADMIN",
-      TOTP_SECRET_BASE32: "AFR4K5JT4TMPVJP3WI7KXGPLXQT6GQQH",
-      MAX_USES: 2,
-      VALID_DAYS: 30,
-      DIGITS: 6,
-      PERIOD: 30
+<script>
+(() => {
+  const SUPABASE_URL='https://rfjvskrimsoqlyofhidj.supabase.co';
+  const SUPABASE_KEY='sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
+  const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+  const $=id=>document.getElementById(id);
+  let activeAccount=null, activeAccess=null, timerId=null, waitingId=null, thanksTimeout=null;
+
+  function normalizeCode(v){return String(v||'').trim().toUpperCase()}
+  function normalizeSecret(v){return String(v||'').replace(/\s+/g,'').toUpperCase()}
+  function showScreen(id){['screenForm','screenWaiting','screenCode','screenThanks'].forEach(s=>$(s).classList.toggle('active',s===id))}
+  function showMsg(text,type='info'){const icon=type==='ok'?'✅':type==='err'?'⚠️':'ℹ️';$('clientMsg').className='msg show '+type;$('clientMsg').innerHTML=`<span>${icon}</span><span>${text}</span>`}
+  function hideMsg(){$('clientMsg').className='msg';$('clientMsg').textContent=''}
+  function clearAllTimers(){if(timerId)clearInterval(timerId);if(waitingId)clearInterval(waitingId);if(thanksTimeout)clearTimeout(thanksTimeout);timerId=waitingId=thanksTimeout=null;$('useCodeBtn').disabled=false}
+  function secondsIntoPeriod(period=30){return Math.floor(Date.now()/1000)%period}
+  function secondsLeft(period=30){return period-secondsIntoPeriod(period)}
+
+  function base32Decode(base32){
+    const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    let bits='', bytes=[];
+    base32=normalizeSecret(base32).replace(/=+$/,'');
+    for(const ch of base32){
+      const val=alphabet.indexOf(ch);
+      if(val===-1)throw new Error('Secreto TOTP inválido.');
+      bits+=val.toString(2).padStart(5,'0');
+    }
+    for(let i=0;i+8<=bits.length;i+=8)bytes.push(parseInt(bits.slice(i,i+8),2));
+    return new Uint8Array(bytes);
+  }
+  async function hotp(secret,counter,digits=6){
+    const keyBytes=base32Decode(secret);
+    const cryptoKey=await crypto.subtle.importKey('raw',keyBytes,{name:'HMAC',hash:'SHA-1'},false,['sign']);
+    const buffer=new ArrayBuffer(8), view=new DataView(buffer);
+    view.setUint32(0,Math.floor(counter/0x100000000));view.setUint32(4,counter>>>0);
+    const hmac=new Uint8Array(await crypto.subtle.sign('HMAC',cryptoKey,buffer));
+    const offset=hmac[hmac.length-1]&0x0f;
+    const bin=((hmac[offset]&0x7f)<<24)|((hmac[offset+1]&0xff)<<16)|((hmac[offset+2]&0xff)<<8)|(hmac[offset+3]&0xff);
+    return String(bin%(10**digits)).padStart(digits,'0');
+  }
+  async function totp(secret,period=30,digits=6){
+    return hotp(secret,Math.floor(Date.now()/1000/period),digits);
+  }
+
+  async function redeemAccessCode(){
+    clearAllTimers();hideMsg();
+    const accessCode=normalizeCode($('accessInput').value);
+    if(!accessCode){showMsg('Ingresa tu código de acceso para continuar.','err');return}
+    $('useCodeBtn').disabled=true;
+    showMsg('Validando acceso...', 'info');
+    const {data,error}=await db.rpc('redeem_totp_access_code',{p_access_code:accessCode});
+    if(error){$('useCodeBtn').disabled=false;showMsg('No se pudo validar el acceso. Intenta nuevamente o contacta a soporte.','err');console.error(error);return}
+    if(!data?.ok){$('useCodeBtn').disabled=false;showMsg(data?.message||'Código de acceso no válido.','err');return}
+    activeAccount=data.account;activeAccess=data.access;
+    startWaitingForFreshCycle();
+  }
+
+  function startWaitingForFreshCycle(){
+    showScreen('screenWaiting');hideMsg();
+    const period=Number(activeAccount?.period||30);
+    waitingId=setInterval(async()=>{
+      const inside=secondsIntoPeriod(period), wait=inside===0?0:period-inside;
+      $('waitCounter').textContent=wait+' s';
+      if(inside<=1){
+        clearInterval(waitingId);waitingId=null;
+        await showTotp();
+      }
+    },250);
+  }
+
+  async function showTotp(){
+    showScreen('screenCode');
+    $('accountLabel').textContent=(activeAccount?.label||'Cuenta')+' · Uso '+(activeAccess?.used_count||1)+' de '+(activeAccess?.max_uses||'');
+    const period=Number(activeAccount?.period||30), digits=Number(activeAccount?.digits||6);
+    const refresh=async()=>{
+      try{
+        const code=await totp(activeAccount.secret,period,digits);
+        const left=secondsLeft(period), percent=(left/period)*100;
+        $('otpCode').textContent=code;$('timerFill').style.width=percent+'%';$('timerText').textContent='Tiempo restante: '+left+' s';
+        if(left<=1){clearInterval(timerId);timerId=null;showThanksThenReset()}
+      }catch(e){showScreen('screenForm');showMsg('Error generando el código. Contacta a soporte.','err');console.error(e)}
     };
+    timerId=setInterval(refresh,250);
+    await refresh();
+  }
 
-    const STORAGE_KEY = "innov_totp_access_admin_v1";
+  function showThanksThenReset(){
+    showScreen('screenThanks');
+    const bar=$('thanksBar');bar.style.animation='none';void bar.offsetWidth;bar.style.animation='thanksBar 10s linear forwards';
+    thanksTimeout=setTimeout(()=>{$('accessInput').value='';activeAccount=null;activeAccess=null;showScreen('screenForm');showMsg('Proceso finalizado correctamente. Gracias por tu preferencia 💚','ok')},10000);
+  }
 
-    const $ = (id) => document.getElementById(id);
-    const loginView = $("loginView");
-    const waitView = $("waitView");
-    const totpView = $("totpView");
-    const loginStatus = $("loginStatus");
-    const accessCode = $("accessCode");
-    const unlockBtn = $("unlockBtn");
-    const waitSeconds = $("waitSeconds");
-    const totpCode = $("totpCode");
-    const copyBtn = $("copyBtn");
-    const resetBtn = $("resetBtn");
-    const remainSeconds = $("remainSeconds");
-    const usesInfo = $("usesInfo");
-    const progress = $("progress");
+  function hideCode(){clearAllTimers();showThanksThenReset()}
 
-    let waitTimer = null;
-    let showTimer = null;
+  async function copyOtp(){
+    const code=$('otpCode').textContent.trim();
+    if(!/^\d+$/.test(code))return;
+    try{await navigator.clipboard.writeText(code);$('copyBtn').textContent='Copiado ✅';setTimeout(()=>$('copyBtn').textContent='Copiar código',1300)}
+    catch(e){alert('No se pudo copiar automáticamente. Mantén presionado el código y cópialo manualmente.')}
+  }
 
-    function nowMs(){ return Date.now(); }
-    function daysToMs(days){ return days * 24 * 60 * 60 * 1000; }
+  $('useCodeBtn').addEventListener('click',redeemAccessCode);
+  $('accessInput').addEventListener('keydown',e=>{if(e.key==='Enter')redeemAccessCode()});
+  $('clearBtn').addEventListener('click',()=>{$('accessInput').value='';$('accessInput').focus();hideMsg()});
+  $('copyBtn').addEventListener('click',copyOtp);
+  $('otpCode').addEventListener('click',copyOtp);
+  $('hideBtn').addEventListener('click',hideCode);
 
-    function loadState(){
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { firstUseAt: null, uses: 0 };
-        const parsed = JSON.parse(raw);
-        return {
-          firstUseAt: parsed.firstUseAt || null,
-          uses: Number(parsed.uses || 0)
-        };
-      } catch(e) {
-        return { firstUseAt: null, uses: 0 };
-      }
-    }
-
-    function saveState(state){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function getExpiry(state){
-      if (!state.firstUseAt) return null;
-      return state.firstUseAt + daysToMs(CONFIG.VALID_DAYS);
-    }
-
-    function formatDate(ms){
-      if (!ms) return "Aún no inicia";
-      return new Date(ms).toLocaleString("es-PE", {
-        year:"numeric", month:"2-digit", day:"2-digit",
-        hour:"2-digit", minute:"2-digit"
-      });
-    }
-
-    function setStatus(type, html){
-      loginStatus.className = "status " + (type || "");
-      loginStatus.innerHTML = html;
-    }
-
-    function refreshStatus(){
-      const state = loadState();
-      const expiry = getExpiry(state);
-      const expired = expiry && nowMs() > expiry;
-
-      if (expired) {
-        setStatus("bad", "Este acceso ya venció en este navegador.<br>Venció: <b>" + formatDate(expiry) + "</b>");
-        unlockBtn.disabled = true;
-        return;
-      }
-
-      if (state.uses >= CONFIG.MAX_USES) {
-        setStatus("bad", "Este acceso ya consumió sus <b>" + CONFIG.MAX_USES + "</b> usos en este navegador.");
-        unlockBtn.disabled = true;
-        return;
-      }
-
-      const left = CONFIG.MAX_USES - state.uses;
-      const expText = expiry ? formatDate(expiry) : "se contará desde el primer uso";
-      setStatus("", "Usos disponibles: <b>" + left + "</b> de <b>" + CONFIG.MAX_USES + "</b><br>Vigencia: <b>" + expText + "</b>");
-      unlockBtn.disabled = false;
-    }
-
-    function base32ToBytes(base32){
-      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-      const clean = base32.replace(/=+$/g, "").replace(/\s+/g, "").toUpperCase();
-      let bits = "";
-      let bytes = [];
-
-      for (const char of clean) {
-        const val = alphabet.indexOf(char);
-        if (val === -1) throw new Error("Secreto Base32 inválido");
-        bits += val.toString(2).padStart(5, "0");
-      }
-
-      for (let i = 0; i + 8 <= bits.length; i += 8) {
-        bytes.push(parseInt(bits.slice(i, i + 8), 2));
-      }
-      return bytes;
-    }
-
-    // SHA-1 puro para que el HTML funcione como archivo local sin depender de librerías externas.
-    function sha1(bytes) {
-      function rotl(n, s) { return (n << s) | (n >>> (32 - s)); }
-      const ml = bytes.length * 8;
-      bytes = bytes.slice();
-      bytes.push(0x80);
-      while ((bytes.length % 64) !== 56) bytes.push(0);
-      for (let i = 7; i >= 0; i--) bytes.push((ml / Math.pow(256, i)) & 0xff);
-
-      let h0 = 0x67452301;
-      let h1 = 0xefcdab89;
-      let h2 = 0x98badcfe;
-      let h3 = 0x10325476;
-      let h4 = 0xc3d2e1f0;
-
-      for (let i = 0; i < bytes.length; i += 64) {
-        const w = new Array(80);
-        for (let j = 0; j < 16; j++) {
-          w[j] = ((bytes[i + j*4] << 24) | (bytes[i + j*4 + 1] << 16) | (bytes[i + j*4 + 2] << 8) | (bytes[i + j*4 + 3])) >>> 0;
-        }
-        for (let j = 16; j < 80; j++) {
-          w[j] = rotl(w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16], 1) >>> 0;
-        }
-
-        let a = h0, b = h1, c = h2, d = h3, e = h4;
-
-        for (let j = 0; j < 80; j++) {
-          let f, k;
-          if (j < 20) {
-            f = (b & c) | ((~b) & d);
-            k = 0x5a827999;
-          } else if (j < 40) {
-            f = b ^ c ^ d;
-            k = 0x6ed9eba1;
-          } else if (j < 60) {
-            f = (b & c) | (b & d) | (c & d);
-            k = 0x8f1bbcdc;
-          } else {
-            f = b ^ c ^ d;
-            k = 0xca62c1d6;
-          }
-          const temp = (rotl(a, 5) + f + e + k + w[j]) >>> 0;
-          e = d;
-          d = c;
-          c = rotl(b, 30) >>> 0;
-          b = a;
-          a = temp;
-        }
-
-        h0 = (h0 + a) >>> 0;
-        h1 = (h1 + b) >>> 0;
-        h2 = (h2 + c) >>> 0;
-        h3 = (h3 + d) >>> 0;
-        h4 = (h4 + e) >>> 0;
-      }
-
-      const out = [];
-      for (const h of [h0,h1,h2,h3,h4]) {
-        out.push((h >>> 24) & 0xff, (h >>> 16) & 0xff, (h >>> 8) & 0xff, h & 0xff);
-      }
-      return out;
-    }
-
-    function hmacSha1(key, message) {
-      const blockSize = 64;
-      if (key.length > blockSize) key = sha1(key);
-      while (key.length < blockSize) key.push(0);
-
-      const oKeyPad = key.map(b => b ^ 0x5c);
-      const iKeyPad = key.map(b => b ^ 0x36);
-
-      return sha1(oKeyPad.concat(sha1(iKeyPad.concat(message))));
-    }
-
-    function counterToBytes(counter){
-      const bytes = new Array(8).fill(0);
-      let value = counter;
-      for (let i = 7; i >= 0; i--) {
-        bytes[i] = value & 0xff;
-        value = Math.floor(value / 256);
-      }
-      return bytes;
-    }
-
-    function generateTOTP(){
-      const key = base32ToBytes(CONFIG.TOTP_SECRET_BASE32);
-      const counter = Math.floor(Date.now() / 1000 / CONFIG.PERIOD);
-      const msg = counterToBytes(counter);
-      const hmac = hmacSha1(key, msg);
-      const offset = hmac[hmac.length - 1] & 0x0f;
-      const binary =
-        ((hmac[offset] & 0x7f) << 24) |
-        ((hmac[offset + 1] & 0xff) << 16) |
-        ((hmac[offset + 2] & 0xff) << 8) |
-        (hmac[offset + 3] & 0xff);
-      const otp = binary % Math.pow(10, CONFIG.DIGITS);
-      return String(otp).padStart(CONFIG.DIGITS, "0");
-    }
-
-    function secondsUntilNextPeriod(){
-      const sec = Math.floor(Date.now() / 1000);
-      const mod = sec % CONFIG.PERIOD;
-      return mod === 0 ? 0 : CONFIG.PERIOD - mod;
-    }
-
-    function secondsRemainingInPeriod(){
-      const sec = Math.floor(Date.now() / 1000);
-      const mod = sec % CONFIG.PERIOD;
-      return CONFIG.PERIOD - mod;
-    }
-
-    function showOnly(view){
-      loginView.classList.toggle("hidden", view !== "login");
-      waitView.classList.toggle("hidden", view !== "wait");
-      totpView.classList.toggle("hidden", view !== "totp");
-    }
-
-    function consumeUse(){
-      const state = loadState();
-      if (!state.firstUseAt) state.firstUseAt = nowMs();
-      state.uses += 1;
-      saveState(state);
-      usesInfo.textContent = state.uses + "/" + CONFIG.MAX_USES;
-    }
-
-    function startWaitForFreshCycle(){
-      clearInterval(waitTimer);
-      showOnly("wait");
-
-      const tick = () => {
-        const wait = secondsUntilNextPeriod();
-        waitSeconds.textContent = wait + "s";
-
-        if (wait <= 0) {
-          clearInterval(waitTimer);
-          consumeUse();
-          showTotpForOneCycle();
-        }
-      };
-
-      tick();
-      waitTimer = setInterval(tick, 250);
-    }
-
-    function showTotpForOneCycle(){
-      clearInterval(showTimer);
-      showOnly("totp");
-
-      const code = generateTOTP();
-      totpCode.textContent = code;
-
-      const tick = () => {
-        const rem = secondsRemainingInPeriod();
-        remainSeconds.textContent = rem + "s";
-        const pct = Math.max(0, Math.min(100, (rem / CONFIG.PERIOD) * 100));
-        progress.style.width = pct + "%";
-
-        if (rem <= 1) {
-          clearInterval(showTimer);
-          showOnly("login");
-          refreshStatus();
-          accessCode.value = "";
-          setStatus("warn", "El código se ocultó al terminar el ciclo. Para verlo otra vez necesitas consumir otro uso.");
-        }
-      };
-
-      tick();
-      showTimer = setInterval(tick, 250);
-    }
-
-    function validateAndStart(){
-      const entered = accessCode.value.trim().toUpperCase();
-      const state = loadState();
-      const expiry = getExpiry(state);
-
-      if (entered !== CONFIG.ACCESS_CODE) {
-        setStatus("bad", "Código de acceso incorrecto.");
-        return;
-      }
-
-      if (expiry && nowMs() > expiry) {
-        setStatus("bad", "Este acceso ya venció en este navegador.");
-        return;
-      }
-
-      if (state.uses >= CONFIG.MAX_USES) {
-        setStatus("bad", "Este acceso ya consumió sus " + CONFIG.MAX_USES + " usos.");
-        return;
-      }
-
-      startWaitForFreshCycle();
-    }
-
-    function copyCurrentCode(){
-      const code = totpCode.textContent.trim();
-      if (!code || code === "------") return;
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(code).then(() => {
-          copyBtn.textContent = "Copiado ✅";
-          setTimeout(() => copyBtn.textContent = "Copiar código", 1200);
-        }).catch(fallbackCopy);
-      } else {
-        fallbackCopy();
-      }
-
-      function fallbackCopy(){
-        const temp = document.createElement("textarea");
-        temp.value = code;
-        document.body.appendChild(temp);
-        temp.select();
-        document.execCommand("copy");
-        document.body.removeChild(temp);
-        copyBtn.textContent = "Copiado ✅";
-        setTimeout(() => copyBtn.textContent = "Copiar código", 1200);
-      }
-    }
-
-    unlockBtn.addEventListener("click", validateAndStart);
-    accessCode.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") validateAndStart();
-    });
-    copyBtn.addEventListener("click", copyCurrentCode);
-    totpCode.addEventListener("click", copyCurrentCode);
-
-    resetBtn.addEventListener("click", () => {
-      localStorage.removeItem(STORAGE_KEY);
-      clearInterval(waitTimer);
-      clearInterval(showTimer);
-      showOnly("login");
-      accessCode.value = "";
-      refreshStatus();
-      setStatus("ok", "Prueba local reiniciada en este navegador,.");
-    });
-
-    refreshStatus();
-  </script>
+  const params=new URLSearchParams(location.search);
+  const initial=params.get('code');
+  if(initial)$('accessInput').value=normalizeCode(initial);
+})();
+</script>
 </body>
 </html>
