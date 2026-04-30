@@ -1474,11 +1474,12 @@ input, select, textarea, button { min-width: 0; }
             <button class="btn" id="btnReload4" type="button">↻</button>
             <button class="btn chip" id="btnOnlyReview" type="button" aria-pressed="false">Por revisar</button>
             <button class="btn chip" id="btnOnlyManual" type="button" aria-pressed="false">Entrega manual</button>
+            <button class="btn chip" id="btnOnlySupport" type="button" aria-pressed="false">Soporte / chat</button>
           </div>
         </div>
         <div class="card" style="margin-bottom:12px;border-left:3px solid var(--warning)">
           <strong>⚡ Activaciones manuales</strong>
-          <p class="help" style="margin:6px 0 0">Para ChatGPT cuenta propia, Gemini, Canva y Autodesk: primero aprueba el pago, luego usa <b>Confirmar activación</b>. No uses “Entregar cuenta” si solo debes confirmar una activación por correo/texto.</p>
+          <p class="help" style="margin:6px 0 0">Para ChatGPT cuenta propia, Gemini, Canva y Autodesk: primero aprueba el pago, luego usa <b>Confirmar activación</b>. No uses “Entregar cuenta” si solo debes confirmar una activación por correo/texto.</p><p class="help" style="margin:8px 0 0">💬 Los pedidos que lleguen desde el botón rojo de soporte del checkout aparecerán aquí en el mismo chat del pedido. Usa el filtro <b>Soporte / chat</b> para verlos rápido.</p>
         </div>
         <div class="mini-grid" id="ordersGrid"></div>
       </section>
@@ -2084,7 +2085,7 @@ let state={
   products:[],plans:[],stock:[],orders:[],items:[],proofs:[],deliveries:[],
   coupons:[],settings:[],summary:[],customers:[],reminders:[],templates:[],
   deliveryTemplates:[],orderInputs:[],orderChats:[],
-  tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlyDue:false,onlyPending:false
+  tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyPending:false
 };
 
 /* ---- Utilities ---- */
@@ -2417,6 +2418,8 @@ function renderOrders(){
   let arr=state.orders.filter(o=>(`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''}`).toLowerCase().includes(q));
   if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(o.status));
   if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status));
+  if(state.onlySupport)arr=arr.filter(o=>state.orderChats.some(m=>m.order_id===o.id));
+  arr=arr.sort((a,b)=>{ const ac=state.orderChats.filter(m=>m.order_id===a.id).length; const bc=state.orderChats.filter(m=>m.order_id===b.id).length; return bc-ac || new Date(b.created_at)-new Date(a.created_at); });
   $('ordersGrid').innerHTML=arr.map(o=>{
     const pr=state.proofs.find(p=>p.order_id===o.id);
     const items=state.items.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join('<br>');
@@ -2427,18 +2430,18 @@ function renderOrders(){
     return `<div class="mini-card">
       <div class="mini-head">
         <div><b>${esc(o.order_code)}</b><div class="help">${new Date(o.created_at).toLocaleString()}</div></div>
-        <span class="badge ${o.delivery_status==='delivered'?'b-ok':o.delivery_status==='waiting_manual_delivery'?'b-warn':'b-bad'}">${esc(o.delivery_status||'pending')}</span>
+        <span class="badge ${o.delivery_status==='delivered'?'b-ok':o.delivery_status==='waiting_manual_delivery'?'b-warn':'b-bad'}">${esc(o.delivery_status||'pending')}</span>${chats.length?`<span class="badge b-warn">💬 ${chats.length}</span>`:''}
       </div>
       <p style="margin:6px 0"><b>${esc(o.customer_name||'')}</b><br><span class="help">${esc(o.customer_whatsapp||'')}</span></p>
       <p class="help">${items||'Sin items'}</p>
       ${inp?.requirement_summary?`<div class="order-extra"><b>📌 Datos especiales:</b>\n${esc(inp.requirement_summary)}</div>`:''}
       <p><b>${money(o.total)}</b> · Op: <span class="mono">${esc(pr?.operation_code||'pendiente')}</span> · Entregas: ${del} · Chat: ${chats.length}</p>
-      ${lastChat?`<div class="order-chat-preview"><b>Último:</b> ${esc(lastChat.sender_role)} — ${esc(lastChat.message)}</div>`:''}
+      ${lastChat?`<div class="order-chat-preview"><b>Soporte / último mensaje:</b> ${esc(lastChat.sender_role)} — ${esc(lastChat.message)}</div>`:''}
       <div class="line-actions">
         <button class="btn btn-success" onclick="approveOrder('${o.id}')">✅ Aprobar</button>
         <button class="btn btn-warning" onclick="confirmActivation('${o.id}')">⚡ Confirmar activación</button>
         <button class="btn" onclick="openManualDelivery('${o.id}')">📦 Entregar cuenta</button>
-        <button class="btn" onclick="openOrderChat('${o.id}')">💬 Chat</button>
+        <button class="btn" onclick="openOrderChat('${o.id}')">💬 Chat${chats.length?` (${chats.length})`:''}</button>
         <button class="btn" onclick="copyOrderSummary('${o.id}')">📋 Copiar</button>
         <button class="btn" onclick="viewDelivery('${o.id}')">👁 Ver entrega</button>
         <button class="btn btn-danger" onclick="rejectOrder('${o.id}')">✕ Rechazar</button>
@@ -3467,6 +3470,7 @@ $('orderSearch').oninput=renderOrders;
 $('btnOnlyEmpty').onclick=()=>{state.onlyEmpty=!state.onlyEmpty;$('btnOnlyEmpty').setAttribute('aria-pressed',state.onlyEmpty);renderPlans()};
 $('btnOnlyReview').onclick=()=>{state.onlyReview=!state.onlyReview;$('btnOnlyReview').setAttribute('aria-pressed',state.onlyReview);renderOrders()};
 $('btnOnlyManual').onclick=()=>{state.onlyManual=!state.onlyManual;$('btnOnlyManual').setAttribute('aria-pressed',state.onlyManual);renderOrders()};
+$('btnOnlySupport').onclick=()=>{state.onlySupport=!state.onlySupport;$('btnOnlySupport').setAttribute('aria-pressed',state.onlySupport);renderOrders()};
 $('btnGenerateManualMsg').onclick=generateManualMsg;
 $('btnCopyManualMsg').onclick=()=>copyTextSafe($('manualMessage').value);
 $('manualTemplate')?.addEventListener('change',()=>{const tpl=getDeliveryTemplate();$('manualRestrictions').value=tpl?.restrictions||$('manualRestrictions').value;renderDeliveryMessage()});
@@ -3538,6 +3542,7 @@ setInterval(adminAutoRefresh,2000);
 </script>
 </body>
 </html>
+
 
 
 
