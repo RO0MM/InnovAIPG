@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html data-theme="light" lang="es">
 <head>
-  <head>
   <link rel="icon" type="image/png" href="Diseño sin título.png">
 <link rel="shortcut icon" href="Diseño sin título.png">
 
@@ -906,23 +905,23 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
 .cuenta-meta { font-size: .86rem; line-height: 1.5; }
 .cuenta-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .cuentas-toolbar { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; }
-.gmail-toolbar, .cdk-toolbar { display: grid; gap: 10px; margin-bottom: 12px; }
-.cdk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
-.cdk-card { background: var(--card); color: var(--card-ink); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow-xs); }
-.cdk-card h3 { margin: 0 0 8px; font-size: .96rem; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
-.cdk-meta { font-size: .88rem; line-height: 1.45; }
-.cdk-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-.cdk-actions .btn { padding: 6px 10px; }
-.cdk-code { font-family: var(--mono); font-size: .9rem; word-break: break-all; }
-.cdk-item { border: 1px solid var(--border); border-radius: 12px; padding: 11px; background: var(--card); }
-.cdk-kv { display: flex; justify-content: space-between; gap: 12px; font-size: .87rem; margin-top: 6px; }
-.cdk-kv .k { color: var(--muted); font-weight: 600; }
-.cdk-kv .v { text-align: right; font-weight: 700; word-break: break-word; }
-.cdk-inline { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.cdk-list-wrap { display: grid; gap: 8px; max-height: 62vh; overflow: auto; padding-right: 4px; }
-.cdk-item-top { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
-.cdk-item-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-.cdk-top-badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.gmail-toolbar, .cuenta-toolbar { display: grid; gap: 10px; margin-bottom: 12px; }
+.cuenta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+.cuenta-card { background: var(--card); color: var(--card-ink); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow-xs); }
+.cuenta-card h3 { margin: 0 0 8px; font-size: .96rem; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+.cuenta-meta { font-size: .88rem; line-height: 1.45; }
+.cuenta-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.cuenta-actions .btn { padding: 6px 10px; }
+.cuenta-code { font-family: var(--mono); font-size: .9rem; word-break: break-all; }
+.cuenta-item { border: 1px solid var(--border); border-radius: 12px; padding: 11px; background: var(--card); }
+.cuenta-kv { display: flex; justify-content: space-between; gap: 12px; font-size: .87rem; margin-top: 6px; }
+.cuenta-kv .k { color: var(--muted); font-weight: 600; }
+.cuenta-kv .v { text-align: right; font-weight: 700; word-break: break-word; }
+.cuenta-inline { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.cuenta-list-wrap { display: grid; gap: 8px; max-height: 62vh; overflow: auto; padding-right: 4px; }
+.cuenta-item-top { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.cuenta-item-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.cuenta-top-badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .acc-seg-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .mitem { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); overflow: hidden; }
 .mhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 12px 14px 8px; }
@@ -1004,9 +1003,9 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
   .gmail-toolbar.is-open { display: flex; }
   .cuentas-toolbar { display: none; }
   .cuentas-toolbar.is-open { display: flex; }
-  .cdk-toolbar { display: none; }
-  .cdk-toolbar.is-open { display: grid; }
-  .toolbar.is-open, .gmail-toolbar.is-open, .cuentas-toolbar.is-open, .cdk-toolbar.is-open {
+  .cuenta-toolbar { display: none; }
+  .cuenta-toolbar.is-open { display: grid; }
+  .toolbar.is-open, .gmail-toolbar.is-open, .cuentas-toolbar.is-open, .cuenta-toolbar.is-open {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -1016,9 +1015,9 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
   .accx-maprow { grid-template-columns: 1fr; }
   .pfrow { grid-template-columns: 1fr 1fr auto; }
   .pfrow > :first-child { grid-column: 1 / -1; }
-  .cdk-toolbar { display: none; }
-  .cdk-toolbar.is-open { display: grid; }
-  .cdk-grid, .accx-group-grid { grid-template-columns: 1fr; }
+  .cuenta-toolbar { display: none; }
+  .cuenta-toolbar.is-open { display: grid; }
+  .cuenta-grid, .accx-group-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 700px) {
   .cuentas-grid { grid-template-columns: 1fr; }
@@ -1225,7 +1224,7 @@ input, select, textarea, button { min-width: 0; }
   .admin-kpi .sub { display: none; }
 
   .card, .mini-card, .ops-stock-card { padding: 12px; border-radius: 14px; }
-  .mini-grid, .ops-grid, .cuentas-grid, .cdk-grid, .accx-group-grid { grid-template-columns: minmax(0, 1fr) !important; width: 100%; }
+  .mini-grid, .ops-grid, .cuentas-grid, .cuenta-grid, .accx-group-grid { grid-template-columns: minmax(0, 1fr) !important; width: 100%; }
   .mini-head, .ops-stock-top { gap: 8px; }
   .thumb { width: 42px; height: 42px; }
 
@@ -1279,7 +1278,7 @@ input, select, textarea, button { min-width: 0; }
   .ops-title > div:last-child { display: grid !important; grid-template-columns: repeat(3, minmax(0,1fr)); width: 100%; }
   .ops-title > div:last-child .btn { width: 100%; padding-inline: 6px; }
   .ops-kpis { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
-  .ops-secret .row, .kv, .cdk-kv, .accx-kv { align-items: flex-start; }
+  .ops-secret .row, .kv, .cuenta-kv, .accx-kv { align-items: flex-start; }
 
   .table-wrap { overflow: visible; width: 100%; }
   table { min-width: 0 !important; width: 100%; }
@@ -1355,7 +1354,73 @@ input, select, textarea, button { min-width: 0; }
 .totp-events{display:grid;gap:8px;max-height:420px;overflow:auto;padding-right:4px}.totp-event{border:1px solid var(--border);background:var(--card);border-radius:12px;padding:10px;font-size:.84rem}.totp-event .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:800}.totp-event .sub{color:var(--muted);margin-top:4px;word-break:break-word}.totp-mini-help{border-left:3px solid var(--primary);padding:10px 12px;background:var(--primary-alpha2);border-radius:12px;color:var(--muted);font-size:.84rem}
 @media(max-width:800px){.totp-hero{grid-template-columns:1fr}.totp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.totp-grid{grid-template-columns:1fr}.totp-actions .btn{flex:1 1 calc(50% - 7px)}}
 
-</style>
+
+
+/* ================================================================
+   PATCH PRO v11 — listas compactas, reservas, códigos masivos y alertas
+   ================================================================ */
+.ops-grid.ops-list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.ops-product-group{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-xs);
+  overflow:hidden;
+}
+.ops-product-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  background:var(--card2);
+  border-bottom:1px solid var(--border);
+}
+.ops-product-title{font-weight:900;color:var(--card-ink);font-size:.9rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ops-product-counts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ops-list-rows{display:grid;gap:0}
+.ops-list-row{
+  display:grid;
+  grid-template-columns:minmax(170px,1.15fr) minmax(160px,1fr) minmax(110px,.7fr) minmax(170px,auto);
+  gap:10px;
+  align-items:center;
+  padding:9px 12px;
+  border-bottom:1px solid var(--border);
+}
+.ops-list-row:last-child{border-bottom:0}
+.ops-list-row:hover{background:var(--primary-alpha2)}
+.ops-row-main{min-width:0}
+.ops-row-title{font-weight:850;color:var(--card-ink);font-size:.88rem;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ops-row-sub{font-size:.74rem;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ops-row-secret{display:flex;gap:6px;align-items:center;min-width:0;flex-wrap:wrap}
+.ops-row-secret .mono{font-size:.78rem;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+.ops-row-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.ops-row-actions{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}
+.ops-row-actions .btn{padding:5px 8px;font-size:.74rem;border-radius:9px}
+.ops-mini-chip{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border);background:var(--card);border-radius:999px;padding:2px 7px;font-size:.7rem;font-weight:800;color:var(--muted)}
+.ops-mini-chip.ok{color:var(--success);background:var(--success-alpha);border-color:rgba(21,128,61,.2)}
+.ops-mini-chip.warn{color:var(--warning);background:var(--warning-alpha);border-color:rgba(180,83,9,.22)}
+.ops-mini-chip.bad{color:var(--danger);background:var(--danger-alpha);border-color:rgba(185,28,28,.22)}
+.ops-muted-pass{letter-spacing:.08em;font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.notif-enabled{background:var(--success-alpha)!important;color:var(--success)!important;border-color:rgba(21,128,61,.25)!important}
+.notif-pulse{animation:notifPulse .8s ease 2}
+@keyframes notifPulse{50%{transform:scale(1.08);box-shadow:0 0 0 8px var(--warning-alpha)}}
+.totp-bulk-preview{display:grid;gap:6px;max-height:210px;overflow:auto;border:1px solid var(--border);border-radius:12px;padding:8px;background:var(--card2)}
+.totp-bulk-code{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--border);background:var(--card);border-radius:10px;padding:7px 9px;font-size:.82rem}
+@media(max-width:850px){
+  .ops-list-row{grid-template-columns:1fr;gap:6px;padding:10px}
+  .ops-row-actions{justify-content:stretch;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ops-row-actions .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ops-product-head{align-items:flex-start;flex-direction:column}
+  .ops-product-counts{justify-content:flex-start}
+}
+@media(max-width:430px){.ops-row-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+  </style>
 </head>
 <body>
 
@@ -1433,6 +1498,7 @@ input, select, textarea, button { min-width: 0; }
         <span class="badge b-ok" id="connBadge" style="font-size:.73rem">
           <span class="status-dot"></span><span id="connText">Supabase</span>
         </span>
+        <button class="btn btn-ghost btn-icon" id="btnEnableNotifications" type="button" aria-label="Activar notificaciones" title="Activar notificaciones con sonido">🔕</button>
         <button class="btn btn-ghost btn-icon" id="btnTheme" type="button" aria-label="Cambiar tema">🌓</button>
         <button class="btn btn-ghost" id="btnLogout" type="button">Salir</button>
       </div>
@@ -1463,7 +1529,7 @@ input, select, textarea, button { min-width: 0; }
           <div class="admin-kpi"><span class="kpi-icon">🧩</span><div class="lbl">Productos activos</div><div class="val" id="kpiProducts">0</div><div class="sub">Visibles si tienen plan activo</div></div>
           <div class="admin-kpi green"><span class="kpi-icon">📦</span><div class="lbl">Cupos disponibles</div><div class="val" id="kpiStock">0</div><div class="sub">Automático + manual</div></div>
           <div class="admin-kpi amber"><span class="kpi-icon">🧾</span><div class="lbl">Pagos por revisar</div><div class="val" id="kpiOrders">0</div><div class="sub">Yape / operación</div></div>
-          <div class="admin-kpi red"><span class="kpi-icon">🚚</span><div class="lbl">Entrega pendiente</div><div class="val" id="kpiDelivery">0</div><div class="sub">Falta cuenta/código real</div></div>
+          <div class="admin-kpi red"><span class="kpi-icon">🚚</span><div class="lbl">Entrega pendiente</div><div class="val" id="kpiDelivery">0</div><div class="sub">Falta cuenta/perfil/PIN real</div></div>
           <div class="admin-kpi"><span class="kpi-icon">👥</span><div class="lbl">Clientes</div><div class="val" id="kpiClients">0</div><div class="sub">Base de clientes</div></div>
           <div class="admin-kpi amber"><span class="kpi-icon">🔔</span><div class="lbl">Record. vencidos</div><div class="val" id="kpiDue">0</div><div class="sub">Renovaciones pendientes</div></div>
         </div>
@@ -1563,17 +1629,18 @@ input, select, textarea, button { min-width: 0; }
             <div class="ops-title">
               <div>
                 <h2>🔐 Operaciones PRO</h2>
-                <p class="help" style="margin:4px 0 0">Cuentas, perfiles, CDK, entrega rápida y recordatorio automático a 30 días, todo dentro del admin.</p>
+                <p class="help" style="margin:4px 0 0">Cuentas, perfiles, PIN, usos permitidos, entrega rápida y recordatorio automático a 30 días, todo dentro del admin.</p>
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <button class="btn btn-primary" id="btnOpsAddAccount" type="button">＋ Cuenta</button>
-                <button class="btn btn-success" id="btnOpsAddCode" type="button">＋ CDK</button>
+                <button class="btn btn-success hidden" id="btnOpsAddCode" type="button" style="display:none">＋ Cuenta</button>
                 <button class="btn" id="btnOpsBulk" type="button">📥 Lote</button>
+                <button class="btn" id="btnOpsCompactHelp" type="button" title="Vista compacta por producto">☰ Lista</button>
               </div>
             </div>
             <div class="ops-kpis">
               <div class="ops-kpi"><div class="v" id="opsKpiAccounts">0</div><div class="l">Cuentas libres</div></div>
-              <div class="ops-kpi"><div class="v" id="opsKpiCodes">0</div><div class="l">CDK libres</div></div>
+              <div class="ops-kpi"><div class="v" id="opsKpiCodes">0</div><div class="l">Reservadas</div></div>
               <div class="ops-kpi"><div class="v" id="opsKpiUsed">0</div><div class="l">Usadas</div></div>
               <div class="ops-kpi"><div class="v" id="opsKpiPlans">0</div><div class="l">Planes activos</div></div>
             </div>
@@ -1581,7 +1648,7 @@ input, select, textarea, button { min-width: 0; }
           <div class="card">
             <strong>✅ Flujo recomendado</strong>
             <div class="ops-mini-help" style="margin-top:10px">
-              1) Carga cuenta o CDK.<br>
+              1) Carga cuentas con correo, clave, perfil, PIN y usos permitidos.<br>
               2) Presiona <b>Entregar + recordatorio</b>.<br>
               3) Ingresa WhatsApp del cliente.<br>
               4) Se copia el mensaje, se crea cliente y se guarda renovación a <b>30 días</b>.
@@ -1590,7 +1657,7 @@ input, select, textarea, button { min-width: 0; }
         </div>
 
         <div class="admin-toolbar">
-          <div class="input-wrap"><input class="input" id="opsSearch" type="search" placeholder="🔍 Buscar cuenta, CDK, producto, correo..."></div>
+          <div class="input-wrap"><input class="input" id="opsSearch" type="search" placeholder="🔍 Buscar cuenta, producto, correo, perfil o PIN..."></div>
           <select class="input" id="opsPlanFilter" style="max-width:260px"><option value="">Todos los planes</option></select>
           <select class="input" id="opsStatusFilter" style="max-width:180px">
             <option value="">Todos</option>
@@ -1606,11 +1673,10 @@ input, select, textarea, button { min-width: 0; }
 
         <div class="ops-switch" role="tablist" aria-label="Vista de operaciones">
           <button class="chip" data-ops-view="accounts" aria-pressed="true" type="button">🔐 Cuentas</button>
-          <button class="chip" data-ops-view="codes" type="button">🎟️ CDK / Códigos</button>
           <button class="chip" data-ops-view="all" type="button">📦 Todo stock</button>
         </div>
 
-        <div id="opsGrid" class="ops-grid"></div>
+        <div id="opsGrid" class="ops-grid ops-list"></div>
       </section>
 
 
@@ -1621,16 +1687,17 @@ input, select, textarea, button { min-width: 0; }
             <div class="totp-title">
               <div>
                 <h2>🛡️ Accesos TOTP para clientes</h2>
-                <p class="help" style="margin:4px 0 0">Administra cuentas TOTP, códigos de acceso, usos, vencimientos y actividad del cliente.</p>
+                <p class="help" style="margin:4px 0 0">Administra cuentas TOTP, cuentas de acceso, usos, vencimientos y actividad del cliente.</p>
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <button class="btn btn-primary" id="btnTotpNewAccount" type="button">＋ Cuenta TOTP</button>
                 <button class="btn btn-success" id="btnTotpNewCode" type="button">＋ Código acceso</button>
+                <button class="btn" id="btnTotpBulkCodes" type="button">⚡ Códigos masivos</button>
               </div>
             </div>
             <div class="totp-kpis">
               <div class="totp-kpi"><div class="v" id="totpKpiAccounts">0</div><div class="l">Cuentas</div></div>
-              <div class="totp-kpi"><div class="v" id="totpKpiCodes">0</div><div class="l">Códigos</div></div>
+              <div class="totp-kpi"><div class="v" id="totpKpiCodes">0</div><div class="l">Cuentas</div></div>
               <div class="totp-kpi"><div class="v" id="totpKpiUsed">0</div><div class="l">Usados</div></div>
               <div class="totp-kpi"><div class="v" id="totpKpiExpired">0</div><div class="l">Vencidos</div></div>
             </div>
@@ -1663,7 +1730,7 @@ input, select, textarea, button { min-width: 0; }
         </div>
 
         <div class="totp-tabs" role="tablist" aria-label="Vista TOTP">
-          <button class="chip" data-totp-view="codes" aria-pressed="true" type="button">🎫 Códigos de acceso</button>
+          <button class="chip" data-totp-view="codes" aria-pressed="true" type="button">🎫 Cuentas de acceso</button>
           <button class="chip" data-totp-view="accounts" type="button">🔑 Cuentas TOTP</button>
           <button class="chip" data-totp-view="events" type="button">📜 Actividad</button>
         </div>
@@ -1843,7 +1910,7 @@ input, select, textarea, button { min-width: 0; }
       <div class="full"><label class="subtle">Chips, separados por coma</label><input class="input" id="plChips" placeholder="4K, Premium, 5 pantallas"></div>
       <div><label class="subtle">Tipo de entrega</label>
         <select class="input" id="plDeliveryType">
-          <option value="automatic">Automática: cuentas/códigos cargados</option>
+          <option value="automatic">Automática: cuentas/cuentas cargados</option>
           <option value="manual">Manual: cupos escritos</option>
         </select>
       </div>
@@ -1860,8 +1927,8 @@ input, select, textarea, button { min-width: 0; }
         <p class="help" style="margin-top:6px">Se muestran cupos, pero al aprobar pago se pedirá cuenta/código real si no existe stock cargado.</p>
       </div>
       <div id="autoBox" class="stock-box full">
-        <label class="subtle">Importar cuentas/códigos por lote</label>
-        <textarea class="input" id="bulkText" placeholder="correo@gmail.com|clave123|nota opcional&#10;CODIGO-CDK-123" style="min-height:100px"></textarea>
+        <label class="subtle">Importar cuentas/cuentas por lote</label>
+        <textarea class="input" id="bulkText" placeholder="correo@gmail.com|clave123|perfil|pin|1|nota opcional" style="min-height:100px"></textarea>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center">
           <span class="badge b-ok" id="validCount">0 válidas</span>
           <span class="badge b-warn" id="doubtCount">0 dudosas</span>
@@ -1898,7 +1965,7 @@ input, select, textarea, button { min-width: 0; }
       <div><label class="subtle">PIN</label><input class="input" id="manualPin" placeholder="Ej: 1992"></div>
       <div><label class="subtle">Grupo WhatsApp</label><input class="input" id="manualGroup" placeholder="https://chat.whatsapp.com/..."></div>
       <div><label class="subtle">URL / Link / Servidor</label><input class="input" id="manualUrl" placeholder="URL si aplica"></div>
-      <div><label class="subtle">Código / CDK</label><input class="input" id="manualCode"></div>
+      <input type="hidden" id="manualCode" value="">
       <div><label class="subtle">Nota adicional</label><input class="input" id="manualNote" placeholder="Soporte por WhatsApp"></div>
       <div class="full"><label class="subtle">Restricciones editables</label>
         <textarea class="input" id="manualRestrictions" style="min-height:100px">🚫 RESTRICCIONES:
@@ -2046,28 +2113,27 @@ input, select, textarea, button { min-width: 0; }
 </dialog>
 
 
-<!-- Operaciones PRO: Cuenta / CDK -->
+<!-- Operaciones PRO: Cuenta -->
 <dialog id="dlgOpsStock">
   <div class="modal-header">
-    <strong id="opsStockDlgTitle">Cuenta / CDK</strong>
+    <strong id="opsStockDlgTitle">Cuenta</strong>
     <button class="btn btn-ghost btn-icon" data-close="dlgOpsStock" type="button">✕</button>
   </div>
   <form id="opsStockForm">
     <input type="hidden" id="opsStockId">
     <div class="grid grid-2">
       <div><label class="subtle">Tipo</label>
-        <select class="input" id="opsStockType">
-          <option value="account">Cuenta</option>
-          <option value="code">CDK / Código</option>
-        </select>
+        <select class="input" id="opsStockType"><option value="account">Cuenta</option></select>
       </div>
       <div><label class="subtle">Plan vinculado *</label><select class="input" id="opsStockPlan" required></select></div>
-      <div class="full"><label class="subtle">Título / referencia</label><input class="input" id="opsStockTitle" placeholder="Netflix perfil 1, CDK Canva, etc."></div>
+      <div class="full"><label class="subtle">Título / referencia</label><input class="input" id="opsStockTitle" placeholder="Netflix perfil 1, Cuenta Canva, etc."></div>
       <div class="ops-account-field"><label class="subtle">Correo / usuario</label><input class="input" id="opsStockUser" placeholder="correo@gmail.com"></div>
       <div class="ops-account-field"><label class="subtle">Contraseña</label><input class="input" id="opsStockPass" placeholder="clave"></div>
       <div class="ops-account-field"><label class="subtle">Perfil</label><input class="input" id="opsStockProfile" placeholder="Perfil 1 / Rommel"></div>
       <div class="ops-account-field"><label class="subtle">PIN</label><input class="input" id="opsStockPin" placeholder="1234"></div>
-      <div class="ops-code-field full"><label class="subtle">Código / CDK</label><input class="input" id="opsStockCode" placeholder="YEOHYVM2JWAOCN6V"></div>
+      <div class="ops-account-field"><label class="subtle">Usos permitidos</label><input class="input" id="opsStockMaxUses" type="number" min="1" value="1" placeholder="1"></div>
+      <div class="ops-account-field"><label class="subtle">Usos actuales</label><input class="input" id="opsStockUsedCount" type="number" min="0" value="0" placeholder="0"></div>
+      <div class="ops-code-field full hidden" style="display:none"><input type="hidden" id="opsStockCode" value=""></div>
       <div><label class="subtle">Grupo WhatsApp / URL</label><input class="input" id="opsStockGroup" placeholder="https://..."></div>
       <div><label class="subtle">Estado</label>
         <select class="input" id="opsStockStatus">
@@ -2117,27 +2183,47 @@ input, select, textarea, button { min-width: 0; }
     <button class="btn" id="btnOpsCopyDeliver" type="button">📋 Copiar</button>
     <button class="btn btn-primary" id="btnOpsSaveDeliver" type="button">✅ Guardar y abrir</button>
   </div>
+
+</dialog>
+
+<!-- Operaciones PRO: Reserva compacta -->
+<dialog id="dlgOpsReserve">
+  <div class="modal-header">
+    <strong>📌 Reservar cuenta</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgOpsReserve" type="button">✕</button>
+  </div>
+  <div class="dlg-body">
+    <input type="hidden" id="opsReserveStockId">
+    <div class="grid grid-2">
+      <div class="full"><div class="sync-note" id="opsReserveInfo">Selecciona una cuenta para reservar.</div></div>
+      <div><label class="subtle">Cliente / referencia</label><input class="input" id="opsReserveName" placeholder="Nombre cliente o nota rápida"></div>
+      <div><label class="subtle">WhatsApp</label><input class="input" id="opsReservePhone" placeholder="991564053"></div>
+      <div><label class="subtle">Vence reserva</label><input class="input" id="opsReserveDue" type="date"></div>
+      <div><label class="subtle">Estado</label><select class="input" id="opsReserveStatus"><option value="reserved">Reservado</option><option value="available">Disponible</option><option value="used">Usado</option></select></div>
+      <div class="full"><label class="subtle">Nota interna</label><textarea class="input" id="opsReserveNotes" placeholder="Ej: reservado por pago pendiente, cliente pidió perfil 2..."></textarea></div>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn" data-close="dlgOpsReserve" type="button">Cancelar</button>
+    <button class="btn btn-primary" id="btnOpsSaveReserve" type="button">Guardar reserva</button>
+  </div>
 </dialog>
 
 <!-- Operaciones PRO: Importación por lote -->
 <dialog id="dlgOpsBulk">
   <div class="modal-header">
-    <strong>📥 Agregar cuentas / CDK por lote</strong>
+    <strong>📥 Agregar cuentas / Cuenta por lote</strong>
     <button class="btn btn-ghost btn-icon" data-close="dlgOpsBulk" type="button">✕</button>
   </div>
   <div class="dlg-body">
     <div class="grid grid-2">
       <div><label class="subtle">Plan destino *</label><select class="input" id="opsBulkPlan"></select></div>
       <div><label class="subtle">Modo</label>
-        <select class="input" id="opsBulkMode">
-          <option value="mixed">Detectar automático</option>
-          <option value="account">Todo cuentas</option>
-          <option value="code">Todo CDK / códigos</option>
-        </select>
+        <select class="input" id="opsBulkMode"><option value="account">Todo cuentas</option></select>
       </div>
       <div class="full">
         <label class="subtle">Pega tus datos</label>
-        <textarea class="input" id="opsBulkText" style="min-height:190px" placeholder="correo@gmail.com|clave|perfil|pin|nota&#10;YEOHYVM2JWAOCN6V&#10;otrocorreo@gmail.com:clave123"></textarea>
+        <textarea class="input" id="opsBulkText" style="min-height:190px" placeholder="correo@gmail.com|clave|perfil|pin|usos|nota opcional&#10;otrocorreo@gmail.com:clave123"></textarea>
       </div>
       <div class="full" style="display:flex;gap:8px;flex-wrap:wrap">
         <span class="badge b-ok" id="opsBulkValid">0 válidas</span>
@@ -2206,6 +2292,32 @@ input, select, textarea, button { min-width: 0; }
     <button class="btn btn-danger" id="btnTotpDeleteCode" type="button">Eliminar</button>
     <button class="btn" data-close="dlgTotpCode" type="button">Cancelar</button>
     <button class="btn btn-primary" type="submit" form="totpCodeForm">Guardar código</button>
+  </div>
+
+</dialog>
+
+<!-- TOTP: Códigos masivos -->
+<dialog id="dlgTotpBulkCodes">
+  <div class="modal-header">
+    <strong>⚡ Generar códigos masivos</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgTotpBulkCodes" type="button">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div class="grid grid-2">
+      <div class="full"><label class="subtle">Cuenta TOTP origen *</label><select class="input" id="totpBulkAccount" required></select></div>
+      <div><label class="subtle">Cantidad</label><input class="input" id="totpBulkQty" type="number" min="1" max="200" value="10"></div>
+      <div><label class="subtle">Usos por código</label><input class="input" id="totpBulkMaxUses" type="number" min="1" value="2"></div>
+      <div><label class="subtle">Vigencia días</label><input class="input" id="totpBulkValidDays" type="number" min="1" value="30"></div>
+      <div><label class="subtle">Prefijo opcional</label><input class="input mono" id="totpBulkPrefix" maxlength="8" placeholder="IA"></div>
+      <div><label class="subtle">Cliente base opcional</label><input class="input" id="totpBulkCustomer" placeholder="Cliente / lote"></div>
+      <div><label class="subtle">WhatsApp opcional</label><input class="input" id="totpBulkPhone" placeholder="Opcional"></div>
+      <div class="full"><label class="subtle">Notas</label><textarea class="input" id="totpBulkNotes" placeholder="Ej: lote mayo, reseller, promo..."></textarea></div>
+      <div class="full"><div class="totp-bulk-preview" id="totpBulkPreview"><div class="help">Presiona “Previsualizar” para ver los códigos.</div></div></div>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn" id="btnTotpPreviewBulk" type="button">👁️ Previsualizar</button>
+    <button class="btn btn-success" id="btnTotpSaveBulk" type="button">Guardar códigos</button>
   </div>
 </dialog>
 
@@ -2448,6 +2560,8 @@ async function loadAll(){
     await Promise.all([loadProducts(),loadPlans(),loadStock(),loadOrders(),loadCoupons(),loadSettings(),loadSummary(),loadCustomers(),loadReminders(),loadTemplates(),loadDeliveryTemplates(),loadTotpAccounts(),loadTotpCodes(),loadTotpEvents()]);
     fillProductSelects();
     renderAll();
+    if(!state.notifSeeded){seedNotificationMemory();state.notifSeeded=true;}
+    updateNotifButton();
     if($('syncStatus'))$('syncStatus').textContent='Última sincronización: '+new Date().toLocaleString();
     $('connText').textContent='Supabase activo';
   }catch(e){toast('Error cargando: '+e.message,'bad');}
@@ -3284,6 +3398,7 @@ function exportBackup(){
 }
 
 
+
 /* ---- Operaciones PRO fusionadas ---- */
 state.opsView='accounts';
 
@@ -3298,7 +3413,7 @@ function opsSecret(x){
 }
 function opsKeyFromItem(x){
   const d=opsSecret(x);
-  return String(d.correo||d.codigo||x.title||'').trim().toLowerCase();
+  return String(d.correo||d.usuario||d.codigo||x.title||'').trim().toLowerCase();
 }
 function opsStatusBadge(st){
   st=String(st||'available').toLowerCase();
@@ -3306,6 +3421,12 @@ function opsStatusBadge(st){
   if(st==='reserved')return'<span class="badge b-warn">Reservado</span>';
   if(st==='used'||st==='delivered')return'<span class="badge b-bad">Usado</span>';
   return`<span class="badge">${esc(st)}</span>`;
+}
+function opsMiniStatus(st){
+  st=String(st||'available').toLowerCase();
+  const cls=st==='available'?'ok':st==='reserved'?'warn':'bad';
+  const label=st==='available'?'Libre':st==='reserved'?'Reservada':(st==='used'||st==='delivered'?'Usada':st);
+  return `<span class="ops-mini-chip ${cls}">${esc(label)}</span>`;
 }
 function opsPlanOptions(selected=''){
   const active=state.plans.filter(p=>p.active!==false);
@@ -3326,22 +3447,64 @@ function fillOpsSelects(){
 }
 function opsDeliveryText(item){
   const d=opsSecret(item), lines=[];
-  lines.push('✅ ENTREGA INNOV IA');
+  lines.push('✅ Acceso listo');
   lines.push('📦 Servicio: '+planName(item.plan_id));
-  if(d.correo)lines.push('📧 Correo/usuario: '+d.correo);
-  if(d.clave)lines.push('🔒 Contraseña: '+d.clave);
+  if(d.correo||d.usuario)lines.push('📧 Correo/usuario: '+(d.correo||d.usuario));
+  if(d.clave||d.pass)lines.push('🔒 Clave: '+(d.clave||d.pass));
   if(d.perfil)lines.push('👤 Perfil: '+d.perfil);
   if(d.pin)lines.push('🔢 PIN: '+d.pin);
-  if(d.codigo)lines.push('🎟️ Código/CDK: '+d.codigo);
+  if(d.max_uses)lines.push('🔁 Usos permitidos: '+d.max_uses);
   if(d.grupo)lines.push('📱 Grupo/URL: '+d.grupo);
   if(d.url&&!d.grupo)lines.push('🔗 URL: '+d.url);
   if(item.notes||d.nota)lines.push('\n📝 Nota: '+(d.nota||item.notes));
-  lines.push('\n🚫 Reglas básicas:');
-  lines.push('• No cambiar datos sin autorización.');
-  lines.push('• No compartir con terceros.');
-  lines.push('• Soporte por WhatsApp.');
+  lines.push('\nSoporte por WhatsApp.');
   lines.push('\nGracias por tu compra 💙');
   return lines.filter(Boolean).join('\n');
+}
+function opsPlanGroupTitle(planId){
+  const p=plan(planId)||{};
+  return `${prodName(p.product_id)} — ${p.name||'Plan'}`;
+}
+function opsGroupData(data){
+  const map=new Map();
+  data.forEach(x=>{
+    const key=x.plan_id||'sin-plan';
+    if(!map.has(key))map.set(key,[]);
+    map.get(key).push(x);
+  });
+  return [...map.entries()].sort((a,b)=>opsPlanGroupTitle(a[0]).localeCompare(opsPlanGroupTitle(b[0])));
+}
+function opsRenderRow(x){
+  const d=opsSecret(x), st=opsAvailableStatus(x);
+  const title=x.title||d.correo||d.usuario||d.codigo||'Cuenta';
+  const user=d.correo||d.usuario||d.codigo||'—';
+  const pass=d.clave||d.pass||'';
+  const uses=`${Number(d.used_count||0)} / ${Number(d.max_uses||1)}`;
+  const reserveInfo=d.reserved_for?`Reservada para ${d.reserved_for}${d.reserved_phone?' · '+d.reserved_phone:''}`:'';
+  return `<div class="ops-list-row ${st==='used'||st==='delivered'?'used':''}">
+    <div class="ops-row-main">
+      <div class="ops-row-title">${esc(title)}</div>
+      <div class="ops-row-sub">${esc(planName(x.plan_id))}${reserveInfo?' · '+esc(reserveInfo):''}</div>
+    </div>
+    <div class="ops-row-secret">
+      <span class="mono">${esc(user)}</span>
+      ${pass?`<span class="ops-muted-pass">••••</span>`:''}
+      ${d.perfil?`<span class="ops-mini-chip">P: ${esc(d.perfil)}</span>`:''}
+      ${d.pin?`<span class="ops-mini-chip">PIN ${esc(d.pin)}</span>`:''}
+    </div>
+    <div class="ops-row-meta">
+      ${opsMiniStatus(st)}
+      <span class="ops-mini-chip">Usos ${esc(uses)}</span>
+    </div>
+    <div class="ops-row-actions">
+      <button class="btn btn-success" onclick="openOpsDeliver('${x.id}')">Entregar</button>
+      <button class="btn" onclick="openOpsReserve('${x.id}')">Reservar</button>
+      <button class="btn" onclick="openOpsStockDialog('', '${x.id}')">Modificar</button>
+      <button class="btn" onclick="copyTextSafe(opsDeliveryText(state.stock.find(s=>s.id==='${x.id}')))">Copiar</button>
+      <button class="btn" onclick="cycleOpsStatus('${x.id}')">Estado</button>
+      <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button>
+    </div>
+  </div>`;
 }
 function renderOps(){
   if(!$('opsGrid'))return;
@@ -3356,50 +3519,37 @@ function renderOps(){
   if(statusFilter)data=data.filter(x=>opsAvailableStatus(x)===statusFilter);
   if(q)data=data.filter(x=>{
     const d=opsSecret(x);
-    return (`${x.title||''} ${x.notes||''} ${planName(x.plan_id)} ${d.correo||''} ${d.codigo||''} ${d.perfil||''} ${d.pin||''}`).toLowerCase().includes(q);
+    return (`${x.title||''} ${x.notes||''} ${planName(x.plan_id)} ${d.correo||''} ${d.usuario||''} ${d.codigo||''} ${d.perfil||''} ${d.pin||''} ${d.reserved_for||''} ${d.reserved_phone||''}`).toLowerCase().includes(q);
   });
   data.sort((a,b)=>{
-    const av=opsAvailableStatus(a)==='available'?0:1, bv=opsAvailableStatus(b)==='available'?0:1;
+    const order={available:0,reserved:1,used:2,delivered:2};
+    const av=order[opsAvailableStatus(a)]??3, bv=order[opsAvailableStatus(b)]??3;
     if(av!==bv)return av-bv;
     return String(b.created_at||'').localeCompare(String(a.created_at||''));
   });
   const accFree=state.stock.filter(x=>opsIsAccount(x)&&opsAvailableStatus(x)==='available').length;
-  const codeFree=state.stock.filter(x=>opsIsCode(x)&&opsAvailableStatus(x)==='available').length;
-  const used=state.stock.filter(x=>['used','delivered','reserved'].includes(opsAvailableStatus(x))).length;
+  const reserved=state.stock.filter(x=>opsAvailableStatus(x)==='reserved').length;
+  const used=state.stock.filter(x=>['used','delivered'].includes(opsAvailableStatus(x))).length;
   if($('opsKpiAccounts'))$('opsKpiAccounts').textContent=accFree;
-  if($('opsKpiCodes'))$('opsKpiCodes').textContent=codeFree;
+  if($('opsKpiCodes'))$('opsKpiCodes').textContent=reserved;
   if($('opsKpiUsed'))$('opsKpiUsed').textContent=used;
   if($('opsKpiPlans'))$('opsKpiPlans').textContent=state.plans.filter(p=>p.active!==false).length;
-
-  $('opsGrid').innerHTML=data.map(x=>{
-    const d=opsSecret(x), st=opsAvailableStatus(x), type=opsIsCode(x)?'🎟️ CDK':'🔐 Cuenta';
-    const title=x.title||d.correo||d.codigo||type;
-    const primary=d.correo||d.codigo||x.title||'—';
-    const second=d.clave?'••••••••':(d.perfil||d.pin||'—');
-    return `<div class="ops-stock-card ${st==='used'||st==='delivered'?'used':''}">
-      <div class="ops-stock-top">
-        <div>
-          <div class="ops-stock-title">${esc(title)}</div>
-          <div class="help">${type} · ${esc(planName(x.plan_id))}</div>
-        </div>
-        ${opsStatusBadge(st)}
+  if(!data.length){
+    $('opsGrid').innerHTML='<div class="empty-state"><span class="icon">🔐</span><p>No hay cuentas en esta vista. Carga cuentas desde “＋ Cuenta” o “Lote”.</p></div>';
+    return;
+  }
+  $('opsGrid').innerHTML=opsGroupData(data).map(([planId,rows])=>{
+    const free=rows.filter(x=>opsAvailableStatus(x)==='available').length;
+    const res=rows.filter(x=>opsAvailableStatus(x)==='reserved').length;
+    const us=rows.filter(x=>['used','delivered'].includes(opsAvailableStatus(x))).length;
+    return `<section class="ops-product-group">
+      <div class="ops-product-head">
+        <div class="ops-product-title">📦 ${esc(opsPlanGroupTitle(planId))}</div>
+        <div class="ops-product-counts"><span class="ops-mini-chip ok">${free} libres</span><span class="ops-mini-chip warn">${res} reservadas</span><span class="ops-mini-chip bad">${us} usadas</span></div>
       </div>
-      <div class="ops-secret">
-        <div class="row"><span class="k">${opsIsCode(x)?'Código':'Usuario'}</span><span class="v">${esc(primary)}</span></div>
-        <div class="row"><span class="k">${opsIsCode(x)?'Dato':'Clave/perfil'}</span><span class="v">${esc(second)}</span></div>
-        ${d.perfil?`<div class="row"><span class="k">Perfil</span><span class="v">${esc(d.perfil)}</span></div>`:''}
-        ${d.pin?`<div class="row"><span class="k">PIN</span><span class="v">${esc(d.pin)}</span></div>`:''}
-      </div>
-      ${x.notes?`<div class="help" style="white-space:pre-wrap">${esc(x.notes).slice(0,160)}</div>`:''}
-      <div class="ops-actions">
-        <button class="btn btn-success" onclick="openOpsDeliver('${x.id}')">💚 Entregar + record.</button>
-        <button class="btn" onclick="copyTextSafe(opsDeliveryText(state.stock.find(s=>s.id==='${x.id}')))">📋 Copiar</button>
-        <button class="btn" onclick="openOpsStockDialog('', '${x.id}')">✏️ Editar</button>
-        <button class="btn" onclick="cycleOpsStatus('${x.id}')">🔄 Estado</button>
-        <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">🗑 Eliminar</button>
-      </div>
-    </div>`;
-  }).join('')||'<div class="empty-state"><span class="icon">🔐</span><p>No hay datos en esta vista. Carga cuentas o CDK desde “＋ Cuenta”, “＋ CDK” o “Lote”.</p></div>';
+      <div class="ops-list-rows">${rows.map(opsRenderRow).join('')}</div>
+    </section>`;
+  }).join('');
 }
 function syncOpsStockType(){
   const type=$('opsStockType')?.value||'account';
@@ -3408,16 +3558,18 @@ function syncOpsStockType(){
 }
 function openOpsStockDialog(type='account',id=''){
   fillOpsSelects();
-  ['opsStockId','opsStockTitle','opsStockUser','opsStockPass','opsStockProfile','opsStockPin','opsStockCode','opsStockGroup','opsStockNotes'].forEach(k=>{if($(k))$(k).value=''});
+  ['opsStockId','opsStockTitle','opsStockUser','opsStockPass','opsStockProfile','opsStockPin','opsStockCode','opsStockGroup','opsStockNotes','opsStockMaxUses','opsStockUsedCount'].forEach(k=>{if($(k))$(k).value=''});
+  if($('opsStockMaxUses'))$('opsStockMaxUses').value=1;
+  if($('opsStockUsedCount'))$('opsStockUsedCount').value=0;
   $('opsStockStatus').value='available';
-  $('opsStockType').value=type||'account';
+  $('opsStockType').value='account';
   $('opsStockPlan').value=$('opsPlanFilter')?.value||state.plans[0]?.id||'';
   $('btnOpsDeleteStock').style.display=id?'':'none';
   if(id){
     const x=state.stock.find(s=>s.id===id);if(!x)return;
     const d=opsSecret(x);
     $('opsStockId').value=x.id;
-    $('opsStockType').value=opsIsCode(x)?'code':'account';
+    $('opsStockType').value='account';
     $('opsStockPlan').value=x.plan_id||'';
     $('opsStockTitle').value=x.title||'';
     $('opsStockUser').value=d.correo||d.usuario||'';
@@ -3428,35 +3580,36 @@ function openOpsStockDialog(type='account',id=''){
     $('opsStockGroup').value=d.grupo||d.url||'';
     $('opsStockNotes').value=x.notes||d.nota||'';
     $('opsStockStatus').value=opsAvailableStatus(x);
+    if($('opsStockMaxUses'))$('opsStockMaxUses').value=Number(d.max_uses||1);
+    if($('opsStockUsedCount'))$('opsStockUsedCount').value=Number(d.used_count||0);
   }
-  $('opsStockDlgTitle').textContent=id?'Editar cuenta / CDK':'Nueva '+(($('opsStockType').value==='code')?'CDK':'cuenta');
+  $('opsStockDlgTitle').textContent=id?'Modificar cuenta':'Nueva cuenta';
   syncOpsStockType();showDialog('dlgOpsStock');
 }
 async function saveOpsStock(ev){
   ev.preventDefault();
   const id=$('opsStockId').value;
-  const type=$('opsStockType').value;
+  const type='account';
   const planId=$('opsStockPlan').value;
   if(!planId)return toast('Selecciona un plan destino','bad');
-  const d={};
-  if(type==='code'){
-    d.codigo=$('opsStockCode').value.trim();
-    if(!d.codigo)return toast('Falta código/CDK','bad');
-  }else{
-    d.correo=$('opsStockUser').value.trim();
-    d.clave=$('opsStockPass').value.trim();
-    d.perfil=$('opsStockProfile').value.trim();
-    d.pin=$('opsStockPin').value.trim();
-    if(!d.correo&&!d.clave)return toast('Ingresa usuario/correo y contraseña','bad');
-  }
+  const current=id?state.stock.find(s=>s.id===id):null;
+  const currentSecret=opsSecret(current);
+  const d={...currentSecret};
+  d.correo=$('opsStockUser').value.trim();
+  d.clave=$('opsStockPass').value.trim();
+  d.perfil=$('opsStockProfile').value.trim();
+  d.pin=$('opsStockPin').value.trim();
+  d.max_uses=Math.max(1,Number($('opsStockMaxUses')?.value||1));
+  d.used_count=Math.max(0,Number($('opsStockUsedCount')?.value||0));
+  if(!d.correo&&!d.clave)return toast('Ingresa usuario/correo y contraseña','bad');
   const group=$('opsStockGroup').value.trim();
-  if(group)d.grupo=group;
+  if(group)d.grupo=group; else delete d.grupo;
   const note=$('opsStockNotes').value.trim();
-  if(note)d.nota=note;
+  if(note)d.nota=note; else delete d.nota;
   const payload={
     plan_id:planId,
     stock_type:type,
-    title:$('opsStockTitle').value.trim()||d.correo||d.codigo||planName(planId),
+    title:$('opsStockTitle').value.trim()||d.correo||planName(planId),
     secret_data:d,
     notes:note||null,
     status:$('opsStockStatus').value||'available'
@@ -3467,7 +3620,7 @@ async function saveOpsStock(ev){
 }
 async function deleteOpsStock(){
   const id=$('opsStockId').value;if(!id)return;
-  if(!confirm('¿Eliminar esta cuenta/código del inventario?'))return;
+  if(!confirm('¿Eliminar esta cuenta del inventario?'))return;
   const r=await db.from('stock_items').delete().eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   closeDialog('dlgOpsStock');toast('Eliminado','ok');await loadAll();switchTab('ops');
@@ -3476,15 +3629,52 @@ async function cycleOpsStatus(id){
   const x=state.stock.find(s=>s.id===id);if(!x)return;
   const st=opsAvailableStatus(x);
   const next=st==='available'?'reserved':st==='reserved'?'used':'available';
-  const r=await db.from('stock_items').update({status:next}).eq('id',id);
+  const d={...opsSecret(x)};
+  if(next==='available'){
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_at;
+  }else if(next==='reserved'&&!d.reserved_at){
+    d.reserved_at=new Date().toISOString();
+  }
+  const r=await db.from('stock_items').update({status:next,secret_data:d}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   toast('Estado: '+next,'ok');await loadAll();switchTab('ops');
 }
+function openOpsReserve(id){
+  const x=state.stock.find(s=>s.id===id);if(!x)return;
+  const d=opsSecret(x);
+  $('opsReserveStockId').value=id;
+  $('opsReserveInfo').textContent=(x.title||d.correo||'Cuenta')+' · '+planName(x.plan_id);
+  $('opsReserveName').value=d.reserved_for||'';
+  $('opsReservePhone').value=d.reserved_phone||'';
+  $('opsReserveDue').value=d.reserved_due||daysFromNow(2);
+  $('opsReserveStatus').value=opsAvailableStatus(x)==='available'?'reserved':opsAvailableStatus(x);
+  $('opsReserveNotes').value=d.reserved_note||'';
+  showDialog('dlgOpsReserve');
+}
+async function saveOpsReserve(){
+  const id=$('opsReserveStockId').value;
+  const x=state.stock.find(s=>s.id===id);if(!x)return;
+  const d={...opsSecret(x)};
+  const status=$('opsReserveStatus').value||'reserved';
+  if(status==='reserved'){
+    d.reserved_for=$('opsReserveName').value.trim()||'Reserva manual';
+    d.reserved_phone=$('opsReservePhone').value.trim()||'';
+    d.reserved_due=$('opsReserveDue').value||'';
+    d.reserved_note=$('opsReserveNotes').value.trim()||'';
+    d.reserved_at=d.reserved_at||new Date().toISOString();
+  }else{
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+  }
+  const r=await db.from('stock_items').update({status,secret_data:d}).eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgOpsReserve');toast(status==='reserved'?'Cuenta reservada':'Estado actualizado','ok');await loadAll();switchTab('ops');
+}
 function openOpsDeliver(id){
   const x=state.stock.find(s=>s.id===id);if(!x)return;
+  const d=opsSecret(x);
   $('opsDeliverStockId').value=id;
-  $('opsDeliverName').value='';
-  $('opsDeliverPhone').value='';
+  $('opsDeliverName').value=d.reserved_for||'';
+  $('opsDeliverPhone').value=d.reserved_phone||'';
   $('opsDeliverService').value=planName(x.plan_id);
   const p=plan(x.plan_id);
   $('opsDeliverAmount').value=p?.price??'';
@@ -3510,13 +3700,15 @@ async function saveOpsDeliver(){
   const r=await db.from('payment_reminders').insert(reminderDraft);
   if(r.error)return toast('Recordatorio no creado: '+r.error.message,'bad');
   const newStatus=$('opsDeliverNewStatus').value;
-  if(newStatus&&newStatus!==opsAvailableStatus(x)){
-    await db.from('stock_items').update({status:newStatus}).eq('id',id);
-  }
+  const d={...opsSecret(x)};
+  d.used_count=Math.min(Number(d.max_uses||1),Number(d.used_count||0)+1);
+  delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+  await db.from('stock_items').update({status:newStatus,secret_data:d}).eq('id',id);
   const msg=$('opsDeliverText').value.trim()||opsDeliveryText(x);
   copyTextSafe(msg);
   closeDialog('dlgOpsDeliver');
   toast('Cliente + recordatorio a 30 días creados','ok');
+  notifyWeb('Entrega registrada','Se creó recordatorio para '+name,true);
   if($('opsDeliverOpenWa').checked){
     const url=waLink(phone.e164,msg);
     if(url!=='#')window.open(url,'_blank','noopener,noreferrer');
@@ -3525,25 +3717,26 @@ async function saveOpsDeliver(){
 }
 function parseOpsBulk(){
   const planId=$('opsBulkPlan')?.value||'';
-  const mode=$('opsBulkMode')?.value||'mixed';
   const lines=arrLines($('opsBulkText')?.value||'');
   const valid=[],doubt=[],dup=[];
   const existing=new Set(state.stock.filter(x=>!planId||x.plan_id===planId).map(opsKeyFromItem).filter(Boolean));
   for(const line of lines){
-    let raw=line.trim(); if(!raw)continue;
-    let item=null;
+    const raw=line.trim(); if(!raw)continue;
     const pipe=raw.split('|').map(x=>x.trim());
     const colon=raw.includes(':')&&!raw.includes('|')?raw.split(':').map(x=>x.trim()):null;
-    const looksEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+/.test(raw);
-    if(mode==='account'||(mode==='mixed'&&(looksEmail||pipe.length>=2&&/@/.test(pipe[0])||colon&&/@/.test(colon[0])))){
-      const parts=pipe.length>=2?pipe:(colon||[raw,'']);
-      item={stock_type:'account',title:parts[0],secret_data:{correo:parts[0]||'',clave:parts[1]||'',perfil:parts[2]||'',pin:parts[3]||'',nota:parts.slice(4).join(' | ')||''},notes:parts.slice(4).join(' | ')||null};
-      if(!item.secret_data.correo||!item.secret_data.clave){doubt.push(raw);continue;}
-    }else if(mode==='code'||mode==='mixed'){
-      item={stock_type:'code',title:raw,secret_data:{codigo:raw},notes:null};
-      if(raw.length<5){doubt.push(raw);continue;}
+    const parts=pipe.length>=2?pipe:(colon||[raw,'']);
+    const correo=parts[0]||'';
+    const clave=parts[1]||'';
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+/.test(correo) || !clave){doubt.push(raw);continue;}
+    let maxUses=1;
+    let nota='';
+    if(parts[4]){
+      const n=Number(parts[4]);
+      if(Number.isFinite(n)&&n>0){maxUses=n; nota=parts.slice(5).join(' | ');}
+      else {nota=parts.slice(4).join(' | ');}
     }
-    const key=String(item?.secret_data?.correo||item?.secret_data?.codigo||item?.title||'').toLowerCase();
+    const item={stock_type:'account',title:correo,secret_data:{correo,clave,perfil:parts[2]||'',pin:parts[3]||'',max_uses:maxUses,used_count:0,nota},notes:nota||null};
+    const key=correo.toLowerCase();
     if(existing.has(key)){dup.push(raw);continue;}
     existing.add(key);valid.push(item);
   }
@@ -3551,15 +3744,15 @@ function parseOpsBulk(){
   if($('opsBulkDoubt'))$('opsBulkDoubt').textContent=doubt.length+' dudosas';
   if($('opsBulkDup'))$('opsBulkDup').textContent=dup.length+' duplicadas';
   if($('opsBulkPreview'))$('opsBulkPreview').innerHTML =
-    valid.slice(0,60).map(v=>`<div class="ops-preview-item"><b>${v.stock_type==='code'?'🎟️':'🔐'} ${esc(v.title)}</b><div class="help">${esc(v.stock_type)} · ${esc(v.secret_data?.perfil||v.secret_data?.pin||'')}</div></div>`).join('')+
+    valid.slice(0,60).map(v=>`<div class="ops-preview-item"><b>🔐 ${esc(v.title)}</b><div class="help">Cuenta · ${esc(v.secret_data?.perfil||'sin perfil')} · PIN ${esc(v.secret_data?.pin||'-')} · usos ${esc(v.secret_data?.max_uses||1)}</div></div>`).join('')+
     (doubt.length?`<div class="ops-preview-item"><b>⚠️ Dudosas</b><div class="help">${doubt.map(esc).join('<br>')}</div></div>`:'')+
-    (dup.length?`<div class="ops-preview-item"><b>🔁 Duplicadas omitidas</b><div class="help">${dup.map(esc).join('<br>')}</div></div>`:'') || '<div class="help">Sin datos válidos.</div>';
+    (dup.length?`<div class="ops-preview-item"><b>🔁 Duplicadas omitidas</b><div class="help">${dup.map(esc).join('<br>')}</div></div>`:'') || '<div class="help">Sin cuentas válidas.</div>';
   return{valid,doubt,dup};
 }
 function openOpsBulk(){
   fillOpsSelects();
   $('opsBulkPlan').value=$('opsPlanFilter')?.value||state.plans[0]?.id||'';
-  $('opsBulkMode').value='mixed';
+  $('opsBulkMode').value='account';
   $('opsBulkText').value='';
   parseOpsBulk();
   showDialog('dlgOpsBulk');
@@ -3572,10 +3765,10 @@ async function saveOpsBulk(){
   const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));
   const r=await db.from('stock_items').insert(rows);
   if(r.error)return toast(r.error.message,'bad');
-  closeDialog('dlgOpsBulk');toast(valid.length+' registros guardados','ok');await loadAll();switchTab('ops');
+  closeDialog('dlgOpsBulk');toast(valid.length+' cuentas guardadas en el producto/plan','ok');await loadAll();switchTab('ops');
 }
 function exportUnifiedBackup(){
-  const localKeys=['pp_settings','pp_templates','pp_clients','pp_msgs','pp_accounts','pp_cdk_codes','pp_accounts_tpl','pp_acc_view_mode_v1','pp_acc_service_tpl_map_v1','pp_acc_product_tpl_v1'];
+  const localKeys=['pp_settings','pp_templates','pp_clients','pp_msgs','pp_accounts','pp_cuenta_codes','pp_accounts_tpl','pp_acc_view_mode_v1','pp_acc_service_tpl_map_v1','pp_acc_product_tpl_v1'];
   const local={};
   localKeys.forEach(k=>{
     const raw=localStorage.getItem(k);
@@ -3638,10 +3831,10 @@ function renderTotp(){
     $('totpGrid').innerHTML=data.map(a=>`<div class="totp-card">
       <div class="totp-head"><div><div class="totp-name">🔑 ${esc(a.label)}</div><div class="totp-sub">${esc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div>${totpStatusBadge(a.active!==false?'active':'inactive')}</div>
       <div class="totp-secret">${esc(totpMaskSecret(a.totp_secret))}</div>
-      <div class="totp-kv"><span class="k">Códigos vinculados</span><span class="v">${codes.filter(c=>c.account_id===a.id).length}</span></div>
+      <div class="totp-kv"><span class="k">Cuentas vinculados</span><span class="v">${codes.filter(c=>c.account_id===a.id).length}</span></div>
       <div class="totp-kv"><span class="k">Creada</span><span class="v">${totpDate(a.created_at)}</span></div>
       ${a.notes?`<div class="help" style="white-space:pre-wrap;margin-top:8px">${esc(a.notes)}</div>`:''}
-      <div class="totp-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">✏️ Editar</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Desactivar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">🗑 Eliminar</button></div>
+      <div class="totp-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">✏️ Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">⚡ Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Desactivar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">🗑 Eliminar</button></div>
     </div>`).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';
     return;
   }
@@ -3665,7 +3858,7 @@ function renderTotp(){
     ${c.customer_name||c.customer_phone?`<div class="totp-sub">Cliente: ${esc(c.customer_name||'—')} · ${esc(c.customer_phone||'—')}</div>`:''}
     ${c.notes?`<div class="help" style="white-space:pre-wrap;margin-top:8px">${esc(c.notes)}</div>`:''}
     <div class="totp-actions"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">✏️ Editar</button><button class="btn" onclick="copyTextSafe('${esc(c.access_code)}')">📋 Copiar</button><button class="btn btn-warning" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">🗑 Eliminar</button></div>
-  </div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso. Crea uno desde “＋ Código acceso”.</p></div>';
+  </div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay cuentas de acceso. Crea uno desde “＋ Código acceso”.</p></div>';
 }
 function openTotpAccountDialog(id=''){
   const a=state.totpAccounts.find(x=>x.id===id);
@@ -3683,7 +3876,7 @@ async function saveTotpAccount(e){
   closeDialog('dlgTotpAccount');toast('Cuenta TOTP guardada','ok');await loadAll();switchTab('totp');
 }
 async function deleteTotpAccount(id=$('totpAccId').value){
-  if(!id)return;if(!confirm('¿Eliminar esta cuenta TOTP? Sus códigos vinculados también podrían quedar afectados.'))return;
+  if(!id)return;if(!confirm('¿Eliminar esta cuenta TOTP? Sus cuentas vinculados también podrían quedar afectados.'))return;
   const r=await db.from('totp_accounts').delete().eq('id',id);if(r.error)return toast(r.error.message,'bad');
   closeDialog('dlgTotpAccount');toast('Cuenta eliminada','ok');await loadAll();switchTab('totp');
 }
@@ -3726,11 +3919,123 @@ async function deleteTotpCode(id=$('totpCodeId').value){
   const r=await db.from('totp_access_codes').delete().eq('id',id);if(r.error)return toast(r.error.message,'bad');
   closeDialog('dlgTotpCode');toast('Código eliminado','ok');await loadAll();switchTab('totp');
 }
+
+function fillTotpBulkSelect(selected=''){
+  const el=$('totpBulkAccount');if(!el)return;
+  const current=selected||el.value||state.totpAccounts[0]?.id||'';
+  el.innerHTML=state.totpAccounts.filter(a=>a.active!==false).map(a=>`<option value="${a.id}" ${a.id===current?'selected':''}>${esc(a.label)}${a.issuer?' · '+esc(a.issuer):''}</option>`).join('')||'<option value="">Primero agrega una cuenta TOTP</option>';
+  if(current)el.value=current;
+}
+function previewTotpBulkCodes(){
+  const qty=Math.max(1,Math.min(200,Number($('totpBulkQty')?.value||10)));
+  const prefix=String($('totpBulkPrefix')?.value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+  const existing=new Set(state.totpCodes.map(c=>String(c.access_code||'').toUpperCase()));
+  const codes=[];
+  while(codes.length<qty){
+    const c=(prefix?prefix+'-':'')+makeTotpAccessCode();
+    if(!existing.has(c)){existing.add(c);codes.push(c)}
+  }
+  state.totpBulkDraft=codes;
+  if($('totpBulkPreview'))$('totpBulkPreview').innerHTML=codes.map((c,i)=>`<div class="totp-bulk-code"><span class="mono">${esc(c)}</span><span class="help">#${i+1}</span></div>`).join('');
+  return codes;
+}
+function openTotpBulkCodeDialog(accountId=''){
+  fillTotpBulkSelect(accountId);
+  if($('totpBulkQty'))$('totpBulkQty').value=10;
+  if($('totpBulkMaxUses'))$('totpBulkMaxUses').value=2;
+  if($('totpBulkValidDays'))$('totpBulkValidDays').value=30;
+  if($('totpBulkPrefix'))$('totpBulkPrefix').value='';
+  if($('totpBulkCustomer'))$('totpBulkCustomer').value='';
+  if($('totpBulkPhone'))$('totpBulkPhone').value='';
+  if($('totpBulkNotes'))$('totpBulkNotes').value='';
+  state.totpBulkDraft=[];
+  if($('totpBulkPreview'))$('totpBulkPreview').innerHTML='<div class="help">Presiona “Previsualizar” para ver los códigos.</div>';
+  showDialog('dlgTotpBulkCodes');
+}
+async function saveTotpBulkCodes(){
+  const accountId=$('totpBulkAccount')?.value||'';
+  if(!accountId)return toast('Selecciona una cuenta TOTP','bad');
+  const codes=(state.totpBulkDraft&&state.totpBulkDraft.length)?state.totpBulkDraft:previewTotpBulkCodes();
+  const payload=codes.map(code=>({
+    account_id:accountId,
+    access_code:code,
+    customer_name:$('totpBulkCustomer')?.value.trim()||null,
+    customer_phone:$('totpBulkPhone')?.value.trim()||null,
+    max_uses:Number($('totpBulkMaxUses')?.value||2),
+    valid_days:Number($('totpBulkValidDays')?.value||30),
+    active:true,
+    notes:$('totpBulkNotes')?.value.trim()||null,
+    updated_at:new Date().toISOString()
+  }));
+  const r=await db.from('totp_access_codes').insert(payload);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgTotpBulkCodes');toast(codes.length+' códigos creados','ok');await loadAll();switchTab('totp');
+}
 function exportTotpBackup(){
   const data={app:'Innov IA TOTP',exported_at:new Date().toISOString(),totp_accounts:state.totpAccounts,totp_access_codes:state.totpCodes,totp_access_events:state.totpEvents};
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='backup-innov-ia-totp-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);toast('Backup TOTP descargado','ok');
 }
 
+
+/* ---- Web notifications + sound ---- */
+state.notifEnabled=localStorage.getItem('innov_admin_notifications')==='1';
+state.seenOrderIds=new Set();
+state.seenChatIds=new Set();
+let notifAudioCtx=null;
+function updateNotifButton(){
+  const b=$('btnEnableNotifications');if(!b)return;
+  b.textContent=state.notifEnabled?'🔔':'🔕';
+  b.classList.toggle('notif-enabled',!!state.notifEnabled);
+  b.title=state.notifEnabled?'Notificaciones activas':'Activar notificaciones con sonido';
+}
+function playNotifySound(){
+  try{
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx)return;
+    notifAudioCtx=notifAudioCtx||new Ctx();
+    const ctx=notifAudioCtx;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type='sine';osc.frequency.value=880;
+    gain.gain.setValueAtTime(0.0001,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.18,ctx.currentTime+0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.28);
+    osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+0.3);
+  }catch(e){console.warn('sound',e)}
+}
+function notifyWeb(title,body='',forceSound=false){
+  if(forceSound||state.notifEnabled)playNotifySound();
+  const b=$('btnEnableNotifications');if(b){b.classList.add('notif-pulse');setTimeout(()=>b.classList.remove('notif-pulse'),900)}
+  if(!state.notifEnabled)return;
+  try{
+    if('Notification' in window && Notification.permission==='granted')new Notification(title,{body,tag:'innov-admin'});
+  }catch(e){console.warn('notification',e)}
+}
+async function enableWebNotifications(){
+  try{
+    if('Notification' in window && Notification.permission!=='granted'){
+      const perm=await Notification.requestPermission();
+      if(perm!=='granted')return toast('Permiso de notificación no aceptado','bad');
+    }
+    state.notifEnabled=true;
+    localStorage.setItem('innov_admin_notifications','1');
+    updateNotifButton();
+    notifyWeb('Notificaciones activas','El admin avisará con sonido cuando llegue algo nuevo.',true);
+    toast('Notificaciones con sonido activadas','ok');
+  }catch(e){toast('No se pudo activar notificaciones: '+e.message,'bad')}
+}
+function seedNotificationMemory(){
+  state.seenOrderIds=new Set((state.orders||[]).map(o=>o.id));
+  state.seenChatIds=new Set((state.orderChats||[]).map(c=>c.id));
+}
+function detectNewActivity(prevOrders=[],prevChats=[]){
+  if(!state.seenOrderIds||!state.seenChatIds)return seedNotificationMemory();
+  const newOrders=(state.orders||[]).filter(o=>!state.seenOrderIds.has(o.id));
+  const newChats=(state.orderChats||[]).filter(c=>!state.seenChatIds.has(c.id));
+  newOrders.forEach(o=>notifyWeb('Nuevo pedido recibido',`${o.order_code||'Pedido'} · ${o.customer_name||'Cliente'} · ${money(o.total_amount)}`));
+  newChats.forEach(c=>notifyWeb('Nuevo mensaje en checkout',String(c.message||'Mensaje nuevo').slice(0,120)));
+  seedNotificationMemory();
+}
 /* ---- Auto refresh ---- */
 let adminAutoRefreshBusy=false;
 async function adminAutoRefresh(){
@@ -3738,7 +4043,9 @@ async function adminAutoRefresh(){
   if(adminAutoRefreshBusy)return;
   adminAutoRefreshBusy=true;
   try{
+    const prevOrders=state.orders||[], prevChats=state.orderChats||[];
     await loadOrders();renderKPIs();
+    detectNewActivity(prevOrders,prevChats);
     if(state.tab==='orders')renderOrders();
     if($('dlgOrderChat')?.open&&$('chatOrderId').value)renderOrderChatThread($('chatOrderId').value);
   }catch(e){console.warn('Auto refresh',e);}
@@ -3836,6 +4143,8 @@ if($('opsStockForm'))$('opsStockForm').onsubmit=saveOpsStock;
 if($('btnOpsDeleteStock'))$('btnOpsDeleteStock').onclick=deleteOpsStock;
 if($('btnOpsCopyDeliver'))$('btnOpsCopyDeliver').onclick=()=>copyTextSafe($('opsDeliverText').value);
 if($('btnOpsSaveDeliver'))$('btnOpsSaveDeliver').onclick=saveOpsDeliver;
+if($('btnOpsSaveReserve'))$('btnOpsSaveReserve').onclick=saveOpsReserve;
+if($('btnOpsCompactHelp'))$('btnOpsCompactHelp').onclick=()=>toast('Vista compacta activa: las cuentas se agrupan por producto/plan y se modifican desde ventanas.', 'info');
 if($('btnOpsPreviewBulk'))$('btnOpsPreviewBulk').onclick=parseOpsBulk;
 if($('btnOpsSaveBulk'))$('btnOpsSaveBulk').onclick=saveOpsBulk;
 if($('opsBulkText'))$('opsBulkText').oninput=parseOpsBulk;
@@ -3846,6 +4155,7 @@ if($('opsBulkPlan'))$('opsBulkPlan').onchange=parseOpsBulk;
 /* ---- TOTP bindings ---- */
 if($('btnTotpNewAccount'))$('btnTotpNewAccount').onclick=()=>openTotpAccountDialog();
 if($('btnTotpNewCode'))$('btnTotpNewCode').onclick=()=>openTotpCodeDialog();
+if($('btnTotpBulkCodes'))$('btnTotpBulkCodes').onclick=()=>openTotpBulkCodeDialog();
 if($('btnTotpRefresh'))$('btnTotpRefresh').onclick=loadAll;
 if($('btnTotpExport'))$('btnTotpExport').onclick=exportTotpBackup;
 if($('totpSearch'))$('totpSearch').oninput=renderTotp;
@@ -3855,6 +4165,10 @@ if($('totpAccountForm'))$('totpAccountForm').onsubmit=saveTotpAccount;
 if($('btnTotpDeleteAccount'))$('btnTotpDeleteAccount').onclick=()=>deleteTotpAccount();
 if($('totpCodeForm'))$('totpCodeForm').onsubmit=saveTotpCode;
 if($('btnTotpGenerateCode'))$('btnTotpGenerateCode').onclick=()=>{$('totpAccessCode').value=makeTotpAccessCode()};
+if($('btnTotpPreviewBulk'))$('btnTotpPreviewBulk').onclick=previewTotpBulkCodes;
+if($('btnTotpSaveBulk'))$('btnTotpSaveBulk').onclick=saveTotpBulkCodes;
+['totpBulkQty','totpBulkPrefix'].forEach(id=>$(id)?.addEventListener('input',()=>{state.totpBulkDraft=[];}));
+if($('totpBulkAccount'))$('totpBulkAccount').onchange=()=>{state.totpBulkDraft=[];};
 if($('btnTotpResetCode'))$('btnTotpResetCode').onclick=()=>resetTotpCode();
 if($('btnTotpDeleteCode'))$('btnTotpDeleteCode').onclick=()=>deleteTotpCode();
 
@@ -3864,3 +4178,4 @@ setInterval(adminAutoRefresh,2000);
 </script>
 </body>
 </html>
+
