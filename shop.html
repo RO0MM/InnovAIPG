@@ -562,6 +562,18 @@
       .product-action .btn-detail{ padding:0 .65rem; }
     }
 
+
+    /* FIX móvil: botones táctiles siempre visibles y grandes */
+    .product-action{ touch-action:manipulation; }
+    .btn-mobile-buy{ display:none; width:100%; margin-top:.55rem; border-radius:12px; font-weight:900; padding:.5rem .55rem; }
+    @media (max-width:575.98px){
+      .product-action{ position:static; margin-top:6px; padding:0 6px 8px; opacity:1!important; transform:none!important; pointer-events:auto!important; }
+      .product-action .btn-square{ width:42px!important; height:42px!important; min-width:42px; min-height:42px; }
+      .product-action .btn-buy{ display:none!important; }
+      .btn-mobile-buy{ display:inline-flex; align-items:center; justify-content:center; }
+      .product-img{ padding-bottom:0!important; }
+    }
+
     /* Modal más cómodo en móvil */
     @media (max-width: 575.98px){
       #productModal .modal-dialog{
@@ -3088,6 +3100,7 @@
               </div>
               ${period}
               <div class="cat-chip"><i class="${catIconClass(it.cat)} mr-1"></i>${catLabel(it.cat)}</div>
+              <button class="btn btn-primary btn-mobile-buy" ${(!disponible)?'disabled':''}><i class="fas fa-bolt mr-1"></i>${esc(buyTitle)}</button>
               ${miniBadgesHTML(it)}
             </div>
           </div>
@@ -3158,6 +3171,7 @@
         const addBtn = card.querySelector('.btn-add');
         const buyBtn = card.querySelector('.btn-buy');
         const detBtn = card.querySelector('.btn-detail');
+        const mobileBuyBtn = card.querySelector('.btn-mobile-buy');
         const titleA = card.querySelector('.js-title');
 
         // fallback imagen
@@ -3211,9 +3225,10 @@
           }
         }
 
-        if(addBtn){ addBtn.addEventListener('click', e=>{ e.preventDefault(); addOrConsult('add'); }); }
-        if(buyBtn){ buyBtn.addEventListener('click', e=>{ e.preventDefault(); addOrConsult('buy'); }); }
-        if(detBtn){ detBtn.addEventListener('click', e=>{ e.preventDefault(); openDetail(id); }); }
+        if(addBtn){ addBtn.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); addOrConsult('add'); }, {passive:false}); }
+        if(buyBtn){ buyBtn.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); addOrConsult('buy'); }); }
+        if(mobileBuyBtn){ mobileBuyBtn.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); addOrConsult('buy'); }, {passive:false}); }
+        if(detBtn){ detBtn.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); openDetail(id); }, {passive:false}); }
         if(titleA){ titleA.addEventListener('click', e=>{ e.preventDefault(); openDetail(id); }); }
       });
     }
@@ -3782,3 +3797,4 @@
   </script>
 </body>
 </html>
+
