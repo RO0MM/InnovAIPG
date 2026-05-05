@@ -247,6 +247,17 @@
     function money(n){ return 'S/ ' + Number(n || 0).toFixed(2); }
     function esc(s){ return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
     function toast(msg){ const el=$('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2600); }
+    async function notifyTelegram(event, extra={}){
+      try{
+        const orderCode = extra.order_code || currentOrder?.order_code || $('lookupOrderCode')?.value || '';
+        if(!orderCode) return;
+        await fetch(`${SUPABASE_URL}/functions/v1/send-telegram-alert`, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY },
+          body: JSON.stringify({ event, order_code:orderCode, ...extra })
+        });
+      }catch(e){ console.warn('Telegram alerta no enviada:', e); }
+    }
     function setStep(n){ document.querySelectorAll('[data-step]').forEach(x => x.classList.toggle('active', Number(x.dataset.step) === Number(n))); }
     function subtotal(){ return cart.reduce((a,b)=>a + Number(b.precio || 0) * Number(b.qty || 1), 0); }
     function cartSignature(){ return JSON.stringify(cartDbItems().map(x=>({p:x.plan_id,q:x.qty})).sort((a,b)=>String(a.p).localeCompare(String(b.p)))); }
@@ -511,6 +522,7 @@
       if(r.error){toast(r.error.message);return}
       currentOrder._activationSent=true; persistOrder();
       $('activationResult').innerHTML='<div class="alert-ok">✅ Correo enviado al administrador.</div>';
+      await notifyTelegram('activation_data', { message: payload.summary });
       await checkStatus({target:'statusBox',silent:true});
     }
 
@@ -777,6 +789,7 @@ async function sendPaymentReview(){
       setStep(4);
       $('statusBox').innerHTML = '<div class="alert-wait">Pago enviado a revisión. Verificando entrega cada 2 segundos...</div>';
       startPolling();
+      await notifyTelegram('payment_review', { operation_code: operation, message: $('customerNote').value.trim() });
       await checkStatus({ target:'statusBox', silent:true });
       toast('Pago enviado a revisión.');
     }
@@ -870,6 +883,7 @@ async function sendPaymentReview(){
       }catch(e){}
       $('lookupOrderCode').value = orderCode;
       $('lookupPhone').value = phone;
+      await notifyTelegram('support_request', { order_code:orderCode, message:reason });
       chatMinimized = false;
       closeSupportModal();
       $('formView')?.classList.add('hidden');
@@ -918,5 +932,7 @@ async function sendPaymentReview(){
   </script>
 </body>
 </html>
+
+
 
 
