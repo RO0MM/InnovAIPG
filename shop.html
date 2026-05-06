@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 
 
 <title>Innov AI Tienda — Tienda</title>
@@ -768,7 +769,194 @@
       .catalog-status{ display:none !important; }
     }
 
-  </style>
+
+
+    /* ==========================================================
+       VIDEO LIMPIO PARA PRODUCTOS — Innov IA
+       - Logo visible por defecto
+       - Video aparece solo cuando carga/reproduce
+       - Sin controles visibles
+       - Botón de sonido, por defecto silenciado
+       ========================================================== */
+    .product-img,
+    .product-media,
+    .modal-product-media{
+      position:relative;
+      background:#05070b;
+      isolation:isolate;
+    }
+    .product-img .product-logo-img,
+    .modal-product-media .product-logo-img{
+      position:relative;
+      z-index:1;
+      transition:opacity .35s ease, transform .35s ease;
+    }
+    .product-video-shell{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      opacity:0;
+      overflow:hidden;
+      background:#000;
+      pointer-events:none;
+      transition:opacity .45s ease;
+    }
+    .product-video-shell.media-ready{
+      opacity:1;
+    }
+    .product-video-shell iframe,
+    .product-video-shell video{
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:178%;
+      height:100%;
+      min-width:100%;
+      min-height:178%;
+      transform:translate(-50%,-50%) scale(1.08);
+      border:0;
+      background:#000;
+      object-fit:cover;
+      pointer-events:none;
+    }
+    .product-video-shell.fit-contain iframe,
+    .product-video-shell.fit-contain video{
+      width:100%;
+      height:100%;
+      min-width:100%;
+      min-height:100%;
+      transform:translate(-50%,-50%) scale(1);
+      object-fit:contain;
+    }
+    .product-video-shade{
+      position:absolute;
+      inset:0;
+      z-index:3;
+      pointer-events:none;
+      background:
+        linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.24)),
+        radial-gradient(circle at center,transparent 45%,rgba(0,0,0,.22) 100%);
+      opacity:.75;
+    }
+    .video-audio-btn{
+      position:absolute;
+      right:10px;
+      bottom:10px;
+      z-index:7;
+      width:36px;
+      height:36px;
+      border-radius:999px;
+      border:2px solid rgba(255,255,255,.42);
+      background:rgba(0,0,0,.58);
+      color:#fff;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      cursor:pointer;
+      box-shadow:3px 3px 0 rgba(0,0,0,.18);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      opacity:.95;
+      transition:transform .16s ease, background .16s ease;
+    }
+    .video-audio-btn:hover{ transform:translateY(-1px) scale(1.03); background:rgba(0,0,0,.72); }
+    .video-audio-btn[hidden]{ display:none!important; }
+    .video-status-mini{
+      position:absolute;
+      left:10px;
+      bottom:10px;
+      z-index:7;
+      max-width:calc(100% - 58px);
+      padding:6px 9px;
+      border-radius:999px;
+      background:rgba(0,0,0,.56);
+      color:rgba(255,255,255,.86);
+      font-size:10px;
+      line-height:1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      opacity:0;
+      transform:translateY(5px);
+      transition:.2s ease;
+      pointer-events:none;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .video-status-mini.show{ opacity:1; transform:translateY(0); }
+    .product-img.has-video .status-pill,
+    .product-img.has-video .status-corner-icon,
+    .product-img.has-video .product-action{
+      z-index:8;
+    }
+    .product-img.has-video .status-corner-icon{ top:10px; right:10px; }
+    .product-img.has-video .status-pill{ z-index:9; }
+    .product-video-dot{
+      position:absolute;
+      left:10px;
+      top:46px;
+      z-index:9;
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(0,0,0,.50);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.18);
+      font-size:10px;
+      font-weight:900;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .product-video-dot::before{
+      content:"";
+      width:6px;height:6px;border-radius:50%;background:#10b981;
+      box-shadow:0 0 0 4px rgba(16,185,129,.18);
+    }
+    .modal-product-media{
+      width:100%;
+      aspect-ratio:1/1;
+      border-radius:16px;
+      overflow:hidden;
+      margin-bottom:1rem;
+      box-shadow:6px 6px 0 rgba(0,0,0,.08);
+      border:2px solid rgba(0,0,0,.08);
+    }
+    .modal-product-media #modalImg{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      padding:10px;
+      background:linear-gradient(180deg,#fff,#f4f7fb);
+    }
+    .modal-product-media .product-video-shell iframe,
+    .modal-product-media .product-video-shell video{
+      width:178%;
+      height:100%;
+      min-width:100%;
+      min-height:178%;
+      transform:translate(-50%,-50%) scale(1.12);
+    }
+    @media (max-width:575.98px){
+      .video-audio-btn{ width:34px; height:34px; font-size:15px; right:8px; bottom:8px; }
+      .product-video-dot{ display:none; }
+      .modal-product-media{ aspect-ratio:16/9; }
+    }
+
+  
+
+/* ================================================================
+   FIX móvil v10.1 — cards centradas, imágenes estables y botones alineados
+   ================================================================ */
+.product-item{height:calc(100% - 1.5rem);display:flex;flex-direction:column;min-width:0}.product-item .text-center.py-4{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}.product-img{isolation:isolate}.product-img .product-logo-img{display:block;margin:auto;object-fit:contain;object-position:center;max-width:100%;max-height:190px}.product-action{align-items:center}.btn-mobile-buy{box-shadow:3px 3px 0 rgba(0,0,0,.18)}
+@media(max-width:575.98px){
+  #productGrid{margin-left:-5px;margin-right:-5px}.container-fluid .row.px-xl-5>[class*="col-"]{padding-left:5px;padding-right:5px}.product-item{border-radius:13px;height:calc(100% - .75rem);margin-bottom:.75rem!important;overflow:hidden}.product-img{height:150px;min-height:150px!important;max-height:150px;padding:8px!important;display:flex!important;align-items:center!important;justify-content:center!important;position:relative;background:linear-gradient(180deg,#fff,#f6f8fb)}.product-img .product-logo-img{position:absolute;inset:12px;width:calc(100% - 24px)!important;height:calc(100% - 24px)!important;max-height:none!important;max-width:none!important;object-fit:contain!important;object-position:center!important}.product-img.has-video .product-logo-img{opacity:1}.product-action{position:absolute!important;left:8px!important;right:8px!important;bottom:8px!important;margin:0!important;padding:0!important;display:grid!important;grid-template-columns:repeat(3,42px)!important;justify-content:center!important;align-items:center!important;gap:7px!important;z-index:12!important}.product-action .btn-square{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important}.product-action .btn-detail{width:42px!important;padding:0!important}.product-action .btn-detail span{display:none!important}.product-item .text-center.py-4{padding:.56rem .42rem .7rem!important;min-height:152px}.product-item a.h6{font-size:.84rem!important;line-height:1.13!important;min-height:2.25em!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:center;width:100%;text-overflow:clip!important}.product-item h5{font-size:1rem;margin-bottom:.1rem}.cat-chip{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.btn-mobile-buy{display:flex!important;align-items:center!important;justify-content:center!important;width:calc(100% - 12px)!important;max-width:168px!important;margin:.48rem auto 0!important;min-height:38px!important;padding:.42rem .45rem!important;font-size:.78rem!important;line-height:1.1!important;border-radius:11px!important;white-space:normal!important;text-align:center}.status-pill{top:8px!important;left:8px!important;font-size:9px!important;max-width:calc(100% - 48px)}.status-corner-icon{top:8px!important;right:8px!important}.product-video-dot{top:38px!important;left:8px!important;font-size:9px!important}.video-audio-btn{right:8px!important;bottom:56px!important}.video-status-mini{display:none!important}
+}
+@media(max-width:380px){.product-img{height:136px;min-height:136px!important}.product-action{grid-template-columns:repeat(3,38px)!important}.product-action .btn-square{width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important}.btn-mobile-buy{font-size:.74rem!important}.product-item .text-center.py-4{min-height:148px}}
+
+</style>
 </head>
 
 <body>
@@ -1180,7 +1368,13 @@
         <div class="modal-body">
           <div class="row">
             <div class="col-md-5">
-              <img id="modalImg" src="img/placeholder.jpg" alt="" class="img-fluid rounded mb-3">
+              <div class="modal-product-media">
+                <img id="modalImg" src="img/placeholder.jpg" alt="" class="img-fluid rounded product-logo-img">
+                <div id="modalVideo" class="product-video-shell js-product-video"></div>
+                <div class="product-video-shade"></div>
+                <button id="modalSoundBtn" class="video-audio-btn js-video-sound" type="button" aria-label="Activar sonido" hidden>🔇</button>
+                <span id="modalVideoStatus" class="video-status-mini js-video-status">Video silenciado</span>
+              </div>
               <div class="d-flex align-items-center justify-content-between">
                 <div class="meta-chip"><i class="fa fa-tag"></i> <span id="modalPrice">S/ --</span></div>
                 <div class="meta-chip"><i class="fa fa-signal"></i> <span id="modalStatus">Disponible</span></div>
@@ -1437,6 +1631,242 @@
     function resolveThumbFallback(it){
       const d = domainFromUrl(it.url);
       return fallbackThumbFromDomain(d);
+    }
+
+
+    /* ================== Video limpio por producto ================== */
+    const AUTO_USE_SUGGESTED_VIDEOS = true;
+    const VIDEO_SUGGESTIONS = [
+      { keys:['chatgpt','openai'], url:'https://www.youtube.com/watch?v=blGtYq9mL18' },
+      { keys:['canva','canvas'], url:'https://www.youtube.com/watch?v=v8iIjk-I5lU' },
+      { keys:['capcut'], url:'https://www.youtube.com/watch?v=ZP6cbUheeHk' },
+      { keys:['gemini','google one'], url:'https://www.youtube.com/watch?v=_fuimO6ErKI' },
+      { keys:['perplexity'], url:'https://www.youtube.com/watch?v=YVKZDsLH3vs' },
+      { keys:['grok','supergrok'], url:'https://www.youtube.com/watch?v=uchnAAlJq4U' },
+      { keys:['kling'], url:'https://www.youtube.com/watch?v=k-u6lU1epD4' },
+      { keys:['netflix'], url:'https://www.youtube.com/watch?v=03u4xyj0TH4' },
+      { keys:['disney'], url:'https://www.youtube.com/watch?v=P7zW53OuvMg' },
+      { keys:['prime video','amazon prime'], url:'https://www.youtube.com/watch?v=8rMfMzNAJaM' },
+      { keys:['crunchyroll'], url:'https://www.youtube.com/watch?v=7Wc6ugY3meg' },
+      { keys:['surfshark','vpn'], url:'https://www.youtube.com/watch?v=KxnKq-lNMBo' }
+    ];
+
+    function getSuggestedVideoUrl(it){
+      if(!AUTO_USE_SUGGESTED_VIDEOS || !it) return '';
+      const hay = normalizeKey([it.name,it.baseName,it.planName,it.slug,it.cat].filter(Boolean).join(' '));
+      const found = VIDEO_SUGGESTIONS.find(v => v.keys.some(k => hay.includes(normalizeKey(k))));
+      return found ? found.url : '';
+    }
+    function resolveVideoUrl(it){
+      if(!it) return '';
+      if(it.videoEnabled === false || it.video_enabled === false) return '';
+      const raw = it.videoUrl || it.video_url || it.video || it.product_video_url || it.plan_video_url || '';
+      return normalizeUrl(raw || getSuggestedVideoUrl(it));
+    }
+    function extractYouTubeId(url){
+      const u = String(url||'').trim();
+      if(!u) return '';
+      try{
+        const x = new URL(normalizeUrl(u));
+        const host = x.hostname.replace(/^www\./,'').replace(/^m\./,'');
+        if(host === 'youtu.be') return x.pathname.split('/').filter(Boolean)[0] || '';
+        if(host.includes('youtube.com')){
+          if(x.pathname.startsWith('/shorts/')) return x.pathname.split('/').filter(Boolean)[1] || '';
+          if(x.pathname.startsWith('/embed/')) return x.pathname.split('/').filter(Boolean)[1] || '';
+          return x.searchParams.get('v') || '';
+        }
+      }catch(e){}
+      const m = u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/);
+      return m ? m[1] : '';
+    }
+    function extractVimeoId(url){
+      const m = String(url||'').match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+      return m ? m[1] : '';
+    }
+    function detectVideoSource(url){
+      const clean = normalizeUrl(url);
+      if(!clean) return {type:'none'};
+      const yt = extractYouTubeId(clean);
+      if(yt) return {type:'youtube', id:yt, url:clean};
+      const vm = extractVimeoId(clean);
+      if(vm) return {type:'vimeo', id:vm, url:clean};
+      if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(clean)) return {type:'file', url:clean};
+      return {type:'unsupported', url:clean};
+    }
+
+    let ytApiPromise = null;
+    function ensureYoutubeApi(){
+      if(window.YT && window.YT.Player) return Promise.resolve(window.YT);
+      if(ytApiPromise) return ytApiPromise;
+      ytApiPromise = new Promise((resolve,reject)=>{
+        const prev = window.onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = function(){
+          try{ if(typeof prev === 'function') prev(); }catch(e){}
+          resolve(window.YT);
+        };
+        const s = document.createElement('script');
+        s.src = 'https://www.youtube.com/iframe_api';
+        s.async = true;
+        s.onerror = () => reject(new Error('No cargó YouTube API'));
+        document.head.appendChild(s);
+        setTimeout(()=>{ if(!(window.YT && window.YT.Player)) reject(new Error('Tiempo agotado cargando video')); }, 9000);
+      });
+      return ytApiPromise;
+    }
+    function markVideoStatus(statusEl, text, show=true){
+      if(!statusEl) return;
+      statusEl.textContent = text || '';
+      statusEl.classList.toggle('show', !!show && !!text);
+      if(show && text){
+        clearTimeout(statusEl._hideTimer);
+        statusEl._hideTimer = setTimeout(()=>statusEl.classList.remove('show'), 3200);
+      }
+    }
+    function revealSmartVideo(shell){
+      if(!shell) return;
+      shell.classList.add('media-ready');
+      const wrap = shell.closest('.product-img,.modal-product-media');
+      if(wrap) wrap.classList.add('video-ready');
+    }
+    function fallbackSmartVideo(shell, statusEl){
+      if(!shell) return;
+      shell.classList.remove('media-ready');
+      shell.dataset.failed = '1';
+      markVideoStatus(statusEl, 'Video no disponible', true);
+    }
+    function stopSmartVideoShell(shell){
+      if(!shell) return;
+      try{ if(shell._player && shell._player.stopVideo) shell._player.stopVideo(); }catch(e){}
+      try{ if(shell._videoEl) shell._videoEl.pause(); }catch(e){}
+    }
+    function startSmartVideoShell(shell, soundBtn, statusEl){
+      if(!shell || shell.dataset.started === '1' || shell.dataset.failed === '1') return;
+      const media = detectVideoSource(shell.dataset.videoUrl || '');
+      if(media.type === 'none' || media.type === 'unsupported') return fallbackSmartVideo(shell, statusEl);
+      shell.dataset.started = '1';
+      shell.dataset.muted = '1';
+      if((shell.dataset.videoFit || 'cover') === 'contain') shell.classList.add('fit-contain');
+      if(soundBtn) soundBtn.hidden = false;
+      markVideoStatus(statusEl, 'Video silenciado', true);
+
+      if(media.type === 'file'){
+        const v = document.createElement('video');
+        v.autoplay = true; v.muted = true; v.loop = true; v.playsInline = true; v.controls = false; v.preload = 'metadata';
+        v.src = media.url;
+        v.addEventListener('canplay', ()=>{ revealSmartVideo(shell); v.play().catch(()=>{}); }, {once:true});
+        v.addEventListener('error', ()=>fallbackSmartVideo(shell, statusEl), {once:true});
+        shell.appendChild(v);
+        shell._videoEl = v;
+        return;
+      }
+
+      if(media.type === 'vimeo'){
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://player.vimeo.com/video/${media.id}?background=1&autoplay=1&muted=1&loop=1&controls=0&title=0&byline=0&portrait=0&playsinline=1`;
+        iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+        iframe.setAttribute('loading','lazy');
+        iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+        iframe.onload = () => setTimeout(()=>revealSmartVideo(shell), 600);
+        shell.appendChild(iframe);
+        shell._iframe = iframe;
+        if(soundBtn) soundBtn.hidden = true; // Vimeo background no siempre permite control simple de sonido sin API.
+        return;
+      }
+
+      ensureYoutubeApi().then(()=>{
+        const holder = document.createElement('div');
+        holder.id = 'ytp_' + Math.random().toString(36).slice(2);
+        shell.appendChild(holder);
+        const origin = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : undefined;
+        const player = new YT.Player(holder.id, {
+          videoId: media.id,
+          host: 'https://www.youtube-nocookie.com',
+          playerVars: {
+            autoplay: 1, mute: 1, controls: 0, rel: 0, loop: 1, playlist: media.id,
+            playsinline: 1, fs: 0, disablekb: 1, iv_load_policy: 3, cc_load_policy: 0,
+            modestbranding: 1, origin
+          },
+          events: {
+            onReady: function(e){
+              try{ e.target.mute(); e.target.setVolume(0); e.target.playVideo(); }catch(err){}
+            },
+            onStateChange: function(e){
+              if(e.data === YT.PlayerState.PLAYING){ revealSmartVideo(shell); markVideoStatus(statusEl, '', false); }
+            },
+            onError: function(){ fallbackSmartVideo(shell, statusEl); }
+          }
+        });
+        shell._player = player;
+        setTimeout(()=>{ if(!shell.classList.contains('media-ready')) fallbackSmartVideo(shell, statusEl); }, 9000);
+      }).catch(()=>fallbackSmartVideo(shell, statusEl));
+    }
+    const productVideoObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          const shell = entry.target;
+          productVideoObserver.unobserve(shell);
+          startSmartVideoShell(shell, shell._soundBtn, shell._statusEl);
+        }
+      });
+    }, {rootMargin:'180px 0px', threshold:.18}) : null;
+
+    function initSmartVideoShell(shell, soundBtn, statusEl){
+      if(!shell || shell.dataset.bound === '1') return;
+      shell.dataset.bound = '1';
+      shell._soundBtn = soundBtn || null;
+      shell._statusEl = statusEl || null;
+      if(soundBtn){
+        soundBtn.hidden = false;
+        soundBtn.textContent = '🔇';
+        soundBtn.addEventListener('click', e=>{
+          e.preventDefault(); e.stopPropagation();
+          toggleSmartVideoSound(shell, soundBtn, statusEl);
+        });
+      }
+      if(productVideoObserver) productVideoObserver.observe(shell);
+      else setTimeout(()=>startSmartVideoShell(shell, soundBtn, statusEl), 150);
+    }
+    function toggleSmartVideoSound(shell, btn, statusEl){
+      if(!shell) return;
+      const turnOn = shell.dataset.muted !== '0';
+      try{
+        if(shell._videoEl){ shell._videoEl.muted = !turnOn; shell._videoEl.volume = turnOn ? .7 : 0; if(turnOn) shell._videoEl.play().catch(()=>{}); }
+        if(shell._player){ turnOn ? shell._player.unMute() : shell._player.mute(); shell._player.setVolume(turnOn ? 70 : 0); }
+        shell.dataset.muted = turnOn ? '0' : '1';
+        if(btn) btn.textContent = turnOn ? '🔊' : '🔇';
+        markVideoStatus(statusEl, turnOn ? 'Sonido activado' : 'Video silenciado', true);
+      }catch(e){
+        markVideoStatus(statusEl, 'Toca otra vez para activar sonido', true);
+      }
+    }
+    function initProductVideos(scope){
+      const root = scope || document;
+      root.querySelectorAll('.js-product-video').forEach(shell=>{
+        const wrap = shell.closest('.product-img,.modal-product-media');
+        const btn = wrap ? wrap.querySelector('.js-video-sound') : null;
+        const statusEl = wrap ? wrap.querySelector('.js-video-status') : null;
+        initSmartVideoShell(shell, btn, statusEl);
+      });
+    }
+    function setupModalVideo(item){
+      const shell = document.getElementById('modalVideo');
+      const btn = document.getElementById('modalSoundBtn');
+      const statusEl = document.getElementById('modalVideoStatus');
+      if(!shell) return;
+      stopSmartVideoShell(shell);
+      shell.innerHTML = '';
+      shell.className = 'product-video-shell js-product-video';
+      shell.dataset.bound = '';
+      shell.dataset.started = '';
+      shell.dataset.failed = '';
+      shell.dataset.muted = '1';
+      const url = resolveVideoUrl(item);
+      if(!url){ if(btn) btn.hidden = true; markVideoStatus(statusEl, '', false); return; }
+      shell.dataset.videoUrl = url;
+      shell.dataset.videoFit = item?.videoFit || item?.video_fit || 'cover';
+      if(btn){ btn.hidden = false; btn.textContent = '🔇'; }
+      initSmartVideoShell(shell, btn, statusEl);
+      setTimeout(()=>startSmartVideoShell(shell, btn, statusEl), 180);
     }
 
     /* ================== Disponible / Cupo ================== */
@@ -2602,6 +3032,10 @@
           available_stock:r.available_stock, availability_status:r.availability_status,
           allow_purchase_without_stock:r.allow_purchase_without_stock,
           image_url:r.image_url, plan_image_url:r.plan_image_url,
+          product_video_url:r.product_video_url || r.video_url, plan_video_url:r.plan_video_url,
+          product_video_type:r.product_video_type, plan_video_type:r.plan_video_type,
+          product_video_fit:r.product_video_fit, plan_video_fit:r.plan_video_fit,
+          product_video_enabled:r.product_video_enabled, plan_video_enabled:r.plan_video_enabled,
           chips:r.chips, benefits:r.benefits
         })).sort((a,b)=>String(a.product_id+'-'+a.plan_id).localeCompare(String(b.product_id+'-'+b.plan_id))));
       }catch(e){
@@ -2654,6 +3088,10 @@
             url: row.website_url || '',
             thumb: row.image_url || '',
             thumbFit: row.thumb_fit || 'contain',
+            videoUrl: row.product_video_url || row.video_url || '',
+            videoType: row.product_video_type || row.video_type || 'auto',
+            videoFit: row.product_video_fit || row.video_fit || 'cover',
+            videoEnabled: row.product_video_enabled !== false,
             period: 'Planes',
             cupo: 0,
             disponible: false,
@@ -2706,7 +3144,11 @@
           extraSections: planExtra.length ? planExtra : parseJsonArray(row.product_extra_sections),
           url: row.plan_website_url || row.website_url || '',
           thumb: row.plan_image_url || row.image_url || '',
-          thumbFit: row.plan_thumb_fit || row.thumb_fit || 'contain'
+          thumbFit: row.plan_thumb_fit || row.thumb_fit || 'contain',
+          videoUrl: row.plan_video_url || row.product_video_url || row.video_url || '',
+          videoType: row.plan_video_type || row.product_video_type || 'auto',
+          videoFit: row.plan_video_fit || row.product_video_fit || 'cover',
+          videoEnabled: row.plan_video_enabled !== false && row.product_video_enabled !== false
         });
       });
 
@@ -2899,6 +3341,10 @@
         url: plan.url || parent.url,
         thumb: plan.thumb || parent.thumb,
         thumbFit: plan.thumbFit || parent.thumbFit,
+        videoUrl: plan.videoUrl || parent.videoUrl || plan.video_url || parent.video_url || '',
+        videoType: plan.videoType || parent.videoType || 'auto',
+        videoFit: plan.videoFit || parent.videoFit || 'cover',
+        videoEnabled: plan.videoEnabled !== false && parent.videoEnabled !== false,
         extraSections: plan.extraSections || parent.extraSections
       };
     }
@@ -3046,6 +3492,8 @@
       const disponible = isDisponible(it);
       const thumb = resolveThumb(it);
       const fallback = resolveThumbFallback(it);
+      const videoUrl = resolveVideoUrl(it);
+      const hasVideo = !!videoUrl;
       const periodText = hasPlans(it) ? `${getPlans(it).length} planes` : (it.period || '');
       const period = periodText ? `<div class="period-note">${esc(periodText)}</div>` : '';
       const addTitle = hasPlans(it) ? 'Elegir plan' : 'Agregar al carrito';
@@ -3062,21 +3510,24 @@
                data-disponible="${(it.disponible===false) ? '0' : '1'}"
                data-url="${esc(normalizeUrl(it.url))}"
                data-period="${esc(periodText||'')}"
-               data-chips="${esc(JSON.stringify(it.chips||[]))}">
+               data-chips="${esc(JSON.stringify(it.chips||[]))}"
+               data-video-url="${esc(videoUrl)}">
 
-            <div class="product-img overflow-hidden">
+            <div class="product-img product-media overflow-hidden ${hasVideo?'has-video':''}">
               <span class="status-pill ${statusClass(it)}">${esc(statusLabel(it))}</span>
               <span class="status-corner-icon" title="${esc(catLabel(it.cat))}"><i class="${catIconClass(it.cat)}"></i></span>
 
-              <img class="img-fluid w-100"
+              <img class="img-fluid w-100 product-logo-img"
                    style="object-fit:${esc(it.thumbFit||'contain')};object-position:center;"
                    src="${esc(thumb)}"
                    data-fallback="${esc(fallback)}"
                    data-placeholder="img/placeholder.jpg"
                    loading="lazy"
                    decoding="async"
-                   referrerpolicy="no-referrer"
+                   referrerpolicy="strict-origin-when-cross-origin"
                    alt="${esc(it.name)}">
+
+              ${hasVideo ? `<div class="product-video-shell js-product-video" data-video-url="${esc(videoUrl)}" data-video-fit="${esc(it.videoFit||'cover')}"></div><div class="product-video-shade"></div><span class="product-video-dot">VIDEO</span><button class="video-audio-btn js-video-sound" type="button" aria-label="Activar sonido">🔇</button><span class="video-status-mini js-video-status">Video silenciado</span>` : ''}
 
               <div class="product-action">
                 <button class="btn btn-outline-dark btn-square btn-add" title="${addTitle}" ${(!disponible)?'disabled':''}>
@@ -3173,6 +3624,8 @@
         const detBtn = card.querySelector('.btn-detail');
         const mobileBuyBtn = card.querySelector('.btn-mobile-buy');
         const titleA = card.querySelector('.js-title');
+
+        initProductVideos(card);
 
         // fallback imagen
         if(imgEl){
@@ -3289,6 +3742,10 @@
       });
     }
 
+    try{
+      $('#productModal').on('hidden.bs.modal', ()=> stopSmartVideoShell(document.getElementById('modalVideo')));
+    }catch(e){}
+
     function renderPlanSelector(parent){
       if(!hasPlans(parent)){
         elPlansWrap && elPlansWrap.classList.add('d-none');
@@ -3337,6 +3794,7 @@
       elImg.style.objectFit = selected.thumbFit || parent.thumbFit || 'contain';
       elImg.style.objectPosition = 'center';
       elImg.onerror = () => { elImg.src = resolveThumbFallback(selected); };
+      setupModalVideo(selected);
 
       elPrice.textContent = fmt(selected.price);
 
@@ -3797,4 +4255,5 @@
   </script>
 </body>
 </html>
+
 
