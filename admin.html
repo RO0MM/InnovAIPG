@@ -1420,7 +1420,54 @@ input, select, textarea, button { min-width: 0; }
 }
 @media(max-width:430px){.ops-row-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-  </style>
+  
+
+/* ---------- Video Admin UI ---------- */
+.video-admin-box{
+  border:1.5px dashed var(--border2);
+  background:linear-gradient(180deg,var(--primary-alpha2),transparent);
+  border-radius:var(--radius);
+  padding:12px;
+}
+.video-admin-box .video-help{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:.8rem;
+  line-height:1.45;
+}
+.video-badge{
+  background:var(--purple-alpha);
+  color:var(--purple);
+}
+.product-card-video{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:6px;
+  color:var(--muted);
+  font-size:.78rem;
+  word-break:break-all;
+}
+.product-card-video::before{content:'🎬';}
+
+
+
+/* ================================================================
+   FIX v10.1 — Stock visible por plan, entrega real y cuentas limpias
+   ================================================================ */
+.plan-stock-modal .dlg-body{padding:16px 18px;overflow:auto;max-height:72vh}
+.plan-stock-toolbar{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:12px}
+.plan-stock-list{display:grid;gap:8px}
+.plan-stock-row{border:1px solid var(--border);background:var(--card);border-radius:14px;padding:12px;box-shadow:var(--shadow-xs);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+.plan-stock-main{min-width:0}
+.plan-stock-title{font-weight:900;color:var(--card-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plan-stock-sub{font-size:.82rem;color:var(--muted);margin-top:3px;word-break:break-word}
+.plan-stock-secret{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.plan-stock-secret .mono{font-family:var(--mono);font-size:.78rem;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:3px 7px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plan-stock-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.plan-stock-actions .btn{padding:6px 9px;font-size:.78rem}.stock-help-card{border-left:3px solid var(--primary);background:var(--primary-alpha2)}
+@media(max-width:700px){.plan-stock-toolbar{grid-template-columns:1fr}.plan-stock-row{grid-template-columns:1fr}.plan-stock-actions{display:grid;grid-template-columns:1fr 1fr;justify-content:stretch}.plan-stock-actions .btn{width:100%}}
+
+</style>
 </head>
 <body>
 
@@ -1745,7 +1792,8 @@ input, select, textarea, button { min-width: 0; }
           <div class="actions">
             <button class="btn btn-primary" id="btnNewTemplate" type="button">＋ Plantilla pago</button>
             <button class="btn btn-success" id="btnNewDeliveryTemplate" type="button">＋ Plantilla entrega</button>
-            <button class="btn" id="btnResetDefaultTemplate" type="button">Crear base</button>
+            <button class="btn" id="btnResetDefaultTemplate" type="button">Crear base pago</button>
+            <button class="btn btn-success" id="btnCreateDeliveryBases" type="button">Crear bases entrega</button>
           </div>
         </div>
         <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
@@ -1863,7 +1911,16 @@ input, select, textarea, button { min-width: 0; }
           <option value="wholesale">Proveedor</option>
         </select>
       </div>
-      <div class="full"><label class="subtle">Imagen URL</label><input class="input" id="pImage" placeholder="https://..."></div>
+      <div class="full"><label class="subtle">Imagen URL / logo de respaldo</label><input class="input" id="pImage" placeholder="https://..."></div>
+      <div class="full video-admin-box">
+        <label class="subtle">Video del producto</label>
+        <input class="input" id="pVideo" placeholder="YouTube, Vimeo o video directo .mp4/.webm">
+        <div class="grid grid-2" style="margin-top:8px">
+          <div><label class="subtle">Tipo</label><select class="input" id="pVideoType"><option value="auto">Auto detectar</option><option value="youtube">YouTube</option><option value="vimeo">Vimeo</option><option value="file">MP4/WebM directo</option></select></div>
+          <div><label class="subtle">Video activo</label><select class="input" id="pVideoEnabled"><option value="true">Sí, mostrar</option><option value="false">No, usar logo</option></select></div>
+        </div>
+        <p class="video-help">El video se reproduce automático, silenciado y sin controles. Si no carga, la tienda mantiene el logo.</p>
+      </div>
       <div class="full"><label class="subtle">Descripción</label><textarea class="input" id="pDesc"></textarea></div>
       <div><label class="subtle">Prioridad</label><input class="input" id="pPriority" type="number" value="100"></div>
       <div><label class="subtle">Estado</label>
@@ -1904,7 +1961,16 @@ input, select, textarea, button { min-width: 0; }
           <option value="false">Oculto</option>
         </select>
       </div>
-      <div class="full"><label class="subtle">Imagen específica</label><input class="input" id="plImage" placeholder="https://..."></div>
+      <div class="full"><label class="subtle">Imagen específica / logo de respaldo</label><input class="input" id="plImage" placeholder="https://..."></div>
+      <div class="full video-admin-box">
+        <label class="subtle">Video específico del plan</label>
+        <input class="input" id="plVideo" placeholder="Opcional: YouTube, Vimeo o .mp4/.webm">
+        <div class="grid grid-2" style="margin-top:8px">
+          <div><label class="subtle">Tipo</label><select class="input" id="plVideoType"><option value="auto">Auto detectar</option><option value="youtube">YouTube</option><option value="vimeo">Vimeo</option><option value="file">MP4/WebM directo</option></select></div>
+          <div><label class="subtle">Video activo</label><select class="input" id="plVideoEnabled"><option value="true">Sí, mostrar</option><option value="false">No, usar logo</option></select></div>
+        </div>
+        <p class="video-help">Si el plan tiene video, reemplaza al video general del producto.</p>
+      </div>
       <div class="full"><label class="subtle">Descripción</label><textarea class="input" id="plDesc"></textarea></div>
       <div class="full"><label class="subtle">Beneficios, uno por línea</label><textarea class="input" id="plBenefits"></textarea></div>
       <div class="full"><label class="subtle">Chips, separados por coma</label><input class="input" id="plChips" placeholder="4K, Premium, 5 pantallas"></div>
@@ -2112,6 +2178,29 @@ input, select, textarea, button { min-width: 0; }
   </div>
 </dialog>
 
+
+
+
+<!-- Ver cuentas por plan -->
+<dialog id="dlgPlanStockView" class="plan-stock-modal">
+  <div class="modal-header">
+    <strong id="planStockTitle">Cuentas registradas</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgPlanStockView" type="button">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div class="card stock-help-card" style="margin-bottom:12px">
+      <strong>📦 Cuentas dentro de este plan</strong>
+      <p class="help" style="margin:6px 0 0">Aquí ves exactamente qué cuentas están registradas para entrega automática. Si no hay cuentas disponibles, la entrega automática no tendrá correo/contraseña reales.</p>
+    </div>
+    <input type="hidden" id="planStockPlanId">
+    <div class="plan-stock-toolbar">
+      <input class="input" id="planStockSearch" type="search" placeholder="Buscar correo, perfil, PIN o estado...">
+      <button class="btn btn-primary" id="btnPlanStockAdd" type="button">＋ Cargar cuentas</button>
+      <button class="btn" id="btnPlanStockOps" type="button">Abrir Operaciones</button>
+    </div>
+    <div id="planStockList" class="plan-stock-list"></div>
+  </div>
+</dialog>
 
 <!-- Operaciones PRO: Cuenta -->
 <dialog id="dlgOpsStock">
@@ -2455,6 +2544,10 @@ const DEFAULT_DELIVERY_BODY=`✅ PEDIDO #{pedido}
 Soporte: {soporte}
 — {tienda}`;
 
+
+const DEFAULT_DELIVERY_PROFILE_BODY=`✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n👤 Perfil: {perfil}\n🔢 PIN: {pin}\n\n📅 Inicio: {fecha_inicio}\n\n{restricciones}\n\nSoporte: {soporte}\n— {tienda}`;
+const DEFAULT_DELIVERY_SIMPLE_BODY=`✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n\n📅 Inicio: {fecha_inicio}\n\n{restricciones}\n\nSoporte: {soporte}\n— {tienda}`;
+
 function getPaymentSettings(){return state.settings.find(s=>s.key==='payment_public')?.value||{}}
 function getStoreSettings(){return state.settings.find(s=>s.key==='store_public')?.value||{}}
 function getDefaultTemplate(){
@@ -2645,7 +2738,7 @@ function renderSummary(){
     <td data-label="Tipo"><span class="badge ${s.stock_mode==='controlled'?'b-ok':'b-warn'}">${s.stock_mode==='controlled'?'Auto':'Manual'}</span></td>
     <td data-label="Cupos"><span class="badge ${Number(s.available_stock)>0?'b-ok':'b-bad'}">${Number(s.available_stock)>=999999?'∞':s.available_stock+' cupos'}</span></td>
     <td data-label="Estado">${esc(s.availability_status)}</td>
-    <td data-label="Acción"><button class="btn btn-sm" onclick="editPlan('${s.plan_id}')">Editar</button></td>
+    <td data-label="Acción"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editPlan('${s.plan_id}')">Editar</button><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${s.plan_id}')">Ver cuentas</button></div></td>
   </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
 }
 
@@ -2664,8 +2757,10 @@ function renderProducts(){
         <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
         <span class="badge">${pls.length} planes</span>
         <span class="badge b-ok">${cups} cupos</span>
+        ${p.video_url?'<span class="badge video-badge">🎬 Video</span>':''}
       </div>
       <p class="help">${esc(p.description||'Sin descripción').slice(0,120)}</p>
+      ${p.video_url?`<div class="product-card-video">${esc(p.video_url).slice(0,120)}</div>`:''}
       <div class="line-actions">
         <button class="btn btn-primary" onclick="editProduct('${p.id}')">✏️ Editar</button>
         <button class="btn" onclick="newPlanFor('${p.id}')">＋ Plan</button>
@@ -2692,12 +2787,73 @@ function renderPlans(){
     </div>
     <div class="line-actions">
       <button class="btn btn-primary" onclick="editPlan('${p.id}')">✏️ Editar cupos</button>
-      <button class="btn" onclick="openAddStock('${p.id}')">📤 Cargar</button>
+      <button class="btn btn-success" onclick="openPlanStockView('${p.id}')">👁 Ver cuentas</button>
+      <button class="btn" onclick="openAddStock('${p.id}')">📥 Cargar</button>
       <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
       <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">🗑 Eliminar</button>
     </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
 }
+
+
+function openPlanStockView(planId){
+  if(!$('dlgPlanStockView'))return;
+  $('planStockPlanId').value=planId||'';
+  const p=plan(planId)||{};
+  $('planStockTitle').textContent='Cuentas registradas · '+opsPlanGroupTitle(planId);
+  if($('planStockSearch'))$('planStockSearch').value='';
+  renderPlanStockView();
+  showDialog('dlgPlanStockView');
+}
+function planStockFilteredRows(){
+  const planId=$('planStockPlanId')?.value||'';
+  const q=($('planStockSearch')?.value||'').toLowerCase().trim();
+  let rows=state.stock.filter(x=>x.plan_id===planId);
+  if(q)rows=rows.filter(x=>{
+    const d=opsSecret(x);
+    return (`${x.title||''} ${x.notes||''} ${opsAvailableStatus(x)} ${d.correo||''} ${d.usuario||''} ${d.clave||''} ${d.perfil||''} ${d.pin||''} ${d.reserved_for||''} ${d.reserved_phone||''}`).toLowerCase().includes(q);
+  });
+  rows.sort((a,b)=>{
+    const order={available:0,reserved:1,used:2,delivered:2};
+    return (order[opsAvailableStatus(a)]??3)-(order[opsAvailableStatus(b)]??3)||String(b.created_at||'').localeCompare(String(a.created_at||''));
+  });
+  return rows;
+}
+function renderPlanStockView(){
+  const list=$('planStockList');if(!list)return;
+  const planId=$('planStockPlanId')?.value||'';
+  const rows=planStockFilteredRows();
+  const free=state.stock.filter(x=>x.plan_id===planId&&opsAvailableStatus(x)==='available').length;
+  const res=state.stock.filter(x=>x.plan_id===planId&&opsAvailableStatus(x)==='reserved').length;
+  const used=state.stock.filter(x=>x.plan_id===planId&&['used','delivered'].includes(opsAvailableStatus(x))).length;
+  if(!rows.length){
+    list.innerHTML=`<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><button class="btn btn-primary" onclick="openAddStockFromPlanView()">＋ Cargar cuentas ahora</button></div>`;
+    return;
+  }
+  list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${free} disponibles</span><span class="badge b-warn">${res} reservadas</span><span class="badge b-bad">${used} usadas</span><span class="badge">${rows.length} visibles</span></div>`+rows.map(x=>{
+    const d=opsSecret(x), st=opsAvailableStatus(x);
+    const pass=d.clave||d.pass||'';
+    const reserve=d.reserved_for?` · reservado para ${esc(d.reserved_for)} ${d.reserved_phone?esc(d.reserved_phone):''}`:'';
+    return `<div class="plan-stock-row">
+      <div class="plan-stock-main">
+        <div class="plan-stock-title">${esc(x.title||d.correo||'Cuenta')}</div>
+        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(Number(d.used_count||0))}/${esc(Number(d.max_uses||1))}</span>${reserve}</div>
+        <div class="plan-stock-secret"><span class="mono">📧 ${esc(d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${esc(pass)}</span>`:''}${d.perfil?`<span class="mono">👤 ${esc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${esc(d.pin)}</span>`:''}</div>
+      </div>
+      <div class="plan-stock-actions">
+        <button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>
+        <button class="btn" onclick="copyTextSafe(opsDeliveryText(state.stock.find(s=>s.id==='${x.id}')))">Copiar</button>
+        <button class="btn" onclick="openStockViewEdit('${x.id}')">Modificar</button>
+        <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openStockViewDeliver(id){closeDialog('dlgPlanStockView');setTimeout(()=>openOpsDeliver(id),80)}
+function openStockViewEdit(id){closeDialog('dlgPlanStockView');setTimeout(()=>openOpsStockDialog('account',id),80)}
+function openAddStockFromPlanView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');openAddStock(planId)}
+function openOpsFromPlanStockView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');switchTab('ops');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps()},60)}
 
 function renderOrders(){
   const q=($('orderSearch')?.value||'').toLowerCase();
@@ -2876,13 +3032,13 @@ function switchTab(tab){
 
 /* ---- Products CRUD ---- */
 function blankProduct(){
-  ['pId','pName','pSlug','pImage','pDesc'].forEach(id=>$(id).value='');
-  $('pCategory').value='otros';$('pSale').value='retail';$('pPriority').value=100;$('pActive').value='true';$('pBasePlan').checked=true;
+  ['pId','pName','pSlug','pImage','pDesc','pVideo'].forEach(id=>$(id).value='');
+  $('pCategory').value='otros';$('pSale').value='retail';$('pPriority').value=100;$('pActive').value='true';$('pVideoType').value='auto';$('pVideoEnabled').value='true';$('pBasePlan').checked=true;
   if($('btnDeleteProduct'))$('btnDeleteProduct').style.display='none';$('productDlgTitle').textContent='Nuevo producto';showDialog('dlgProduct');
 }
 function editProduct(id){
   const p=prod(id);if(!p)return;
-  $('pId').value=p.id;$('pName').value=p.name||'';$('pSlug').value=p.slug||'';$('pCategory').value=p.category||'otros';$('pSale').value=p.sale_mode||'retail';$('pImage').value=p.image_url||'';$('pDesc').value=p.description||'';$('pPriority').value=p.priority||100;$('pActive').value=String(p.active!==false);$('pBasePlan').checked=false;
+  $('pId').value=p.id;$('pName').value=p.name||'';$('pSlug').value=p.slug||'';$('pCategory').value=p.category||'otros';$('pSale').value=p.sale_mode||'retail';$('pImage').value=p.image_url||'';$('pVideo').value=p.video_url||'';$('pVideoType').value=p.video_type||'auto';$('pVideoEnabled').value=String(p.video_enabled!==false);$('pDesc').value=p.description||'';$('pPriority').value=p.priority||100;$('pActive').value=String(p.active!==false);$('pBasePlan').checked=false;
   if($('btnDeleteProduct'))$('btnDeleteProduct').style.display='inline-flex';$('productDlgTitle').textContent='Editar producto';showDialog('dlgProduct');
 }
 
@@ -2917,7 +3073,7 @@ function buildCheckoutMetadata(base={}, productName='', planName=''){
 async function saveProduct(ev){
   ev.preventDefault();
   const id=$('pId').value;const name=$('pName').value.trim();if(!name)return toast('Falta nombre','bad');
-  const currentProduct=id?prod(id):{};const payload={name,slug:$('pSlug').value.trim()||slugify(name),category:$('pCategory').value,sale_mode:$('pSale').value,image_url:$('pImage').value.trim()||null,description:$('pDesc').value.trim()||null,priority:Number($('pPriority').value||100),active:$('pActive').value==='true',metadata:buildCheckoutMetadata(currentProduct?.metadata||{},name,'')};
+  const currentProduct=id?prod(id):{};const payload={name,slug:$('pSlug').value.trim()||slugify(name),category:$('pCategory').value,sale_mode:$('pSale').value,image_url:$('pImage').value.trim()||null,video_url:$('pVideo').value.trim()||null,video_type:$('pVideoType').value||'auto',video_enabled:$('pVideoEnabled').value==='true',description:$('pDesc').value.trim()||null,priority:Number($('pPriority').value||100),active:$('pActive').value==='true',metadata:buildCheckoutMetadata(currentProduct?.metadata||{},name,'')};
   let r=id?await db.from('products').update(payload).eq('id',id).select().single():await db.from('products').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
   if(!id&&$('pBasePlan').checked){await db.from('product_plans').insert({product_id:r.data.id,name:'Plan principal',slug:'plan-principal',price:0,currency:'PEN',period:'Mensual',stock_mode:'manual',manual_stock_count:0,availability_status:'consult',delivery_mode:'manual',active:true,priority:1,benefits:[],chips:['Nuevo']})}
@@ -2929,14 +3085,14 @@ async function deleteProduct(){const id=$('pId').value;if(!id)return;if(!confirm
 /* ---- Plans CRUD ---- */
 function blankPlan(pid=''){
   fillProductSelects();$('plId').value='';$('plProduct').value=pid||state.products[0]?.id||'';
-  ['plName','plSlug','plPrice','plImage','plDesc','plBenefits','plChips','plManualStock','bulkText'].forEach(id=>$(id).value='');
-  $('plPeriod').value='Mensual';$('plDeliveryType').value='automatic';$('plAvailability').value='available';$('plPriority').value=100;$('plActive').value='true';
+  ['plName','plSlug','plPrice','plImage','plVideo','plDesc','plBenefits','plChips','plManualStock','bulkText'].forEach(id=>$(id).value='');
+  $('plPeriod').value='Mensual';$('plDeliveryType').value='automatic';$('plAvailability').value='available';$('plPriority').value=100;$('plActive').value='true';$('plVideoType').value='auto';$('plVideoEnabled').value='true';
   if($('btnDeletePlan'))$('btnDeletePlan').style.display='none';syncDeliveryBoxes();$('planDlgTitle').textContent='Nuevo plan';showDialog('dlgPlan');
 }
 function newPlanFor(pid){blankPlan(pid)}
 function editPlan(id){
   const p=plan(id);if(!p)return;
-  fillProductSelects();$('plId').value=p.id;$('plProduct').value=p.product_id;$('plName').value=p.name||'';$('plSlug').value=p.slug||'';$('plPrice').value=p.price??'';$('plPeriod').value=p.period||'Mensual';$('plImage').value=p.image_url||'';$('plDesc').value=p.description||'';$('plBenefits').value=Array.isArray(p.benefits)?p.benefits.join('\n'):'';$('plChips').value=Array.isArray(p.chips)?p.chips.join(', '):'';$('plDeliveryType').value=p.stock_mode==='controlled'?'automatic':'manual';$('plManualStock').value=p.manual_stock_count??'';$('plAvailability').value=p.availability_status||'available';$('plPriority').value=p.priority||100;$('plActive').value=String(p.active!==false);
+  fillProductSelects();$('plId').value=p.id;$('plProduct').value=p.product_id;$('plName').value=p.name||'';$('plSlug').value=p.slug||'';$('plPrice').value=p.price??'';$('plPeriod').value=p.period||'Mensual';$('plImage').value=p.image_url||'';$('plVideo').value=p.video_url||'';$('plVideoType').value=p.video_type||'auto';$('plVideoEnabled').value=String(p.video_enabled!==false);$('plDesc').value=p.description||'';$('plBenefits').value=Array.isArray(p.benefits)?p.benefits.join('\n'):'';$('plChips').value=Array.isArray(p.chips)?p.chips.join(', '):'';$('plDeliveryType').value=p.stock_mode==='controlled'?'automatic':'manual';$('plManualStock').value=p.manual_stock_count??'';$('plAvailability').value=p.availability_status||'available';$('plPriority').value=p.priority||100;$('plActive').value=String(p.active!==false);
   if($('btnDeletePlan'))$('btnDeletePlan').style.display='inline-flex';syncDeliveryBoxes();$('planDlgTitle').textContent='Editar plan / cupos';showDialog('dlgPlan');
 }
 function openAddStock(id){editPlan(id);setTimeout(()=>$('bulkText').focus(),300)}
@@ -2948,7 +3104,7 @@ function syncDeliveryBoxes(){
 async function savePlan(ev){
   ev.preventDefault();
   const id=$('plId').value;const isAuto=$('plDeliveryType').value==='automatic';const name=$('plName').value.trim();if(!name)return toast('Falta nombre del plan','bad');
-  const currentPlan=id?plan(id):{};const parentProduct=prod($('plProduct').value)||{};const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:$('plPeriod').value||'Mensual',image_url:$('plImage').value.trim()||null,description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true',metadata:buildCheckoutMetadata(currentPlan?.metadata||{},parentProduct?.name||'',name)};
+  const currentPlan=id?plan(id):{};const parentProduct=prod($('plProduct').value)||{};const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:$('plPeriod').value||'Mensual',image_url:$('plImage').value.trim()||null,video_url:$('plVideo').value.trim()||null,video_type:$('plVideoType').value||'auto',video_enabled:$('plVideoEnabled').value==='true',description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true',metadata:buildCheckoutMetadata(currentPlan?.metadata||{},parentProduct?.name||'',name)};
   let r=id?await db.from('product_plans').update(payload).eq('id',id).select().single():await db.from('product_plans').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
   $('plId').value=r.data.id;await saveBulkIfAny(r.data.id);closeDialog('dlgPlan');toast('Plan/cupos guardado','ok');await loadAll();switchTab('inventory');
@@ -2959,14 +3115,32 @@ async function deletePlan(){const id=$('plId').value;if(!id)return;if(!confirm('
 function parseBulk(){
   const valid=[],doubt=[];
   arrLines($('bulkText').value).forEach(line=>{
-    const parts=line.split('|').map(x=>x.trim()).filter(Boolean);
-    if(parts.length>=2&&/@/.test(parts[0]))valid.push({stock_type:'account',title:parts[0],secret_data:{correo:parts[0],clave:parts[1],nota:parts[2]||''},notes:parts[2]||null});
-    else if(parts.length===1&&parts[0].length>=5)valid.push({stock_type:'code',title:parts[0],secret_data:{codigo:parts[0]},notes:null});
-    else doubt.push(line);
+    const raw=line.trim();
+    if(!raw)return;
+    const pipe=raw.split('|').map(x=>x.trim());
+    const colon=raw.includes(':')&&!raw.includes('|')?raw.split(':').map(x=>x.trim()):null;
+    const parts=pipe.length>=2?pipe:(colon||[raw]);
+    const correo=parts[0]||'';
+    const clave=parts[1]||'';
+    if(parts.length>=2&&/^[^\s@]+@[^\s@]+\.[^\s@]+/.test(correo)&&clave){
+      let maxUses=1;
+      let nota='';
+      if(parts[4]){
+        const n=Number(parts[4]);
+        if(Number.isFinite(n)&&n>0){maxUses=n;nota=parts.slice(5).join(' | ')}
+        else nota=parts.slice(4).join(' | ');
+      }
+      const perfil=parts[2]||'';
+      const pin=parts[3]||'';
+      const secret_data={correo,email:correo,usuario:correo,clave,password:clave,pass:clave,contraseña:clave,perfil,pin,max_uses:maxUses,used_count:0,nota};
+      valid.push({stock_type:'account',title:correo,secret_data,notes:nota||null});
+    }else{
+      doubt.push(raw);
+    }
   });
   $('validCount').textContent=valid.length+' válidas';
   $('doubtCount').textContent=doubt.length+' dudosas';
-  $('bulkPreview').innerHTML=valid.slice(0,10).map(v=>`<div class="preview-item"><b>${esc(v.title)}</b><div class="help">${esc(v.stock_type)}</div></div>`).join('')+(doubt.length?'<div class="preview-item"><b>Dudosas</b><br>'+doubt.map(esc).join('<br>')+'</div>':'');
+  $('bulkPreview').innerHTML=valid.slice(0,30).map(v=>`<div class="preview-item"><b>${esc(v.title)}</b><div class="help">Cuenta · perfil ${esc(v.secret_data.perfil||'-')} · PIN ${esc(v.secret_data.pin||'-')} · usos ${esc(v.secret_data.max_uses||1)}</div></div>`).join('')+(doubt.length?'<div class="preview-item"><b>Dudosas</b><br>'+doubt.map(esc).join('<br>')+'</div>':'');
   return{valid,doubt};
 }
 async function saveBulkIfAny(planId){
@@ -2985,7 +3159,23 @@ async function approveOrder(id){
   if(r.error)return toast(r.error.message,'bad');
   toast(r.data?.[0]?.message||'Pago aprobado','ok');
   await createRemindersFromOrder(id);await loadAll();
-  if(['waiting_manual_delivery','partial'].includes(r.data?.[0]?.delivery_status))openManualDelivery(id);
+  const status=r.data?.[0]?.delivery_status;
+  if(['waiting_manual_delivery','partial'].includes(status)){
+    openManualDelivery(id);
+    return;
+  }
+  openDeliveredOrderWhatsApp(id);
+}
+function openDeliveredOrderWhatsApp(orderId){
+  const o=state.orders.find(x=>x.id===orderId)||{};
+  const ds=state.deliveries.filter(d=>d.order_id===orderId).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  const msg=(ds[0]?.delivered_message||ds[0]?.message||'').trim();
+  if(!msg)return;
+  const phone=normalizePhone(o.customer_whatsapp||'');
+  if(!phone.ok)return toast('Entrega registrada, pero el WhatsApp del pedido no es válido','bad');
+  const url=waLink(phone.e164,msg);
+  if(url!=='#')window.open(url,'_blank','noopener,noreferrer');
+  toast('WhatsApp abierto con la cuenta entregada','ok');
 }
 async function rejectOrder(id){
   const motivo=prompt('Motivo del rechazo para mostrar al cliente:', 'Pago no validado. Si fue un error, escríbenos por el chat del pedido.');
@@ -3182,6 +3372,22 @@ async function setDefaultDeliveryTemplate(id){
   const r=await db.from('delivery_message_templates').update({is_default:true,active:true}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   toast('Plantilla principal de entrega actualizada','ok');await loadAll();
+}
+
+
+async function createBaseDeliveryTemplates(){
+  const baseRestrictions='🚫 RESTRICCIONES:\n❌ No cambiar correo, contraseña ni perfil\n❌ No compartir la cuenta\n✅ Uso personal / según plan comprado\n🛟 Soporte por WhatsApp';
+  const rows=[];
+  if(!state.deliveryTemplates.some(t=>String(t.template_key||'').toLowerCase()==='streaming_profile')){
+    rows.push({name:'Streaming con perfil y PIN',template_key:'streaming_profile',body:DEFAULT_DELIVERY_PROFILE_BODY,restrictions:baseRestrictions,active:true,is_default:state.deliveryTemplates.length===0});
+  }
+  if(!state.deliveryTemplates.some(t=>String(t.template_key||'').toLowerCase()==='account_simple')){
+    rows.push({name:'Cuenta simple — correo y contraseña',template_key:'account_simple',body:DEFAULT_DELIVERY_SIMPLE_BODY,restrictions:baseRestrictions,active:true,is_default:false});
+  }
+  if(!rows.length){toast('Las plantillas de entrega base ya existen','ok');return;}
+  const r=await db.from('delivery_message_templates').insert(rows);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Plantillas de entrega base creadas','ok');await loadAll();switchTab('templates');
 }
 
 /* ---- Clients ---- */
@@ -3406,10 +3612,23 @@ function opsAvailableStatus(x){return String(x?.status||'available').toLowerCase
 function opsIsAccount(x){return String(x?.stock_type||'').toLowerCase()==='account' || !!opsSecret(x).correo || !!opsSecret(x).clave;}
 function opsIsCode(x){return String(x?.stock_type||'').toLowerCase()==='code' || !!opsSecret(x).codigo;}
 function opsSecret(x){
-  const d=x?.secret_data;
-  if(!d)return{};
-  if(typeof d==='string'){try{return JSON.parse(d)||{}}catch(_){return{raw:d}}}
-  return d||{};
+  const raw=x?.secret_data;
+  let d={};
+  if(!raw)d={};
+  else if(typeof raw==='string'){
+    try{d=JSON.parse(raw)||{}}catch(_){d={raw}}
+  }else d={...raw};
+  const correo=d.correo||d.email||d.usuario||d.user||'';
+  const clave=d.clave||d.password||d.pass||d['contraseña']||d.contrasena||'';
+  if(correo){d.correo=correo;d.email=d.email||correo;d.usuario=d.usuario||correo;}
+  if(clave){d.clave=clave;d.password=d.password||clave;d.pass=d.pass||clave;d['contraseña']=d['contraseña']||clave;}
+  if(d.profile&&!d.perfil)d.perfil=d.profile;
+  if(d.profile_pin&&!d.pin)d.pin=d.profile_pin;
+  if(d.group&&!d.grupo)d.grupo=d.group;
+  if(d.note&&!d.nota)d.nota=d.note;
+  if(!d.max_uses)d.max_uses=1;
+  if(!d.used_count)d.used_count=0;
+  return d;
 }
 function opsKeyFromItem(x){
   const d=opsSecret(x);
@@ -3445,21 +3664,34 @@ function fillOpsSelects(){
     if(current)el.value=current;
   });
 }
+function opsDeliveryTemplateForItem(item){
+  const d=opsSecret(item);
+  const service=(planName(item.plan_id)||'').toLowerCase();
+  const hasProfile=!!(d.perfil||d.pin)||/netflix|disney|prime|crunchy|max|hbo|vix|paramount|iptv/.test(service);
+  const active=state.deliveryTemplates.filter(t=>t.active!==false);
+  if(hasProfile){
+    return active.find(t=>/streaming_profile|perfil|profile/.test(String(t.template_key||t.name||'').toLowerCase()))||active.find(t=>t.is_default)||active[0]||null;
+  }
+  return active.find(t=>/account_simple|simple|sin_perfil|correo/.test(String(t.template_key||t.name||'').toLowerCase()))||active.find(t=>t.is_default)||active[0]||null;
+}
+function renderTemplateText(body,vars){
+  return String(body||'').replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m);
+}
 function opsDeliveryText(item){
-  const d=opsSecret(item), lines=[];
-  lines.push('✅ Acceso listo');
-  lines.push('📦 Servicio: '+planName(item.plan_id));
-  if(d.correo||d.usuario)lines.push('📧 Correo/usuario: '+(d.correo||d.usuario));
-  if(d.clave||d.pass)lines.push('🔒 Clave: '+(d.clave||d.pass));
-  if(d.perfil)lines.push('👤 Perfil: '+d.perfil);
-  if(d.pin)lines.push('🔢 PIN: '+d.pin);
-  if(d.max_uses)lines.push('🔁 Usos permitidos: '+d.max_uses);
-  if(d.grupo)lines.push('📱 Grupo/URL: '+d.grupo);
-  if(d.url&&!d.grupo)lines.push('🔗 URL: '+d.url);
-  if(item.notes||d.nota)lines.push('\n📝 Nota: '+(d.nota||item.notes));
-  lines.push('\nSoporte por WhatsApp.');
-  lines.push('\nGracias por tu compra 💙');
-  return lines.filter(Boolean).join('\n');
+  const d=opsSecret(item);
+  const tpl=opsDeliveryTemplateForItem(item);
+  const pay=getPaymentSettings(),store=getStoreSettings();
+  const vars={
+    pedido:'', producto:prodName(plan(item.plan_id)?.product_id)||planName(item.plan_id), plan:planName(item.plan_id),
+    correo:d.correo||d.usuario||'', contraseña:d.clave||d.pass||'', perfil:d.perfil||'', pin:d.pin||'',
+    grupo:d.grupo||'', url:d.url||d.grupo||'', codigo:d.codigo||'', nota:d.nota||item.notes||'',
+    fecha_inicio:displayDateFromInput(todayInput()), restricciones:tpl?.restrictions||d.reglas||'🚫 No compartir la cuenta\n✅ Uso personal\n🛟 Soporte por WhatsApp',
+    soporte:pay.yape_number||'991564053', tienda:store.store_name||'Innov IA'
+  };
+  const body=tpl?.body || (vars.perfil||vars.pin
+    ? '✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n👤 Perfil: {perfil}\n🔢 PIN: {pin}\n\n{restricciones}\n\nSoporte: {soporte}'
+    : '✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n\n{restricciones}\n\nSoporte: {soporte}');
+  return renderTemplateText(body,vars).replace(/\n{3,}/g,'\n\n').trim();
 }
 function opsPlanGroupTitle(planId){
   const p=plan(planId)||{};
@@ -3497,7 +3729,7 @@ function opsRenderRow(x){
       <span class="ops-mini-chip">Usos ${esc(uses)}</span>
     </div>
     <div class="ops-row-actions">
-      <button class="btn btn-success" onclick="openOpsDeliver('${x.id}')">Entregar</button>
+      <button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>
       <button class="btn" onclick="openOpsReserve('${x.id}')">Reservar</button>
       <button class="btn" onclick="openOpsStockDialog('', '${x.id}')">Modificar</button>
       <button class="btn" onclick="copyTextSafe(opsDeliveryText(state.stock.find(s=>s.id==='${x.id}')))">Copiar</button>
@@ -3597,6 +3829,8 @@ async function saveOpsStock(ev){
   const d={...currentSecret};
   d.correo=$('opsStockUser').value.trim();
   d.clave=$('opsStockPass').value.trim();
+  if(d.correo){d.email=d.correo;d.usuario=d.correo;}
+  if(d.clave){d.password=d.clave;d.pass=d.clave;d['contraseña']=d.clave;}
   d.perfil=$('opsStockProfile').value.trim();
   d.pin=$('opsStockPin').value.trim();
   d.max_uses=Math.max(1,Number($('opsStockMaxUses')?.value||1));
@@ -3735,7 +3969,7 @@ function parseOpsBulk(){
       if(Number.isFinite(n)&&n>0){maxUses=n; nota=parts.slice(5).join(' | ');}
       else {nota=parts.slice(4).join(' | ');}
     }
-    const item={stock_type:'account',title:correo,secret_data:{correo,clave,perfil:parts[2]||'',pin:parts[3]||'',max_uses:maxUses,used_count:0,nota},notes:nota||null};
+    const item={stock_type:'account',title:correo,secret_data:{correo,email:correo,usuario:correo,clave,password:clave,pass:clave,contraseña:clave,perfil:parts[2]||'',pin:parts[3]||'',max_uses:maxUses,used_count:0,nota},notes:nota||null};
     const key=correo.toLowerCase();
     if(existing.has(key)){dup.push(raw);continue;}
     existing.add(key);valid.push(item);
@@ -4103,6 +4337,10 @@ $('templateForm').onsubmit=saveTemplate;
 $('btnDeleteTemplate').onclick=deleteTemplate;
 $('templateSearch').oninput=()=>{renderTemplates();renderDeliveryTemplates()};
 $('btnResetDefaultTemplate').onclick=createBaseTemplate;
+if($('btnCreateDeliveryBases'))$('btnCreateDeliveryBases').onclick=createBaseDeliveryTemplates;
+if($('planStockSearch'))$('planStockSearch').oninput=renderPlanStockView;
+if($('btnPlanStockAdd'))$('btnPlanStockAdd').onclick=openAddStockFromPlanView;
+if($('btnPlanStockOps'))$('btnPlanStockOps').onclick=openOpsFromPlanStockView;
 $('btnNewReminder').onclick=()=>blankReminder();
 $('reminderForm').onsubmit=saveReminder;
 $('btnDeleteReminder').onclick=deleteReminder;
@@ -4178,4 +4416,3 @@ setInterval(adminAutoRefresh,2000);
 </script>
 </body>
 </html>
-
