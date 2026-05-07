@@ -1112,6 +1112,30 @@
   .product-action .btn-square{width:39px!important;height:39px!important;min-width:39px!important;min-height:39px!important;}
 }
 
+
+/* ================================================================
+   FIX v13 — audio real + sin doble listener + menos overlay nativo
+   ================================================================ */
+.modal-product-media .video-audio-btn{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+.modal-product-media .video-audio-btn.is-sound-on{
+  background:rgba(16,185,129,.88)!important;
+  border-color:rgba(255,255,255,.75)!important;
+}
+.product-video-shell.sound-switching{
+  opacity:0!important;
+}
+.product-video-shell .video-click-shield{
+  -webkit-tap-highlight-color:transparent!important;
+}
+@media(max-width:575.98px){
+  .product-action .btn-detail span:not(.ui-svg){
+    display:inline!important;
+  }
+}
+
 </style>
 </head>
 
@@ -1918,7 +1942,7 @@
       const media = detectVideoSource(shell.dataset.videoUrl || '');
       if(media.type === 'none' || media.type === 'unsupported') return fallbackSmartVideo(shell, statusEl);
       shell.dataset.started = '1';
-      shell.dataset.muted = '1';
+      if(!shell.dataset.muted) shell.dataset.muted = '1';
       shell.classList.toggle('is-iframe-source', media.type !== 'file');
       if((shell.dataset.videoFit || 'cover') === 'contain') shell.classList.add('fit-contain');
       if(soundBtn) soundBtn.hidden = false;
@@ -1946,7 +1970,7 @@
         const iframe = document.createElement('iframe');
         const playerId = 'vm_' + Math.random().toString(36).slice(2);
         iframe.src = `https://player.vimeo.com/video/${media.id}?background=1&autoplay=1&muted=1&loop=1&controls=0&title=0&byline=0&portrait=0&playsinline=1&api=1&player_id=${playerId}`;
-        iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+        iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture; encrypted-media');
         iframe.setAttribute('loading','lazy');
         iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
         iframe.onload = () => setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 1500 : 900);
@@ -2004,9 +2028,10 @@
             onReady: function(e){
               try{
                 const wantSound = shell.dataset.muted === '0';
-                if(wantSound){ e.target.unMute(); e.target.setVolume(70); }
+                if(wantSound){ e.target.unMute(); e.target.setVolume(75); }
                 else { e.target.mute(); e.target.setVolume(0); }
                 e.target.playVideo();
+                setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 350);
               }catch(err){}
             },
             onStateChange: function(e){
@@ -2036,40 +2061,112 @@
     function initSmartVideoShell(shell, soundBtn, statusEl){
       if(!shell || shell.dataset.bound === '1') return;
       shell.dataset.bound = '1';
+
+      // Evita listeners duplicados al abrir/cerrar el modal varias veces.
+      // Antes, el mismo botón podía tener 2, 3 o más eventos y se desactivaba solo.
+      if(soundBtn && soundBtn.parentNode){
+        const cleanBtn = soundBtn.cloneNode(true);
+        soundBtn.parentNode.replaceChild(cleanBtn, soundBtn);
+        soundBtn = cleanBtn;
+      }
+
       shell._soundBtn = soundBtn || null;
       shell._statusEl = statusEl || null;
+
       if(soundBtn){
         soundBtn.hidden = false;
-        soundBtn.textContent = '🔇';
+        soundBtn.textContent = (shell.dataset.muted === '0') ? '🔊' : '🔇';
+        soundBtn.setAttribute('aria-label', (shell.dataset.muted === '0') ? 'Silenciar video' : 'Activar sonido');
         soundBtn.addEventListener('click', e=>{
-          e.preventDefault(); e.stopPropagation();
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
           toggleSmartVideoSound(shell, soundBtn, statusEl);
-        });
+        }, {passive:false});
       }
+
       if(productVideoObserver) productVideoObserver.observe(shell);
       else setTimeout(()=>startSmartVideoShell(shell, soundBtn, statusEl), 150);
     }
-    function toggleSmartVideoSound(shell, btn, statusEl){
-      if(!shell) return;
-      const turnOn = shell.dataset.muted !== '0';
+
+    function applySmartVideoSound(shell, wantSound){
+      const volume = wantSound ? 75 : 0;
+
       try{
-        shell.dataset.muted = turnOn ? '0' : '1';
-        if(shell.dataset.started !== '1') startSmartVideoShell(shell, btn, statusEl);
-        if(shell._videoEl){ shell._videoEl.muted = !turnOn; shell._videoEl.volume = turnOn ? .7 : 0; if(turnOn) shell._videoEl.play().catch(()=>{}); }
-        if(shell._player){ turnOn ? shell._player.unMute() : shell._player.mute(); shell._player.setVolume(turnOn ? 70 : 0); }
+        if(shell._videoEl){
+          shell._videoEl.muted = !wantSound;
+          shell._videoEl.volume = wantSound ? .75 : 0;
+          shell._videoEl.play().catch(()=>{});
+        }
+      }catch(e){}
+
+      try{
+        if(shell._player){
+          if(wantSound){
+            shell._player.unMute();
+            shell._player.setVolume(volume);
+          }else{
+            shell._player.mute();
+            shell._player.setVolume(0);
+          }
+          shell._player.playVideo();
+        }
+      }catch(e){}
+
+      try{
         if(shell._vimeoFrame && shell._vimeoFrame.contentWindow){
-          shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({ method:'setVolume', value: turnOn ? 1 : 0 }), '*');
+          shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({ method:'setMuted', value: !wantSound }), '*');
+          shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({ method:'setVolume', value: wantSound ? 1 : 0 }), '*');
           shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({ method:'play' }), '*');
         }
+      }catch(e){}
+
+      try{
         if(shell._tiktokFrame && shell._tiktokFrame.contentWindow){
-          shell._tiktokFrame.contentWindow.postMessage({ type: turnOn ? 'unMute' : 'mute', 'x-tiktok-player': true }, '*');
+          const msgType = wantSound ? 'unMute' : 'mute';
+          shell._tiktokFrame.contentWindow.postMessage({ type: msgType, 'x-tiktok-player': true }, '*');
+          shell._tiktokFrame.contentWindow.postMessage({ type: wantSound ? 'unmute' : 'mute', 'x-tiktok-player': true }, '*');
+          shell._tiktokFrame.contentWindow.postMessage(JSON.stringify({ type: msgType, 'x-tiktok-player': true }), '*');
           shell._tiktokFrame.contentWindow.postMessage({ type: 'play', 'x-tiktok-player': true }, '*');
         }
-        if(btn) btn.textContent = turnOn ? '🔊' : '🔇';
-        markVideoStatus(statusEl, '', false);
-      }catch(e){
-        markVideoStatus(statusEl, '', false);
+      }catch(e){}
+    }
+
+    function pulseHideNativeOverlay(shell){
+      if(!shell) return;
+      // Oculta por un instante el iframe cuando se cambia audio.
+      // Así no se ve el icono interno de pausa/play/adelantar de YouTube/TikTok/Vimeo.
+      shell.classList.add('sound-switching');
+      clearTimeout(shell._soundSwitchTimer);
+      shell._soundSwitchTimer = setTimeout(()=>shell.classList.remove('sound-switching'), 850);
+    }
+
+    function toggleSmartVideoSound(shell, btn, statusEl){
+      if(!shell) return;
+
+      const wantSound = shell.dataset.muted !== '0';
+      shell.dataset.muted = wantSound ? '0' : '1';
+
+      if(btn){
+        btn.textContent = wantSound ? '🔊' : '🔇';
+        btn.setAttribute('aria-label', wantSound ? 'Silenciar video' : 'Activar sonido');
+        btn.classList.toggle('is-sound-on', wantSound);
       }
+
+      // Si todavía no inició, lo arranca respetando el estado pedido.
+      if(shell.dataset.started !== '1'){
+        startSmartVideoShell(shell, btn, statusEl);
+      }
+
+      pulseHideNativeOverlay(shell);
+
+      // Aplicamos varias veces porque algunos iframes terminan de inicializar después del click.
+      applySmartVideoSound(shell, wantSound);
+      setTimeout(()=>applySmartVideoSound(shell, wantSound), 250);
+      setTimeout(()=>applySmartVideoSound(shell, wantSound), 800);
+      setTimeout(()=>applySmartVideoSound(shell, wantSound), 1400);
+
+      markVideoStatus(statusEl, '', false);
     }
     function initProductVideos(scope){
       const root = scope || document;
