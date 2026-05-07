@@ -1942,7 +1942,7 @@
       const media = detectVideoSource(shell.dataset.videoUrl || '');
       if(media.type === 'none' || media.type === 'unsupported') return fallbackSmartVideo(shell, statusEl);
       shell.dataset.started = '1';
-      if(!shell.dataset.muted) shell.dataset.muted = '1';
+      if(!shell.dataset.muted) shell.dataset.muted = shell.closest('.modal-product-media') ? '0' : '1';
       shell.classList.toggle('is-iframe-source', media.type !== 'file');
       if((shell.dataset.videoFit || 'cover') === 'contain') shell.classList.add('fit-contain');
       if(soundBtn) soundBtn.hidden = false;
@@ -4593,6 +4593,28 @@
 
   })();
   </script>
+<script>
+
+/* FIX v14: al abrir modal, intentar audio por defecto si el navegador lo permite */
+document.addEventListener('click', function(e){
+  const trigger = e.target.closest('[data-product-detail], .btn-detail, [data-bs-target="#productModal"], [data-action="detail"]');
+  if(!trigger) return;
+  setTimeout(function(){
+    document.querySelectorAll('.modal-product-media .product-video-shell').forEach(function(shell){
+      shell.dataset.muted = '0';
+      const btn = shell._soundBtn || shell.closest('.modal-product-media')?.querySelector('.video-audio-btn');
+      if(btn){
+        btn.textContent = '🔊';
+        btn.setAttribute('aria-label','Silenciar video');
+        btn.classList.add('is-sound-on');
+      }
+      try{ applySmartVideoSound(shell, true); }catch(err){}
+      setTimeout(()=>{ try{ applySmartVideoSound(shell, true); }catch(err){} }, 500);
+    });
+  }, 450);
+}, true);
+
+</script>
 </body>
 </html>
 
