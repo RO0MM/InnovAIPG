@@ -1467,6 +1467,45 @@ input, select, textarea, button { min-width: 0; }
 .plan-stock-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.plan-stock-actions .btn{padding:6px 9px;font-size:.78rem}.stock-help-card{border-left:3px solid var(--primary);background:var(--primary-alpha2)}
 @media(max-width:700px){.plan-stock-toolbar{grid-template-columns:1fr}.plan-stock-row{grid-template-columns:1fr}.plan-stock-actions{display:grid;grid-template-columns:1fr 1fr;justify-content:stretch}.plan-stock-actions .btn{width:100%}}
 
+
+
+/* ================================================================
+   CHAT CLIENTES EN VIVO — integrado al admin
+   ================================================================ */
+.live-chat-shell{height:calc(100dvh - 170px);min-height:620px;display:grid;grid-template-columns:340px minmax(0,1fr);gap:12px}
+.live-chat-panel,.live-chat-room{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;min-width:0}
+.live-chat-panel{display:grid;grid-template-rows:auto auto 1fr}
+.live-chat-hero{padding:16px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--primary-alpha),var(--success-alpha))}
+.live-chat-hero h2{margin:0;font-size:1.15rem;color:var(--card-ink);letter-spacing:-.02em}
+.live-chat-hero p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
+.live-chat-tools{padding:10px;border-bottom:1px solid var(--border);display:grid;gap:8px;background:var(--card2)}
+.live-chat-filters{display:flex;gap:6px;flex-wrap:wrap}.live-chat-filters .chip{padding:5px 10px;font-size:.75rem}
+.live-chat-list{overflow:auto;display:grid;align-content:start;gap:6px;padding:8px;background:var(--card2)}
+.live-chat-item{border:1px solid var(--border);background:var(--card);border-radius:14px;padding:10px;cursor:pointer;display:grid;gap:4px;transition:transform var(--tr-fast),border-color var(--tr),background var(--tr)}
+.live-chat-item:hover{transform:translateY(-1px);border-color:var(--primary)}
+.live-chat-item.active{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-alpha)}
+.live-chat-item-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.live-chat-phone{font-weight:900;color:var(--card-ink)}
+.live-chat-last{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.live-chat-time{font-size:.7rem;color:var(--muted);font-weight:700;white-space:nowrap}
+.live-chat-room{display:grid;grid-template-rows:auto 1fr auto;background:#0b141a;color:#e9edef}
+.live-chat-head{min-height:72px;padding:12px 14px;display:flex;gap:12px;align-items:center;background:linear-gradient(180deg,#202c33,#18242b);border-bottom:1px solid rgba(255,255,255,.09)}
+.live-chat-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#00a884,#25d366);display:grid;place-items:center;color:#052017;font-size:22px;font-weight:900;flex:0 0 auto}
+.live-chat-head-info{min-width:0;flex:1}.live-chat-head-info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.live-chat-head-info span{display:block;color:#b6c3c9;font-size:12px;margin-top:2px}
+.live-chat-head-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.live-chat-head-actions .btn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:#e9edef}.live-chat-head-actions .btn-success{background:#00a884;color:#052017;border:none}.live-chat-head-actions .btn-danger{background:rgba(255,107,122,.17);color:#ffd6dc;border-color:rgba(255,107,122,.35)}
+.live-chat-messages{overflow:auto;padding:16px 14px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth;background:radial-gradient(circle at 0 0,rgba(255,255,255,.035) 0 2px,transparent 3px),radial-gradient(circle at 22px 22px,rgba(255,255,255,.025) 0 2px,transparent 3px),#0b141a;background-size:44px 44px}
+.live-chat-empty{align-self:center;text-align:center;max-width:420px;background:rgba(32,44,51,.88);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:18px;color:#c7d0d5;font-size:.9rem}.live-chat-empty b{color:#fff}
+.live-day{align-self:center;background:rgba(32,44,51,.92);border:1px solid rgba(255,255,255,.09);border-radius:999px;color:#c7d0d5;font-size:11px;font-weight:800;padding:6px 12px;margin:4px 0}
+.live-msg{display:flex;flex-direction:column;gap:4px;max-width:min(78%,720px);animation:livePop .13s ease-out}.live-msg.me{align-self:flex-end;align-items:flex-end}.live-msg.other{align-self:flex-start;align-items:flex-start}@keyframes livePop{from{transform:translateY(5px);opacity:.55}to{transform:none;opacity:1}}
+.live-bubble{padding:8px 10px 7px;border-radius:14px;background:#202c33;border:1px solid rgba(255,255,255,.035);box-shadow:0 1px 1px rgba(0,0,0,.18);white-space:pre-wrap;word-break:break-word;line-height:1.38;font-size:14px}.live-msg.me .live-bubble{background:#005c4b}
+.live-meta{font-size:10px;color:#9fb0b8;padding:0 3px;display:flex;gap:5px;align-items:center}.live-checks{color:#63d8ff;font-size:11px}
+.live-file{overflow:hidden;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.20);max-width:330px}.live-file img{display:block;width:100%;max-height:340px;object-fit:cover;background:#0a1014}.live-file-info{padding:9px;display:grid;gap:7px}.live-file-name{font-size:12px;font-weight:900;word-break:break-all}.live-file-sub{font-size:11px;color:#a8b4ba}.live-file-actions{display:flex;gap:7px;flex-wrap:wrap}.live-file-actions a{color:#052017;background:#dffdf3;text-decoration:none;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900}.live-file-actions a.secondary{background:rgba(255,255,255,.10);color:#e9edef;border:1px solid rgba(255,255,255,.09)}
+.live-compose{background:#202c33;border-top:1px solid rgba(255,255,255,.09);padding:9px;display:grid;gap:8px}.live-preview{display:none;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:8px}.live-preview.show{display:flex}.live-preview img,.live-fileicon{width:54px;height:54px;border-radius:13px;object-fit:cover;background:rgba(255,255,255,.10);display:grid;place-items:center;font-size:23px}.live-preview b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.live-preview span{font-size:11px;color:#a8b4ba}.live-compose-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:end}.live-attach,.live-send{border:none;cursor:pointer;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:900}.live-attach{width:46px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);color:#d5dee3;font-size:25px}.live-send{width:46px;background:#00a884;color:#052017;font-size:19px}.live-textarea{width:100%;resize:none;min-height:46px;max-height:128px;outline:none;border:none;border-radius:23px;background:#2a3942;color:#e9edef;padding:13px 15px;font:inherit;font-size:14px}.live-textarea::placeholder{color:#a9b7bd}
+.live-cleaner{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.live-cleaner .input{max-width:95px;background:#2a3942;color:#e9edef;border-color:rgba(255,255,255,.1)}.live-cleaner select.input{max-width:120px}.live-cleaner .help{color:#b6c3c9;width:100%;font-size:.73rem}
+@media(max-width:900px){.live-chat-shell{height:calc(100dvh - 135px);grid-template-columns:1fr;min-height:620px}.live-chat-panel{display:none}.live-chat-shell.show-list .live-chat-panel{display:grid}.live-chat-shell.show-list .live-chat-room{display:none}.live-chat-head-actions{gap:5px}.live-chat-head-actions .btn{padding:7px 9px;font-size:.76rem}.live-msg{max-width:88%}}
+@media(max-width:420px){.live-chat-head{padding:10px}.live-chat-avatar{width:40px;height:40px}.live-chat-head-actions .btn:not(#liveChatBack){font-size:0;padding:8px}.live-chat-head-actions .btn:not(#liveChatBack)::first-letter{font-size:.9rem}.live-cleaner{display:grid;grid-template-columns:1fr 1fr}.live-cleaner .input{max-width:100%}.live-cleaner .help{grid-column:1/-1}}
+
 </style>
 </head>
 <body>
@@ -1500,7 +1539,7 @@ input, select, textarea, button { min-width: 0; }
   <div class="g-title">CRM</div>
   <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">👥 Clientes</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="reminders" type="button">🔔 Recordatorios</button>
-  <button class="btn btn-ghost nav-btn-side" data-tab="ops" type="button">🔐 Operaciones PRO</button>
+  <button class="btn btn-ghost nav-btn-side" data-tab="chat" type="button">💬 Chat Clientes <span class="tab-badge" id="tbChatSide" style="display:none">0</span></button>
   <button class="btn btn-ghost nav-btn-side" data-tab="totp" type="button">🛡️ Accesos TOTP</button>
   <div class="g-title">Configuración</div>
   <button class="btn btn-ghost nav-btn-side" data-tab="templates" type="button">📝 Plantillas</button>
@@ -1522,8 +1561,9 @@ input, select, textarea, button { min-width: 0; }
       <button class="btn btn-primary" id="btnLogin" type="button">🔐 Entrar</button>
       <button class="btn btn-ghost" id="btnLoginHelp" type="button">Ayuda</button>
     </div>
+    <button class="btn btn-success" id="btnLoginTestChat" type="button" style="width:100%;margin-top:10px;padding:11px">💬 Probar chat sin correo ni clave</button>
     <div class="auth-divider"></div>
-    <p class="auth-note">Protegido con Supabase Auth. El usuario también debe existir en <strong>admin_users</strong> para que las políticas permitan editar.</p>
+    <p class="auth-note">Modo prueba: entra directo al módulo de chat con sesión anónima. Para producción, protege el admin con usuario real.</p>
   </div>
 </div>
 
@@ -1538,7 +1578,7 @@ input, select, textarea, button { min-width: 0; }
         <div class="logo"><span>IA</span></div>
         <div>
           <div class="app-title">Innov IA Admin</div>
-          <div class="app-sub">Productos • Cupos • Pagos • Entregas • Recordatorios PRO</div>
+          <div class="app-sub">Productos • Pagos • Entregas • Chat en vivo</div>
         </div>
       </div>
       <div class="header-actions">
@@ -1560,7 +1600,7 @@ input, select, textarea, button { min-width: 0; }
     <button class="btn nav-btn" data-tab="orders">🧾 Pagos <span class="tab-badge" id="tbOrders" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="clients">👥 Clientes</button>
     <button class="btn nav-btn" data-tab="reminders">🔔 Recordatorios <span class="tab-badge" id="tbReminders" style="display:none">0</span></button>
-    <button class="btn nav-btn" data-tab="ops">🔐 Operaciones PRO</button>
+    <button class="btn nav-btn" data-tab="chat">💬 Chat <span class="tab-badge" id="tbChat" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="totp">🛡️ Accesos TOTP</button>
     <button class="btn nav-btn" data-tab="templates">📝 Plantillas</button>
     <button class="btn nav-btn" data-tab="coupons">🎟️ Cupones</button>
@@ -1670,65 +1710,72 @@ input, select, textarea, button { min-width: 0; }
 
 
       <!-- Operaciones PRO / fusión Recordatorio -->
-      <section id="tab-ops" class="admin-section">
-        <div class="ops-hero">
-          <div class="card">
-            <div class="ops-title">
-              <div>
-                <h2>🔐 Operaciones PRO</h2>
-                <p class="help" style="margin:4px 0 0">Cuentas, perfiles, PIN, usos permitidos, entrega rápida y recordatorio automático a 30 días, todo dentro del admin.</p>
+      
+      <!-- Chat Clientes / reemplazo de Operaciones PRO -->
+      <section id="tab-chat" class="admin-section">
+        <div class="live-chat-shell show-list" id="liveChatShell">
+          <aside class="live-chat-panel">
+            <div class="live-chat-hero">
+              <h2>💬 Chat Clientes</h2>
+              <p>El cliente entra con su celular y aquí aparece su conversación en vivo.</p>
+            </div>
+            <div class="live-chat-tools">
+              <input class="input" id="liveChatSearch" type="search" placeholder="🔍 Buscar por celular o mensaje...">
+              <div class="live-chat-filters">
+                <button class="chip" id="liveChatFilterOpen" type="button" aria-pressed="true">Abiertos</button>
+                <button class="chip" id="liveChatFilterClosed" type="button" aria-pressed="false">Cerrados</button>
+                <button class="chip" id="liveChatRefresh" type="button">↻ Actualizar</button>
               </div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn btn-primary" id="btnOpsAddAccount" type="button">＋ Cuenta</button>
-                <button class="btn btn-success hidden" id="btnOpsAddCode" type="button" style="display:none">＋ Cuenta</button>
-                <button class="btn" id="btnOpsBulk" type="button">📥 Lote</button>
-                <button class="btn" id="btnOpsCompactHelp" type="button" title="Vista compacta por producto">☰ Lista</button>
+            </div>
+            <div class="live-chat-list" id="liveChatList">
+              <div class="empty-state"><span class="icon">💬</span><p>Cargando chats...</p></div>
+            </div>
+          </aside>
+
+          <section class="live-chat-room">
+            <header class="live-chat-head">
+              <button class="btn btn-ghost mobile-only" id="liveChatBack" type="button">←</button>
+              <div class="live-chat-avatar">💬</div>
+              <div class="live-chat-head-info">
+                <b id="liveChatTitle">Selecciona un chat</b>
+                <span id="liveChatSub">Los mensajes llegarán en vivo sin recargar.</span>
               </div>
+              <div class="live-chat-head-actions">
+                <button class="btn btn-success" id="liveChatOpenWhatsApp" type="button">🟢 WhatsApp</button>
+                <button class="btn" id="liveChatToggleStatus" type="button">Cerrar</button>
+                <button class="btn btn-danger" id="liveChatDeleteNow" type="button">🗑 Borrar para todos</button>
+              </div>
+            </header>
+            <div class="live-chat-messages" id="liveChatMessages">
+              <div class="live-chat-empty"><b>Panel listo 💬</b><br>Selecciona un cliente para responder como admin.</div>
             </div>
-            <div class="ops-kpis">
-              <div class="ops-kpi"><div class="v" id="opsKpiAccounts">0</div><div class="l">Cuentas libres</div></div>
-              <div class="ops-kpi"><div class="v" id="opsKpiCodes">0</div><div class="l">Reservadas</div></div>
-              <div class="ops-kpi"><div class="v" id="opsKpiUsed">0</div><div class="l">Usadas</div></div>
-              <div class="ops-kpi"><div class="v" id="opsKpiPlans">0</div><div class="l">Planes activos</div></div>
-            </div>
-          </div>
-          <div class="card">
-            <strong>✅ Flujo recomendado</strong>
-            <div class="ops-mini-help" style="margin-top:10px">
-              1) Carga cuentas con correo, clave, perfil, PIN y usos permitidos.<br>
-              2) Presiona <b>Entregar + recordatorio</b>.<br>
-              3) Ingresa WhatsApp del cliente.<br>
-              4) Se copia el mensaje, se crea cliente y se guarda renovación a <b>30 días</b>.
-            </div>
-          </div>
+            <footer class="live-compose">
+              <div class="live-cleaner">
+                <button class="btn btn-warning" id="liveChatDelete24" type="button">⏱ Borrar en 24h</button>
+                <input class="input" id="liveChatDeleteAmount" type="number" min="1" placeholder="Tiempo">
+                <select class="input" id="liveChatDeleteUnit">
+                  <option value="hours">Horas</option>
+                  <option value="days">Días</option>
+                </select>
+                <button class="btn" id="liveChatScheduleDelete" type="button">Programar borrado</button>
+                <div class="help" id="liveChatDeleteHint">También puedes conservar el chat: mientras no lo borres, el cliente vuelve con su número y verá su historial.</div>
+              </div>
+              <div class="live-preview" id="liveChatPreview">
+                <div class="live-fileicon" id="liveChatPreviewIcon">📎</div>
+                <div style="min-width:0;flex:1"><b id="liveChatPreviewName">archivo</b><span id="liveChatPreviewSize">0 KB</span></div>
+                <button class="btn btn-ghost btn-icon" id="liveChatPreviewClear" type="button">✕</button>
+              </div>
+              <div class="live-compose-row">
+                <label class="live-attach" title="Enviar foto o archivo">＋<input id="liveChatFile" type="file" hidden></label>
+                <textarea class="live-textarea" id="liveChatText" rows="1" placeholder="Escribe una respuesta..."></textarea>
+                <button class="live-send" id="liveChatSend" type="button">➤</button>
+              </div>
+            </footer>
+          </section>
         </div>
-
-        <div class="admin-toolbar">
-          <div class="input-wrap"><input class="input" id="opsSearch" type="search" placeholder="🔍 Buscar cuenta, producto, correo, perfil o PIN..."></div>
-          <select class="input" id="opsPlanFilter" style="max-width:260px"><option value="">Todos los planes</option></select>
-          <select class="input" id="opsStatusFilter" style="max-width:180px">
-            <option value="">Todos</option>
-            <option value="available">Disponibles</option>
-            <option value="reserved">Reservadas</option>
-            <option value="used">Usadas</option>
-          </select>
-          <div class="actions">
-            <button class="btn" id="btnOpsRefresh" type="button">↻</button>
-            <button class="btn btn-success" id="btnOpsExport" type="button">⬇ Backup</button>
-          </div>
-        </div>
-
-        <div class="ops-switch" role="tablist" aria-label="Vista de operaciones">
-          <button class="chip" data-ops-view="accounts" aria-pressed="true" type="button">🔐 Cuentas</button>
-          <button class="chip" data-ops-view="all" type="button">📦 Todo stock</button>
-        </div>
-
-        <div id="opsGrid" class="ops-grid ops-list"></div>
       </section>
 
-
-      <!-- Accesos TOTP -->
-      <section id="tab-totp" class="admin-section">
+<section id="tab-totp" class="admin-section">
         <div class="totp-hero">
           <div class="card">
             <div class="totp-title">
@@ -2441,6 +2488,8 @@ let state={
   coupons:[],settings:[],summary:[],customers:[],reminders:[],templates:[],
   deliveryTemplates:[],orderInputs:[],orderChats:[],
   totpAccounts:[],totpCodes:[],totpEvents:[],totpView:'codes',totpDbError:null,
+  liveChatConversations:[],liveChatMessages:[],liveChatActive:null,liveChatFile:null,liveChatFilter:'open',
+  liveChatListChannel:null,liveChatMsgChannel:null,liveChatUserId:null,liveChatInit:false,liveChatCleanupTimer:null,
   tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyPending:false
 };
 
@@ -2624,8 +2673,219 @@ function renderDeliveryMessage(){
   if($('manualPreview'))$('manualPreview').textContent=msg;
 }
 
+
+
+/* ---- Chat Clientes en vivo ---- */
+function liveChatPhoneLabel(c){return c?.client_phone?('+'+String(c.client_phone).replace(/^\+/,'')).replace(/^\+51(\d{9})$/,'+$1'):'Sin número'}
+function liveChatTime(iso){try{return new Date(iso).toLocaleString('es-PE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}catch(_){return ''}}
+function liveChatDay(iso){try{return new Date(iso).toLocaleDateString('es-PE',{weekday:'long',day:'2-digit',month:'long'})}catch(_){return ''}}
+function liveChatSize(n){n=Number(n||0);if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(1)+' MB'}
+function liveChatSafeFileName(name){return String(name||'archivo').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(0,90)||'archivo'}
+function liveChatScroll(){const el=$('liveChatMessages');if(el)el.scrollTop=el.scrollHeight}
+function liveChatSetEmpty(msg='Selecciona un cliente para responder como admin.'){if($('liveChatMessages'))$('liveChatMessages').innerHTML=`<div class="live-chat-empty"><b>Panel listo 💬</b><br>${esc(msg)}</div>`}
+function liveChatSetMobileList(show){$('liveChatShell')?.classList.toggle('show-list',!!show)}
+function liveChatUpdateBadge(){
+  const open=(state.liveChatConversations||[]).filter(c=>String(c.status||'open')==='open').length;
+  ['tbChat','tbChatSide'].forEach(id=>{const b=$(id);if(b){b.textContent=open;b.style.display=open?'inline-flex':'none'}});
+}
+async function liveChatEnsureSession(){
+  const s=await db.auth.getSession();
+  if(!s.data.session){const r=await db.auth.signInAnonymously();if(r.error)throw r.error;}
+  const u=await db.auth.getUser();
+  if(u.error)throw u.error;
+  state.liveChatUserId=u.data.user.id;
+  return state.liveChatUserId;
+}
+async function initLiveChatAdmin(){
+  if(state.liveChatInit){await liveChatLoadConversations();return;}
+  state.liveChatInit=true;
+  try{
+    await liveChatEnsureSession();
+    liveChatBindUI();
+    await liveChatCleanupExpired();
+    await liveChatLoadConversations();
+    liveChatSubscribeList();
+    if(!state.liveChatCleanupTimer)state.liveChatCleanupTimer=setInterval(liveChatCleanupExpired,60000);
+    $('connText').textContent='Chat activo';
+  }catch(e){toast('Chat no iniciado: '+e.message,'bad');liveChatSetEmpty('Ejecuta primero el SQL de chat y activa Anonymous Sign-ins en Supabase.');}
+}
+function liveChatBindUI(){
+  if(state.liveChatUiBound)return;state.liveChatUiBound=true;
+  $('liveChatSearch')?.addEventListener('input',liveChatRenderConversations);
+  $('liveChatRefresh')?.addEventListener('click',liveChatLoadConversations);
+  $('liveChatFilterOpen')?.addEventListener('click',()=>{state.liveChatFilter='open';$('liveChatFilterOpen').setAttribute('aria-pressed','true');$('liveChatFilterClosed').setAttribute('aria-pressed','false');liveChatRenderConversations()});
+  $('liveChatFilterClosed')?.addEventListener('click',()=>{state.liveChatFilter='closed';$('liveChatFilterClosed').setAttribute('aria-pressed','true');$('liveChatFilterOpen').setAttribute('aria-pressed','false');liveChatRenderConversations()});
+  $('liveChatSend')?.addEventListener('click',liveChatSend);
+  $('liveChatText')?.addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,128)+'px'});
+  $('liveChatText')?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();liveChatSend()}});
+  $('liveChatFile')?.addEventListener('change',e=>liveChatPreviewFile(e.target.files?.[0]));
+  $('liveChatPreviewClear')?.addEventListener('click',liveChatClearPreview);
+  $('liveChatOpenWhatsApp')?.addEventListener('click',()=>{const c=state.liveChatActive;if(!c?.client_phone)return toast('Selecciona un chat','bad');window.open('https://wa.me/'+String(c.client_phone).replace(/\D/g,''),'_blank','noopener,noreferrer')});
+  $('liveChatToggleStatus')?.addEventListener('click',liveChatToggleStatus);
+  $('liveChatDeleteNow')?.addEventListener('click',()=>liveChatDeleteActive('now'));
+  $('liveChatDelete24')?.addEventListener('click',()=>liveChatScheduleActive(24,'hours'));
+  $('liveChatScheduleDelete')?.addEventListener('click',()=>{const n=Number($('liveChatDeleteAmount').value||0);if(!n)return toast('Coloca el tiempo','bad');liveChatScheduleActive(n,$('liveChatDeleteUnit').value)});
+  $('liveChatBack')?.addEventListener('click',()=>liveChatSetMobileList(true));
+}
+async function liveChatLoadConversations(){
+  const r=await db.from('conversations').select('*').order('last_message_at',{ascending:false});
+  if(r.error)throw r.error;
+  state.liveChatConversations=r.data||[];
+  liveChatRenderConversations();liveChatUpdateBadge();
+  if(state.liveChatActive){
+    const fresh=state.liveChatConversations.find(c=>c.id===state.liveChatActive.id);
+    if(fresh){state.liveChatActive=fresh;liveChatUpdateHeader()}else{state.liveChatActive=null;liveChatUpdateHeader();liveChatSetEmpty('El chat fue eliminado.');}
+  }
+}
+function liveChatRenderConversations(){
+  const list=$('liveChatList'); if(!list)return;
+  const q=String($('liveChatSearch')?.value||'').toLowerCase().trim();
+  let rows=[...(state.liveChatConversations||[])].filter(c=>String(c.status||'open')===state.liveChatFilter);
+  if(q)rows=rows.filter(c=>String(c.client_phone||'').includes(q)||String(c.last_message||'').toLowerCase().includes(q));
+  if(!rows.length){list.innerHTML='<div class="empty-state"><span class="icon">💬</span><p>Sin chats en esta vista.</p></div>';return;}
+  list.innerHTML=rows.map(c=>`<div class="live-chat-item ${state.liveChatActive?.id===c.id?'active':''}" data-id="${esc(c.id)}">
+    <div class="live-chat-item-top"><span class="live-chat-phone">📱 ${esc(liveChatPhoneLabel(c))}</span><span class="live-chat-time">${esc(liveChatTime(c.last_message_at||c.created_at))}</span></div>
+    <div class="live-chat-last">${esc(c.last_message||'Chat iniciado')}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px"><span class="badge ${String(c.status)==='closed'?'b-bad':'b-ok'}">${String(c.status)==='closed'?'Cerrado':'Abierto'}</span>${c.delete_after_at?`<span class="badge b-warn">Borra: ${esc(liveChatTime(c.delete_after_at))}</span>`:''}</div>
+  </div>`).join('');
+  list.querySelectorAll('.live-chat-item').forEach(el=>el.onclick=()=>liveChatOpenConversation(el.dataset.id));
+}
+function liveChatUpdateHeader(){
+  const c=state.liveChatActive;
+  $('liveChatTitle').textContent=c?`Cliente ${liveChatPhoneLabel(c)}`:'Selecciona un chat';
+  $('liveChatSub').textContent=c?`${String(c.status)==='closed'?'Chat cerrado':'En línea / historial activo'}${c.delete_after_at?' · Borrado programado '+liveChatTime(c.delete_after_at):''}`:'Los mensajes llegarán en vivo sin recargar.';
+  $('liveChatToggleStatus').textContent=c?(String(c.status)==='closed'?'Reabrir':'Cerrar'):'Cerrar';
+  $('liveChatDeleteHint').textContent=c?.delete_after_at?`Este chat se borrará automáticamente cuando el admin esté abierto: ${liveChatTime(c.delete_after_at)}.`:'Si conservas el chat, el cliente entra con su número y verá su historial.';
+}
+async function liveChatOpenConversation(id){
+  const c=state.liveChatConversations.find(x=>x.id===id); if(!c)return;
+  state.liveChatActive=c; liveChatUpdateHeader(); liveChatRenderConversations(); liveChatSetMobileList(false);
+  await liveChatLoadMessages(); liveChatSubscribeMessages();
+}
+async function liveChatLoadMessages(){
+  if(!state.liveChatActive)return;
+  const box=$('liveChatMessages');box.innerHTML='<div class="live-chat-empty">Cargando mensajes...</div>';
+  const r=await db.from('messages').select('*').eq('conversation_id',state.liveChatActive.id).order('created_at',{ascending:true});
+  if(r.error){box.innerHTML='<div class="live-chat-empty">No se pudieron cargar mensajes.</div>';toast(r.error.message,'bad');return;}
+  state.liveChatMessages=r.data||[];box.innerHTML='';
+  if(!state.liveChatMessages.length){box.innerHTML='<div class="live-chat-empty"><b>Sin mensajes todavía</b><br>Escribe una respuesta para iniciar.</div>';return;}
+  let lastDay='';
+  for(const m of state.liveChatMessages){const d=liveChatDay(m.created_at);if(d!==lastDay){lastDay=d;const day=document.createElement('div');day.className='live-day';day.textContent=d;box.appendChild(day);} await liveChatRenderMessage(m,false)}
+  liveChatScroll();
+}
+async function liveChatSignedUrl(path,download=false,fileName='archivo'){
+  if(!path)return '#';
+  const opts=download?{download:fileName||true}:undefined;
+  const r=await db.storage.from('chat-files').createSignedUrl(path,3600,opts);
+  return r.data?.signedUrl||'#';
+}
+async function liveChatRenderMessage(m,play=true){
+  const box=$('liveChatMessages'); if(!box)return;
+  const empty=box.querySelector('.live-chat-empty'); if(empty)empty.remove();
+  const me=m.sender_role==='admin';
+  const div=document.createElement('div');div.className='live-msg '+(me?'me':'other');
+  let fileHtml='';
+  if(m.file_path){
+    const view=await liveChatSignedUrl(m.file_path,false,m.file_name);
+    const down=await liveChatSignedUrl(m.file_path,true,m.file_name);
+    const isImg=String(m.file_type||'').startsWith('image/');
+    fileHtml=`<div class="live-file">${isImg?`<img src="${view}" alt="${esc(m.file_name||'imagen')}">`:''}<div class="live-file-info"><div class="live-file-name">${isImg?'📷':'📎'} ${esc(m.file_name||'archivo')}</div><div class="live-file-sub">${esc(m.file_type||'archivo')} · ${liveChatSize(m.file_size)}</div><div class="live-file-actions"><a href="${view}" target="_blank" rel="noopener">Ver</a><a class="secondary" href="${down}" download="${esc(m.file_name||'archivo')}">Descargar</a></div></div></div>`;
+  }
+  div.innerHTML=`${m.body?`<div class="live-bubble">${esc(m.body)}</div>`:''}${fileHtml}<div class="live-meta"><span>${esc(new Date(m.created_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}))}</span>${me?'<span class="live-checks">✓✓</span>':''}</div>`;
+  box.appendChild(div);liveChatScroll();
+  if(play && !me)notifyWeb('Nuevo mensaje de cliente',String(m.body||m.file_name||'Archivo').slice(0,120),true);
+}
+function liveChatSubscribeList(){
+  if(state.liveChatListChannel)db.removeChannel(state.liveChatListChannel);
+  state.liveChatListChannel=db.channel('live-chat-list-'+Date.now())
+    .on('postgres_changes',{event:'*',schema:'public',table:'conversations'},()=>liveChatLoadConversations().catch(console.warn))
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},payload=>{
+      if(payload.new?.conversation_id!==state.liveChatActive?.id)liveChatLoadConversations().catch(console.warn);
+    }).subscribe();
+}
+function liveChatSubscribeMessages(){
+  if(state.liveChatMsgChannel)db.removeChannel(state.liveChatMsgChannel);
+  if(!state.liveChatActive)return;
+  state.liveChatMsgChannel=db.channel('live-chat-room-'+state.liveChatActive.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`conversation_id=eq.${state.liveChatActive.id}`},async payload=>{
+      if((state.liveChatMessages||[]).some(x=>x.id===payload.new.id))return;
+      state.liveChatMessages.push(payload.new);await liveChatRenderMessage(payload.new,true);await liveChatLoadConversations();
+    }).subscribe();
+}
+function liveChatPreviewFile(file){
+  state.liveChatFile=file||null;const prev=$('liveChatPreview');
+  if(!file){liveChatClearPreview();return}
+  $('liveChatPreviewName').textContent=file.name;$('liveChatPreviewSize').textContent=liveChatSize(file.size);
+  const icon=$('liveChatPreviewIcon');icon.innerHTML='📎';
+  if(file.type.startsWith('image/')){const img=document.createElement('img');img.src=URL.createObjectURL(file);icon.innerHTML='';icon.appendChild(img)}
+  prev.classList.add('show');
+}
+function liveChatClearPreview(){state.liveChatFile=null;if($('liveChatFile'))$('liveChatFile').value='';$('liveChatPreview')?.classList.remove('show');$('liveChatPreviewIcon').innerHTML='📎'}
+async function liveChatUploadFile(file){
+  const path=`${state.liveChatActive.id}/${Date.now()}-${crypto.randomUUID()}-${liveChatSafeFileName(file.name)}`;
+  const r=await db.storage.from('chat-files').upload(path,file,{cacheControl:'3600',upsert:false});
+  if(r.error)throw r.error;
+  return {file_path:path,file_name:file.name,file_type:file.type||'application/octet-stream',file_size:file.size||0};
+}
+async function liveChatSend(){
+  if(!state.liveChatActive)return toast('Selecciona un chat primero','bad');
+  const body=$('liveChatText').value.trim();const file=state.liveChatFile;
+  if(!body&&!file)return;
+  $('liveChatSend').disabled=true;
+  try{
+    await liveChatEnsureSession();
+    let meta={}; if(file)meta=await liveChatUploadFile(file);
+    const payload={conversation_id:state.liveChatActive.id,sender_id:state.liveChatUserId,sender_role:'admin',body:body||null,...meta};
+    const r=await db.from('messages').insert(payload);
+    if(r.error)throw r.error;
+    $('liveChatText').value='';$('liveChatText').style.height='auto';liveChatClearPreview();
+  }catch(e){toast('No se envió: '+e.message,'bad')}
+  finally{$('liveChatSend').disabled=false;}
+}
+async function liveChatToggleStatus(){
+  const c=state.liveChatActive;if(!c)return toast('Selecciona un chat','bad');
+  const next=String(c.status||'open')==='closed'?'open':'closed';
+  const r=await db.from('conversations').update({status:next}).eq('id',c.id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast(next==='closed'?'Chat cerrado':'Chat reabierto','ok');await liveChatLoadConversations();
+}
+async function liveChatDeleteFiles(conversationId){
+  const r=await db.from('messages').select('file_path').eq('conversation_id',conversationId).not('file_path','is',null);
+  const paths=[...new Set((r.data||[]).map(x=>x.file_path).filter(Boolean))];
+  if(paths.length){const rm=await db.storage.from('chat-files').remove(paths);if(rm.error)console.warn('storage remove',rm.error)}
+}
+async function liveChatDeleteConversation(conversationId){
+  await liveChatDeleteFiles(conversationId);
+  await db.from('messages').delete().eq('conversation_id',conversationId);
+  const r=await db.from('conversations').delete().eq('id',conversationId);
+  if(r.error)throw r.error;
+}
+async function liveChatDeleteActive(mode='now'){
+  const c=state.liveChatActive;if(!c)return toast('Selecciona un chat','bad');
+  if(!confirm('¿Borrar este chat para ambas partes? Se eliminarán mensajes, fotos y archivos.'))return;
+  try{await liveChatDeleteConversation(c.id);state.liveChatActive=null;liveChatUpdateHeader();liveChatSetEmpty('Chat eliminado para ambas partes.');await liveChatLoadConversations();toast('Chat eliminado completamente','ok')}
+  catch(e){toast('No se pudo borrar: '+e.message,'bad')}
+}
+async function liveChatScheduleActive(amount,unit){
+  const c=state.liveChatActive;if(!c)return toast('Selecciona un chat','bad');
+  const ms=unit==='days'?amount*86400000:amount*3600000;
+  const when=new Date(Date.now()+ms).toISOString();
+  const r=await db.from('conversations').update({delete_after_at:when,delete_mode:unit==='days'?'custom_days':amount===24?'24h':'custom_hours'}).eq('id',c.id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Borrado programado para '+liveChatTime(when),'ok');await liveChatLoadConversations();
+}
+async function liveChatCleanupExpired(){
+  try{
+    await liveChatEnsureSession();
+    const r=await db.from('conversations').select('id').lte('delete_after_at',new Date().toISOString()).not('delete_after_at','is',null).limit(25);
+    if(r.error)return;
+    for(const c of (r.data||[]))await liveChatDeleteConversation(c.id);
+    if((r.data||[]).length)await liveChatLoadConversations();
+  }catch(e){console.warn('cleanup chat',e)}
+}
 /* ---- Auth ---- */
 async function login(){
+  localStorage.removeItem('innov_live_chat_test_mode');
   const btn=$('btnLogin');
   btn.disabled=true;btn.textContent='Entrando...';
   const r=await db.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPass').value});
@@ -2635,11 +2895,28 @@ async function login(){
   $('app').classList.remove('hidden');
   await loadAll();
 }
+async function loginTestChat(){
+  const btn=$('btnLoginTestChat');
+  btn.disabled=true;btn.textContent='Entrando al chat...';
+  try{
+    const s=await db.auth.getSession();
+    if(!s.data.session){const r=await db.auth.signInAnonymously();if(r.error)throw r.error;}
+    localStorage.setItem('innov_live_chat_test_mode','1');
+    $('auth').classList.add('hidden');$('app').classList.remove('hidden');
+    switchTab('chat');
+    await initLiveChatAdmin();
+  }catch(e){toast('No se pudo entrar en modo prueba: '+e.message,'bad')}
+  finally{btn.disabled=false;btn.textContent='💬 Probar chat sin correo ni clave'}
+}
 async function init(){
   const r=await db.auth.getSession();
-  if(r.data.session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');await loadAll();}
+  if(r.data.session){
+    $('auth').classList.add('hidden');$('app').classList.remove('hidden');
+    if(localStorage.getItem('innov_live_chat_test_mode')==='1'){switchTab('chat');await initLiveChatAdmin();return;}
+    await loadAll();
+  }
 }
-async function logout(){await db.auth.signOut();location.reload()}
+async function logout(){localStorage.removeItem('innov_live_chat_test_mode');await db.auth.signOut();location.reload()}
 
 /* ---- Loading ---- */
 let _loading=false;
@@ -3017,7 +3294,8 @@ function renderSettings(){
 function switchTab(tab){
   state.tab=tab;
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  $('tab-'+tab).classList.add('active');
+  const section=$('tab-'+tab);
+  if(section)section.classList.add('active');
   document.querySelectorAll('[data-tab]').forEach(b=>{
     const on=b.dataset.tab===tab;
     b.classList.toggle('active',on);
@@ -3028,6 +3306,7 @@ function switchTab(tab){
   const activeTab=document.querySelector('.admin-tabs .nav-btn[aria-pressed="true"]');
   if(activeTab)activeTab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
   if(window.innerWidth<=800)window.scrollTo({top:0,behavior:'smooth'});
+  if(tab==='chat')initLiveChatAdmin();
 }
 
 /* ---- Products CRUD ---- */
@@ -4288,6 +4567,7 @@ async function adminAutoRefresh(){
 
 /* ---- Event bindings ---- */
 $('btnLogin').onclick=login;
+if($('btnLoginTestChat'))$('btnLoginTestChat').onclick=loginTestChat;
 $('loginPass').onkeydown=e=>{if(e.key==='Enter')login()};
 $('btnLogout').onclick=logout;
 $('btnTheme').onclick=()=>{
