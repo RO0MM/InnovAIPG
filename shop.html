@@ -1136,6 +1136,12 @@
   }
 }
 
+
+/* FIX v15 — TikTok audio: no crear modal con muted=1 */
+.modal-product-media .video-audio-btn.is-sound-on{
+  background:rgba(16,185,129,.9)!important;
+}
+
 </style>
 </head>
 
@@ -1988,12 +1994,19 @@
 
       if(media.type === 'tiktok'){
         const iframe = document.createElement('iframe');
-        iframe.src = `https://www.tiktok.com/player/v1/${media.id}?autoplay=1&muted=1&loop=1&controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&timestamp=0&music_info=0&description=0&rel=0&native_context_menu=0&closed_caption=0`;
+        const wantSound = shell.dataset.muted === '0';
+        const mutedParam = wantSound ? '0' : '1';
+        iframe.src = `https://www.tiktok.com/player/v1/${media.id}?autoplay=1&muted=${mutedParam}&loop=1&controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&timestamp=0&music_info=0&description=0&rel=0&native_context_menu=0&closed_caption=0`;
         iframe.setAttribute('allow','autoplay; encrypted-media; fullscreen; picture-in-picture');
         iframe.setAttribute('loading','lazy');
         iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
         iframe.onload = () => {
-          try{ iframe.contentWindow.postMessage({type:'play', 'x-tiktok-player':true}, '*'); }catch(e){}
+          try{
+            iframe.contentWindow.postMessage({type:'play', value:undefined, 'x-tiktok-player':true}, '*');
+            iframe.contentWindow.postMessage({type: wantSound ? 'unMute' : 'mute', value:undefined, 'x-tiktok-player':true}, '*');
+          }catch(e){}
+          setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 350);
+          setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 900);
           setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 1600 : 950);
         };
         shell.appendChild(iframe);
@@ -2003,6 +2016,7 @@
         shell.appendChild(shield);
         shell._iframe = iframe;
         shell._tiktokFrame = iframe;
+        shell._tiktokId = media.id;
         if(soundBtn) soundBtn.hidden = false;
         return;
       }
@@ -2123,11 +2137,23 @@
 
       try{
         if(shell._tiktokFrame && shell._tiktokFrame.contentWindow){
+          const frame = shell._tiktokFrame;
           const msgType = wantSound ? 'unMute' : 'mute';
-          shell._tiktokFrame.contentWindow.postMessage({ type: msgType, 'x-tiktok-player': true }, '*');
-          shell._tiktokFrame.contentWindow.postMessage({ type: wantSound ? 'unmute' : 'mute', 'x-tiktok-player': true }, '*');
-          shell._tiktokFrame.contentWindow.postMessage(JSON.stringify({ type: msgType, 'x-tiktok-player': true }), '*');
-          shell._tiktokFrame.contentWindow.postMessage({ type: 'play', 'x-tiktok-player': true }, '*');
+
+          // TikTok: si el iframe fue creado con muted=1, no siempre permite activar audio.
+          // Por eso, al pedir sonido se cambia el parámetro a muted=0 y luego se envía unMute.
+          if(wantSound && frame.src && frame.src.includes('muted=1')){
+            frame.src = frame.src.replace('muted=1', 'muted=0');
+            frame.onload = () => {
+              try{
+                frame.contentWindow.postMessage({ type:'play', value:undefined, 'x-tiktok-player': true }, '*');
+                frame.contentWindow.postMessage({ type:'unMute', value:undefined, 'x-tiktok-player': true }, '*');
+              }catch(err){}
+            };
+          }else{
+            frame.contentWindow.postMessage({ type:'play', value:undefined, 'x-tiktok-player': true }, '*');
+            frame.contentWindow.postMessage({ type: msgType, value:undefined, 'x-tiktok-player': true }, '*');
+          }
         }
       }catch(e){}
     }
@@ -2189,12 +2215,12 @@
       shell.dataset.bound = '';
       shell.dataset.started = '';
       shell.dataset.failed = '';
-      shell.dataset.muted = '1';
+      shell.dataset.muted = '0';
       const url = resolveVideoUrl(item);
       if(!url){ if(btn) btn.hidden = true; markVideoStatus(statusEl, '', false); return; }
       shell.dataset.videoUrl = url;
       shell.dataset.videoFit = item?.videoFit || item?.video_fit || 'cover';
-      if(btn){ btn.hidden = false; btn.textContent = '🔇'; }
+      if(btn){ btn.hidden = false; btn.textContent = '🔊'; btn.setAttribute('aria-label','Silenciar video'); btn.classList.add('is-sound-on'); }
       initSmartVideoShell(shell, btn, statusEl);
       setTimeout(()=>startSmartVideoShell(shell, btn, statusEl), 180);
     }
@@ -4615,6 +4641,31 @@ document.addEventListener('click', function(e){
 }, true);
 
 </script>
+
+<script>
+/* FIX v15: TikTok responde por postMessage; mantenemos el botón sincronizado */
+window.addEventListener('message', function(event){
+  try{
+    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+    if(!data || data['x-tiktok-player'] !== true) return;
+    if(data.type === 'onMute'){
+      document.querySelectorAll('.modal-product-media .product-video-shell').forEach(function(shell){
+        if(shell._tiktokFrame && shell._tiktokFrame.contentWindow === event.source){
+          const muted = !!data.value;
+          shell.dataset.muted = muted ? '1' : '0';
+          const btn = shell._soundBtn || shell.closest('.modal-product-media')?.querySelector('.video-audio-btn');
+          if(btn){
+            btn.textContent = muted ? '🔇' : '🔊';
+            btn.classList.toggle('is-sound-on', !muted);
+            btn.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar video');
+          }
+        }
+      });
+    }
+  }catch(e){}
+});
+</script>
+
 </body>
 </html>
 
