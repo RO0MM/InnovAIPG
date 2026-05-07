@@ -1003,6 +1003,115 @@
   .product-video-shell.media-ready + .product-video-shade{opacity:.55;}
 }
 
+
+
+/* ================================================================
+   FIX v12 — video más limpio + controles antiguos funcionales
+   ================================================================ */
+.video-status-mini{display:none!important;}
+.product-img .video-audio-btn{display:none!important;}
+.modal-product-media .video-audio-btn[hidden]{display:none!important;}
+.modal-product-media .video-audio-btn{
+  display:inline-flex!important;
+  right:10px!important;
+  bottom:10px!important;
+  z-index:40!important;
+}
+.product-video-shell iframe,
+.product-video-shell video{
+  pointer-events:none!important;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+}
+.video-click-shield{
+  position:absolute;
+  inset:0;
+  z-index:6;
+  display:block;
+  background:transparent;
+  pointer-events:auto;
+  cursor:default;
+}
+.modal-product-media .video-click-shield{z-index:6;}
+.modal-product-media .video-audio-btn{z-index:45!important;}
+.product-video-shell.is-iframe-source iframe{
+  transform:translate(-50%,-50%) scale(1.22)!important;
+}
+.modal-product-media .product-video-shell.is-iframe-source iframe{
+  transform:translate(-50%,-50%) scale(1.18)!important;
+}
+.ui-svg{display:inline-flex;align-items:center;justify-content:center;line-height:1;}
+.ui-svg svg{width:18px;height:18px;display:block;stroke:currentColor;fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;}
+.btn-mobile-buy .ui-svg svg{width:15px;height:15px;margin-right:4px;}
+.product-action{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  z-index:30!important;
+}
+.product-action .btn-square{
+  background:rgba(255,255,255,.96)!important;
+  color:#111!important;
+  border:2px solid rgba(0,0,0,.18)!important;
+  box-shadow:0 5px 13px rgba(0,0,0,.16),3px 3px 0 rgba(0,0,0,.13)!important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.product-action .btn-square:hover{
+  background:#fff!important;
+  color:#0d6efd!important;
+  transform:translateY(-2px)!important;
+}
+.product-action .btn-detail{
+  width:auto!important;
+  min-width:86px!important;
+  padding:0 .76rem!important;
+  gap:7px!important;
+}
+.product-action .btn-detail span:not(.ui-svg){
+  display:inline!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  letter-spacing:.35px!important;
+}
+@media(max-width:575.98px){
+  .product-action{
+    position:absolute!important;
+    left:7px!important;
+    right:7px!important;
+    bottom:8px!important;
+    display:grid!important;
+    grid-template-columns:42px minmax(82px,96px) 42px!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:7px!important;
+    pointer-events:auto!important;
+  }
+  .product-action .btn-square{
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    min-height:42px!important;
+    padding:0!important;
+    border-radius:999px!important;
+  }
+  .product-action .btn-detail{
+    width:100%!important;
+    min-width:82px!important;
+    max-width:96px!important;
+    padding:0 .55rem!important;
+  }
+  .product-action .btn-detail span:not(.ui-svg){display:inline!important;}
+  .product-action .btn-detail .ui-svg svg{width:16px;height:16px;}
+  .product-action .btn-square .ui-svg svg{width:18px;height:18px;}
+}
+@media(max-width:380px){
+  .product-action{grid-template-columns:39px minmax(76px,88px) 39px!important;gap:6px!important;}
+  .product-action .btn-square{width:39px!important;height:39px!important;min-width:39px!important;min-height:39px!important;}
+}
+
 </style>
 </head>
 
@@ -1730,6 +1839,22 @@
       const m = String(url||'').match(/vimeo\.com\/(?:video\/)?(\d+)/i);
       return m ? m[1] : '';
     }
+    function extractTikTokId(url){
+      const u = String(url||'').trim();
+      if(!u) return '';
+      try{
+        const x = new URL(normalizeUrl(u));
+        const parts = x.pathname.split('/').filter(Boolean);
+        const videoIdx = parts.indexOf('video');
+        if(videoIdx >= 0 && parts[videoIdx+1]) return parts[videoIdx+1];
+        const playerIdx = parts.indexOf('v1');
+        if(playerIdx >= 0 && parts[playerIdx+1]) return parts[playerIdx+1];
+        const embedIdx = parts.indexOf('embed');
+        if(embedIdx >= 0 && parts[embedIdx+1]) return parts[embedIdx+1];
+      }catch(e){}
+      const m = u.match(/(?:video\/|player\/v1\/|embed\/)(\d{8,})/i);
+      return m ? m[1] : '';
+    }
     function detectVideoSource(url){
       const clean = normalizeUrl(url);
       if(!clean) return {type:'none'};
@@ -1737,6 +1862,8 @@
       if(yt) return {type:'youtube', id:yt, url:clean};
       const vm = extractVimeoId(clean);
       if(vm) return {type:'vimeo', id:vm, url:clean};
+      const tk = extractTikTokId(clean);
+      if(tk || /tiktok\.com/i.test(clean)) return tk ? {type:'tiktok', id:tk, url:clean} : {type:'unsupported', url:clean};
       if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(clean)) return {type:'file', url:clean};
       return {type:'unsupported', url:clean};
     }
@@ -1779,7 +1906,7 @@
       if(!shell) return;
       shell.classList.remove('media-ready');
       shell.dataset.failed = '1';
-      markVideoStatus(statusEl, 'Video no disponible', true);
+      markVideoStatus(statusEl, '', false);
     }
     function stopSmartVideoShell(shell){
       if(!shell) return;
@@ -1792,9 +1919,10 @@
       if(media.type === 'none' || media.type === 'unsupported') return fallbackSmartVideo(shell, statusEl);
       shell.dataset.started = '1';
       shell.dataset.muted = '1';
+      shell.classList.toggle('is-iframe-source', media.type !== 'file');
       if((shell.dataset.videoFit || 'cover') === 'contain') shell.classList.add('fit-contain');
       if(soundBtn) soundBtn.hidden = false;
-      markVideoStatus(statusEl, 'Video silenciado', true);
+      markVideoStatus(statusEl, '', false);
 
       if(media.type === 'file'){
         const v = document.createElement('video');
@@ -1821,11 +1949,36 @@
         iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
         iframe.setAttribute('loading','lazy');
         iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
-        iframe.onload = () => setTimeout(()=>revealSmartVideo(shell), 600);
+        iframe.onload = () => setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 1500 : 900);
         shell.appendChild(iframe);
+        const shield = document.createElement('span');
+        shield.className = 'video-click-shield';
+        shield.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); });
+        shell.appendChild(shield);
         shell._iframe = iframe;
         shell._vimeoFrame = iframe;
         shell._vimeoPlayerId = playerId;
+        if(soundBtn) soundBtn.hidden = false;
+        return;
+      }
+
+      if(media.type === 'tiktok'){
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.tiktok.com/player/v1/${media.id}?autoplay=1&muted=1&loop=1&controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&timestamp=0&music_info=0&description=0&rel=0&native_context_menu=0&closed_caption=0`;
+        iframe.setAttribute('allow','autoplay; encrypted-media; fullscreen; picture-in-picture');
+        iframe.setAttribute('loading','lazy');
+        iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+        iframe.onload = () => {
+          try{ iframe.contentWindow.postMessage({type:'play', 'x-tiktok-player':true}, '*'); }catch(e){}
+          setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 1600 : 950);
+        };
+        shell.appendChild(iframe);
+        const shield = document.createElement('span');
+        shield.className = 'video-click-shield';
+        shield.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); });
+        shell.appendChild(shield);
+        shell._iframe = iframe;
+        shell._tiktokFrame = iframe;
         if(soundBtn) soundBtn.hidden = false;
         return;
       }
@@ -1834,6 +1987,10 @@
         const holder = document.createElement('div');
         holder.id = 'ytp_' + Math.random().toString(36).slice(2);
         shell.appendChild(holder);
+        const shield = document.createElement('span');
+        shield.className = 'video-click-shield';
+        shield.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); try{ if(shell._player) shell._player.playVideo(); }catch(err){} });
+        shell.appendChild(shield);
         const origin = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : undefined;
         const player = new YT.Player(holder.id, {
           videoId: media.id,
@@ -1853,7 +2010,10 @@
               }catch(err){}
             },
             onStateChange: function(e){
-              if(e.data === YT.PlayerState.PLAYING){ revealSmartVideo(shell); markVideoStatus(statusEl, '', false); }
+              if(e.data === YT.PlayerState.PLAYING){
+                setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 1500 : 800);
+                markVideoStatus(statusEl, '', false);
+              }
               if(e.data === YT.PlayerState.PAUSED){ try{ e.target.playVideo(); }catch(err){} }
             },
             onError: function(){ fallbackSmartVideo(shell, statusEl); }
@@ -1899,12 +2059,16 @@
         if(shell._player){ turnOn ? shell._player.unMute() : shell._player.mute(); shell._player.setVolume(turnOn ? 70 : 0); }
         if(shell._vimeoFrame && shell._vimeoFrame.contentWindow){
           shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({ method:'setVolume', value: turnOn ? 1 : 0 }), '*');
-          shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({ method: turnOn ? 'play' : 'setVolume', value: turnOn ? undefined : 0 }), '*');
+          shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({ method:'play' }), '*');
+        }
+        if(shell._tiktokFrame && shell._tiktokFrame.contentWindow){
+          shell._tiktokFrame.contentWindow.postMessage({ type: turnOn ? 'unMute' : 'mute', 'x-tiktok-player': true }, '*');
+          shell._tiktokFrame.contentWindow.postMessage({ type: 'play', 'x-tiktok-player': true }, '*');
         }
         if(btn) btn.textContent = turnOn ? '🔊' : '🔇';
-        markVideoStatus(statusEl, turnOn ? 'Sonido activado' : 'Video silenciado', true);
+        markVideoStatus(statusEl, '', false);
       }catch(e){
-        markVideoStatus(statusEl, 'Toca otra vez para activar sonido', true);
+        markVideoStatus(statusEl, '', false);
       }
     }
     function initProductVideos(scope){
@@ -3555,6 +3719,16 @@
       renderPagination(totalPages);
     }
 
+
+    function uiIcon(name){
+      const icons = {
+        cart:'<svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.7"></circle><circle cx="18" cy="20" r="1.7"></circle><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 1.9-1.4L22 8H7"></path></svg>',
+        info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 10v6"></path><path d="M12 7h.01"></path></svg>',
+        bolt:'<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"></path></svg>'
+      };
+      return `<span class="ui-svg" aria-hidden="true">${icons[name] || ''}</span>`;
+    }
+
     function cardHTML(it){
       const displayPrice = getDisplayPrice(it);
       const penAttr = (displayPrice==null) ? 'null' : String(displayPrice);
@@ -3600,15 +3774,15 @@
 
               <div class="product-action">
                 <button class="btn btn-outline-dark btn-square btn-add" title="${addTitle}" ${(!disponible)?'disabled':''} aria-label="${addTitle}">
-                  <span aria-hidden="true">🛒</span>
+                  ${uiIcon('cart')}
                 </button>
 
                 <button class="btn btn-outline-dark btn-square btn-detail" title="Ver información" aria-label="Ver información">
-                  <span aria-hidden="true">ℹ️</span> <span>Info</span>
+                  ${uiIcon('info')} <span>Info</span>
                 </button>
 
                 <button class="btn btn-outline-dark btn-square btn-buy" title="${buyTitle}" ${(!disponible)?'disabled':''} aria-label="${buyTitle}">
-                  <span aria-hidden="true">⚡</span>
+                  ${uiIcon('bolt')}
                 </button>
               </div>
             </div>
@@ -3620,7 +3794,7 @@
               </div>
               ${period}
               <div class="cat-chip"><i class="${catIconClass(it.cat)} mr-1"></i>${catLabel(it.cat)}</div>
-              <button class="btn btn-primary btn-mobile-buy" ${(!disponible)?'disabled':''}><span aria-hidden="true" class="mr-1">⚡</span>${esc(buyTitle)}</button>
+              <button class="btn btn-primary btn-mobile-buy" ${(!disponible)?'disabled':''}>${uiIcon('bolt')}${esc(buyTitle)}</button>
               ${miniBadgesHTML(it)}
             </div>
           </div>
@@ -4324,6 +4498,7 @@
   </script>
 </body>
 </html>
+
 
 
 
