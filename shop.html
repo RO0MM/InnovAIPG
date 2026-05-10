@@ -1147,6 +1147,191 @@
 .product-video-shell video::-webkit-media-controls{display:none!important;}
 .product-video-shell video::-webkit-media-controls-enclosure{display:none!important;}
 
+
+/* ================================================================
+   FIX v18 — Tarjetas del shop más compactas en celular
+   No cambia funciones: solo reduce alto, espacios y badges repetidos.
+   ================================================================ */
+
+@media (max-width:575.98px){
+  #productGrid{
+    margin-left:-4px!important;
+    margin-right:-4px!important;
+  }
+
+  #productGrid > [class*="col-"]{
+    padding-left:4px!important;
+    padding-right:4px!important;
+    padding-bottom:8px!important;
+  }
+
+  .product-item{
+    margin-bottom:8px!important;
+    border-radius:12px!important;
+    box-shadow:3px 3px 0 rgba(0,0,0,.08)!important;
+  }
+
+  .product-img{
+    height:118px!important;
+    min-height:118px!important;
+    max-height:118px!important;
+    padding:6px!important;
+  }
+
+  .product-img .product-logo-img{
+    inset:9px!important;
+    width:calc(100% - 18px)!important;
+    height:calc(100% - 18px)!important;
+  }
+
+  .product-action{
+    left:7px!important;
+    right:7px!important;
+    bottom:7px!important;
+    grid-template-columns:34px minmax(66px,76px) 34px!important;
+    gap:5px!important;
+  }
+
+  .product-action .btn-square{
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    min-height:34px!important;
+    padding:0!important;
+    box-shadow:2px 2px 0 rgba(0,0,0,.10)!important;
+  }
+
+  .product-action .btn-detail{
+    width:auto!important;
+    min-width:66px!important;
+    padding:0 8px!important;
+  }
+
+  .product-action .btn-detail span:not(.ui-svg){
+    display:inline!important;
+    font-size:10px!important;
+    letter-spacing:.2px!important;
+  }
+
+  .product-action .btn-detail .ui-svg svg,
+  .product-action .btn-square .ui-svg svg{
+    width:15px!important;
+    height:15px!important;
+  }
+
+  .status-pill{
+    top:7px!important;
+    left:7px!important;
+    padding:.18rem .45rem!important;
+    font-size:8.5px!important;
+    max-width:calc(100% - 45px)!important;
+    box-shadow:2px 2px 0 rgba(0,0,0,.10)!important;
+  }
+
+  .status-corner-icon{
+    top:7px!important;
+    right:7px!important;
+    width:28px!important;
+    height:28px!important;
+  }
+
+  .status-corner-icon i{
+    font-size:12px!important;
+  }
+
+  .product-item .text-center.py-4{
+    padding:7px 5px 8px!important;
+    min-height:88px!important;
+  }
+
+  .product-item a.h6{
+    font-size:.78rem!important;
+    line-height:1.08!important;
+    min-height:1.08em!important;
+    -webkit-line-clamp:1!important;
+    margin-bottom:0!important;
+  }
+
+  .product-item .d-flex.align-items-center.justify-content-center.mt-2{
+    margin-top:4px!important;
+  }
+
+  .product-item h5{
+    font-size:.9rem!important;
+    line-height:1.05!important;
+    margin:0!important;
+  }
+
+  .period-note{
+    font-size:9.5px!important;
+    line-height:1!important;
+    margin-top:4px!important;
+  }
+
+  /* La categoría ya aparece en el ícono de la esquina, por eso se oculta aquí */
+  .cat-chip{
+    display:none!important;
+  }
+
+  /* El botón grande duplicaba la compra; arriba ya está el botón ⚡ */
+  .btn-mobile-buy{
+    display:none!important;
+  }
+
+  .product-mini-badges{
+    margin-top:5px!important;
+    gap:4px!important;
+    max-height:21px!important;
+    overflow:hidden!important;
+  }
+
+  .product-mini-badge{
+    padding:.12rem .34rem!important;
+    font-size:8.5px!important;
+    line-height:1.05!important;
+    box-shadow:none!important;
+  }
+
+  .product-mini-badge i{
+    font-size:9px!important;
+  }
+
+  /* Oculta duplicados: categoría y DB. Mantiene planes + disponibles */
+  .product-mini-badge:nth-child(1),
+  .product-mini-badge:nth-child(4){
+    display:none!important;
+  }
+
+  .product-video-dot,
+  .video-status-mini{
+    display:none!important;
+  }
+}
+
+@media (max-width:380px){
+  .product-img{
+    height:108px!important;
+    min-height:108px!important;
+    max-height:108px!important;
+  }
+
+  .product-item .text-center.py-4{
+    min-height:82px!important;
+    padding:6px 4px 7px!important;
+  }
+
+  .product-action{
+    grid-template-columns:32px minmax(62px,72px) 32px!important;
+  }
+
+  .product-action .btn-square{
+    width:32px!important;
+    height:32px!important;
+    min-width:32px!important;
+    min-height:32px!important;
+  }
+}
+
 </style>
 </head>
 
@@ -4795,4 +4980,6 @@ window.addEventListener('message', function(event){
 
 </body>
 </html>
+
+
 
