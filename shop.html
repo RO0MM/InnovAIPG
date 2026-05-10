@@ -1922,6 +1922,17 @@
     function googleDriveDirectVideoUrl(id){
       return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(id)}`;
     }
+    function googleDriveVideoUrls(id){
+      const e = encodeURIComponent(id);
+      return [
+        `https://drive.usercontent.google.com/download?id=${e}&export=download&authuser=0&confirm=t`,
+        `https://drive.google.com/uc?export=download&id=${e}`,
+        `https://drive.google.com/uc?id=${e}&export=download`
+      ];
+    }
+    function googleDrivePreviewUrl(id){
+      return `https://drive.google.com/file/d/${encodeURIComponent(id)}/preview`;
+    }
 
     function detectVideoSource(url){
       const clean = normalizeUrl(url);
@@ -1931,7 +1942,7 @@
       const vm = extractVimeoId(clean);
       if(vm) return {type:'vimeo', id:vm, url:clean};
       const gd = extractGoogleDriveId(clean);
-      if(gd) return {type:'gdrive', id:gd, url:clean, directUrl: googleDriveDirectVideoUrl(gd)};
+      if(gd) return {type:'gdrive', id:gd, url:clean, directUrl: googleDriveDirectVideoUrl(gd), urls: googleDriveVideoUrls(gd), previewUrl: googleDrivePreviewUrl(gd)};
       const tk = extractTikTokId(clean);
       if(tk || /tiktok\.com/i.test(clean)) return tk ? {type:'tiktok', id:tk, url:clean} : {type:'unsupported', url:clean};
       if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(clean)) return {type:'file', url:clean};
@@ -1989,7 +2000,7 @@
       if(media.type === 'none' || media.type === 'unsupported') return fallbackSmartVideo(shell, statusEl);
       shell.dataset.started = '1';
       if(!shell.dataset.muted) shell.dataset.muted = shell.closest('.modal-product-media') ? '0' : '1';
-      shell.classList.toggle('is-iframe-source', media.type !== 'file');
+      shell.classList.toggle('is-iframe-source', !(media.type === 'file' || media.type === 'gdrive'));
       if((shell.dataset.videoFit || 'cover') === 'contain') shell.classList.add('fit-contain');
       if(soundBtn) soundBtn.hidden = false;
       markVideoStatus(statusEl, '', false);
@@ -1997,27 +2008,34 @@
       if(media.type === 'file' || media.type === 'gdrive'){
         const v = document.createElement('video');
         const wantSound = shell.dataset.muted === '0';
+        const sourceList = media.type === 'gdrive' ? (media.urls || [media.directUrl]).filter(Boolean) : [media.url];
+        let sourceIndex = 0;
+
         v.autoplay = true;
         v.muted = !wantSound;
         v.loop = true;
         v.playsInline = true;
         v.controls = false;
-        v.preload = media.type === 'gdrive' ? 'auto' : 'metadata';
+        v.preload = 'auto';
         v.disablePictureInPicture = true;
         v.controlsList = 'nodownload noplaybackrate noremoteplayback';
         v.setAttribute('playsinline','');
         v.setAttribute('webkit-playsinline','');
         v.setAttribute('controlsList','nodownload noplaybackrate noremoteplayback');
         v.setAttribute('disablepictureinpicture','');
-        v.src = media.type === 'gdrive' ? media.directUrl : media.url;
+
+        const setCurrentSource = () => {
+          v.src = sourceList[sourceIndex];
+          try{ v.load(); }catch(e){}
+        };
 
         const playClean = () => {
           revealSmartVideo(shell);
           const p = v.play();
           if(p && typeof p.catch === 'function'){
             p.catch(() => {
-              // Si el navegador bloquea audio automático, no rompe el video:
-              // reproduce silenciado y deja el botón listo para activar audio con un toque.
+              // Navegadores móviles pueden bloquear audio automático.
+              // Si ocurre, reproducimos sin audio y el botón queda listo.
               if(wantSound){
                 v.muted = true;
                 shell.dataset.muted = '1';
@@ -2034,11 +2052,24 @@
 
         v.addEventListener('loadeddata', playClean, {once:true});
         v.addEventListener('canplay', playClean, {once:true});
-        v.addEventListener('error', ()=>fallbackSmartVideo(shell, statusEl), {once:true});
+        v.addEventListener('error', ()=>{
+          sourceIndex += 1;
+          if(sourceIndex < sourceList.length){
+            setCurrentSource();
+            return;
+          }
+
+          // Google Drive solo funcionará si el archivo es público y puede servirse como video.
+          // Si Drive responde con login/HTML/cuota, dejamos el logo.
+          fallbackSmartVideo(shell, statusEl);
+        });
+
         shell.appendChild(v);
         shell._videoEl = v;
         shell._sourceKind = media.type;
+        shell._gdrivePreviewUrl = media.previewUrl || '';
         if(soundBtn) soundBtn.hidden = false;
+        setCurrentSource();
         return;
       }
 
@@ -2066,19 +2097,21 @@
         const iframe = document.createElement('iframe');
         const wantSound = shell.dataset.muted === '0';
         const mutedParam = wantSound ? '0' : '1';
-        iframe.src = `https://www.tiktok.com/player/v1/${media.id}?autoplay=1&muted=${mutedParam}&loop=1&controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&timestamp=0&music_info=0&description=0&rel=0&native_context_menu=0&closed_caption=0`;
+        const playerUrl = `https://www.tiktok.com/player/v1/${media.id}?autoplay=1&muted=${mutedParam}&loop=1&controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&timestamp=0&music_info=0&description=0&rel=0&native_context_menu=0&closed_caption=0`;
+        iframe.src = playerUrl;
         iframe.setAttribute('allow','autoplay; encrypted-media; fullscreen; picture-in-picture');
-        iframe.setAttribute('loading','lazy');
+        iframe.setAttribute('allowfullscreen','');
         iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+        if(shell.dataset.cardVideo === '1') iframe.setAttribute('loading','lazy');
+
         iframe.onload = () => {
-          try{
-            iframe.contentWindow.postMessage({type:'play', value:undefined, 'x-tiktok-player':true}, '*');
-            iframe.contentWindow.postMessage({type: wantSound ? 'unMute' : 'mute', value:undefined, 'x-tiktok-player':true}, '*');
-          }catch(e){}
-          setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 350);
-          setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 900);
-          setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 1600 : 950);
+          // onload no siempre significa "player listo", por eso también escuchamos onPlayerReady.
+          setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 250);
+          setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 850);
+          setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 1500);
+          setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 1600 : 650);
         };
+
         shell.appendChild(iframe);
         const shield = document.createElement('span');
         shield.className = 'video-click-shield';
@@ -2210,20 +2243,23 @@
           const frame = shell._tiktokFrame;
           const msgType = wantSound ? 'unMute' : 'mute';
 
-          // TikTok: si el iframe fue creado con muted=1, no siempre permite activar audio.
-          // Por eso, al pedir sonido se cambia el parámetro a muted=0 y luego se envía unMute.
           if(wantSound && frame.src && frame.src.includes('muted=1')){
             frame.src = frame.src.replace('muted=1', 'muted=0');
-            frame.onload = () => {
-              try{
-                frame.contentWindow.postMessage({ type:'play', value:undefined, 'x-tiktok-player': true }, '*');
-                frame.contentWindow.postMessage({ type:'unMute', value:undefined, 'x-tiktok-player': true }, '*');
-              }catch(err){}
-            };
-          }else{
-            frame.contentWindow.postMessage({ type:'play', value:undefined, 'x-tiktok-player': true }, '*');
-            frame.contentWindow.postMessage({ type: msgType, value:undefined, 'x-tiktok-player': true }, '*');
           }
+          if(!wantSound && frame.src && frame.src.includes('muted=0')){
+            // Para silenciar sí podemos usar postMessage, no recargamos para no cortar el video.
+          }
+
+          const send = () => {
+            try{
+              frame.contentWindow.postMessage({ type:'play', value: undefined, 'x-tiktok-player': true }, '*');
+              frame.contentWindow.postMessage({ type: msgType, value: undefined, 'x-tiktok-player': true }, '*');
+            }catch(err){}
+          };
+          send();
+          setTimeout(send, 250);
+          setTimeout(send, 800);
+          setTimeout(send, 1400);
         }
       }catch(e){}
     }
@@ -2292,7 +2328,10 @@
       shell.dataset.videoFit = item?.videoFit || item?.video_fit || 'cover';
       if(btn){ btn.hidden = false; btn.textContent = '🔊'; btn.setAttribute('aria-label','Silenciar video'); btn.classList.add('is-sound-on'); }
       initSmartVideoShell(shell, btn, statusEl);
-      setTimeout(()=>startSmartVideoShell(shell, btn, statusEl), 180);
+      // Arrancar en el mismo click que abrió el producto ayuda a que TikTok/Drive tengan audio.
+      startSmartVideoShell(shell, btn, statusEl);
+      setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 250);
+      setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 900);
     }
 
     /* ================== Disponible / Cupo ================== */
@@ -4712,31 +4751,48 @@ document.addEventListener('click', function(e){
 
 </script>
 
+
+
+
 <script>
-/* FIX v15: TikTok responde por postMessage; mantenemos el botón sincronizado */
+/* FIX v17: TikTok audio + Drive robusto */
 window.addEventListener('message', function(event){
   try{
     const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
     if(!data || data['x-tiktok-player'] !== true) return;
-    if(data.type === 'onMute'){
-      document.querySelectorAll('.modal-product-media .product-video-shell').forEach(function(shell){
-        if(shell._tiktokFrame && shell._tiktokFrame.contentWindow === event.source){
-          const muted = !!data.value;
-          shell.dataset.muted = muted ? '1' : '0';
-          const btn = shell._soundBtn || shell.closest('.modal-product-media')?.querySelector('.video-audio-btn');
-          if(btn){
-            btn.textContent = muted ? '🔇' : '🔊';
-            btn.classList.toggle('is-sound-on', !muted);
-            btn.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar video');
-          }
+
+    document.querySelectorAll('.product-video-shell').forEach(function(shell){
+      if(!shell._tiktokFrame || shell._tiktokFrame.contentWindow !== event.source) return;
+
+      const btn = shell._soundBtn || shell.closest('.modal-product-media')?.querySelector('.video-audio-btn');
+
+      if(data.type === 'onPlayerReady'){
+        applySmartVideoSound(shell, shell.dataset.muted === '0');
+        setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 500);
+      }
+
+      if(data.type === 'onStateChange' && Number(data.value) === 1){
+        if(shell.dataset.muted === '0') applySmartVideoSound(shell, true);
+      }
+
+      if(data.type === 'onMute'){
+        const muted = !!data.value;
+        shell.dataset.muted = muted ? '1' : '0';
+        if(btn){
+          btn.textContent = muted ? '🔇' : '🔊';
+          btn.classList.toggle('is-sound-on', !muted);
+          btn.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar video');
         }
-      });
-    }
+      }
+
+      if(data.type === 'onPlayerError'){
+        fallbackSmartVideo(shell, shell._statusEl);
+      }
+    });
   }catch(e){}
 });
 </script>
 
 </body>
 </html>
-
 
