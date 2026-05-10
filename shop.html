@@ -1716,6 +1716,158 @@ html[data-shop-theme="dark"] .text-muted{
   color:#d0d5dd!important;
 }
 
+
+/* ================================================================
+   V25 — Máximo 5 productos por fila + anti-lag + botón Sol/Luna
+   ================================================================ */
+
+/* Máximo 5 productos por fila en desktop grande */
+#productsGrid{
+  grid-template-columns:repeat(5, minmax(0, 1fr))!important;
+  gap:13px!important;
+}
+
+/* Ajuste para que 5 columnas no aplasten logos */
+#productsGrid .product-img{
+  height:124px!important;
+  min-height:124px!important;
+  max-height:124px!important;
+}
+
+#productsGrid .product-item a.h6{
+  font-size:.80rem!important;
+}
+
+#productsGrid .product-item h5{
+  font-size:.92rem!important;
+}
+
+/* Breakpoints ordenados: nunca más de 5 */
+@media(max-width:1399.98px){
+  #productsGrid{
+    grid-template-columns:repeat(5, minmax(0, 1fr))!important;
+  }
+}
+
+@media(max-width:1199.98px){
+  #productsGrid{
+    grid-template-columns:repeat(4, minmax(0, 1fr))!important;
+  }
+}
+
+@media(max-width:991.98px){
+  #productsGrid{
+    grid-template-columns:repeat(3, minmax(0, 1fr))!important;
+  }
+  #productsGrid .product-img{
+    height:116px!important;
+    min-height:116px!important;
+    max-height:116px!important;
+  }
+}
+
+@media(max-width:767.98px){
+  #productsGrid{
+    grid-template-columns:repeat(2, minmax(0, 1fr))!important;
+    gap:9px!important;
+  }
+  #productsGrid .product-img{
+    height:106px!important;
+    min-height:106px!important;
+    max-height:106px!important;
+  }
+}
+
+@media(max-width:360px){
+  #productsGrid{
+    grid-template-columns:repeat(2, minmax(0, 1fr))!important;
+    gap:7px!important;
+  }
+  #productsGrid .product-img{
+    height:98px!important;
+    min-height:98px!important;
+    max-height:98px!important;
+  }
+}
+
+/* Optimización visual: los videos de cards fuera de vista no consumen pintura */
+.product-video-shell{
+  contain:layout paint size!important;
+  content-visibility:auto!important;
+}
+
+/* Botón flotante de tema: Auto / Sol / Luna */
+.theme-float-btn{
+  position:fixed;
+  right:18px;
+  bottom:172px;
+  z-index:1210;
+  min-width:54px;
+  height:54px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(31,35,39,.92);
+  color:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:0 14px;
+  font-weight:900;
+  box-shadow:0 12px 28px rgba(0,0,0,.28);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  cursor:pointer;
+  transition:transform .15s ease, filter .15s ease;
+}
+.theme-float-btn:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.06);
+}
+.theme-float-btn:active{
+  transform:scale(.96);
+}
+.theme-float-btn .theme-label{
+  font-size:12px;
+  letter-spacing:.2px;
+}
+@media(max-width:767.98px){
+  .theme-float-btn{
+    right:14px;
+    bottom:154px;
+    width:46px;
+    min-width:46px;
+    height:46px;
+    padding:0;
+    font-size:18px;
+  }
+  .theme-float-btn .theme-label{
+    display:none;
+  }
+}
+
+/* Modo claro: botón sol más claro */
+html[data-shop-theme="light"] .theme-float-btn{
+  background:rgba(255,255,255,.94);
+  color:#111827;
+  border-color:rgba(15,23,42,.12);
+}
+
+/* Modo oscuro: negro/grafito */
+html[data-shop-theme="dark"] .theme-float-btn{
+  background:rgba(48,56,64,.94);
+  color:#fff;
+  border-color:rgba(255,255,255,.16);
+}
+
+/* Para que los botones flotantes no choquen demasiado */
+.whatsapp-fab-2{
+  bottom:104px!important;
+}
+.whatsapp-fab{
+  bottom:28px!important;
+}
+
 </style>
 </head>
 
@@ -5326,6 +5478,278 @@ document.addEventListener('click', function(e){
 }, true);
 
 </script>
+
+
+
+
+<script>
+/* FIX v17: TikTok audio + Drive robusto */
+window.addEventListener('message', function(event){
+  try{
+    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+    if(!data || data['x-tiktok-player'] !== true) return;
+
+    document.querySelectorAll('.product-video-shell').forEach(function(shell){
+      if(!shell._tiktokFrame || shell._tiktokFrame.contentWindow !== event.source) return;
+
+      const btn = shell._soundBtn || shell.closest('.modal-product-media')?.querySelector('.video-audio-btn');
+
+      if(data.type === 'onPlayerReady'){
+        applySmartVideoSound(shell, shell.dataset.muted === '0');
+        setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 500);
+      }
+
+      if(data.type === 'onStateChange' && Number(data.value) === 1){
+        if(shell.dataset.muted === '0') applySmartVideoSound(shell, true);
+      }
+
+      if(data.type === 'onMute'){
+        const muted = !!data.value;
+        shell.dataset.muted = muted ? '1' : '0';
+        if(btn){
+          btn.textContent = muted ? '🔇' : '🔊';
+          btn.classList.toggle('is-sound-on', !muted);
+          btn.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar video');
+        }
+      }
+
+      if(data.type === 'onPlayerError'){
+        fallbackSmartVideo(shell, shell._statusEl);
+      }
+    });
+  }catch(e){}
+});
+</script>
+
+
+<script>
+/* V24: Tema automático liviano, sin tocar productos ni videos */
+(function(){
+  const root = document.documentElement;
+  const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+  function systemTheme(){ return mq && mq.matches ? 'dark' : 'light'; }
+  function savedMode(){ return localStorage.getItem('innov_shop_theme_mode') || 'auto'; }
+  function applyTheme(mode){
+    const real = mode === 'auto' ? systemTheme() : mode;
+    root.setAttribute('data-shop-theme', real);
+    root.setAttribute('data-shop-theme-mode', mode);
+  }
+
+  applyTheme(savedMode());
+
+  if(mq){
+    const update = () => { if(savedMode() === 'auto') applyTheme('auto'); };
+    if(mq.addEventListener) mq.addEventListener('change', update);
+    else if(mq.addListener) mq.addListener(update);
+  }
+})();
+</script>
+
+
+<button id="themeModeFloatBtn" class="theme-float-btn" type="button" title="Tema automático">
+  <span class="theme-icon">🌓</span><span class="theme-label">Auto</span>
+</button>
+
+
+<script>
+/* V25: Optimización anti-lag + botón Auto/Sol/Luna sin tocar motor del shop */
+(function(){
+  const root = document.documentElement;
+  const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+  function systemTheme(){ return mq && mq.matches ? 'dark' : 'light'; }
+  function savedMode(){ return localStorage.getItem('innov_shop_theme_mode') || 'auto'; }
+
+  function setBtn(mode){
+    const btn = document.getElementById('themeModeFloatBtn');
+    if(!btn) return;
+    const icon = btn.querySelector('.theme-icon');
+    const label = btn.querySelector('.theme-label');
+
+    if(mode === 'auto'){
+      if(icon) icon.textContent = '🌓';
+      if(label) label.textContent = 'Auto';
+      btn.title = 'Tema automático según el sistema';
+    }else if(mode === 'dark'){
+      if(icon) icon.textContent = '🌙';
+      if(label) label.textContent = 'Noche';
+      btn.title = 'Modo noche';
+    }else{
+      if(icon) icon.textContent = '☀️';
+      if(label) label.textContent = 'Día';
+      btn.title = 'Modo día';
+    }
+  }
+
+  function applyTheme(mode){
+    const real = mode === 'auto' ? systemTheme() : mode;
+    root.setAttribute('data-shop-theme', real);
+    root.setAttribute('data-shop-theme-mode', mode);
+    setBtn(mode);
+  }
+
+  function cycleTheme(){
+    const current = savedMode();
+    const next = current === 'auto' ? 'dark' : (current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('innov_shop_theme_mode', next);
+    applyTheme(next);
+  }
+
+  function pauseShell(shell){
+    if(!shell) return;
+
+    try{
+      if(shell._videoEl && typeof shell._videoEl.pause === 'function'){
+        shell._videoEl.pause();
+      }
+    }catch(e){}
+
+    try{
+      if(shell._player && typeof shell._player.pauseVideo === 'function'){
+        shell._player.pauseVideo();
+      }
+    }catch(e){}
+
+    try{
+      if(shell._vimeoFrame && shell._vimeoFrame.contentWindow){
+        shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({method:'pause'}), '*');
+      }
+    }catch(e){}
+
+    try{
+      if(shell._tiktokFrame && shell._tiktokFrame.contentWindow){
+        shell._tiktokFrame.contentWindow.postMessage({type:'pause', 'x-tiktok-player':true}, '*');
+      }
+    }catch(e){}
+  }
+
+  function playShell(shell){
+    if(!shell || shell.dataset.failed === '1') return;
+
+    try{
+      if(shell._videoEl && typeof shell._videoEl.play === 'function'){
+        shell._videoEl.play().catch(()=>{});
+      }
+    }catch(e){}
+
+    try{
+      if(shell._player && typeof shell._player.playVideo === 'function'){
+        shell._player.playVideo();
+      }
+    }catch(e){}
+
+    try{
+      if(shell._vimeoFrame && shell._vimeoFrame.contentWindow){
+        shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({method:'play'}), '*');
+      }
+    }catch(e){}
+
+    try{
+      if(shell._tiktokFrame && shell._tiktokFrame.contentWindow){
+        shell._tiktokFrame.contentWindow.postMessage({type:'play', 'x-tiktok-player':true}, '*');
+      }
+    }catch(e){}
+  }
+
+  function optimizeVideos(){
+    // Solo videos de cards; no toca el video del modal/detalle.
+    const shells = Array.from(document.querySelectorAll('#productsGrid .product-video-shell'));
+    if(!shells.length) return;
+
+    if(window.__innovVideoPauseObserver){
+      try{ window.__innovVideoPauseObserver.disconnect(); }catch(e){}
+    }
+
+    window.__innovVideoPauseObserver = new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        const shell = entry.target;
+
+        if(entry.isIntersecting && entry.intersectionRatio > 0.35){
+          // Pequeño delay para evitar golpes al hacer scroll rápido.
+          clearTimeout(shell.__v25PauseTimer);
+          shell.__v25PlayTimer = setTimeout(()=>playShell(shell), 180);
+        }else{
+          clearTimeout(shell.__v25PlayTimer);
+          shell.__v25PauseTimer = setTimeout(()=>pauseShell(shell), 120);
+        }
+      });
+    }, {
+      root:null,
+      threshold:[0, .35, .7],
+      rootMargin:'160px 0px 160px 0px'
+    });
+
+    shells.forEach(shell=>window.__innovVideoPauseObserver.observe(shell));
+  }
+
+  function pauseCardVideos(){
+    document.querySelectorAll('#productsGrid .product-video-shell').forEach(pauseShell);
+  }
+
+  function resumeVisibleCardVideos(){
+    document.querySelectorAll('#productsGrid .product-video-shell').forEach(shell=>{
+      const r = shell.getBoundingClientRect();
+      const visible = r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
+      if(visible) playShell(shell);
+    });
+  }
+
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  applyTheme(savedMode());
+
+  ready(function(){
+    applyTheme(savedMode());
+
+    const btn = document.getElementById('themeModeFloatBtn');
+    if(btn && !btn.dataset.v25Theme){
+      btn.dataset.v25Theme = '1';
+      btn.addEventListener('click', cycleTheme);
+    }
+
+    if(mq && !root.dataset.v25ThemeWatch){
+      root.dataset.v25ThemeWatch = '1';
+      const update = () => { if(savedMode() === 'auto') applyTheme('auto'); };
+      if(mq.addEventListener) mq.addEventListener('change', update);
+      else if(mq.addListener) mq.addListener(update);
+    }
+
+    // Primera optimización y reintentos después de render/paginación/filtros.
+    setTimeout(optimizeVideos, 800);
+    setTimeout(optimizeVideos, 1800);
+
+    const grid = document.getElementById('productsGrid');
+    if(grid && window.MutationObserver && !grid.dataset.v25Observer){
+      grid.dataset.v25Observer = '1';
+      const mo = new MutationObserver(()=>setTimeout(optimizeVideos, 350));
+      mo.observe(grid, {childList:true, subtree:false});
+    }
+
+    // Cuando abren un producto/detalle, pausa los videos de las tarjetas para evitar lag.
+    document.addEventListener('click', function(e){
+      const openDetail = e.target.closest('.btn-detail, [data-product-detail], [data-action="detail"]');
+      if(openDetail) setTimeout(pauseCardVideos, 120);
+    }, true);
+
+    // Bootstrap modal events si existen.
+    document.addEventListener('shown.bs.modal', function(){ pauseCardVideos(); }, true);
+    document.addEventListener('hidden.bs.modal', function(){ setTimeout(resumeVisibleCardVideos, 400); }, true);
+
+    // Si la pestaña queda oculta, pausa todo.
+    document.addEventListener('visibilitychange', function(){
+      if(document.hidden) pauseCardVideos();
+      else setTimeout(resumeVisibleCardVideos, 400);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
 
 
 
