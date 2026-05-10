@@ -1868,6 +1868,230 @@ html[data-shop-theme="dark"] .theme-float-btn{
   bottom:28px!important;
 }
 
+
+/* ================================================================
+   V26 — Cards menos anchas, más altas y logos/videos mejor encajados
+   ================================================================ */
+
+/* Grilla centrada: máximo 5 por fila, pero las tarjetas ya no se estiran demasiado */
+#productsGrid{
+  display:grid!important;
+  grid-template-columns:repeat(5, minmax(0, 210px))!important;
+  justify-content:center!important;
+  gap:14px!important;
+  align-items:start!important;
+}
+
+/* En pantallas enormes siguen siendo máximo 5, centradas */
+@media(min-width:1400px){
+  #productsGrid{
+    grid-template-columns:repeat(5, minmax(0, 214px))!important;
+    gap:15px!important;
+  }
+}
+
+/* Laptop normal */
+@media(max-width:1199.98px){
+  #productsGrid{
+    grid-template-columns:repeat(4, minmax(0, 210px))!important;
+  }
+}
+
+/* Tablet */
+@media(max-width:991.98px){
+  #productsGrid{
+    grid-template-columns:repeat(3, minmax(0, 205px))!important;
+  }
+}
+
+/* Celular: 2 columnas estables */
+@media(max-width:767.98px){
+  #productsGrid{
+    grid-template-columns:repeat(2, minmax(0, 1fr))!important;
+    gap:10px!important;
+  }
+}
+
+/* Tarjeta: un poco más alta, más compacta de ancho */
+#productsGrid .product-item{
+  max-width:214px!important;
+  width:100%!important;
+  margin:0 auto!important;
+  border-radius:18px!important;
+}
+
+/* En celular ocupa la columna completa */
+@media(max-width:767.98px){
+  #productsGrid .product-item{
+    max-width:none!important;
+  }
+}
+
+/* Área visual más alta para que el logo/video respire */
+#productsGrid .product-img{
+  height:145px!important;
+  min-height:145px!important;
+  max-height:145px!important;
+  padding:10px!important;
+  overflow:hidden!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255,255,255,.82), transparent 35%),
+    linear-gradient(180deg,#f8fafc,#e9eef5)!important;
+}
+
+/* Logos: no llenar todo el cuadro; se centran y no se deforman */
+#productsGrid .product-img .product-logo-img{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:74%!important;
+  max-height:72%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  border-radius:12px!important;
+  background:transparent!important;
+}
+
+/* Si es imagen panorámica/video preview, permite usar más ancho sin deformar */
+#productsGrid .product-img .product-logo-img[src*="youtube"],
+#productsGrid .product-img .product-logo-img[src*="ytimg"],
+#productsGrid .product-img .product-logo-img[src*="tiktok"],
+#productsGrid .product-img .product-logo-img[src*="drive"]{
+  max-width:86%!important;
+  max-height:78%!important;
+}
+
+/* Videos: restaurar reproducción visible cuando el motor marque media-ready */
+#productsGrid .product-video-shell.media-ready,
+.product-img .product-video-shell.media-ready,
+.modal-product-media .product-video-shell.media-ready{
+  opacity:1!important;
+  visibility:visible!important;
+  display:block!important;
+}
+
+/* No bloquear iframes/videos por content-visibility cuando ya cargaron */
+#productsGrid .product-video-shell.media-ready{
+  content-visibility:visible!important;
+}
+
+/* Si falla, se esconde y deja el logo debajo */
+#productsGrid .product-video-shell[data-failed="1"],
+.product-video-shell[data-failed="1"]{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
+
+/* Botones flotantes un poco más ordenados por el nuevo alto */
+#productsGrid .product-action{
+  bottom:9px!important;
+  grid-template-columns:34px minmax(68px,82px) 34px!important;
+  gap:6px!important;
+}
+
+#productsGrid .product-action .btn-square,
+#productsGrid .product-action .btn-detail{
+  height:34px!important;
+  min-height:34px!important;
+}
+
+#productsGrid .product-action .btn-square{
+  width:34px!important;
+  min-width:34px!important;
+}
+
+/* Inferior: le damos respiración mínima sin crecer demasiado */
+#productsGrid .product-item .text-center.py-4{
+  padding:8px 7px 10px!important;
+  gap:3px!important;
+}
+
+#productsGrid .product-item a.h6{
+  font-size:.80rem!important;
+  line-height:1.12!important;
+  -webkit-line-clamp:2!important;
+  min-height:1.12em!important;
+  max-height:2.24em!important;
+}
+
+#productsGrid .product-item h5{
+  font-size:.92rem!important;
+  line-height:1.05!important;
+}
+
+#productsGrid .period-note{
+  font-size:8.8px!important;
+}
+
+/* Tablet/celular */
+@media(max-width:991.98px){
+  #productsGrid .product-img{
+    height:138px!important;
+    min-height:138px!important;
+    max-height:138px!important;
+  }
+  #productsGrid .product-img .product-logo-img{
+    max-width:76%!important;
+    max-height:74%!important;
+  }
+}
+
+@media(max-width:767.98px){
+  #productsGrid .product-img{
+    height:128px!important;
+    min-height:128px!important;
+    max-height:128px!important;
+  }
+  #productsGrid .product-img .product-logo-img{
+    max-width:78%!important;
+    max-height:74%!important;
+  }
+  #productsGrid .product-action{
+    grid-template-columns:32px minmax(62px,76px) 32px!important;
+    bottom:8px!important;
+  }
+  #productsGrid .product-action .btn-square,
+  #productsGrid .product-action .btn-detail{
+    height:32px!important;
+    min-height:32px!important;
+  }
+  #productsGrid .product-action .btn-square{
+    width:32px!important;
+    min-width:32px!important;
+  }
+  #productsGrid .product-item a.h6{
+    font-size:.73rem!important;
+    -webkit-line-clamp:2!important;
+    max-height:2.18em!important;
+  }
+  #productsGrid .product-item h5{
+    font-size:.84rem!important;
+  }
+}
+
+/* En pantallas muy pequeñas, no comprimir demasiado */
+@media(max-width:360px){
+  #productsGrid .product-img{
+    height:118px!important;
+    min-height:118px!important;
+    max-height:118px!important;
+  }
+}
+
+/* Modo oscuro: área visual con más contraste para logos */
+html[data-shop-theme="dark"] #productsGrid .product-img{
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255,255,255,.08), transparent 35%),
+    linear-gradient(180deg,#303840,#1f2327)!important;
+}
+
 </style>
 </head>
 
@@ -5653,34 +5877,19 @@ window.addEventListener('message', function(event){
   }
 
   function optimizeVideos(){
-    // Solo videos de cards; no toca el video del modal/detalle.
+    // V26: optimización liviana. No pausamos por scroll porque algunos iframes
+    // quedaban pausados antes de terminar de cargar. Solo dejamos el motor original
+    // reproducir y aplicamos pausa cuando se abre un modal o se oculta la pestaña.
     const shells = Array.from(document.querySelectorAll('#productsGrid .product-video-shell'));
-    if(!shells.length) return;
-
-    if(window.__innovVideoPauseObserver){
-      try{ window.__innovVideoPauseObserver.disconnect(); }catch(e){}
-    }
-
-    window.__innovVideoPauseObserver = new IntersectionObserver(entries=>{
-      entries.forEach(entry=>{
-        const shell = entry.target;
-
-        if(entry.isIntersecting && entry.intersectionRatio > 0.35){
-          // Pequeño delay para evitar golpes al hacer scroll rápido.
-          clearTimeout(shell.__v25PauseTimer);
-          shell.__v25PlayTimer = setTimeout(()=>playShell(shell), 180);
-        }else{
-          clearTimeout(shell.__v25PlayTimer);
-          shell.__v25PauseTimer = setTimeout(()=>pauseShell(shell), 120);
-        }
-      });
-    }, {
-      root:null,
-      threshold:[0, .35, .7],
-      rootMargin:'160px 0px 160px 0px'
+    shells.forEach((shell, index)=>{
+      shell.style.contentVisibility = 'auto';
+      shell.style.contain = 'layout paint';
+      // Evita golpe fuerte si hay muchísimos videos: los que están muy abajo quedan
+      // con carga natural/lazy del propio iframe, sin forzar pausa.
+      if(index > 14 && shell.dataset.cardVideo === '1'){
+        shell.setAttribute('data-v26-low-priority','1');
+      }
     });
-
-    shells.forEach(shell=>window.__innovVideoPauseObserver.observe(shell));
   }
 
   function pauseCardVideos(){
@@ -5688,10 +5897,16 @@ window.addEventListener('message', function(event){
   }
 
   function resumeVisibleCardVideos(){
+    // V26: reanuda solo un grupo pequeño visible para evitar golpe de CPU.
+    let resumed = 0;
     document.querySelectorAll('#productsGrid .product-video-shell').forEach(shell=>{
+      if(resumed >= 6) return;
       const r = shell.getBoundingClientRect();
       const visible = r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
-      if(visible) playShell(shell);
+      if(visible){
+        resumed++;
+        setTimeout(()=>playShell(shell), resumed * 120);
+      }
     });
   }
 
@@ -5748,79 +5963,65 @@ window.addEventListener('message', function(event){
 })();
 </script>
 
-</body>
-</html>
-
-
-
 
 <script>
-/* FIX v17: TikTok audio + Drive robusto */
-window.addEventListener('message', function(event){
-  try{
-    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-    if(!data || data['x-tiktok-player'] !== true) return;
-
-    document.querySelectorAll('.product-video-shell').forEach(function(shell){
-      if(!shell._tiktokFrame || shell._tiktokFrame.contentWindow !== event.source) return;
-
-      const btn = shell._soundBtn || shell.closest('.modal-product-media')?.querySelector('.video-audio-btn');
-
-      if(data.type === 'onPlayerReady'){
-        applySmartVideoSound(shell, shell.dataset.muted === '0');
-        setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 500);
-      }
-
-      if(data.type === 'onStateChange' && Number(data.value) === 1){
-        if(shell.dataset.muted === '0') applySmartVideoSound(shell, true);
-      }
-
-      if(data.type === 'onMute'){
-        const muted = !!data.value;
-        shell.dataset.muted = muted ? '1' : '0';
-        if(btn){
-          btn.textContent = muted ? '🔇' : '🔊';
-          btn.classList.toggle('is-sound-on', !muted);
-          btn.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar video');
-        }
-      }
-
-      if(data.type === 'onPlayerError'){
-        fallbackSmartVideo(shell, shell._statusEl);
-      }
-    });
-  }catch(e){}
-});
-</script>
-
-
-<script>
-/* V24: Tema automático liviano, sin tocar productos ni videos */
+/* V26: reproducción escalonada suave para evitar lag sin apagar videos */
 (function(){
-  const root = document.documentElement;
-  const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-
-  function systemTheme(){ return mq && mq.matches ? 'dark' : 'light'; }
-  function savedMode(){ return localStorage.getItem('innov_shop_theme_mode') || 'auto'; }
-  function applyTheme(mode){
-    const real = mode === 'auto' ? systemTheme() : mode;
-    root.setAttribute('data-shop-theme', real);
-    root.setAttribute('data-shop-theme-mode', mode);
+  function isVisible(el){
+    const r = el.getBoundingClientRect();
+    return r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
   }
 
-  applyTheme(savedMode());
+  function softStartVisibleVideos(){
+    const shells = Array.from(document.querySelectorAll('#productsGrid .product-video-shell.media-ready'))
+      .filter(isVisible)
+      .slice(0, 8);
 
-  if(mq){
-    const update = () => { if(savedMode() === 'auto') applyTheme('auto'); };
-    if(mq.addEventListener) mq.addEventListener('change', update);
-    else if(mq.addListener) mq.addListener(update);
+    shells.forEach((shell, i)=>{
+      setTimeout(()=>{
+        try{
+          if(shell._videoEl && shell._videoEl.paused) shell._videoEl.play().catch(()=>{});
+          if(shell._player && typeof shell._player.playVideo === 'function') shell._player.playVideo();
+          if(shell._vimeoFrame && shell._vimeoFrame.contentWindow){
+            shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({method:'play'}), '*');
+          }
+          if(shell._tiktokFrame && shell._tiktokFrame.contentWindow){
+            shell._tiktokFrame.contentWindow.postMessage({type:'play', 'x-tiktok-player':true}, '*');
+          }
+        }catch(e){}
+      }, i * 160);
+    });
   }
+
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  ready(function(){
+    setTimeout(softStartVisibleVideos, 1200);
+    setTimeout(softStartVisibleVideos, 2600);
+
+    const grid = document.getElementById('productsGrid');
+    if(grid && window.MutationObserver && !grid.dataset.v26Observer){
+      grid.dataset.v26Observer = '1';
+      const mo = new MutationObserver(()=>{
+        setTimeout(softStartVisibleVideos, 900);
+      });
+      mo.observe(grid, {childList:true});
+    }
+
+    let scrollTimer = null;
+    window.addEventListener('scroll', ()=>{
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(softStartVisibleVideos, 350);
+    }, {passive:true});
+  });
 })();
 </script>
 
 </body>
 </html>
-
 
 
 
