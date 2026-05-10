@@ -1142,6 +1142,11 @@
   background:rgba(16,185,129,.9)!important;
 }
 
+
+/* FIX v16 — Google Drive como video limpio directo */
+.product-video-shell video::-webkit-media-controls{display:none!important;}
+.product-video-shell video::-webkit-media-controls-enclosure{display:none!important;}
+
 </style>
 </head>
 
@@ -1885,6 +1890,39 @@
       const m = u.match(/(?:video\/|player\/v1\/|embed\/)(\d{8,})/i);
       return m ? m[1] : '';
     }
+    function extractGoogleDriveId(url){
+      const u = String(url||'').trim();
+      if(!u) return '';
+      try{
+        const x = new URL(normalizeUrl(u));
+        const host = x.hostname.replace(/^www\./,'').toLowerCase();
+
+        if(host.includes('drive.google.com')){
+          const parts = x.pathname.split('/').filter(Boolean);
+          const fileIdx = parts.indexOf('d');
+          if(fileIdx >= 0 && parts[fileIdx+1]) return parts[fileIdx+1];
+
+          const id = x.searchParams.get('id');
+          if(id) return id;
+
+          const foldersIdx = parts.indexOf('folders');
+          if(foldersIdx >= 0 && parts[foldersIdx+1]) return parts[foldersIdx+1];
+        }
+
+        if(host.includes('drive.usercontent.google.com')){
+          const id = x.searchParams.get('id');
+          if(id) return id;
+        }
+      }catch(e){}
+
+      const m = u.match(/drive\.google\.com\/file\/d\/([^\/?#]+)/i) || u.match(/[?&]id=([^&#]+)/i);
+      return m ? decodeURIComponent(m[1]) : '';
+    }
+
+    function googleDriveDirectVideoUrl(id){
+      return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(id)}`;
+    }
+
     function detectVideoSource(url){
       const clean = normalizeUrl(url);
       if(!clean) return {type:'none'};
@@ -1892,6 +1930,8 @@
       if(yt) return {type:'youtube', id:yt, url:clean};
       const vm = extractVimeoId(clean);
       if(vm) return {type:'vimeo', id:vm, url:clean};
+      const gd = extractGoogleDriveId(clean);
+      if(gd) return {type:'gdrive', id:gd, url:clean, directUrl: googleDriveDirectVideoUrl(gd)};
       const tk = extractTikTokId(clean);
       if(tk || /tiktok\.com/i.test(clean)) return tk ? {type:'tiktok', id:tk, url:clean} : {type:'unsupported', url:clean};
       if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(clean)) return {type:'file', url:clean};
@@ -1954,21 +1994,51 @@
       if(soundBtn) soundBtn.hidden = false;
       markVideoStatus(statusEl, '', false);
 
-      if(media.type === 'file'){
+      if(media.type === 'file' || media.type === 'gdrive'){
         const v = document.createElement('video');
+        const wantSound = shell.dataset.muted === '0';
         v.autoplay = true;
-        v.muted = shell.dataset.muted !== '0';
+        v.muted = !wantSound;
         v.loop = true;
         v.playsInline = true;
         v.controls = false;
-        v.preload = 'metadata';
+        v.preload = media.type === 'gdrive' ? 'auto' : 'metadata';
+        v.disablePictureInPicture = true;
+        v.controlsList = 'nodownload noplaybackrate noremoteplayback';
         v.setAttribute('playsinline','');
         v.setAttribute('webkit-playsinline','');
-        v.src = media.url;
-        v.addEventListener('canplay', ()=>{ revealSmartVideo(shell); v.play().catch(()=>{}); }, {once:true});
+        v.setAttribute('controlsList','nodownload noplaybackrate noremoteplayback');
+        v.setAttribute('disablepictureinpicture','');
+        v.src = media.type === 'gdrive' ? media.directUrl : media.url;
+
+        const playClean = () => {
+          revealSmartVideo(shell);
+          const p = v.play();
+          if(p && typeof p.catch === 'function'){
+            p.catch(() => {
+              // Si el navegador bloquea audio automático, no rompe el video:
+              // reproduce silenciado y deja el botón listo para activar audio con un toque.
+              if(wantSound){
+                v.muted = true;
+                shell.dataset.muted = '1';
+                if(soundBtn){
+                  soundBtn.textContent = '🔇';
+                  soundBtn.classList.remove('is-sound-on');
+                  soundBtn.setAttribute('aria-label','Activar sonido');
+                }
+                v.play().catch(()=>{});
+              }
+            });
+          }
+        };
+
+        v.addEventListener('loadeddata', playClean, {once:true});
+        v.addEventListener('canplay', playClean, {once:true});
         v.addEventListener('error', ()=>fallbackSmartVideo(shell, statusEl), {once:true});
         shell.appendChild(v);
         shell._videoEl = v;
+        shell._sourceKind = media.type;
+        if(soundBtn) soundBtn.hidden = false;
         return;
       }
 
@@ -4668,3 +4738,5 @@ window.addEventListener('message', function(event){
 
 </body>
 </html>
+
+
