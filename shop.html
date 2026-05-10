@@ -2323,98 +2323,228 @@ html[data-shop-theme="dark"] #productsGrid .product-action .btn-detail{
 
 
 /* ================================================================
-   V28 — Anti-lag móvil + dark mode legible + cards más altas
+   V29 — Videos en tarjetas + imagen llenando el recuadro
    ================================================================ */
 
-/* 1) En celular no se reproducen videos en las TARJETAS.
-   Se mantiene la imagen/logo. El video/audio se reproduce al abrir el producto.
-   Esto reduce mucho el lag en celulares. */
-@media(max-width:767.98px){
-  #productsGrid .product-video-shell,
-  #productsGrid .product-video-shade{
-    display:none!important;
-    opacity:0!important;
-    visibility:hidden!important;
-    pointer-events:none!important;
-  }
-}
-
-/* 2) Cards un poco más altas y mejor distribuidas */
+/* Marco superior más alto y aprovechado */
 #productsGrid .product-img{
-  height:162px!important;
-  min-height:162px!important;
-  max-height:162px!important;
+  position:relative!important;
+  overflow:hidden!important;
+  height:158px!important;
+  min-height:158px!important;
+  max-height:158px!important;
+  padding:0!important;
+  display:block!important;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255,255,255,.78), transparent 36%),
+    linear-gradient(180deg,#f8fafc,#e9eef5)!important;
 }
 
+/* El logo/imagen usa todo el recuadro, ya no queda pequeño */
 #productsGrid .product-img .product-logo-img{
-  padding:16px 18px 52px!important;
+  position:absolute!important;
+  inset:0!important;
+  left:0!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  transform:none!important;
+
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+
   object-fit:contain!important;
   object-position:center!important;
+
+  padding:0!important;
+  margin:0!important;
+  border-radius:0!important;
+  background:transparent!important;
 }
 
-#productsGrid .product-item .text-center.py-4{
-  padding:10px 8px 12px!important;
+/* Miniaturas/banner: llenan el área sin verse pequeñas */
+#productsGrid .product-img .product-logo-img[src*="ytimg"],
+#productsGrid .product-img .product-logo-img[src*="youtube"],
+#productsGrid .product-img .product-logo-img[src*="tiktok"],
+#productsGrid .product-img .product-logo-img[src*="drive"],
+#productsGrid .product-img .product-logo-img[src*="googleusercontent"],
+#productsGrid .product-img .product-logo-img[src*="fbcdn"],
+#productsGrid .product-img .product-logo-img[src*="scontent"]{
+  object-fit:cover!important;
 }
 
-#productsGrid .product-item a.h6{
-  font-size:.84rem!important;
-  line-height:1.14!important;
+/* Videos de tarjetas activos como en el HTML original/base */
+#productsGrid .product-video-shell{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  z-index:3!important;
+  display:block!important;
+  pointer-events:none!important;
 }
 
-#productsGrid .product-item h5{
-  font-size:.98rem!important;
+#productsGrid .product-video-shell.media-ready,
+.product-img .product-video-shell.media-ready,
+.modal-product-media .product-video-shell.media-ready{
+  opacity:1!important;
+  visibility:visible!important;
+  display:block!important;
 }
 
-#productsGrid .period-note{
-  font-size:9.2px!important;
+#productsGrid .product-video-shell[data-failed="1"],
+.product-video-shell[data-failed="1"]{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
 }
 
-/* Botones bien alineados sobre la imagen */
+#productsGrid .product-video-shell iframe,
+#productsGrid .product-video-shell video{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  background:#000!important;
+}
+
+/* Sombra inferior para leer botones encima del video/imagen */
+#productsGrid .product-img::after{
+  content:"";
+  position:absolute;
+  inset:auto 0 0 0;
+  height:62px;
+  z-index:8;
+  pointer-events:none;
+  background:linear-gradient(0deg,rgba(0,0,0,.20),transparent);
+}
+
+/* Botones centrados abajo, sin mover funciones */
 #productsGrid .product-action{
-  bottom:13px!important;
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:12px!important;
+  top:auto!important;
+  transform:translateX(-50%)!important;
+  z-index:15!important;
+
+  display:grid!important;
   grid-template-columns:36px 88px 36px!important;
+  justify-content:center!important;
+  align-items:center!important;
   gap:7px!important;
+  width:auto!important;
+  opacity:1!important;
+  pointer-events:auto!important;
 }
 
 #productsGrid .product-action .btn-square,
 #productsGrid .product-action .btn-detail{
   height:36px!important;
   min-height:36px!important;
+  border-radius:999px!important;
+  border:1px solid rgba(15,23,42,.16)!important;
+  background:rgba(255,255,255,.94)!important;
+  color:#111827!important;
+  box-shadow:0 8px 18px rgba(15,23,42,.20)!important;
+  backdrop-filter:blur(8px)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
 }
 
 #productsGrid .product-action .btn-square{
   width:36px!important;
   min-width:36px!important;
+  padding:0!important;
 }
 
 #productsGrid .product-action .btn-detail{
   width:88px!important;
   min-width:88px!important;
+  padding:0 8px!important;
 }
 
-/* Tablet */
+#productsGrid .product-action .btn-detail span:not(.ui-svg){
+  display:inline!important;
+  font-size:9px!important;
+  font-weight:950!important;
+  letter-spacing:.25px!important;
+}
+
+/* Etiquetas superiores */
+#productsGrid .status-pill{
+  z-index:16!important;
+  top:8px!important;
+  left:8px!important;
+}
+
+#productsGrid .status-corner-icon{
+  z-index:16!important;
+  top:8px!important;
+  right:8px!important;
+}
+
+/* Máximo 5 productos por fila */
+#productsGrid{
+  grid-template-columns:repeat(5, minmax(0, 210px))!important;
+  justify-content:center!important;
+  gap:14px!important;
+}
+
+#productsGrid .product-item{
+  max-width:214px!important;
+  width:100%!important;
+  margin:0 auto!important;
+  border-radius:18px!important;
+  overflow:hidden!important;
+}
+
+#productsGrid .product-item .text-center.py-4{
+  padding:10px 8px 12px!important;
+  gap:3px!important;
+}
+
+#productsGrid .product-item a.h6{
+  font-size:.83rem!important;
+  line-height:1.13!important;
+  -webkit-line-clamp:2!important;
+  min-height:1.13em!important;
+  max-height:2.26em!important;
+}
+
+#productsGrid .product-item h5{
+  font-size:.96rem!important;
+}
+
+/* Responsive */
+@media(max-width:1199.98px){
+  #productsGrid{ grid-template-columns:repeat(4, minmax(0, 210px))!important; }
+}
+
 @media(max-width:991.98px){
+  #productsGrid{ grid-template-columns:repeat(3, minmax(0, 205px))!important; }
   #productsGrid .product-img{
-    height:152px!important;
-    min-height:152px!important;
-    max-height:152px!important;
-  }
-
-  #productsGrid .product-img .product-logo-img{
-    padding:15px 16px 50px!important;
+    height:150px!important;
+    min-height:150px!important;
+    max-height:150px!important;
   }
 }
 
-/* Celular */
 @media(max-width:767.98px){
-  #productsGrid .product-img{
-    height:146px!important;
-    min-height:146px!important;
-    max-height:146px!important;
+  #productsGrid{
+    grid-template-columns:repeat(2, minmax(0, 1fr))!important;
+    gap:10px!important;
   }
 
-  #productsGrid .product-img .product-logo-img{
-    padding:13px 13px 46px!important;
+  #productsGrid .product-item{ max-width:none!important; }
+
+  #productsGrid .product-img{
+    height:142px!important;
+    min-height:142px!important;
+    max-height:142px!important;
   }
 
   #productsGrid .product-action{
@@ -2439,159 +2569,56 @@ html[data-shop-theme="dark"] #productsGrid .product-action .btn-detail{
     min-width:76px!important;
   }
 
-  #productsGrid .product-item .text-center.py-4{
-    padding:8px 5px 9px!important;
-  }
+  #productsGrid .product-action .btn-detail span:not(.ui-svg){ font-size:8px!important; }
+
+  #productsGrid .product-item .text-center.py-4{ padding:8px 5px 9px!important; }
 
   #productsGrid .product-item a.h6{
-    font-size:.75rem!important;
+    font-size:.74rem!important;
     line-height:1.12!important;
-    -webkit-line-clamp:2!important;
-    min-height:1.12em!important;
-    max-height:2.24em!important;
   }
 
-  #productsGrid .product-item h5{
-    font-size:.86rem!important;
-  }
+  #productsGrid .product-item h5{ font-size:.86rem!important; }
 }
 
 @media(max-width:360px){
   #productsGrid .product-img{
-    height:136px!important;
-    min-height:136px!important;
-    max-height:136px!important;
+    height:132px!important;
+    min-height:132px!important;
+    max-height:132px!important;
   }
 
-  #productsGrid .product-img .product-logo-img{
-    padding:11px 11px 43px!important;
+  #productsGrid .product-action{ grid-template-columns:30px 66px 30px!important; }
+
+  #productsGrid .product-action .btn-square,
+  #productsGrid .product-action .btn-detail{
+    height:30px!important;
+    min-height:30px!important;
   }
-}
 
-/* 3) Mover el botón Auto / Sol / Luna a la izquierda para no chocar con WhatsApp */
-.theme-float-btn{
-  left:18px!important;
-  right:auto!important;
-  bottom:26px!important;
-  z-index:1210!important;
-}
+  #productsGrid .product-action .btn-square{
+    width:30px!important;
+    min-width:30px!important;
+  }
 
-@media(max-width:767.98px){
-  .theme-float-btn{
-    left:12px!important;
-    right:auto!important;
-    bottom:86px!important;
+  #productsGrid .product-action .btn-detail{
+    width:66px!important;
+    min-width:66px!important;
   }
 }
 
-/* 4) Dark mode más legible: precios, planes, modal y badges */
-html[data-shop-theme="dark"] .modal-content,
-html[data-shop-theme="dark"] .modal-body,
-html[data-shop-theme="dark"] .modal-header,
-html[data-shop-theme="dark"] .modal-footer{
-  background:#1f2327!important;
-  color:#ffffff!important;
-  border-color:rgba(255,255,255,.12)!important;
+/* Modo oscuro */
+html[data-shop-theme="dark"] #productsGrid .product-img{
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255,255,255,.08), transparent 36%),
+    linear-gradient(180deg,#303840,#1f2327)!important;
 }
 
-html[data-shop-theme="dark"] .modal-title,
-html[data-shop-theme="dark"] #modalTitle,
-html[data-shop-theme="dark"] #modalDesc,
-html[data-shop-theme="dark"] #modalWhy,
-html[data-shop-theme="dark"] .modal-content h1,
-html[data-shop-theme="dark"] .modal-content h2,
-html[data-shop-theme="dark"] .modal-content h3,
-html[data-shop-theme="dark"] .modal-content h4,
-html[data-shop-theme="dark"] .modal-content h5,
-html[data-shop-theme="dark"] .modal-content p,
-html[data-shop-theme="dark"] .modal-content li,
-html[data-shop-theme="dark"] .modal-content span{
-  color:#f4f4f5!important;
-}
-
-/* Precio del modal y precio lateral */
-html[data-shop-theme="dark"] #modalPrice,
-html[data-shop-theme="dark"] .modal-price,
-html[data-shop-theme="dark"] .plan-price,
-html[data-shop-theme="dark"] .price,
-html[data-shop-theme="dark"] .meta-chip,
-html[data-shop-theme="dark"] .meta-chip strong{
-  color:#ffffff!important;
-}
-
-html[data-shop-theme="dark"] .meta-chip,
-html[data-shop-theme="dark"] .plan-chip,
-html[data-shop-theme="dark"] .product-mini-badge{
-  background:#303840!important;
-  border-color:rgba(255,255,255,.16)!important;
-  color:#ffffff!important;
-  box-shadow:none!important;
-}
-
-html[data-shop-theme="dark"] .plans-box{
-  background:#2b333b!important;
-  border-color:rgba(255,255,255,.18)!important;
-}
-
-html[data-shop-theme="dark"] .plan-option{
-  background:#303840!important;
-  border-color:rgba(255,255,255,.16)!important;
-  color:#ffffff!important;
-}
-
-html[data-shop-theme="dark"] .plan-option.active{
-  border-color:#60a5fa!important;
-  box-shadow:0 0 0 3px rgba(96,165,250,.18)!important;
-}
-
-html[data-shop-theme="dark"] .benefits-list li,
-html[data-shop-theme="dark"] .extra-box,
-html[data-shop-theme="dark"] .why-box{
-  background:#303840!important;
-  border-color:rgba(255,255,255,.16)!important;
-  color:#ffffff!important;
-}
-
-html[data-shop-theme="dark"] .text-muted,
-html[data-shop-theme="dark"] small,
-html[data-shop-theme="dark"] .help{
-  color:#d0d5dd!important;
-}
-
-/* Botón copiar link y carrito en modal */
-html[data-shop-theme="dark"] #modalCopyLink,
-html[data-shop-theme="dark"] #cartBtn,
-html[data-shop-theme="dark"] .modal-content .btn{
-  color:#ffffff!important;
-}
-
-html[data-shop-theme="dark"] #modalCopyLink{
-  border-color:#facc15!important;
-  color:#facc15!important;
-}
-
-/* 5) Evitar saltos visuales y mejorar adaptación */
-#productsGrid .product-item{
-  min-height:0!important;
-}
-
-#productsGrid .product-img,
-#productsGrid .product-item{
-  transform:translateZ(0);
-}
-
-@media(max-width:767.98px){
-  body{
-    overflow-x:hidden!important;
-  }
-
-  .modal-dialog{
-    margin:.45rem!important;
-  }
-
-  .modal-content{
-    border-radius:18px!important;
-  }
+html[data-shop-theme="dark"] #productsGrid .product-action .btn-square,
+html[data-shop-theme="dark"] #productsGrid .product-action .btn-detail{
+  background:rgba(48,56,64,.94)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.14)!important;
 }
 
 </style>
@@ -3074,7 +3101,7 @@ html[data-shop-theme="dark"] #modalCopyLink{
   (function(){
     /* ================== Config ================== */
     const FX = 3.70;              // 1 USD = 3.70 S/
-    const PAGE_SIZE = 24;         // v24 base estable
+    const PAGE_SIZE = 24;         // v29 base estable
     const CATALOG_REFRESH_MS = 15000; // refresca cupos/productos sin parpadeo visual
 
     // Conexión pública a Supabase (segura con RLS activado)
@@ -6524,62 +6551,16 @@ window.addEventListener('message', function(event){
 
 
 <script>
-/* V28: anti-lag fuerte en celular sin tocar el modal */
+/* V29: asegura videos en tarjetas como la base original */
 (function(){
-  const mobileMQ = window.matchMedia ? window.matchMedia('(max-width: 767.98px)') : {matches:false};
-
-  function stopAndUnloadCardVideosOnMobile(){
-    if(!mobileMQ.matches) return;
-
+  function allowCardVideos(){
     document.querySelectorAll('#productsGrid .product-video-shell').forEach(shell=>{
-      if(shell.dataset.v28MobileDisabled === '1') return;
-      shell.dataset.v28MobileDisabled = '1';
-
-      try{
-        if(shell._videoEl){
-          shell._videoEl.pause();
-          shell._videoEl.removeAttribute('src');
-          shell._videoEl.load();
-        }
-      }catch(e){}
-
-      try{
-        if(shell._player && typeof shell._player.stopVideo === 'function'){
-          shell._player.stopVideo();
-        }
-      }catch(e){}
-
-      try{
-        shell.querySelectorAll('iframe, video').forEach(el=>{
-          if(el.tagName === 'IFRAME') el.src = 'about:blank';
-          if(el.tagName === 'VIDEO'){
-            el.pause();
-            el.removeAttribute('src');
-            el.load();
-          }
-          el.remove();
-        });
-      }catch(e){}
-
-      shell.classList.remove('media-ready');
-      shell.dataset.failed = '1';
-    });
-  }
-
-  function pauseCardVideos(){
-    document.querySelectorAll('#productsGrid .product-video-shell').forEach(shell=>{
-      try{ if(shell._videoEl) shell._videoEl.pause(); }catch(e){}
-      try{ if(shell._player && shell._player.pauseVideo) shell._player.pauseVideo(); }catch(e){}
-      try{
-        if(shell._vimeoFrame && shell._vimeoFrame.contentWindow){
-          shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({method:'pause'}), '*');
-        }
-      }catch(e){}
-      try{
-        if(shell._tiktokFrame && shell._tiktokFrame.contentWindow){
-          shell._tiktokFrame.contentWindow.postMessage({type:'pause', 'x-tiktok-player':true}, '*');
-        }
-      }catch(e){}
+      if(shell.dataset.v28MobileDisabled === '1'){
+        delete shell.dataset.v28MobileDisabled;
+      }
+      if(shell.dataset.failed === '1' && !shell.querySelector('iframe,video')){
+        delete shell.dataset.failed;
+      }
     });
   }
 
@@ -6589,31 +6570,13 @@ window.addEventListener('message', function(event){
   }
 
   ready(function(){
-    // En celular, quitar videos de cards después de que renderice.
-    setTimeout(stopAndUnloadCardVideosOnMobile, 450);
-    setTimeout(stopAndUnloadCardVideosOnMobile, 1400);
-    setTimeout(stopAndUnloadCardVideosOnMobile, 2800);
+    setTimeout(allowCardVideos, 500);
+    setTimeout(allowCardVideos, 1500);
 
     const grid = document.getElementById('productsGrid');
-    if(grid && window.MutationObserver && !grid.dataset.v28MobileObserver){
-      grid.dataset.v28MobileObserver = '1';
-      const mo = new MutationObserver(()=>setTimeout(stopAndUnloadCardVideosOnMobile, 350));
-      mo.observe(grid, {childList:true});
-    }
-
-    // Si abre un producto, pausar tarjetas. El modal no se toca.
-    document.addEventListener('click', function(e){
-      if(e.target.closest('.btn-detail, [data-product-detail], [data-action="detail"]')){
-        setTimeout(pauseCardVideos, 80);
-      }
-    }, true);
-
-    document.addEventListener('visibilitychange', function(){
-      if(document.hidden) pauseCardVideos();
-    });
-
-    if(mobileMQ.addEventListener){
-      mobileMQ.addEventListener('change', ()=>setTimeout(stopAndUnloadCardVideosOnMobile, 500));
+    if(grid && window.MutationObserver && !grid.dataset.v29Observer){
+      grid.dataset.v29Observer = '1';
+      new MutationObserver(()=>setTimeout(allowCardVideos, 250)).observe(grid, {childList:true});
     }
   });
 })();
@@ -6621,3 +6584,4 @@ window.addEventListener('message', function(event){
 
 </body>
 </html>
+
