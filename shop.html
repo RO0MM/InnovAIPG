@@ -2884,6 +2884,254 @@ html[data-shop-theme="dark"] .text-muted{
   color:#94a3b8!important;
 }
 
+
+/* ================================================================
+   FIX v22 — Restaurar reproducción de video estable
+   ================================================================ */
+.product-img .product-video-shell,
+.modal-product-media .product-video-shell{
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .35s ease, visibility .35s ease;
+}
+.product-img .product-video-shell.media-ready,
+.modal-product-media .product-video-shell.media-ready{
+  opacity:1!important;
+  visibility:visible!important;
+}
+.product-video-shell[data-failed="1"]{
+  display:none!important;
+}
+.product-img .product-video-shell iframe,
+.product-img .product-video-shell video,
+.modal-product-media .product-video-shell iframe,
+.modal-product-media .product-video-shell video{
+  background:#000!important;
+}
+.product-img .product-logo-img,
+.modal-product-media .modal-product-image{
+  opacity:1;
+}
+
+/* ================================================================
+   FIX v22 — Modo noche estilo negro + grafito elegante
+   Colores base:
+   fondo principal: #000000
+   bloques/letras/navbar: #1f2327 / #303840
+   ================================================================ */
+
+html[data-shop-theme="dark"] body{
+  background:
+    radial-gradient(circle at 18% 0%, rgba(250,204,21,.08), transparent 30%),
+    radial-gradient(circle at 82% 12%, rgba(96,165,250,.07), transparent 26%),
+    #000000!important;
+  color:#f3f4f6!important;
+}
+
+html[data-shop-theme="dark"] body::before{
+  opacity:.018!important;
+}
+
+/* Header y barra superior en grafito, no azul raro */
+html[data-shop-theme="dark"] .site-header .row.align-items-center.bg-light.py-3{
+  background:#000000!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+}
+
+html[data-shop-theme="dark"] .site-header .container-fluid.bg-dark{
+  background:#1f2327!important;
+  box-shadow:0 10px 26px rgba(0,0,0,.55)!important;
+  border-bottom:1px solid rgba(255,255,255,.07)!important;
+}
+
+html[data-shop-theme="dark"] .site-header .navbar{
+  background:#1f2327!important;
+}
+
+html[data-shop-theme="dark"] .site-header .navbar-nav .nav-link{
+  color:#f4f4f5!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.35)!important;
+}
+
+html[data-shop-theme="dark"] .site-header .navbar-nav .nav-link:hover,
+html[data-shop-theme="dark"] .site-header .navbar-nav .nav-link.active{
+  color:#facc15!important;
+}
+
+/* Carrito: mismo diseño, más limpio */
+html[data-shop-theme="dark"] .site-header .btn,
+html[data-shop-theme="dark"] .site-header .btn.border{
+  background:#303840!important;
+  color:#ffffff!important;
+  border-color:rgba(255,255,255,.16)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 8px 18px rgba(0,0,0,.35)!important;
+}
+
+html[data-shop-theme="dark"] .site-header .badge{
+  border-color:#f4f4f5!important;
+  color:#f4f4f5!important;
+}
+
+/* Botón de categorías en noche */
+html[data-shop-theme="dark"] .site-header .btn.bg-primary{
+  background:linear-gradient(135deg,#facc15,#eab308)!important;
+  color:#111827!important;
+}
+
+html[data-shop-theme="dark"] .site-header #navbar-vertical{
+  background:#1f2327!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+}
+
+html[data-shop-theme="dark"] .site-header #navbar-vertical .nav-link{
+  background:#1f2327!important;
+  color:#f4f4f5!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+}
+
+html[data-shop-theme="dark"] .site-header #navbar-vertical .nav-link:hover{
+  background:#303840!important;
+  color:#facc15!important;
+}
+
+/* Toolbar noche */
+html[data-shop-theme="dark"] .shop-toolbar-pro{
+  background:rgba(31,35,39,.95)!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 14px 32px rgba(0,0,0,.48)!important;
+}
+
+html[data-shop-theme="dark"] .shop-search-pro,
+html[data-shop-theme="dark"] .shop-theme-btn,
+html[data-shop-theme="dark"] .shop-sort-pro,
+html[data-shop-theme="dark"] .shop-mode-pro{
+  background:#303840!important;
+  border-color:rgba(255,255,255,.13)!important;
+  color:#f4f4f5!important;
+}
+
+html[data-shop-theme="dark"] .shop-search-pro input{
+  color:#ffffff!important;
+}
+
+html[data-shop-theme="dark"] .shop-search-pro input::placeholder{
+  color:#c2c7ce!important;
+}
+
+html[data-shop-theme="dark"] .shop-search-pro i{
+  color:#facc15!important;
+}
+
+html[data-shop-theme="dark"] .shop-mode-pro button{
+  color:#f4f4f5!important;
+}
+
+html[data-shop-theme="dark"] .shop-mode-pro button.active{
+  background:linear-gradient(135deg,#facc15,#eab308)!important;
+  color:#111827!important;
+}
+
+/* Cards noche: grafito bonito y legible */
+html[data-shop-theme="dark"] #productsGrid .product-item{
+  background:#1f2327!important;
+  border-color:rgba(255,255,255,.10)!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.45)!important;
+}
+
+html[data-shop-theme="dark"] #productsGrid .product-item:hover{
+  border-color:rgba(250,204,21,.42)!important;
+  box-shadow:0 18px 38px rgba(0,0,0,.58)!important;
+}
+
+html[data-shop-theme="dark"] #productsGrid .product-img{
+  background:
+    radial-gradient(circle at 50% 25%, rgba(255,255,255,.05), transparent 36%),
+    linear-gradient(180deg,#303840,#1f2327)!important;
+}
+
+html[data-shop-theme="dark"] #productsGrid .product-item .text-center.py-4{
+  background:#1f2327!important;
+}
+
+html[data-shop-theme="dark"] #productsGrid .product-item a.h6{
+  color:#f4f4f5!important;
+}
+
+html[data-shop-theme="dark"] #productsGrid .product-item h5{
+  color:#ffffff!important;
+}
+
+html[data-shop-theme="dark"] #productsGrid .period-note{
+  color:#d0d5dd!important;
+}
+
+html[data-shop-theme="dark"] #productsGrid .product-mini-badge{
+  background:#303840!important;
+  color:#f4f4f5!important;
+  border-color:rgba(255,255,255,.12)!important;
+}
+
+html[data-shop-theme="dark"] #productsGrid .product-action .btn-square,
+html[data-shop-theme="dark"] #productsGrid .product-action .btn-detail{
+  background:rgba(48,56,64,.94)!important;
+  color:#ffffff!important;
+  border-color:rgba(255,255,255,.15)!important;
+}
+
+html[data-shop-theme="dark"] #productsGrid .product-action .btn-square:hover,
+html[data-shop-theme="dark"] #productsGrid .product-action .btn-detail:hover{
+  background:#3b4550!important;
+  color:#facc15!important;
+}
+
+/* Modal noche */
+html[data-shop-theme="dark"] .modal-content,
+html[data-shop-theme="dark"] .modal-body,
+html[data-shop-theme="dark"] .modal-header,
+html[data-shop-theme="dark"] .modal-footer{
+  background:#1f2327!important;
+  color:#f4f4f5!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+
+html[data-shop-theme="dark"] .plans-box,
+html[data-shop-theme="dark"] .plan-option,
+html[data-shop-theme="dark"] .benefits-list li,
+html[data-shop-theme="dark"] .extra-box{
+  background:#303840!important;
+  color:#f4f4f5!important;
+  border-color:rgba(255,255,255,.13)!important;
+}
+
+html[data-shop-theme="dark"] .text-dark{
+  color:#ffffff!important;
+}
+
+html[data-shop-theme="dark"] .text-muted{
+  color:#d0d5dd!important;
+}
+
+/* Ajuste responsive: header noche no se vea aplastado */
+@media(max-width:991.98px){
+  html[data-shop-theme="dark"] .site-header .container-fluid.bg-dark{
+    background:#1f2327!important;
+  }
+}
+
+/* FIX v22 — Pulido general de navbar claro */
+html[data-shop-theme="light"] .site-header .container-fluid.bg-dark,
+html:not([data-shop-theme]) .site-header .container-fluid.bg-dark{
+  background:#303840!important;
+}
+html[data-shop-theme="light"] .site-header .navbar-nav .nav-link,
+html:not([data-shop-theme]) .site-header .navbar-nav .nav-link{
+  color:#ffffff!important;
+}
+html[data-shop-theme="light"] .site-header .navbar-nav .nav-link:hover,
+html:not([data-shop-theme]) .site-header .navbar-nav .nav-link:hover{
+  color:#facc15!important;
+}
+
 </style>
 </head>
 
@@ -3728,18 +3976,15 @@ html[data-shop-theme="dark"] .text-muted{
       shell.classList.add('media-ready');
       const wrap = shell.closest('.product-img,.modal-product-media');
       if(wrap) wrap.classList.add('video-ready');
+      const wrap = shell.closest('.product-img,.modal-product-media');
+      if(wrap) wrap.classList.add('video-ready');
     }
     function fallbackSmartVideo(shell, statusEl){
       if(!shell) return;
       shell.classList.remove('media-ready');
       shell.dataset.failed = '1';
-      const wrap = shell.closest('.product-img,.modal-product-media');
-      if(wrap) wrap.classList.remove('video-ready');
       try{
-        shell.querySelectorAll('iframe,video').forEach(el=>{
-          if(el.tagName === 'VIDEO') el.pause();
-          el.remove();
-        });
+        shell.querySelectorAll('video').forEach(el=>{ try{ el.pause(); }catch(e){} });
       }catch(e){}
       markVideoStatus(statusEl, '', false);
     }
