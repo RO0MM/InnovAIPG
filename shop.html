@@ -1149,31 +1149,30 @@
 
 
 /* ================================================================
-   FIX v23 — Base estable + rediseño final sin romper productos
+   V24 — Base estable + diseño limpio SIN tocar motor de video
    ================================================================ */
-
 :root{
-  --ia-yellow:#facc15;
-  --ia-yellow2:#eab308;
-  --ia-dark:#1f2327;
-  --ia-dark2:#303840;
-  --ia-black:#000000;
-  --ia-card:#ffffff;
-  --ia-border:rgba(15,23,42,.10);
-  --ia-text:#1f2937;
-  --ia-muted:#64748b;
-  --ia-shadow:0 12px 28px rgba(15,23,42,.10);
+  --v24-yellow:#facc15;
+  --v24-yellow2:#eab308;
+  --v24-dark:#1f2327;
+  --v24-dark2:#303840;
+  --v24-black:#000;
+  --v24-card:#fff;
+  --v24-border:rgba(15,23,42,.10);
+  --v24-text:#1f2937;
+  --v24-muted:#64748b;
+  --v24-shadow:0 10px 24px rgba(15,23,42,.10);
 }
 
-/* Fondo general más limpio */
+/* Fondo limpio */
 body{
   background:
-    radial-gradient(circle at 12px 12px, rgba(15,23,42,.035) 2px, transparent 2.4px) 0 0/24px 24px,
-    linear-gradient(180deg,#ffffff,#f7f8fc)!important;
-  color:var(--ia-text)!important;
+    radial-gradient(circle at 12px 12px, rgba(15,23,42,.035) 2px, transparent 2.3px) 0 0/24px 24px,
+    linear-gradient(180deg,#fff,#f7f8fc)!important;
+  color:var(--v24-text)!important;
 }
 
-/* Header: limpiar ruido, mantener marca */
+/* Header: limpia lo innecesario, conserva marca y navegación */
 .site-header .row.bg-secondary.py-1{
   display:none!important;
 }
@@ -1195,15 +1194,14 @@ body{
   display:none!important;
 }
 .site-header .row.align-items-center.bg-light.py-3 .h1{
-  font-size:1.6rem!important;
+  font-size:1.62rem!important;
   line-height:1!important;
-  letter-spacing:.7px!important;
   box-shadow:0 8px 20px rgba(15,23,42,.12)!important;
 }
 
-/* Navbar */
+/* Barra */
 .site-header .container-fluid.bg-dark{
-  background:var(--ia-dark2)!important;
+  background:var(--v24-dark2)!important;
   box-shadow:0 10px 22px rgba(15,23,42,.18)!important;
 }
 .site-header .navbar{
@@ -1213,7 +1211,7 @@ body{
 }
 .site-header .btn.bg-primary{
   height:52px!important;
-  background:linear-gradient(135deg,var(--ia-yellow),var(--ia-yellow2))!important;
+  background:linear-gradient(135deg,var(--v24-yellow),var(--v24-yellow2))!important;
   color:#111827!important;
   border-radius:0 16px 16px 0!important;
   box-shadow:none!important;
@@ -1225,7 +1223,7 @@ body{
 }
 .site-header .navbar-nav .nav-link:hover,
 .site-header .navbar-nav .nav-link.active{
-  color:var(--ia-yellow)!important;
+  color:var(--v24-yellow)!important;
 }
 .site-header #navbar-vertical{
   border-radius:0 0 18px 18px!important;
@@ -1242,7 +1240,7 @@ body{
   background:#fff7cc!important;
 }
 
-/* Sidebar de filtros menos invasivo */
+/* Ocultar sidebar pesado sin tocar inputs internos */
 .shop-sidebar{
   display:none!important;
 }
@@ -1256,90 +1254,39 @@ main.col-lg-9.col-md-8{
   padding-right:clamp(10px,2.4vw,30px)!important;
 }
 
-/* Toolbar final */
-.shop-toolbar-final{
+/* Toolbar original mejorado, sin reemplazar HTML */
+.shop-toolbar{
   position:sticky!important;
   top:52px!important;
-  z-index:1031!important;
-  display:grid!important;
-  grid-template-columns:auto minmax(220px,1fr) auto 126px!important;
-  gap:9px!important;
+  z-index:1030!important;
+  display:flex!important;
+  gap:10px!important;
   align-items:center!important;
-  padding:9px!important;
+  justify-content:space-between!important;
+  padding:10px!important;
   margin:9px 0 13px!important;
   border-radius:20px!important;
   background:rgba(255,255,255,.94)!important;
   border:1px solid rgba(15,23,42,.08)!important;
   backdrop-filter:blur(12px)!important;
   -webkit-backdrop-filter:blur(12px)!important;
-  box-shadow:var(--ia-shadow)!important;
+  box-shadow:var(--v24-shadow)!important;
 }
-.shop-toolbar-title{
-  min-width:140px;
-}
-.shop-toolbar-title h5{
+.shop-toolbar h5{
   font-size:1rem!important;
   font-weight:900!important;
-  margin:0!important;
 }
-.shop-toolbar-title .catalog-status{
-  display:block!important;
-  font-size:.68rem!important;
-  margin-top:1px!important;
-  max-width:150px!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
+.shop-toolbar #catalogStatus{
+  font-size:.72rem!important;
 }
-.shop-search-final{
-  min-height:42px;
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:0 13px;
-  border-radius:15px;
-  background:#f8fafc;
-  border:1px solid rgba(15,23,42,.10);
-}
-.shop-search-final i{
-  color:#d49a00;
-}
-.shop-search-final input{
-  width:100%;
-  border:0;
-  outline:0;
-  background:transparent;
-  color:#1f2937;
-  font-weight:800;
-  font-size:.92rem;
-}
-.shop-search-final input::placeholder{
-  color:#7a8595;
-  font-weight:700;
-}
-.shop-theme-final{
-  min-height:42px;
-  border-radius:15px;
-  border:1px solid rgba(15,23,42,.10);
-  background:#fff;
-  color:#1f2937;
-  padding:0 12px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  font-weight:950;
-  cursor:pointer;
-}
-.shop-sort-final{
-  height:42px!important;
-  border-radius:15px!important;
-  border:1px solid rgba(15,23,42,.10)!important;
-  font-size:.83rem!important;
-  font-weight:850!important;
+.shop-toolbar select{
+  height:40px!important;
+  border-radius:14px!important;
+  border:1px solid rgba(15,23,42,.12)!important;
+  font-weight:800!important;
 }
 
-/* Grilla estable: no toca el render, solo la distribución */
+/* Más productos por fila sin cambiar render */
 #productsGrid{
   display:grid!important;
   grid-template-columns:repeat(auto-fill,minmax(158px,1fr))!important;
@@ -1356,7 +1303,7 @@ main.col-lg-9.col-md-8{
   margin:0!important;
 }
 
-/* Tarjetas mejor distribuidas */
+/* Cards compactas */
 #productsGrid .product-item{
   width:100%!important;
   margin:0!important;
@@ -1373,7 +1320,7 @@ main.col-lg-9.col-md-8{
   border-color:rgba(250,204,21,.38)!important;
 }
 
-/* Área de imagen/video: logos contenidos */
+/* Imagen/logo contenida; NO se toca product-video-shell */
 #productsGrid .product-img{
   height:116px!important;
   min-height:116px!important;
@@ -1392,28 +1339,6 @@ main.col-lg-9.col-md-8{
   object-position:center!important;
   border-radius:12px!important;
   background:transparent!important;
-}
-
-/* Video estable: imagen abajo, video solo cuando está listo; si falla se queda imagen */
-.product-img .product-video-shell,
-.modal-product-media .product-video-shell{
-  opacity:0;
-  visibility:hidden;
-  transition:opacity .35s ease, visibility .35s ease;
-}
-.product-img .product-video-shell.media-ready,
-.modal-product-media .product-video-shell.media-ready{
-  opacity:1!important;
-  visibility:visible!important;
-}
-.product-video-shell[data-failed="1"]{
-  display:none!important;
-}
-.product-img .product-video-shell iframe,
-.product-img .product-video-shell video,
-.modal-product-media .product-video-shell iframe,
-.modal-product-media .product-video-shell video{
-  background:#000!important;
 }
 
 /* Acciones superiores */
@@ -1523,8 +1448,6 @@ main.col-lg-9.col-md-8{
   color:#667085!important;
   font-weight:750!important;
 }
-
-/* Limpiar ruido repetido */
 #productsGrid .cat-chip,
 #productsGrid .btn-mobile-buy{
   display:none!important;
@@ -1578,30 +1501,16 @@ main.col-lg-9.col-md-8{
     font-size:1.15rem!important;
     line-height:1!important;
   }
-  .shop-toolbar-final{
+  .shop-toolbar{
     top:50px!important;
-    grid-template-columns:1fr auto!important;
-    gap:7px!important;
-    padding:8px!important;
     border-radius:16px!important;
+    padding:8px!important;
   }
-  .shop-toolbar-title{
-    display:none!important;
+  .shop-toolbar > div:first-child{
+    display:block!important;
   }
-  .shop-search-final{
-    grid-column:1 / -1!important;
-    min-height:40px!important;
-  }
-  .shop-theme-final{
-    width:42px!important;
-    min-width:42px!important;
-    padding:0!important;
-  }
-  .shop-theme-final span{
-    display:none!important;
-  }
-  .shop-sort-final{
-    display:none!important;
+  .shop-toolbar h5{
+    font-size:.92rem!important;
   }
 }
 @media(max-width:767.98px){
@@ -1706,7 +1615,7 @@ main.col-lg-9.col-md-8{
   }
 }
 
-/* Modo noche: negro + grafito */
+/* Modo noche automático sin tocar lógica */
 html[data-shop-theme="dark"] body{
   background:
     radial-gradient(circle at 18% 0%,rgba(250,204,21,.08),transparent 30%),
@@ -1744,26 +1653,18 @@ html[data-shop-theme="dark"] .site-header #navbar-vertical .nav-link:hover{
   background:#303840!important;
   color:#facc15!important;
 }
-html[data-shop-theme="dark"] .shop-toolbar-final{
+html[data-shop-theme="dark"] .shop-toolbar{
   background:rgba(31,35,39,.95)!important;
   border-color:rgba(255,255,255,.10)!important;
   box-shadow:0 14px 32px rgba(0,0,0,.48)!important;
 }
-html[data-shop-theme="dark"] .shop-search-final,
-html[data-shop-theme="dark"] .shop-theme-final,
-html[data-shop-theme="dark"] .shop-sort-final{
-  background:#303840!important;
-  border-color:rgba(255,255,255,.13)!important;
-  color:#f4f4f5!important;
-}
-html[data-shop-theme="dark"] .shop-search-final input{
+html[data-shop-theme="dark"] .shop-toolbar h5,
+html[data-shop-theme="dark"] .shop-toolbar select{
   color:#fff!important;
 }
-html[data-shop-theme="dark"] .shop-search-final input::placeholder{
-  color:#c2c7ce!important;
-}
-html[data-shop-theme="dark"] .shop-search-final i{
-  color:#facc15!important;
+html[data-shop-theme="dark"] .shop-toolbar select{
+  background:#303840!important;
+  border-color:rgba(255,255,255,.13)!important;
 }
 html[data-shop-theme="dark"] #productsGrid .product-item{
   background:#1f2327!important;
@@ -2051,26 +1952,21 @@ html[data-shop-theme="dark"] .text-muted{
 
       <!-- Productos -->
       <main class="col-lg-9 col-md-8">
-        <div class="shop-toolbar shop-toolbar-final">
-          <div class="shop-toolbar-title">
+        <div class="shop-toolbar d-flex align-items-center justify-content-between">
+          <div>
             <h5 id="sectionTitle" class="mb-0">Productos</h5>
             <span id="catalogStatus" class="catalog-status is-warn"><span class="source-dot local"></span> Cargando catálogo...</span>
           </div>
-
-          <div class="shop-search-final">
-            <i class="fa fa-search" aria-hidden="true"></i>
-            <input id="shopSearchInputCompact" type="search" placeholder="Buscar productos..." aria-label="Buscar productos" autocomplete="off">
+          <div class="d-flex align-items-center">
+            <label class="mb-0 mr-2 small text-muted">Ordenar:</label>
+            <select id="sortSelect" class="custom-select custom-select-sm" style="max-width:240px">
+              <option value="relevance">Relevancia</option>
+              <option value="price-asc">Precio: menor a mayor</option>
+              <option value="price-desc">Precio: mayor a menor</option>
+              <option value="name-asc">Nombre: A-Z</option>
+              <option value="name-desc">Nombre: Z-A</option>
+            </select>
           </div>
-
-          <button id="themeModeBtn" class="shop-theme-final" type="button" title="Tema automático">🌓 <span>Auto</span></button>
-
-          <select id="sortSelect" class="custom-select custom-select-sm shop-sort-final">
-            <option value="relevance">Relevancia</option>
-            <option value="price-asc">Precio ↑</option>
-            <option value="price-desc">Precio ↓</option>
-            <option value="name-asc">A-Z</option>
-            <option value="name-desc">Z-A</option>
-          </select>
         </div>
 
         <div id="productsGrid" class="row pb-3"></div>
@@ -2300,7 +2196,7 @@ html[data-shop-theme="dark"] .text-muted{
   (function(){
     /* ================== Config ================== */
     const FX = 3.70;              // 1 USD = 3.70 S/
-    const PAGE_SIZE = 24;         // cards compactas estables
+    const PAGE_SIZE = 24;         // v24 base estable
     const CATALOG_REFRESH_MS = 15000; // refresca cupos/productos sin parpadeo visual
 
     // Conexión pública a Supabase (segura con RLS activado)
@@ -5266,9 +5162,8 @@ html[data-shop-theme="dark"] .text-muted{
       a.addEventListener('click', (e)=>{
         e.preventDefault();
         const cat = a.getAttribute('data-cat');
-        const allCats = Array.from(document.querySelectorAll('.js-cat')).map(chk=>chk.value);
-
-        if(!cat || cat === 'all'){
+        if(cat === 'all'){
+          const allCats = Array.from(document.querySelectorAll('.js-cat')).map(chk=>chk.value);
           state.cats = new Set(allCats);
           document.querySelectorAll('.js-cat').forEach(chk=>{ chk.checked = true; });
         }else{
@@ -5277,7 +5172,6 @@ html[data-shop-theme="dark"] .text-muted{
             chk.checked = (chk.value === cat);
           });
         }
-
         state.page = 1;
         render();
       });
@@ -5477,7 +5371,7 @@ window.addEventListener('message', function(event){
 
 
 <script>
-/* FIX v23 — Tema automático + buscador compacto sin tocar el motor de productos */
+/* V24: Tema automático liviano, sin tocar productos ni videos */
 (function(){
   const root = document.documentElement;
   const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -5488,67 +5382,21 @@ window.addEventListener('message', function(event){
     const real = mode === 'auto' ? systemTheme() : mode;
     root.setAttribute('data-shop-theme', real);
     root.setAttribute('data-shop-theme-mode', mode);
-
-    const btn = document.getElementById('themeModeBtn');
-    if(btn){
-      let label = 'Auto', icon = '🌓', title = 'Tema automático según el sistema';
-      if(mode === 'dark'){ label = 'Noche'; icon = '🌙'; title = 'Modo noche'; }
-      if(mode === 'light'){ label = 'Día'; icon = '☀️'; title = 'Modo día'; }
-      btn.innerHTML = icon + ' <span>' + label + '</span>';
-      btn.title = title;
-    }
   }
 
   applyTheme(savedMode());
 
-  function ready(fn){
-    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
-    else fn();
+  if(mq){
+    const update = () => { if(savedMode() === 'auto') applyTheme('auto'); };
+    if(mq.addEventListener) mq.addEventListener('change', update);
+    else if(mq.addListener) mq.addListener(update);
   }
-
-  ready(function(){
-    applyTheme(savedMode());
-
-    const btn = document.getElementById('themeModeBtn');
-    if(btn && !btn.dataset.boundTheme){
-      btn.dataset.boundTheme = '1';
-      btn.addEventListener('click', function(){
-        const current = savedMode();
-        const next = current === 'auto' ? 'dark' : (current === 'dark' ? 'light' : 'auto');
-        localStorage.setItem('innov_shop_theme_mode', next);
-        applyTheme(next);
-      });
-    }
-
-    if(mq && !root.dataset.themeWatch){
-      root.dataset.themeWatch = '1';
-      const update = () => { if(savedMode() === 'auto') applyTheme('auto'); };
-      if(mq.addEventListener) mq.addEventListener('change', update);
-      else if(mq.addListener) mq.addListener(update);
-    }
-
-    const original = document.getElementById('shopSearchInput');
-    const compact = document.getElementById('shopSearchInputCompact');
-    if(original && compact && !compact.dataset.boundSearch){
-      compact.dataset.boundSearch = '1';
-      compact.value = original.value || compact.value || '';
-      compact.addEventListener('input', function(){
-        original.value = compact.value;
-        original.dispatchEvent(new Event('input', {bubbles:true}));
-      });
-      compact.addEventListener('keydown', function(e){
-        if(e.key === 'Enter'){
-          e.preventDefault();
-          original.dispatchEvent(new Event('input', {bubbles:true}));
-        }
-      });
-    }
-  });
 })();
 </script>
 
 </body>
 </html>
+
 
 
 
