@@ -1332,6 +1332,407 @@
   }
 }
 
+
+/* ================================================================
+   FIX v19 — Tienda limpia, sin sidebar pesado y tarjetas compactas
+   ================================================================ */
+
+/* Header más limpio: sin enlaces superiores, sin buscador duplicado y sin teléfono grande */
+.site-header .row.bg-secondary.py-1,
+.site-header .row.align-items-center.bg-light.py-3{
+  display:none!important;
+}
+
+/* Navbar más compacto */
+.site-header .container-fluid.bg-dark{
+  background:#303840!important;
+}
+.site-header .navbar{
+  min-height:54px!important;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+}
+.site-header .btn.bg-primary{
+  height:54px!important;
+  padding:0 18px!important;
+}
+.site-header .navbar-brand,
+.site-header .nav-link{
+  font-size:.92rem!important;
+}
+
+/* Quitar breadcrumb grande */
+.breadcrumb,
+nav.breadcrumb{
+  display:none!important;
+}
+
+/* El filtro lateral ya no ocupa espacio. Se mantiene oculto para que la lógica siga viva. */
+.shop-sidebar{
+  display:none!important;
+}
+.shop-sidebar + main,
+main.col-lg-9.col-md-8{
+  flex:0 0 100%!important;
+  max-width:100%!important;
+}
+
+/* Menos aire arriba del catálogo */
+.container-fluid .row.px-xl-5{
+  padding-left:18px!important;
+  padding-right:18px!important;
+}
+@media(max-width:575.98px){
+  .container-fluid .row.px-xl-5{
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+}
+
+/* Toolbar ahora es buscador + modo + orden */
+.shop-toolbar-pro{
+  position:sticky!important;
+  top:58px!important;
+  z-index:1032!important;
+  display:grid!important;
+  grid-template-columns:minmax(240px,1fr) auto 150px!important;
+  gap:10px!important;
+  align-items:center!important;
+  padding:10px!important;
+  margin:8px 0 12px!important;
+  border:1px solid rgba(0,0,0,.08)!important;
+  border-radius:18px!important;
+  background:rgba(255,255,255,.96)!important;
+  backdrop-filter:blur(10px)!important;
+  box-shadow:0 10px 24px rgba(15,23,42,.08)!important;
+}
+
+.shop-status-compact{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+
+.shop-search-pro{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0 14px;
+  border:2px solid rgba(0,0,0,.10);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+}
+.shop-search-pro i{
+  color:#f0b400;
+  font-size:16px;
+}
+.shop-search-pro input{
+  width:100%;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#26313d;
+  font-weight:700;
+  font-size:15px;
+}
+.shop-search-pro input::placeholder{
+  color:#778292;
+  font-weight:600;
+}
+
+.shop-mode-pro{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:4px;
+  background:#f1f5f9;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:14px;
+  white-space:nowrap;
+}
+.shop-mode-pro button{
+  border:0;
+  border-radius:11px;
+  background:transparent;
+  color:#44505d;
+  padding:9px 13px;
+  font-weight:900;
+  cursor:pointer;
+}
+.shop-mode-pro button.active{
+  background:#facc15;
+  color:#111827;
+  box-shadow:0 4px 12px rgba(250,204,21,.28);
+}
+.shop-sort-pro{
+  height:44px!important;
+  border-radius:14px!important;
+  font-weight:800!important;
+  border:2px solid rgba(0,0,0,.10)!important;
+  background-color:#fff!important;
+}
+
+/* Grid más limpio */
+#productsGrid{
+  margin-left:-7px!important;
+  margin-right:-7px!important;
+}
+#productsGrid > [class*="col-"]{
+  padding-left:7px!important;
+  padding-right:7px!important;
+  padding-bottom:12px!important;
+}
+
+/* Tarjeta compacta: imagen/video puede seguir visible, lo bajo se achata */
+#productsGrid .product-item{
+  height:auto!important;
+  min-height:0!important;
+  margin-bottom:0!important;
+  border-radius:15px!important;
+  overflow:hidden!important;
+  box-shadow:0 8px 18px rgba(15,23,42,.08)!important;
+  border:1px solid rgba(0,0,0,.10)!important;
+}
+
+#productsGrid .product-img{
+  height:150px!important;
+  min-height:150px!important;
+  max-height:150px!important;
+  padding:6px!important;
+}
+#productsGrid .product-img .product-logo-img{
+  inset:9px!important;
+  width:calc(100% - 18px)!important;
+  height:calc(100% - 18px)!important;
+}
+
+/* Botones superiores compactos y centrados */
+#productsGrid .product-action{
+  left:8px!important;
+  right:8px!important;
+  bottom:8px!important;
+  display:grid!important;
+  grid-template-columns:38px minmax(78px,94px) 38px!important;
+  justify-content:center!important;
+  gap:7px!important;
+}
+#productsGrid .product-action .btn-square{
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  min-height:38px!important;
+  padding:0!important;
+  box-shadow:0 4px 10px rgba(0,0,0,.16)!important;
+}
+#productsGrid .product-action .btn-detail{
+  width:auto!important;
+  padding:0 10px!important;
+}
+#productsGrid .product-action .btn-detail span:not(.ui-svg){
+  display:inline!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  letter-spacing:.4px!important;
+}
+
+/* Estado superior más corto */
+#productsGrid .status-pill{
+  top:7px!important;
+  left:7px!important;
+  padding:.22rem .48rem!important;
+  font-size:9px!important;
+  max-width:calc(100% - 45px)!important;
+}
+#productsGrid .status-corner-icon{
+  top:7px!important;
+  right:7px!important;
+  width:30px!important;
+  height:30px!important;
+}
+
+/* Bloque inferior REALMENTE compacto */
+#productsGrid .product-item .text-center.py-4{
+  padding:9px 7px 10px!important;
+  min-height:0!important;
+  height:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  gap:3px!important;
+}
+
+#productsGrid .product-item a.h6{
+  font-size:.86rem!important;
+  line-height:1.08!important;
+  min-height:1.08em!important;
+  max-height:2.16em!important;
+  -webkit-line-clamp:2!important;
+  margin:0!important;
+  white-space:normal!important;
+  text-align:center!important;
+}
+
+#productsGrid .product-item .d-flex.align-items-center.justify-content-center.mt-2{
+  margin-top:5px!important;
+}
+#productsGrid .product-item h5{
+  font-size:1rem!important;
+  line-height:1!important;
+  margin:0!important;
+}
+#productsGrid .period-note{
+  font-size:10px!important;
+  margin:3px 0 0!important;
+  line-height:1!important;
+  color:#6b7280!important;
+}
+
+/* Limpiar elementos repetidos de abajo */
+#productsGrid .cat-chip,
+#productsGrid .btn-mobile-buy{
+  display:none!important;
+}
+#productsGrid .product-mini-badges{
+  margin-top:4px!important;
+  gap:4px!important;
+  max-height:22px!important;
+  overflow:hidden!important;
+  justify-content:center!important;
+}
+#productsGrid .product-mini-badge{
+  padding:.16rem .38rem!important;
+  font-size:9px!important;
+  line-height:1!important;
+  box-shadow:none!important;
+}
+#productsGrid .product-mini-badge i{
+  font-size:9px!important;
+}
+
+/* Oculta categoría y DB de todos los productos; deja planes + disponibles */
+#productsGrid .product-mini-badge:nth-child(1),
+#productsGrid .product-mini-badge:nth-child(4){
+  display:none!important;
+}
+
+/* Móvil: toolbar y tarjetas todavía más compactas */
+@media(max-width:767.98px){
+  .site-header .container-fluid.bg-dark{
+    position:sticky;
+    top:0;
+    z-index:1040;
+  }
+  .site-header .navbar{
+    min-height:50px!important;
+  }
+  .site-header .navbar .h1{
+    font-size:1.25rem!important;
+  }
+
+  .shop-toolbar-pro{
+    top:50px!important;
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+    padding:8px!important;
+    margin:6px 0 10px!important;
+    border-radius:15px!important;
+  }
+
+  .shop-search-pro{
+    min-height:40px!important;
+    padding:0 11px!important;
+  }
+  .shop-search-pro input{
+    font-size:14px!important;
+  }
+  .shop-mode-pro{
+    width:100%;
+  }
+  .shop-mode-pro button{
+    flex:1;
+    padding:8px 8px!important;
+    font-size:13px!important;
+  }
+  .shop-sort-pro{
+    display:none!important;
+  }
+
+  #productsGrid{
+    margin-left:-4px!important;
+    margin-right:-4px!important;
+  }
+  #productsGrid > [class*="col-"]{
+    padding-left:4px!important;
+    padding-right:4px!important;
+    padding-bottom:8px!important;
+  }
+  #productsGrid .product-img{
+    height:118px!important;
+    min-height:118px!important;
+    max-height:118px!important;
+  }
+  #productsGrid .product-action{
+    grid-template-columns:34px minmax(70px,82px) 34px!important;
+    gap:5px!important;
+    bottom:7px!important;
+  }
+  #productsGrid .product-action .btn-square{
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    min-height:34px!important;
+  }
+  #productsGrid .product-action .btn-detail{
+    padding:0 7px!important;
+  }
+  #productsGrid .product-item .text-center.py-4{
+    padding:7px 5px 8px!important;
+    gap:2px!important;
+  }
+  #productsGrid .product-item a.h6{
+    font-size:.77rem!important;
+    -webkit-line-clamp:1!important;
+    min-height:1em!important;
+    max-height:1em!important;
+  }
+  #productsGrid .product-item h5{
+    font-size:.88rem!important;
+  }
+  #productsGrid .period-note{
+    font-size:9px!important;
+  }
+  #productsGrid .product-mini-badges{
+    margin-top:3px!important;
+    max-height:19px!important;
+  }
+  #productsGrid .product-mini-badge{
+    font-size:8px!important;
+    padding:.12rem .32rem!important;
+  }
+}
+
+@media(max-width:380px){
+  #productsGrid .product-img{
+    height:108px!important;
+    min-height:108px!important;
+    max-height:108px!important;
+  }
+  #productsGrid .product-action{
+    grid-template-columns:31px minmax(62px,74px) 31px!important;
+  }
+  #productsGrid .product-action .btn-square{
+    width:31px!important;
+    height:31px!important;
+    min-width:31px!important;
+    min-height:31px!important;
+  }
+}
+
 </style>
 </head>
 
@@ -1510,7 +1911,7 @@
                   <input type="radio" name="mode" value="wholesale"> Proveedores
                 </label>
               </div>
-              <small class="d-block mt-2 text-muted">“Proveedores” = cuentas completas / multiusuarios.</small>
+              <small class="d-block mt-2 text-muted">“Revendedores” = cuentas completas / multiusuarios.</small>
             </div>
 
             <h5 class="section-title position-relative text-uppercase mb-3">
@@ -1567,21 +1968,27 @@
 
       <!-- Productos -->
       <main class="col-lg-9 col-md-8">
-        <div class="shop-toolbar d-flex align-items-center justify-content-between">
-          <div>
-            <h5 id="sectionTitle" class="mb-0">Productos</h5>
-            <span id="catalogStatus" class="catalog-status is-warn"><span class="source-dot local"></span> Cargando catálogo...</span>
+        <div class="shop-toolbar shop-toolbar-pro">
+          <h5 id="sectionTitle" class="sr-only">Productos</h5>
+          <span id="catalogStatus" class="catalog-status is-warn shop-status-compact"><span class="source-dot local"></span> Cargando catálogo...</span>
+
+          <div class="shop-search-pro">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <input id="shopSearchInputCompact" type="search" placeholder="Buscar productos, Netflix, ChatGPT, Canva..." aria-label="Buscar productos" autocomplete="off">
           </div>
-          <div class="d-flex align-items-center">
-            <label class="mb-0 mr-2 small text-muted">Ordenar:</label>
-            <select id="sortSelect" class="custom-select custom-select-sm" style="max-width:240px">
-              <option value="relevance">Relevancia</option>
-              <option value="price-asc">Precio: menor a mayor</option>
-              <option value="price-desc">Precio: mayor a menor</option>
-              <option value="name-asc">Nombre: A-Z</option>
-              <option value="name-desc">Nombre: Z-A</option>
-            </select>
+
+          <div class="shop-mode-pro" aria-label="Tipo de venta">
+            <button id="quickRetailBtn" class="active" type="button">Por menor</button>
+            <button id="quickWholesaleBtn" type="button">Revendedores</button>
           </div>
+
+          <select id="sortSelect" class="custom-select custom-select-sm shop-sort-pro" aria-label="Ordenar productos">
+            <option value="relevance">Relevancia</option>
+            <option value="price-asc">Precio ↑</option>
+            <option value="price-desc">Precio ↓</option>
+            <option value="name-asc">A-Z</option>
+            <option value="name-desc">Z-A</option>
+          </select>
         </div>
 
         <div id="productsGrid" class="row pb-3"></div>
@@ -4112,7 +4519,7 @@
     function render(){
       sectionTitle.innerHTML = (state.mode==='retail')
         ? 'Productos <small class="text-muted">por menor</small>'
-        : 'Proveedores <small class="text-muted">cuentas completas</small>';
+        : 'Revendedores <small class="text-muted">cuentas completas</small>';
 
       const BASE = currentCatalog();
       const filtered = bySearch(byStock(byPrice(byCats(BASE))));
@@ -4978,8 +5385,68 @@ window.addEventListener('message', function(event){
 });
 </script>
 
+
+<script>
+/* FIX v19 — Conecta el nuevo buscador y los botones compactos sin romper la lógica existente */
+(function(){
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  ready(function(){
+    const oldSearch = document.getElementById('shopSearchInput');
+    const newSearch = document.getElementById('shopSearchInputCompact');
+
+    if(oldSearch && newSearch){
+      newSearch.value = oldSearch.value || '';
+      newSearch.addEventListener('input', function(){
+        oldSearch.value = newSearch.value;
+        oldSearch.dispatchEvent(new Event('input', {bubbles:true}));
+      });
+      newSearch.addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          oldSearch.dispatchEvent(new Event('input', {bubbles:true}));
+        }
+      });
+    }
+
+    const quickRetail = document.getElementById('quickRetailBtn');
+    const quickWholesale = document.getElementById('quickWholesaleBtn');
+    const oldRetail = document.getElementById('modeRetailBtn');
+    const oldWholesale = document.getElementById('modeWholesaleBtn');
+
+    function syncMode(which){
+      if(!quickRetail || !quickWholesale) return;
+      quickRetail.classList.toggle('active', which === 'retail');
+      quickWholesale.classList.toggle('active', which === 'wholesale');
+    }
+
+    if(quickRetail && oldRetail){
+      quickRetail.addEventListener('click', function(){
+        oldRetail.click();
+        syncMode('retail');
+      });
+    }
+
+    if(quickWholesale && oldWholesale){
+      quickWholesale.addEventListener('click', function(){
+        oldWholesale.click();
+        syncMode('wholesale');
+      });
+    }
+
+    /* Sincroniza si otra parte cambia el modo */
+    if(oldRetail) oldRetail.addEventListener('click', () => syncMode('retail'));
+    if(oldWholesale) oldWholesale.addEventListener('click', () => syncMode('wholesale'));
+  });
+})();
+</script>
+
 </body>
 </html>
+
 
 
 
