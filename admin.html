@@ -1506,6 +1506,30 @@ input, select, textarea, button { min-width: 0; }
 @media(max-width:900px){.live-chat-shell{height:calc(100dvh - 135px);grid-template-columns:1fr;min-height:620px}.live-chat-panel{display:none}.live-chat-shell.show-list .live-chat-panel{display:grid}.live-chat-shell.show-list .live-chat-room{display:none}.live-chat-head-actions{gap:5px}.live-chat-head-actions .btn{padding:7px 9px;font-size:.76rem}.live-msg{max-width:88%}}
 @media(max-width:420px){.live-chat-head{padding:10px}.live-chat-avatar{width:40px;height:40px}.live-chat-head-actions .btn:not(#liveChatBack){font-size:0;padding:8px}.live-chat-head-actions .btn:not(#liveChatBack)::first-letter{font-size:.9rem}.live-cleaner{display:grid;grid-template-columns:1fr 1fr}.live-cleaner .input{max-width:100%}.live-cleaner .help{grid-column:1/-1}}
 
+
+
+/* ================================================================
+   PATCH ROMMEL v12 — contraste, listas compactas y alertas pro
+   ================================================================ */
+.btn-primary, .btn-success, .btn-warning, .btn-danger,
+.btn-primary *, .btn-success *, .btn-warning *, .btn-danger * { color:#fff !important; }
+button.btn-primary, a.btn-primary { color:#fff !important; }
+.chip[aria-pressed="true"], .acc-chip[aria-pressed="true"],
+.btn.chip[aria-pressed="true"], .btn.chip[aria-pressed="true"] * { color:#fff !important; }
+.line-actions .btn-primary, .line-actions .btn-success, .line-actions .btn-warning, .line-actions .btn-danger { color:#fff !important; }
+
+.crm-split{display:grid;grid-template-columns:1fr;gap:14px}
+.crm-section-title{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
+.crm-section-title strong{font-size:.98rem;color:var(--card-ink)}
+.line-list{display:grid;gap:8px}
+.crm-row,.reminder-row,.totp-row{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-xs);padding:10px 12px;display:grid;grid-template-columns:minmax(160px,1.05fr) minmax(150px,.9fr) minmax(120px,.75fr) minmax(210px,auto);gap:10px;align-items:center;color:var(--card-ink)}
+.crm-row:hover,.reminder-row:hover,.totp-row:hover{background:var(--primary-alpha2);box-shadow:var(--shadow-md)}
+.crm-main,.rem-main,.totp-main{min-width:0}.crm-title,.rem-title,.totp-title-line{font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crm-sub,.rem-sub,.totp-sub-line{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.crm-meta-line,.rem-meta-line,.totp-meta-line{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.crm-actions,.rem-actions,.totp-actions-line{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.crm-actions .btn,.rem-actions .btn,.totp-actions-line .btn{padding:6px 9px;font-size:.76rem;border-radius:9px}.crm-row.overdue,.reminder-row.overdue{border-color:rgba(185,28,28,.35);background:var(--danger-alpha)}.crm-row.due,.reminder-row.due{border-color:rgba(180,83,9,.35);background:var(--warning-alpha)}
+.history-box{display:grid;gap:8px}.history-item{border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--card2)}.history-item .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:800}.history-item pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;font-family:var(--mono);font-size:.78rem;color:var(--card-ink);background:var(--card);border:1px dashed var(--border);border-radius:10px;padding:8px;max-height:180px;overflow:auto}.notif-card{border-left:4px solid var(--primary)}.settings-check{display:flex;align-items:flex-start;gap:8px;cursor:pointer;margin:9px 0;color:var(--card-ink)}.settings-check input{margin-top:4px}.manual-stock-hint{font-size:.78rem;color:var(--muted);margin-top:6px;border-left:3px solid var(--success);padding:7px 9px;background:var(--success-alpha);border-radius:10px}
+.totp-grid.compact{display:grid;grid-template-columns:1fr;gap:8px}.totp-row .mono{font-family:var(--mono);font-size:.78rem}.totp-card{border-radius:14px}
+@media(max-width:850px){.crm-row,.reminder-row,.totp-row{grid-template-columns:1fr;gap:7px}.crm-actions,.rem-actions,.totp-actions-line{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}.crm-actions .btn,.rem-actions .btn,.totp-actions-line .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crm-section-title{align-items:flex-start}.manual-stock-hint{font-size:.76rem}}
+@media(max-width:430px){.crm-actions,.rem-actions,.totp-actions-line{grid-template-columns:1fr 1fr}.header-actions .badge{display:none}.app-title{font-size:.92rem}}
+
 </style>
 </head>
 <body>
@@ -1537,8 +1561,8 @@ input, select, textarea, button { min-width: 0; }
   <button class="btn btn-ghost nav-btn-side" data-tab="inventory" type="button">📦 Cupos y entregas</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="orders" type="button">🧾 Pagos y pedidos</button>
   <div class="g-title">CRM</div>
-  <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">👥 Clientes</button>
-  <button class="btn btn-ghost nav-btn-side" data-tab="reminders" type="button">🔔 Recordatorios</button>
+  <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">👥 Clientes + pagos</button>
+  <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">🔔 Recordatorios / pagos</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="chat" type="button">💬 Chat Clientes <span class="tab-badge" id="tbChatSide" style="display:none">0</span></button>
   <button class="btn btn-ghost nav-btn-side" data-tab="totp" type="button">🛡️ Accesos TOTP</button>
   <div class="g-title">Configuración</div>
@@ -1598,7 +1622,7 @@ input, select, textarea, button { min-width: 0; }
     <button class="btn nav-btn" data-tab="products">🧩 Productos</button>
     <button class="btn nav-btn" data-tab="inventory">📦 Cupos</button>
     <button class="btn nav-btn" data-tab="orders">🧾 Pagos <span class="tab-badge" id="tbOrders" style="display:none">0</span></button>
-    <button class="btn nav-btn" data-tab="clients">👥 Clientes</button>
+    <button class="btn nav-btn" data-tab="clients">👥 Clientes + pagos</button>
     <button class="btn nav-btn" data-tab="reminders">🔔 Recordatorios <span class="tab-badge" id="tbReminders" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="chat">💬 Chat <span class="tab-badge" id="tbChat" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="totp">🛡️ Accesos TOTP</button>
@@ -1678,17 +1702,32 @@ input, select, textarea, button { min-width: 0; }
         <div class="mini-grid" id="ordersGrid"></div>
       </section>
 
-      <!-- Clientes -->
+      <!-- Clientes + Recordatorios -->
       <section id="tab-clients" class="admin-section">
         <div class="admin-toolbar">
-          <div class="input-wrap"><input class="input" id="clientSearch" type="search" placeholder="🔍 Buscar cliente por nombre o WhatsApp..."></div>
+          <div class="input-wrap"><input class="input" id="clientSearch" type="search" placeholder="🔍 Buscar cliente, WhatsApp, servicio o pago..."></div>
           <div class="actions">
             <button class="btn btn-primary" id="btnNewClient" type="button">＋ Cliente</button>
+            <button class="btn btn-primary" id="btnNewReminderFromClients" type="button">＋ Recordatorio</button>
+            <button class="btn chip" id="btnOnlyDueClients" type="button" aria-pressed="false">Vencidos</button>
             <button class="btn" id="btnReloadClients" type="button">↻</button>
-            <button class="btn btn-success" id="btnExportClients" type="button">⬇ Export</button>
+            <button class="btn btn-success" id="btnExportClients" type="button">⬇ Backup</button>
           </div>
         </div>
-        <div class="mini-grid" id="clientsGrid"></div>
+        <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
+          <strong>👥 Clientes y pagos en una sola vista</strong>
+          <p class="help" style="margin:6px 0 0">Aquí verás cliente, historial, cuenta entregada y recordatorios de pago. Los vencidos quedan arriba para abrir WhatsApp más rápido.</p>
+        </div>
+        <div class="crm-split">
+          <div>
+            <div class="crm-section-title"><strong>👥 Clientes</strong><span class="help">Formato compacto para celular y PC</span></div>
+            <div class="line-list" id="clientsGrid"></div>
+          </div>
+          <div>
+            <div class="crm-section-title"><strong>🔔 Recordatorios de pago</strong><span class="help">Vencidos / pendientes / WhatsApp</span></div>
+            <div class="line-list" id="remindersMergedGrid"></div>
+          </div>
+        </div>
       </section>
 
       <!-- Recordatorios -->
@@ -1705,7 +1744,7 @@ input, select, textarea, button { min-width: 0; }
           <strong>✅ Automático después de entrega</strong>
           <p class="help" style="margin:6px 0 0">Cuando apruebas y entregas una cuenta/código, el sistema crea un cliente y un recordatorio a 30 días usando el WhatsApp del pedido.</p>
         </div>
-        <div class="mini-grid" id="remindersGrid"></div>
+        <div class="line-list" id="remindersGrid"></div>
       </section>
 
 
@@ -1911,6 +1950,17 @@ input, select, textarea, button { min-width: 0; }
             </div>
             <div id="syncStatus" class="sync-note">—</div>
           </div>
+          <div class="card notif-card">
+            <strong style="display:block;margin-bottom:14px">🔔 Notificaciones y WhatsApp automático</strong>
+            <p class="help">Activa avisos del navegador, sonido y alertas cuando llega un pago, un chat, se agotan cupos o vence un cliente.</p>
+            <label class="settings-check"><input type="checkbox" id="setAutoOpenWaDue"> <span><b>Intentar abrir WhatsApp cuando venza</b><br><span class="help">El navegador puede bloquear ventanas si no hubo interacción, pero dejará botón rápido para abrir.</span></span></label>
+            <label class="settings-check"><input type="checkbox" id="setNotifyDue"> <span><b>Notificar recordatorios vencidos</b><br><span class="help">Aviso una vez por día por cada cliente/servicio vencido.</span></span></label>
+            <label class="settings-check"><input type="checkbox" id="setNotifyStock"> <span><b>Notificar cupos agotados</b><br><span class="help">Alerta cuando un plan llega a 0 cupos disponibles.</span></span></label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+              <button class="btn btn-primary" id="btnTestNotification" type="button">🔊 Probar notificación</button>
+              <button class="btn btn-success" id="btnSaveAdminLocalSettings" type="button">Guardar ajustes</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1926,7 +1976,7 @@ input, select, textarea, button { min-width: 0; }
     <button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Prod.</span></button>
     <button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Stock</span></button>
     <button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pagos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
-    <button class="btn" data-tab="reminders" type="button"><span class="ico">🔔</span><span>Record.</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
+    <button class="btn" data-tab="clients" type="button"><span class="ico">🔔</span><span>Pagos</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
     <button class="btn" id="btnMobileMore" type="button" onclick="openSidenav()"><span class="ico">☰</span><span>Más</span></button>
   </div>
 </nav>
@@ -2068,7 +2118,8 @@ input, select, textarea, button { min-width: 0; }
   </div>
   <div class="dlg-body">
     <input type="hidden" id="manualOrderId">
-    <div style="margin-bottom:10px"><label class="subtle">Plan del pedido</label><select class="input" id="manualPlan"></select></div>
+    <input type="hidden" id="manualStockId">
+    <div style="margin-bottom:10px"><label class="subtle">Plan del pedido</label><select class="input" id="manualPlan"></select><div class="manual-stock-hint" id="manualStockHint">Selecciona un plan: si hay una cuenta libre, se cargará automáticamente.</div></div>
     <div class="grid grid-2">
       <div><label class="subtle">Plantilla de entrega</label><select class="input" id="manualTemplate"></select></div>
       <div><label class="subtle">Fecha de inicio</label><input class="input" id="manualStartDate" type="date"></div>
@@ -2457,6 +2508,18 @@ input, select, textarea, button { min-width: 0; }
   </div>
 </dialog>
 
+
+<!-- Historial cliente / entregas -->
+<dialog id="dlgClientHistory">
+  <div class="modal-header">
+    <strong id="clientHistoryTitle">Historial del cliente</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgClientHistory" type="button">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div id="clientHistoryBody" class="history-box"></div>
+  </div>
+</dialog>
+
 <!-- Chat pedido -->
 <dialog id="dlgOrderChat">
   <div class="modal-header">
@@ -2490,7 +2553,7 @@ let state={
   totpAccounts:[],totpCodes:[],totpEvents:[],totpView:'codes',totpDbError:null,
   liveChatConversations:[],liveChatMessages:[],liveChatActive:null,liveChatFile:null,liveChatFilter:'open',
   liveChatListChannel:null,liveChatMsgChannel:null,liveChatUserId:null,liveChatInit:false,liveChatCleanupTimer:null,
-  tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyPending:false
+  tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyDueClients:false,onlyPending:false
 };
 
 /* ---- Utilities ---- */
@@ -2800,6 +2863,7 @@ function liveChatSubscribeList(){
   state.liveChatListChannel=db.channel('live-chat-list-'+Date.now())
     .on('postgres_changes',{event:'*',schema:'public',table:'conversations'},()=>liveChatLoadConversations().catch(console.warn))
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},payload=>{
+      if(payload.new?.sender_role!=='admin')notifyWeb('Nuevo mensaje del chat',String(payload.new?.body||payload.new?.file_name||'Mensaje nuevo').slice(0,120),true);
       if(payload.new?.conversation_id!==state.liveChatActive?.id)liveChatLoadConversations().catch(console.warn);
     }).subscribe();
 }
@@ -3048,6 +3112,10 @@ function renderProducts(){
   }).join('')||'<div class="empty-state"><span class="icon">🧩</span><p>No hay productos.</p></div>';
 }
 
+function isTotpFriendlyPlan(p){
+  const txt=(prodName(p?.product_id)+' '+(p?.name||'')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return /(chatgpt|gpt|openai|plus|totp|acceso|codigo)/.test(txt);
+}
 function renderPlans(){
   const q=($('planSearch')?.value||'').toLowerCase();
   let arr=state.plans.filter(p=>(p.name+' '+prodName(p.product_id)).toLowerCase().includes(q));
@@ -3066,6 +3134,7 @@ function renderPlans(){
       <button class="btn btn-primary" onclick="editPlan('${p.id}')">✏️ Editar cupos</button>
       <button class="btn btn-success" onclick="openPlanStockView('${p.id}')">👁 Ver cuentas</button>
       <button class="btn" onclick="openAddStock('${p.id}')">📥 Cargar</button>
+      ${isTotpFriendlyPlan(p)?`<button class="btn btn-primary" onclick="autoTotpCodesFromPlan('${p.id}')">🛡 TOTP</button>`:''}
       <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
       <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">🗑 Eliminar</button>
     </div>
@@ -3173,65 +3242,91 @@ function renderOrders(){
 function renderClients(){
   if(!$('clientsGrid'))return;
   const q=($('clientSearch')?.value||'').toLowerCase();
-  const data=state.customers.filter(c=>(`${c.name||''} ${c.phone_e164||''} ${c.email||''}`).toLowerCase().includes(q));
+  let data=state.customers.filter(c=>{
+    const rem=state.reminders.filter(r=>r.customer_id===c.id);
+    const blob=`${c.name||''} ${c.phone_e164||''} ${c.email||''} ${c.notes||''} ${rem.map(r=>r.service_name+' '+r.status+' '+r.due_date).join(' ')}`.toLowerCase();
+    return blob.includes(q);
+  });
+  data=data.sort((a,b)=>clientSortScore(b)-clientSortScore(a));
   $('clientsGrid').innerHTML=data.map(c=>{
     const rem=state.reminders.filter(r=>r.customer_id===c.id);
     const pend=rem.filter(r=>r.status==='pending').length;
+    const due=rem.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO()).length;
+    const next=rem.filter(r=>r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')))[0];
+    const cls=due?'overdue':(next&&String(next.due_date||'')===todayISO()?'due':'');
     const msg=`Hola ${c.name||'cliente'} 👋`;
-    return `<div class="mini-card crm-card">
-      <div class="mini-head">
-        <div><b>${esc(c.name||'Sin nombre')}</b><div class="help">${esc(c.phone_e164||'Sin WhatsApp')}</div></div>
-        <span class="badge ${pend?'b-warn':'b-ok'}">${pend} pend.</span>
-      </div>
-      <div class="crm-meta">
-        <div class="row"><span class="badge">Total: ${rem.length}</span><span class="badge">${esc(c.source||'manual')}</span></div>
-        <div class="help">${esc(c.notes||'')}</div>
-      </div>
-      <div class="line-actions">
-        <button class="btn btn-primary" onclick="editClient('${c.id}')">✏️ Editar</button>
-        <button class="btn" onclick="newReminderFor('${c.id}')">＋ Record.</button>
-        <a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}">💚 WhatsApp</a>
-        <button class="btn btn-danger" onclick="quickDeleteClient('${c.id}')">🗑 Eliminar</button>
+    return `<div class="crm-row ${cls}">
+      <div class="crm-main"><div class="crm-title">${due?'🚨 ':''}${esc(c.name||'Sin nombre')}</div><div class="crm-sub">${esc(c.phone_e164||'Sin WhatsApp')} ${c.email?'· '+esc(c.email):''}</div></div>
+      <div class="crm-meta-line"><span class="badge ${due?'b-bad':pend?'b-warn':'b-ok'}">${due?due+' venc.':pend+' pend.'}</span><span class="badge">Total ${rem.length}</span><span class="badge">${esc(c.source||'manual')}</span></div>
+      <div class="crm-meta-line"><span class="pill ${next?calcDaysLeft(next.due_date)<0?'dueneg':calcDaysLeft(next.due_date)===0?'due0':'duepos':'duepos'}">📅 ${next?.due_date||'Sin deuda'}</span></div>
+      <div class="crm-actions">
+        <button class="btn btn-primary" onclick="editClient('${c.id}')">Editar</button>
+        <button class="btn" onclick="newReminderFor('${c.id}')">+ Pago</button>
+        <button class="btn" onclick="showClientHistory('${c.id}')">Historial</button>
+        <a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}">WhatsApp</a>
+        <button class="btn btn-danger" onclick="quickDeleteClient('${c.id}')">Eliminar</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">👥</span><p>Sin clientes todavía.</p></div>';
 }
-
-function renderReminders(){
-  if(!$('remindersGrid'))return;
-  const q=($('reminderSearch')?.value||'').toLowerCase();
-  let data=state.reminders.filter(r=>{
-    const c=state.customers.find(x=>x.id===r.customer_id)||{};
-    return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${r.status||''}`).toLowerCase().includes(q);
-  });
-  if(state.onlyDue)data=data.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO());
-  if(state.onlyPending)data=data.filter(r=>r.status==='pending');
-  $('remindersGrid').innerHTML=data.map(r=>{
+function clientSortScore(c){
+  const rem=state.reminders.filter(r=>r.customer_id===c.id);
+  const due=rem.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO()).length;
+  const pend=rem.filter(r=>r.status==='pending').length;
+  return due*1000+pend*100+new Date(c.created_at||0).getTime()/1e13;
+}
+function reminderRowsHtml(data,limit=0){
+  const rows=limit?data.slice(0,limit):data;
+  return rows.map(r=>{
     const c=state.customers.find(x=>x.id===r.customer_id)||{};
     const overdue=r.status==='pending'&&isOverdue(r.due_date);
     const dueToday=r.status==='pending'&&String(r.due_date||'')===todayISO();
     const cls=overdue?'overdue':(dueToday?'due':'');
-    const msg=r.whatsapp_message||reminderMessage(c,r);
     const days=calcDaysLeft(r.due_date);
     const pillCls=days<0?'dueneg':days===0?'due0':'duepos';
-    return `<div class="mini-card crm-card ${cls}">
-      <div class="mini-head">
-        <div><b>${esc(r.service_name||'Sin servicio')}</b><div class="help">${esc(c.name||'Sin cliente')}</div></div>
-        <span class="badge ${r.status==='paid'?'b-ok':r.status==='pending'&&overdue?'b-bad':r.status==='sent'?'b-pagado':'b-warn'}">${esc(r.status)}</span>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">
-        <span class="badge">${money(r.amount)}</span>
-        <span class="pill ${pillCls}">📅 ${r.due_date||'—'}${days!==''?' ('+days+'d)':''}</span>
-      </div>
-      <div class="line-actions">
-        <button class="btn btn-primary" onclick="editReminder('${r.id}')">✏️ Editar</button>
-        <a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}" onclick="markReminderSent('${r.id}')">💚 WhatsApp</a>
-        <button class="btn" onclick="markReminderPaid('${r.id}')">✅ Pagado</button>
-        <button class="btn" onclick="renewReminder('${r.id}')">🔄 Renovar</button>
-        <button class="btn btn-danger" onclick="quickDeleteReminder('${r.id}')">🗑 Eliminar</button>
+    return `<div class="reminder-row ${cls}">
+      <div class="rem-main"><div class="rem-title">${overdue?'🚨 ':dueToday?'⏰ ':''}${esc(r.service_name||'Sin servicio')}</div><div class="rem-sub">${esc(c.name||'Sin cliente')} · ${esc(c.phone_e164||'Sin WhatsApp')}</div></div>
+      <div class="rem-meta-line"><span class="badge ${r.status==='paid'?'b-ok':r.status==='pending'&&overdue?'b-bad':r.status==='sent'?'b-pagado':'b-warn'}">${esc(r.status||'')}</span><span class="badge">${money(r.amount)}</span></div>
+      <div class="rem-meta-line"><span class="pill ${pillCls}">📅 ${r.due_date||'—'}${days!==''?' ('+days+'d)':''}</span></div>
+      <div class="rem-actions">
+        <button class="btn btn-primary" onclick="editReminder('${r.id}')">Editar</button>
+        <button class="btn btn-success" onclick="openReminderWhatsApp('${r.id}')">WhatsApp</button>
+        <button class="btn" onclick="markReminderPaid('${r.id}')">Pagado</button>
+        <button class="btn" onclick="renewReminder('${r.id}')">Renovar</button>
+        <button class="btn btn-danger" onclick="quickDeleteReminder('${r.id}')">Eliminar</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">🔔</span><p>Sin recordatorios.</p></div>';
+}
+function renderReminders(){
+  const searchVal=($('reminderSearch')?.value||$('clientSearch')?.value||'').toLowerCase();
+  const q=searchVal;
+  let data=state.reminders.filter(r=>{
+    const c=state.customers.find(x=>x.id===r.customer_id)||{};
+    return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${r.status||''}`).toLowerCase().includes(q);
+  });
+  if(state.onlyDue||state.onlyDueClients)data=data.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO());
+  if(state.onlyPending)data=data.filter(r=>r.status==='pending');
+  data=data.sort((a,b)=>{
+    const ad=(a.status==='pending'&&String(a.due_date||'')<=todayISO())?0:1;
+    const bd=(b.status==='pending'&&String(b.due_date||'')<=todayISO())?0:1;
+    return ad-bd||String(a.due_date||'').localeCompare(String(b.due_date||''));
+  });
+  if($('remindersGrid'))$('remindersGrid').innerHTML=reminderRowsHtml(data);
+  if($('remindersMergedGrid'))$('remindersMergedGrid').innerHTML=reminderRowsHtml(data,120);
+}
+function showClientHistory(id){
+  const c=state.customers.find(x=>x.id===id);if(!c)return;
+  const phoneDigits=whatsappDigits(c.phone_e164||c.phone_raw||'');
+  const rem=state.reminders.filter(r=>r.customer_id===id).sort((a,b)=>String(b.due_date||'').localeCompare(String(a.due_date||'')));
+  const orderIds=new Set(rem.map(r=>r.order_id).filter(Boolean));
+  const orders=state.orders.filter(o=>orderIds.has(o.id)||whatsappDigits(o.customer_whatsapp||'')===phoneDigits);
+  const deliveries=state.deliveries.filter(d=>orderIds.has(d.order_id)||orders.some(o=>o.id===d.order_id)).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  $('clientHistoryTitle').textContent='Historial · '+(c.name||'Cliente');
+  const remHtml=rem.map(r=>`<div class="history-item"><div class="top"><span>🔔 ${esc(r.service_name||'Servicio')}</span><span>${esc(r.status||'')}</span></div><div class="help">Vence: ${esc(r.due_date||'—')} · ${money(r.amount)}</div>${r.whatsapp_message?`<pre>${esc(r.whatsapp_message)}</pre>`:''}</div>`).join('');
+  const delHtml=deliveries.map(d=>`<div class="history-item"><div class="top"><span>📦 Cuenta entregada</span><span>${d.created_at?esc(new Date(d.created_at).toLocaleString('es-PE')):'—'}</span></div><pre>${esc(d.delivered_message||d.message||JSON.stringify(d.delivery_data||{},null,2))}</pre></div>`).join('');
+  $('clientHistoryBody').innerHTML=(delHtml?'<strong>📦 Entregas</strong>'+delHtml:'')+(remHtml?'<strong>🔔 Recordatorios</strong>'+remHtml:'')||'<div class="empty-state"><span class="icon">📭</span><p>Sin historial aún.</p></div>';
+  showDialog('dlgClientHistory');
 }
 
 function renderTemplates(){
@@ -3284,11 +3379,23 @@ function renderCoupons(){
   </div>`).join('')||'<div class="empty-state"><span class="icon">🎟️</span><p>Sin cupones.</p></div>';
 }
 
+function getAdminLocalSettings(){
+  try{return {...{autoOpenWaDue:false,notifyDue:true,notifyStock:true},...JSON.parse(localStorage.getItem('innov_admin_local_settings')||'{}')}}catch(_){return{autoOpenWaDue:false,notifyDue:true,notifyStock:true}}
+}
+function saveAdminLocalSettings(){
+  const cfg={autoOpenWaDue:!!$('setAutoOpenWaDue')?.checked,notifyDue:!!$('setNotifyDue')?.checked,notifyStock:!!$('setNotifyStock')?.checked};
+  localStorage.setItem('innov_admin_local_settings',JSON.stringify(cfg));
+  toast('Ajustes de notificaciones guardados','ok');
+}
 function renderSettings(){
   const pay=state.settings.find(s=>s.key==='payment_public')?.value||{};
   $('setYape').value=pay.yape_number||'991564053';
   $('setQr').value=pay.yape_qr_url||'img/yape-qr.png';
   $('qrPreview').src=$('setQr').value||'img/yape-qr.png';
+  const cfg=getAdminLocalSettings();
+  if($('setAutoOpenWaDue'))$('setAutoOpenWaDue').checked=!!cfg.autoOpenWaDue;
+  if($('setNotifyDue'))$('setNotifyDue').checked=cfg.notifyDue!==false;
+  if($('setNotifyStock'))$('setNotifyStock').checked=cfg.notifyStock!==false;
 }
 
 function switchTab(tab){
@@ -3431,6 +3538,58 @@ async function saveBulkIfAny(planId){
   $('bulkText').value='';
 }
 
+
+/* ---- Entrega manual inteligente / cupos ---- */
+function firstAvailableStockForPlan(planId){
+  return state.stock.find(x=>x.plan_id===planId && opsAvailableStatus(x)==='available' && opsIsAccount(x));
+}
+function autoFillManualFromStock(){
+  const planId=$('manualPlan')?.value||'';
+  const item=firstAvailableStockForPlan(planId);
+  if($('manualStockId'))$('manualStockId').value=item?.id||'';
+  const hint=$('manualStockHint');
+  if(!item){
+    if(hint)hint.textContent='No hay cuenta libre cargada para este plan. Puedes escribir la entrega manualmente.';
+    renderDeliveryMessage();return;
+  }
+  const d=opsSecret(item);
+  if($('manualUser'))$('manualUser').value=d.correo||d.usuario||'';
+  if($('manualPass'))$('manualPass').value=d.clave||d.pass||'';
+  if($('manualProfile'))$('manualProfile').value=d.perfil||'';
+  if($('manualPin'))$('manualPin').value=d.pin||'';
+  if($('manualGroup'))$('manualGroup').value=d.grupo||d.url||'';
+  if($('manualNote'))$('manualNote').value=d.nota||item.notes||'';
+  if(hint)hint.textContent='✅ Se cargó automáticamente una cuenta libre: '+(item.title||d.correo||'cuenta');
+  renderDeliveryMessage();
+}
+async function markManualStockUsed(orderId){
+  const id=$('manualStockId')?.value||''; if(!id)return;
+  const x=state.stock.find(s=>s.id===id); if(!x)return;
+  const d={...opsSecret(x)};
+  d.used_count=Math.min(Number(d.max_uses||1),Number(d.used_count||0)+1);
+  d.delivered_order_id=orderId;
+  d.delivered_at=new Date().toISOString();
+  const r=await db.from('stock_items').update({status:'used',secret_data:d}).eq('id',id);
+  if(r.error)toast('Entrega registrada, pero no se pudo marcar stock usado: '+r.error.message,'bad');
+}
+async function autoTotpCodesFromPlan(planId){
+  const p=plan(planId); if(!p)return;
+  if(!state.totpAccounts.length){toast('Primero crea una Cuenta TOTP para enlazar códigos.','bad');switchTab('totp');openTotpAccountDialog();return;}
+  const label=(prodName(p.product_id)+' '+(p.name||'')).toLowerCase();
+  const account=state.totpAccounts.find(a=>String(a.label||'').toLowerCase().includes('chatgpt')||label.includes(String(a.label||'').toLowerCase()))||state.totpAccounts[0];
+  const available=Math.max(1,Math.min(200,visibleStock(p)||state.stock.filter(x=>x.plan_id===planId&&opsAvailableStatus(x)==='available').length||1));
+  const qty=Number(prompt('¿Cuántos códigos TOTP crear para '+planName(planId)+'?', String(Math.min(available,10))));
+  if(!qty||qty<1)return;
+  const existing=new Set(state.totpCodes.map(c=>String(c.access_code||'').toUpperCase()));
+  const codes=[]; while(codes.length<Math.min(qty,200)){const c=makeTotpAccessCode(); if(!existing.has(c)){existing.add(c);codes.push(c)}}
+  const payload=codes.map(code=>({account_id:account.id,access_code:code,customer_name:null,customer_phone:null,max_uses:2,valid_days:30,active:true,notes:'Auto desde cupos: '+planName(planId),updated_at:new Date().toISOString()}));
+  const r=await db.from('totp_access_codes').insert(payload);
+  if(r.error)return toast(r.error.message,'bad');
+  toast(codes.length+' códigos TOTP creados para '+planName(planId),'ok');
+  notifyWeb('Códigos TOTP creados',codes.length+' códigos para '+planName(planId),true);
+  await loadAll();switchTab('totp');
+}
+
 /* ---- Orders ---- */
 async function approveOrder(id){
   if(!confirm('¿Aprobar pago? Si es activación por correo/texto, luego usa “Confirmar activación”. Si es cuenta, usa “Entregar cuenta”.'))return;
@@ -3488,6 +3647,7 @@ function viewDelivery(id){const ds=state.deliveries.filter(d=>d.order_id===id);a
 
 function openManualDelivery(id){
   $('manualOrderId').value=id;
+  if($('manualStockId'))$('manualStockId').value='';
   const its=state.items.filter(i=>i.order_id===id);
   $('manualPlan').innerHTML=its.map(i=>`<option value="${i.plan_id}">${esc(planName(i.plan_id))} x${i.quantity}</option>`).join('');
   $('manualUser').value='';$('manualPass').value='';$('manualProfile').value='';$('manualPin').value='';$('manualGroup').value='';$('manualUrl').value='';$('manualCode').value='';$('manualNote').value='';
@@ -3500,6 +3660,7 @@ function openManualDelivery(id){
   else match=state.deliveryTemplates.find(t=>t.is_default)||state.deliveryTemplates[0];
   if(match)$('manualTemplate').value=match.id;
   $('manualRestrictions').value=(match?.restrictions)||`🚫 RESTRICCIONES:\n❌ Respetar el horario de soporte\n❌ No modificar nada sin autorización\n❌ No compartir la cuenta\n✅ Uso permitido en un solo dispositivo`;
+  autoFillManualFromStock();
   renderDeliveryMessage();showDialog('dlgManual');
 }
 function generateManualMsg(){renderDeliveryMessage()}
@@ -3514,15 +3675,19 @@ async function saveManualDelivery(){
   if($('manualUrl').value.trim())data.url=$('manualUrl').value.trim();
   if($('manualCode').value.trim())data.codigo=$('manualCode').value.trim();
   if($('manualNote').value.trim())data.nota=$('manualNote').value.trim();
+  if($('manualStockId')?.value)data.stock_id=$('manualStockId').value;
   if($('manualStartDate').value)data.fecha_inicio=displayDateFromInput($('manualStartDate').value);
   if($('manualRestrictions').value.trim())data.restricciones=$('manualRestrictions').value.trim();
   const tpl=getDeliveryTemplate();if(tpl?.template_key)data.template_key=tpl.template_key;
   if(!Object.keys(data).some(k=>!['restricciones','fecha_inicio','template_key'].includes(k)))return toast('Ingresa datos reales para entregar','bad');
   const r=await db.rpc('admin_manual_deliver_order',{p_order_id:$('manualOrderId').value,p_plan_id:$('manualPlan').value,p_delivery_data:data,p_delivery_message:$('manualMessage').value});
   if(r.error)return toast(r.error.message,'bad');
+  await markManualStockUsed($('manualOrderId').value);
   closeDialog('dlgManual');toast('Entrega registrada','ok');
   await createRemindersFromOrder($('manualOrderId').value);await loadAll();
+  openDeliveredOrderWhatsApp($('manualOrderId').value);
 }
+
 
 function copyTextSafe(text){navigator.clipboard?.writeText(text).then(()=>toast('Copiado','ok')).catch(()=>{prompt('Copia manual:',text)})}
 function copyOrderSummary(id){
@@ -4490,6 +4655,32 @@ function exportTotpBackup(){
 }
 
 
+
+
+/* ---- TOTP vista compacta override ---- */
+const _renderTotpOriginal=renderTotp;
+renderTotp=function(){
+  if(!$('totpGrid'))return;
+  const q=String($('totpSearch')?.value||'').toLowerCase();
+  const filter=$('totpStatusFilter')?.value||'';
+  const codes=state.totpCodes||[], accounts=state.totpAccounts||[], events=state.totpEvents||[];
+  $('totpKpiAccounts').textContent=accounts.length;
+  $('totpKpiCodes').textContent=codes.length;
+  $('totpKpiUsed').textContent=codes.filter(c=>Number(c.used_count||0)>0).length;
+  $('totpKpiExpired').textContent=codes.filter(totpIsExpired).length;
+  fillTotpAccountSelect();
+  $('totpGrid').classList.add('compact');
+  if(state.totpDbError){$('totpGrid').innerHTML=`<div class="empty-state"><span class="icon">🛠️</span><p>Falta ejecutar el SQL de Supabase para crear las tablas TOTP.</p><p class="help">Detalle: ${esc(state.totpDbError)}</p></div>`;return;}
+  if(state.totpView==='accounts'){
+    let data=accounts.filter(a=>[a.label,a.issuer,a.notes,a.totp_secret].join(' ').toLowerCase().includes(q));
+    $('totpGrid').innerHTML=data.map(a=>`<div class="totp-row"><div class="totp-main"><div class="totp-title-line">🔑 ${esc(a.label)}</div><div class="totp-sub-line">${esc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div><div class="totp-meta-line">${totpStatusBadge(a.active!==false?'active':'inactive')}<span class="badge">${codes.filter(c=>c.account_id===a.id).length} códigos</span></div><div class="totp-meta-line"><span class="mono">${esc(totpMaskSecret(a.totp_secret))}</span></div><div class="totp-actions-line"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Desactivar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">Eliminar</button></div></div>`).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';return;
+  }
+  if(state.totpView==='events'){_renderTotpOriginal();$('totpGrid').classList.remove('compact');return;}
+  let data=codes.filter(c=>{const a=state.totpAccounts.find(x=>x.id===c.account_id)||{};return [c.access_code,c.customer_name,c.customer_phone,c.notes,a.label].join(' ').toLowerCase().includes(q)});
+  if(filter)data=data.filter(c=>totpCodeStatus(c)===filter);
+  $('totpGrid').innerHTML=data.map(c=>{const st=totpCodeStatus(c);return `<div class="totp-row"><div class="totp-main"><div class="totp-title-line">🎫 ${esc(c.access_code)}</div><div class="totp-sub-line">${esc(totpAccountName(c.account_id))}</div></div><div class="totp-meta-line">${totpStatusBadge(st)}<span class="badge">Usos ${Number(c.used_count||0)}/${Number(c.max_uses||0)}</span></div><div class="totp-meta-line"><span class="badge">👤 ${esc(c.customer_name||'Sin cliente')}</span><span class="badge">${esc(c.customer_phone||'Sin WhatsApp')}</span></div><div class="totp-actions-line"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">Editar</button><button class="btn" onclick="copyTextSafe('${esc(String(c.access_code||'')).replaceAll('&#39;','\\&#39;')}')">Copiar</button><button class="btn" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">Eliminar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>';
+};
+
 /* ---- Web notifications + sound ---- */
 state.notifEnabled=localStorage.getItem('innov_admin_notifications')==='1';
 state.seenOrderIds=new Set();
@@ -4540,13 +4731,55 @@ async function enableWebNotifications(){
 function seedNotificationMemory(){
   state.seenOrderIds=new Set((state.orders||[]).map(o=>o.id));
   state.seenChatIds=new Set((state.orderChats||[]).map(c=>c.id));
+  state.orderStatusMap=new Map((state.orders||[]).map(o=>[o.id,String(o.status||'')+'|'+String(o.delivery_status||'')]));
+  state.zeroStockPlans=new Set((state.plans||[]).filter(p=>p.active!==false&&visibleStock(p)<=0).map(p=>p.id));
+  try{state.dueReminderNotified=new Set(JSON.parse(localStorage.getItem('innov_admin_due_notified')||'[]'))}catch(_){state.dueReminderNotified=new Set()}
+}
+function rememberDueKey(key){
+  state.dueReminderNotified=state.dueReminderNotified||new Set();
+  state.dueReminderNotified.add(key);
+  try{localStorage.setItem('innov_admin_due_notified',JSON.stringify([...state.dueReminderNotified].slice(-600)))}catch(_){ }
+}
+function showActionToast(title,body,actionText,action){
+  const d=document.createElement('div');d.className='toast toast-ok';
+  d.innerHTML=`<b>${esc(title)}</b><br><span>${esc(body||'')}</span>${actionText?`<div class="actions" style="margin-top:8px"><button class="btn btn-primary btn-sm" type="button">${esc(actionText)}</button></div>`:''}`;
+  $('toastContainer').appendChild(d);
+  if(actionText)d.querySelector('button').onclick=()=>{try{action()}catch(e){console.warn(e)} d.remove();};
+  setTimeout(()=>{if(d.isConnected){d.style.opacity='0';d.style.transform='translateX(60px)';d.style.transition='all .3s';setTimeout(()=>d.remove(),300)}},12000);
 }
 function detectNewActivity(prevOrders=[],prevChats=[]){
   if(!state.seenOrderIds||!state.seenChatIds)return seedNotificationMemory();
+  const cfg=getAdminLocalSettings();
   const newOrders=(state.orders||[]).filter(o=>!state.seenOrderIds.has(o.id));
   const newChats=(state.orderChats||[]).filter(c=>!state.seenChatIds.has(c.id));
-  newOrders.forEach(o=>notifyWeb('Nuevo pedido recibido',`${o.order_code||'Pedido'} · ${o.customer_name||'Cliente'} · ${money(o.total_amount)}`));
+  newOrders.forEach(o=>notifyWeb('Nuevo pedido recibido',`${o.order_code||'Pedido'} · ${o.customer_name||'Cliente'} · ${money(o.total||o.total_amount)}`));
   newChats.forEach(c=>notifyWeb('Nuevo mensaje en checkout',String(c.message||'Mensaje nuevo').slice(0,120)));
+  const oldStatus=state.orderStatusMap||new Map();
+  (state.orders||[]).forEach(o=>{
+    const cur=String(o.status||'')+'|'+String(o.delivery_status||'');
+    const prev=oldStatus.get(o.id);
+    if(prev&&prev!==cur&&['payment_review','pending_payment'].includes(String(o.status||''))){notifyWeb('Pedido cambió de estado',`${o.order_code||'Pedido'} · ${cur}`,true)}
+  });
+  if(cfg.notifyStock!==false){
+    const oldZero=state.zeroStockPlans||new Set();
+    (state.plans||[]).filter(p=>p.active!==false&&visibleStock(p)<=0).forEach(p=>{
+      if(!oldZero.has(p.id))notifyWeb('Cupos agotados',planName(p.id)+' llegó a 0 cupos.',true);
+    });
+  }
+  if(cfg.notifyDue!==false){
+    const today=todayISO();
+    (state.reminders||[]).filter(r=>r.status==='pending'&&String(r.due_date||'')<=today).forEach(r=>{
+      const key=`${r.id}|${r.due_date}|${today}`;
+      if(state.dueReminderNotified?.has(key))return;
+      const c=state.customers.find(x=>x.id===r.customer_id)||{};
+      const msg=r.whatsapp_message||reminderMessage(c,r);
+      const url=waLink(c.phone_e164,msg);
+      notifyWeb('Cliente vencido',`${c.name||'Cliente'} · ${r.service_name||'Servicio'} · vence ${r.due_date}`,true);
+      showActionToast('Pago vencido',`${c.name||'Cliente'} · ${r.service_name||'Servicio'}`,'Abrir WhatsApp',()=>{if(url!=='#')window.open(url,'_blank','noopener,noreferrer');markReminderSent(r.id)});
+      if(cfg.autoOpenWaDue&&url!=='#'){try{window.open(url,'_blank','noopener,noreferrer')}catch(_){}}
+      rememberDueKey(key);
+    });
+  }
   seedNotificationMemory();
 }
 /* ---- Auto refresh ---- */
@@ -4557,9 +4790,14 @@ async function adminAutoRefresh(){
   adminAutoRefreshBusy=true;
   try{
     const prevOrders=state.orders||[], prevChats=state.orderChats||[];
-    await loadOrders();renderKPIs();
+    await Promise.all([loadOrders(),loadReminders(),loadStock(),loadSummary(),loadTotpCodes().catch(()=>{})]);
+    renderKPIs();
     detectNewActivity(prevOrders,prevChats);
     if(state.tab==='orders')renderOrders();
+    if(state.tab==='clients'){renderClients();renderReminders();}
+    if(state.tab==='reminders')renderReminders();
+    if(state.tab==='inventory')renderPlans();
+    if(state.tab==='totp')renderTotp();
     if($('dlgOrderChat')?.open&&$('chatOrderId').value)renderOrderChatThread($('chatOrderId').value);
   }catch(e){console.warn('Auto refresh',e);}
   finally{adminAutoRefreshBusy=false;}
@@ -4601,7 +4839,8 @@ $('btnOnlySupport').onclick=()=>{state.onlySupport=!state.onlySupport;$('btnOnly
 $('btnGenerateManualMsg').onclick=generateManualMsg;
 $('btnCopyManualMsg').onclick=()=>copyTextSafe($('manualMessage').value);
 $('manualTemplate')?.addEventListener('change',()=>{const tpl=getDeliveryTemplate();$('manualRestrictions').value=tpl?.restrictions||$('manualRestrictions').value;renderDeliveryMessage()});
-['manualUser','manualPass','manualProfile','manualPin','manualGroup','manualUrl','manualCode','manualNote','manualStartDate','manualRestrictions','manualPlan'].forEach(id=>$(id)?.addEventListener('input',renderDeliveryMessage));
+['manualUser','manualPass','manualProfile','manualPin','manualGroup','manualUrl','manualCode','manualNote','manualStartDate','manualRestrictions'].forEach(id=>$(id)?.addEventListener('input',renderDeliveryMessage));
+$('manualPlan')?.addEventListener('change',autoFillManualFromStock);
 $('btnSaveManualDelivery').onclick=saveManualDelivery;
 $('btnSaveCoupon').onclick=saveCoupon;
 if($('btnNewCoupon'))$('btnNewCoupon').onclick=blankCoupon;
@@ -4622,20 +4861,24 @@ if($('planStockSearch'))$('planStockSearch').oninput=renderPlanStockView;
 if($('btnPlanStockAdd'))$('btnPlanStockAdd').onclick=openAddStockFromPlanView;
 if($('btnPlanStockOps'))$('btnPlanStockOps').onclick=openOpsFromPlanStockView;
 $('btnNewReminder').onclick=()=>blankReminder();
+if($('btnNewReminderFromClients'))$('btnNewReminderFromClients').onclick=()=>blankReminder();
 $('reminderForm').onsubmit=saveReminder;
 $('btnDeleteReminder').onclick=deleteReminder;
 $('btnApplyTemplate').onclick=applySelectedTemplate;
 $('btnSaveReminderOpen').onclick=saveReminderAndOpen;
 $('rTemplate').onchange=applySelectedTemplate;
-$('clientSearch').oninput=renderClients;
+$('clientSearch').oninput=()=>{renderClients();renderReminders()};
 $('reminderSearch').oninput=renderReminders;
 $('btnReloadClients').onclick=loadAll;
 $('btnOnlyDue').onclick=()=>{state.onlyDue=!state.onlyDue;$('btnOnlyDue').setAttribute('aria-pressed',state.onlyDue);renderReminders()};
 $('btnOnlyPending').onclick=()=>{state.onlyPending=!state.onlyPending;$('btnOnlyPending').setAttribute('aria-pressed',state.onlyPending);renderReminders()};
+if($('btnOnlyDueClients'))$('btnOnlyDueClients').onclick=()=>{state.onlyDueClients=!state.onlyDueClients;$('btnOnlyDueClients').setAttribute('aria-pressed',state.onlyDueClients);renderReminders()};
 $('rPlan').onchange=()=>{const p=plan($('rPlan').value);if(p){$('rProduct').value=p.product_id;$('rService').value=planName(p.id);if(!$('rAmount').value)$('rAmount').value=p.price??'';applySelectedTemplate()}};
 $('rCustomer').onchange=applySelectedTemplate;
 $('btnUploadQr').onclick=uploadQr;
 $('btnSavePayment').onclick=savePayment;
+if($('btnSaveAdminLocalSettings'))$('btnSaveAdminLocalSettings').onclick=saveAdminLocalSettings;
+if($('btnTestNotification'))$('btnTestNotification').onclick=()=>{enableWebNotifications();notifyWeb('Prueba Innov IA','Notificación, sonido y alerta funcionando.',true)};
 $('btnExportBackup').onclick=exportBackup;
 $('btnExportProducts').onclick=exportBackup;
 $('btnSendAdminChat').onclick=sendAdminChat;
@@ -4696,3 +4939,4 @@ setInterval(adminAutoRefresh,2000);
 </script>
 </body>
 </html>
+
