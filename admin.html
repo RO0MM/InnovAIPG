@@ -1420,117 +1420,162 @@ input, select, textarea, button { min-width: 0; }
 }
 @media(max-width:430px){.ops-row-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-  
-
-/* ---------- Video Admin UI ---------- */
-.video-admin-box{
-  border:1.5px dashed var(--border2);
-  background:linear-gradient(180deg,var(--primary-alpha2),transparent);
-  border-radius:var(--radius);
-  padding:12px;
-}
-.video-admin-box .video-help{
-  margin:6px 0 0;
-  color:var(--muted);
-  font-size:.8rem;
-  line-height:1.45;
-}
-.video-badge{
-  background:var(--purple-alpha);
-  color:var(--purple);
-}
-.product-card-video{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-top:6px;
-  color:var(--muted);
-  font-size:.78rem;
-  word-break:break-all;
-}
-.product-card-video::before{content:'🎬';}
-
-
 
 /* ================================================================
-   FIX v10.1 — Stock visible por plan, entrega real y cuentas limpias
+   CLEAN PRO v11 — rediseño total + orden móvil/escritorio
    ================================================================ */
-.plan-stock-modal .dlg-body{padding:16px 18px;overflow:auto;max-height:72vh}
-.plan-stock-toolbar{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:12px}
-.plan-stock-list{display:grid;gap:8px}
-.plan-stock-row{border:1px solid var(--border);background:var(--card);border-radius:14px;padding:12px;box-shadow:var(--shadow-xs);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
-.plan-stock-main{min-width:0}
-.plan-stock-title{font-weight:900;color:var(--card-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.plan-stock-sub{font-size:.82rem;color:var(--muted);margin-top:3px;word-break:break-word}
-.plan-stock-secret{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
-.plan-stock-secret .mono{font-family:var(--mono);font-size:.78rem;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:3px 7px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.plan-stock-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.plan-stock-actions .btn{padding:6px 9px;font-size:.78rem}.stock-help-card{border-left:3px solid var(--primary);background:var(--primary-alpha2)}
-@media(max-width:700px){.plan-stock-toolbar{grid-template-columns:1fr}.plan-stock-row{grid-template-columns:1fr}.plan-stock-actions{display:grid;grid-template-columns:1fr 1fr;justify-content:stretch}.plan-stock-actions .btn{width:100%}}
+body.clean-pro{
+  --bg:#eef3fb;
+  --bg2:#e6edf8;
+  --card:#ffffff;
+  --card2:#f7f9fd;
+  --card-ink:#0b1220;
+  --text:#182335;
+  --muted:#607089;
+  --border:#dce5f2;
+  --border2:#c5d2e5;
+  --primary:#2563eb;
+  --primary-h:#1d4ed8;
+  --primary-light:#38bdf8;
+  --success:#16a34a;
+  --warning:#d97706;
+  --danger:#dc2626;
+  --purple:#7c3aed;
+  --shadow-xs:0 1px 2px rgba(15,23,42,.04);
+  --shadow:0 14px 36px rgba(15,23,42,.07),0 1px 0 rgba(255,255,255,.7) inset;
+  --shadow-md:0 18px 46px rgba(15,23,42,.10),0 1px 0 rgba(255,255,255,.72) inset;
+  --shadow-lg:0 24px 70px rgba(15,23,42,.15);
+  --radius:22px;
+  --radius-sm:14px;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(37,99,235,.16), transparent 34%),
+    radial-gradient(circle at 90% 12%, rgba(56,189,248,.14), transparent 32%),
+    linear-gradient(180deg,var(--bg),#f8fbff 42%,var(--bg2));
+}
+html[data-theme="dark"] body.clean-pro,
+body.clean-pro[data-theme="dark"]{
+  --bg:#060b14;
+  --bg2:#0b1220;
+  --card:#101827;
+  --card2:#0b1322;
+  --card-ink:#eef5ff;
+  --text:#dbe7f7;
+  --muted:#91a0b7;
+  --border:#1f2c40;
+  --border2:#2b3a52;
+  --primary:#60a5fa;
+  --primary-h:#93c5fd;
+  background:
+    radial-gradient(circle at 7% 0%, rgba(59,130,246,.20), transparent 35%),
+    radial-gradient(circle at 92% 16%, rgba(14,165,233,.12), transparent 30%),
+    linear-gradient(180deg,#050915,#09111f 48%,#050915);
+}
+body.clean-pro::before{opacity:.025;background-size:520px;background-repeat:no-repeat;background-position:95% 95%}
+body.clean-pro .auth-wrap{
+  background:
+    radial-gradient(circle at 20% 10%, rgba(37,99,235,.22), transparent 32%),
+    linear-gradient(135deg,var(--bg),var(--bg2));
+}
+body.clean-pro .auth-card{border-radius:30px;padding:34px;border:1px solid rgba(255,255,255,.5);box-shadow:0 30px 90px rgba(15,23,42,.16)}
+body.clean-pro header.app{
+  height:68px;
+  background:rgba(255,255,255,.82);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(203,213,225,.75);
+  box-shadow:0 12px 35px rgba(15,23,42,.07);
+}
+html[data-theme="dark"] body.clean-pro header.app{background:rgba(13,20,33,.78);border-bottom-color:rgba(45,58,79,.85)}
+body.clean-pro header.app::after{height:3px;background:linear-gradient(90deg,#2563eb,#22c55e,#06b6d4);opacity:.85}
+body.clean-pro .logo,.clean-pro .auth-logo{border-radius:16px;background:linear-gradient(135deg,#111827,#2563eb 55%,#22d3ee);box-shadow:0 12px 28px rgba(37,99,235,.28)}
+body.clean-pro .app-title{font-size:1.08rem;letter-spacing:-.03em}
+body.clean-pro .app-sub{font-size:.75rem;color:var(--muted)}
+body.clean-pro .container{max-width:1400px;padding-top:18px}
+body.clean-pro .admin-tabs{
+  top:68px;
+  background:rgba(255,255,255,.78);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(203,213,225,.75);
+  padding:10px 16px 0;
+}
+html[data-theme="dark"] body.clean-pro .admin-tabs{background:rgba(13,20,33,.75);border-bottom-color:rgba(45,58,79,.85)}
+body.clean-pro .nav-btn{border-radius:14px 14px 0 0;padding:10px 15px;font-weight:800;color:var(--muted)}
+body.clean-pro .nav-btn[aria-pressed="true"], body.clean-pro .nav-btn.active{background:var(--bg);color:var(--primary);border-color:var(--border)}
+body.clean-pro .card, body.clean-pro .mini-card, body.clean-pro .ops-stock-card, body.clean-pro .accx-card, body.clean-pro .cuenta-card, body.clean-pro .mitem{
+  border-radius:22px;
+  border:1px solid rgba(203,213,225,.75);
+  box-shadow:var(--shadow);
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(10px);
+}
+html[data-theme="dark"] body.clean-pro .card,
+html[data-theme="dark"] body.clean-pro .mini-card,
+html[data-theme="dark"] body.clean-pro .ops-stock-card,
+html[data-theme="dark"] body.clean-pro .accx-card,
+html[data-theme="dark"] body.clean-pro .cuenta-card,
+html[data-theme="dark"] body.clean-pro .mitem{background:rgba(16,24,39,.86);border-color:rgba(45,58,79,.92)}
+body.clean-pro .mini-card:hover, body.clean-pro .card:hover, body.clean-pro .admin-kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+body.clean-pro .admin-kpis{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+body.clean-pro .admin-kpi{border-radius:22px;border:1px solid rgba(203,213,225,.72);box-shadow:var(--shadow);padding:17px;background:rgba(255,255,255,.88);overflow:hidden}
+html[data-theme="dark"] body.clean-pro .admin-kpi{background:rgba(16,24,39,.86);border-color:rgba(45,58,79,.92)}
+body.clean-pro .admin-kpi::before{height:5px;background:linear-gradient(90deg,var(--primary),var(--primary-light))}
+body.clean-pro .admin-kpi .val{font-size:2.15rem;letter-spacing:-.06em}
+body.clean-pro .admin-toolbar{
+  background:rgba(255,255,255,.82);
+  backdrop-filter:blur(12px);
+  border-radius:20px;
+  border:1px solid rgba(203,213,225,.72);
+  box-shadow:var(--shadow-xs);
+}
+html[data-theme="dark"] body.clean-pro .admin-toolbar{background:rgba(16,24,39,.82);border-color:rgba(45,58,79,.92)}
+body.clean-pro .input, body.clean-pro select, body.clean-pro textarea{border-radius:14px;border:1.5px solid var(--border);background:rgba(255,255,255,.92);min-height:42px}
+html[data-theme="dark"] body.clean-pro .input, html[data-theme="dark"] body.clean-pro select, html[data-theme="dark"] body.clean-pro textarea{background:rgba(11,19,34,.88)}
+body.clean-pro .btn{border-radius:14px;font-weight:800;min-height:38px}
+body.clean-pro .btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 10px 24px rgba(37,99,235,.24)}
+body.clean-pro .btn-success{background:linear-gradient(135deg,#16a34a,#15803d)}
+body.clean-pro .btn-danger{background:linear-gradient(135deg,#ef4444,#b91c1c)}
+body.clean-pro .badge{border-radius:999px;font-weight:900;padding:4px 9px;border:1px solid rgba(148,163,184,.18)}
+body.clean-pro .mini-grid, body.clean-pro .ops-grid{gap:14px}
+body.clean-pro .line-actions, body.clean-pro .ops-actions{gap:8px}
+body.clean-pro dialog{border-radius:26px;border:1px solid var(--border);box-shadow:0 38px 100px rgba(2,6,23,.36)}
+body.clean-pro dialog[open]{animation:cleanDialog .18s ease both}
+@keyframes cleanDialog{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+body.clean-pro .modal-header{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,255,255,.86));backdrop-filter:blur(14px)}
+html[data-theme="dark"] body.clean-pro .modal-header{background:linear-gradient(180deg,rgba(16,24,39,.96),rgba(16,24,39,.86))}
+body.clean-pro .bottom-bar{height:72px;background:rgba(255,255,255,.9);backdrop-filter:blur(18px)}
+html[data-theme="dark"] body.clean-pro .bottom-bar{background:rgba(16,24,39,.9)}
+body.clean-pro .bottom-actions .btn{border-radius:16px;font-size:.68rem;font-weight:900}
+body.clean-pro .bottom-actions .btn.active,body.clean-pro .bottom-actions .btn[aria-pressed="true"]{background:linear-gradient(180deg,var(--primary-alpha),rgba(37,99,235,.05));color:var(--primary)}
+body.clean-pro .toast{border-radius:16px;border-left-width:5px;box-shadow:0 22px 70px rgba(15,23,42,.18)}
+body.clean-pro .table-wrap{border-radius:20px;box-shadow:var(--shadow-xs);border-color:var(--border)}
+body.clean-pro th{background:var(--card2);font-size:.72rem}
+body.clean-pro tbody tr:hover td{background:rgba(37,99,235,.06)}
+.clean-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:0 0 14px;padding:16px 18px;border:1px solid rgba(203,213,225,.75);border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(240,247,255,.80));box-shadow:var(--shadow-xs)}
+html[data-theme="dark"] .clean-section-head{background:linear-gradient(135deg,rgba(16,24,39,.92),rgba(11,19,34,.80));border-color:rgba(45,58,79,.92)}
+.clean-section-head h2{margin:0;font-size:1.12rem;letter-spacing:-.035em;color:var(--card-ink)}
+.clean-section-head p{margin:3px 0 0;color:var(--muted);font-size:.86rem}
+.clean-section-head .clean-head-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--muted);padding:6px 10px;font-size:.78rem;font-weight:900;white-space:nowrap}
+.clean-notice{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin:0 0 14px;padding:14px 16px;border-radius:22px;border:1px solid rgba(37,99,235,.18);background:linear-gradient(135deg,rgba(37,99,235,.10),rgba(34,197,94,.08));box-shadow:var(--shadow-xs)}
+.clean-notice strong{display:block;color:var(--card-ink);font-size:.98rem}.clean-notice p{margin:3px 0 0;color:var(--muted);font-size:.84rem}.clean-notice-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.clean-status-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;border:1px solid var(--border);background:var(--card);font-size:.78rem;font-weight:900;color:var(--muted)}.clean-status-dot{width:8px;height:8px;border-radius:999px;background:var(--warning);box-shadow:0 0 0 4px var(--warning-alpha)}.clean-status-dot.ok{background:var(--success);box-shadow:0 0 0 4px var(--success-alpha)}.clean-status-dot.bad{background:var(--danger);box-shadow:0 0 0 4px var(--danger-alpha)}
+.clean-reminder-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 14px}.clean-reminder-stat{border-radius:18px;border:1px solid var(--border);background:var(--card);padding:12px;box-shadow:var(--shadow-xs)}.clean-reminder-stat .v{font-size:1.35rem;font-weight:950;letter-spacing:-.05em;color:var(--card-ink);line-height:1}.clean-reminder-stat .l{font-size:.72rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-top:3px}
+body.clean-pro .rt-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--card);border-radius:999px;padding:7px 10px;font-size:.73rem;font-weight:900;color:var(--muted);white-space:nowrap}.rt-pill .clean-status-dot{width:7px;height:7px;box-shadow:none}.rt-pill.ok{color:var(--success)}.rt-pill.bad{color:var(--danger)}
+@media (min-width:1100px){
+  body.clean-pro.is-authenticated .sidenav{left:18px;top:86px;height:calc(100vh - 106px);width:268px;border-radius:26px;border:1px solid rgba(203,213,225,.75);box-shadow:var(--shadow-md);background:rgba(255,255,255,.86);backdrop-filter:blur(18px);padding:14px;z-index:45}
+  html[data-theme="dark"] body.clean-pro.is-authenticated .sidenav{background:rgba(16,24,39,.86);border-color:rgba(45,58,79,.92)}
+  body.clean-pro.is-authenticated .sidenav .nav-btn-side{border-radius:16px;padding:11px 12px;font-weight:900;color:var(--muted)}
+  body.clean-pro.is-authenticated .sidenav .nav-btn-side.active,body.clean-pro.is-authenticated .sidenav .nav-btn-side[aria-pressed="true"]{background:linear-gradient(135deg,var(--primary-alpha),rgba(56,189,248,.06));color:var(--primary)}
+  body.clean-pro.is-authenticated .backdrop{display:none!important}
+  body.clean-pro.is-authenticated .admin-tabs{display:none!important}
+  body.clean-pro.is-authenticated .container{margin-left:300px;max-width:none;padding-right:24px}
+  body.clean-pro.is-authenticated header.app{margin:14px 18px 0;border-radius:26px;top:14px;width:calc(100% - 36px);border:1px solid rgba(203,213,225,.75)}
+  body.clean-pro.is-authenticated header.app::after{border-radius:0 0 26px 26px}
+  body.clean-pro.is-authenticated .sidenav .btn[onclick="closeSidenav()"]{display:none}
+}
+@media (max-width:900px){
+  body.clean-pro header.app{height:60px}.clean-notice{grid-template-columns:1fr}.clean-notice-actions{justify-content:flex-start}.clean-reminder-panel{grid-template-columns:1fr 1fr}.clean-section-head{padding:13px 14px;border-radius:20px}.clean-section-head h2{font-size:1rem}.clean-section-head .clean-head-pill{display:none}body.clean-pro .admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.header-actions .rt-pill{display:none!important}
+}
+@media (max-width:520px){.clean-reminder-panel{grid-template-columns:1fr}.clean-notice-actions .btn{width:100%}body.clean-pro .admin-kpi .val{font-size:1.55rem}.clean-section-head{margin-bottom:10px}.clean-notice{padding:12px}.app-title{max-width:44vw!important}}
 
-
-
-/* ================================================================
-   CHAT CLIENTES EN VIVO — integrado al admin
-   ================================================================ */
-.live-chat-shell{height:calc(100dvh - 170px);min-height:620px;display:grid;grid-template-columns:340px minmax(0,1fr);gap:12px}
-.live-chat-panel,.live-chat-room{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;min-width:0}
-.live-chat-panel{display:grid;grid-template-rows:auto auto 1fr}
-.live-chat-hero{padding:16px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--primary-alpha),var(--success-alpha))}
-.live-chat-hero h2{margin:0;font-size:1.15rem;color:var(--card-ink);letter-spacing:-.02em}
-.live-chat-hero p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
-.live-chat-tools{padding:10px;border-bottom:1px solid var(--border);display:grid;gap:8px;background:var(--card2)}
-.live-chat-filters{display:flex;gap:6px;flex-wrap:wrap}.live-chat-filters .chip{padding:5px 10px;font-size:.75rem}
-.live-chat-list{overflow:auto;display:grid;align-content:start;gap:6px;padding:8px;background:var(--card2)}
-.live-chat-item{border:1px solid var(--border);background:var(--card);border-radius:14px;padding:10px;cursor:pointer;display:grid;gap:4px;transition:transform var(--tr-fast),border-color var(--tr),background var(--tr)}
-.live-chat-item:hover{transform:translateY(-1px);border-color:var(--primary)}
-.live-chat-item.active{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-alpha)}
-.live-chat-item-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
-.live-chat-phone{font-weight:900;color:var(--card-ink)}
-.live-chat-last{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.live-chat-time{font-size:.7rem;color:var(--muted);font-weight:700;white-space:nowrap}
-.live-chat-room{display:grid;grid-template-rows:auto 1fr auto;background:#0b141a;color:#e9edef}
-.live-chat-head{min-height:72px;padding:12px 14px;display:flex;gap:12px;align-items:center;background:linear-gradient(180deg,#202c33,#18242b);border-bottom:1px solid rgba(255,255,255,.09)}
-.live-chat-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#00a884,#25d366);display:grid;place-items:center;color:#052017;font-size:22px;font-weight:900;flex:0 0 auto}
-.live-chat-head-info{min-width:0;flex:1}.live-chat-head-info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.live-chat-head-info span{display:block;color:#b6c3c9;font-size:12px;margin-top:2px}
-.live-chat-head-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
-.live-chat-head-actions .btn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:#e9edef}.live-chat-head-actions .btn-success{background:#00a884;color:#052017;border:none}.live-chat-head-actions .btn-danger{background:rgba(255,107,122,.17);color:#ffd6dc;border-color:rgba(255,107,122,.35)}
-.live-chat-messages{overflow:auto;padding:16px 14px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth;background:radial-gradient(circle at 0 0,rgba(255,255,255,.035) 0 2px,transparent 3px),radial-gradient(circle at 22px 22px,rgba(255,255,255,.025) 0 2px,transparent 3px),#0b141a;background-size:44px 44px}
-.live-chat-empty{align-self:center;text-align:center;max-width:420px;background:rgba(32,44,51,.88);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:18px;color:#c7d0d5;font-size:.9rem}.live-chat-empty b{color:#fff}
-.live-day{align-self:center;background:rgba(32,44,51,.92);border:1px solid rgba(255,255,255,.09);border-radius:999px;color:#c7d0d5;font-size:11px;font-weight:800;padding:6px 12px;margin:4px 0}
-.live-msg{display:flex;flex-direction:column;gap:4px;max-width:min(78%,720px);animation:livePop .13s ease-out}.live-msg.me{align-self:flex-end;align-items:flex-end}.live-msg.other{align-self:flex-start;align-items:flex-start}@keyframes livePop{from{transform:translateY(5px);opacity:.55}to{transform:none;opacity:1}}
-.live-bubble{padding:8px 10px 7px;border-radius:14px;background:#202c33;border:1px solid rgba(255,255,255,.035);box-shadow:0 1px 1px rgba(0,0,0,.18);white-space:pre-wrap;word-break:break-word;line-height:1.38;font-size:14px}.live-msg.me .live-bubble{background:#005c4b}
-.live-meta{font-size:10px;color:#9fb0b8;padding:0 3px;display:flex;gap:5px;align-items:center}.live-checks{color:#63d8ff;font-size:11px}
-.live-file{overflow:hidden;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.20);max-width:330px}.live-file img{display:block;width:100%;max-height:340px;object-fit:cover;background:#0a1014}.live-file-info{padding:9px;display:grid;gap:7px}.live-file-name{font-size:12px;font-weight:900;word-break:break-all}.live-file-sub{font-size:11px;color:#a8b4ba}.live-file-actions{display:flex;gap:7px;flex-wrap:wrap}.live-file-actions a{color:#052017;background:#dffdf3;text-decoration:none;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900}.live-file-actions a.secondary{background:rgba(255,255,255,.10);color:#e9edef;border:1px solid rgba(255,255,255,.09)}
-.live-compose{background:#202c33;border-top:1px solid rgba(255,255,255,.09);padding:9px;display:grid;gap:8px}.live-preview{display:none;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:8px}.live-preview.show{display:flex}.live-preview img,.live-fileicon{width:54px;height:54px;border-radius:13px;object-fit:cover;background:rgba(255,255,255,.10);display:grid;place-items:center;font-size:23px}.live-preview b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.live-preview span{font-size:11px;color:#a8b4ba}.live-compose-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:end}.live-attach,.live-send{border:none;cursor:pointer;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:900}.live-attach{width:46px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);color:#d5dee3;font-size:25px}.live-send{width:46px;background:#00a884;color:#052017;font-size:19px}.live-textarea{width:100%;resize:none;min-height:46px;max-height:128px;outline:none;border:none;border-radius:23px;background:#2a3942;color:#e9edef;padding:13px 15px;font:inherit;font-size:14px}.live-textarea::placeholder{color:#a9b7bd}
-.live-cleaner{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.live-cleaner .input{max-width:95px;background:#2a3942;color:#e9edef;border-color:rgba(255,255,255,.1)}.live-cleaner select.input{max-width:120px}.live-cleaner .help{color:#b6c3c9;width:100%;font-size:.73rem}
-@media(max-width:900px){.live-chat-shell{height:calc(100dvh - 135px);grid-template-columns:1fr;min-height:620px}.live-chat-panel{display:none}.live-chat-shell.show-list .live-chat-panel{display:grid}.live-chat-shell.show-list .live-chat-room{display:none}.live-chat-head-actions{gap:5px}.live-chat-head-actions .btn{padding:7px 9px;font-size:.76rem}.live-msg{max-width:88%}}
-@media(max-width:420px){.live-chat-head{padding:10px}.live-chat-avatar{width:40px;height:40px}.live-chat-head-actions .btn:not(#liveChatBack){font-size:0;padding:8px}.live-chat-head-actions .btn:not(#liveChatBack)::first-letter{font-size:.9rem}.live-cleaner{display:grid;grid-template-columns:1fr 1fr}.live-cleaner .input{max-width:100%}.live-cleaner .help{grid-column:1/-1}}
-
-
-
-/* ================================================================
-   PATCH ROMMEL v12 — contraste, listas compactas y alertas pro
-   ================================================================ */
-.btn-primary, .btn-success, .btn-warning, .btn-danger,
-.btn-primary *, .btn-success *, .btn-warning *, .btn-danger * { color:#fff !important; }
-button.btn-primary, a.btn-primary { color:#fff !important; }
-.chip[aria-pressed="true"], .acc-chip[aria-pressed="true"],
-.btn.chip[aria-pressed="true"], .btn.chip[aria-pressed="true"] * { color:#fff !important; }
-.line-actions .btn-primary, .line-actions .btn-success, .line-actions .btn-warning, .line-actions .btn-danger { color:#fff !important; }
-
-.crm-split{display:grid;grid-template-columns:1fr;gap:14px}
-.crm-section-title{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
-.crm-section-title strong{font-size:.98rem;color:var(--card-ink)}
-.line-list{display:grid;gap:8px}
-.crm-row,.reminder-row,.totp-row{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-xs);padding:10px 12px;display:grid;grid-template-columns:minmax(160px,1.05fr) minmax(150px,.9fr) minmax(120px,.75fr) minmax(210px,auto);gap:10px;align-items:center;color:var(--card-ink)}
-.crm-row:hover,.reminder-row:hover,.totp-row:hover{background:var(--primary-alpha2);box-shadow:var(--shadow-md)}
-.crm-main,.rem-main,.totp-main{min-width:0}.crm-title,.rem-title,.totp-title-line{font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crm-sub,.rem-sub,.totp-sub-line{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.crm-meta-line,.rem-meta-line,.totp-meta-line{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.crm-actions,.rem-actions,.totp-actions-line{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.crm-actions .btn,.rem-actions .btn,.totp-actions-line .btn{padding:6px 9px;font-size:.76rem;border-radius:9px}.crm-row.overdue,.reminder-row.overdue{border-color:rgba(185,28,28,.35);background:var(--danger-alpha)}.crm-row.due,.reminder-row.due{border-color:rgba(180,83,9,.35);background:var(--warning-alpha)}
-.history-box{display:grid;gap:8px}.history-item{border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--card2)}.history-item .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:800}.history-item pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;font-family:var(--mono);font-size:.78rem;color:var(--card-ink);background:var(--card);border:1px dashed var(--border);border-radius:10px;padding:8px;max-height:180px;overflow:auto}.notif-card{border-left:4px solid var(--primary)}.settings-check{display:flex;align-items:flex-start;gap:8px;cursor:pointer;margin:9px 0;color:var(--card-ink)}.settings-check input{margin-top:4px}.manual-stock-hint{font-size:.78rem;color:var(--muted);margin-top:6px;border-left:3px solid var(--success);padding:7px 9px;background:var(--success-alpha);border-radius:10px}
-.totp-grid.compact{display:grid;grid-template-columns:1fr;gap:8px}.totp-row .mono{font-family:var(--mono);font-size:.78rem}.totp-card{border-radius:14px}
-@media(max-width:850px){.crm-row,.reminder-row,.totp-row{grid-template-columns:1fr;gap:7px}.crm-actions,.rem-actions,.totp-actions-line{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}.crm-actions .btn,.rem-actions .btn,.totp-actions-line .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crm-section-title{align-items:flex-start}.manual-stock-hint{font-size:.76rem}}
-@media(max-width:430px){.crm-actions,.rem-actions,.totp-actions-line{grid-template-columns:1fr 1fr}.header-actions .badge{display:none}.app-title{font-size:.92rem}}
-
-</style>
+  </style>
 </head>
 <body>
 
@@ -1561,9 +1606,9 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   <button class="btn btn-ghost nav-btn-side" data-tab="inventory" type="button">📦 Cupos y entregas</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="orders" type="button">🧾 Pagos y pedidos</button>
   <div class="g-title">CRM</div>
-  <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">👥 Clientes + pagos</button>
-  <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">🔔 Recordatorios / pagos</button>
-  <button class="btn btn-ghost nav-btn-side" data-tab="chat" type="button">💬 Chat Clientes <span class="tab-badge" id="tbChatSide" style="display:none">0</span></button>
+  <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">👥 Clientes</button>
+  <button class="btn btn-ghost nav-btn-side" data-tab="reminders" type="button">🔔 Recordatorios</button>
+  <button class="btn btn-ghost nav-btn-side" data-tab="ops" type="button">🔐 Operaciones PRO</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="totp" type="button">🛡️ Accesos TOTP</button>
   <div class="g-title">Configuración</div>
   <button class="btn btn-ghost nav-btn-side" data-tab="templates" type="button">📝 Plantillas</button>
@@ -1585,9 +1630,8 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
       <button class="btn btn-primary" id="btnLogin" type="button">🔐 Entrar</button>
       <button class="btn btn-ghost" id="btnLoginHelp" type="button">Ayuda</button>
     </div>
-    <button class="btn btn-success" id="btnLoginTestChat" type="button" style="width:100%;margin-top:10px;padding:11px">💬 Probar chat sin correo ni clave</button>
     <div class="auth-divider"></div>
-    <p class="auth-note">Modo prueba: entra directo al módulo de chat con sesión anónima. Para producción, protege el admin con usuario real.</p>
+    <p class="auth-note">Protegido con Supabase Auth. El usuario también debe existir en <strong>admin_users</strong> para que las políticas permitan editar.</p>
   </div>
 </div>
 
@@ -1602,7 +1646,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
         <div class="logo"><span>IA</span></div>
         <div>
           <div class="app-title">Innov IA Admin</div>
-          <div class="app-sub">Productos • Pagos • Entregas • Chat en vivo</div>
+          <div class="app-sub">Productos • Cupos • Pagos • Entregas • Recordatorios PRO</div>
         </div>
       </div>
       <div class="header-actions">
@@ -1622,9 +1666,9 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
     <button class="btn nav-btn" data-tab="products">🧩 Productos</button>
     <button class="btn nav-btn" data-tab="inventory">📦 Cupos</button>
     <button class="btn nav-btn" data-tab="orders">🧾 Pagos <span class="tab-badge" id="tbOrders" style="display:none">0</span></button>
-    <button class="btn nav-btn" data-tab="clients">👥 Clientes + pagos</button>
+    <button class="btn nav-btn" data-tab="clients">👥 Clientes</button>
     <button class="btn nav-btn" data-tab="reminders">🔔 Recordatorios <span class="tab-badge" id="tbReminders" style="display:none">0</span></button>
-    <button class="btn nav-btn" data-tab="chat">💬 Chat <span class="tab-badge" id="tbChat" style="display:none">0</span></button>
+    <button class="btn nav-btn" data-tab="ops">🔐 Operaciones PRO</button>
     <button class="btn nav-btn" data-tab="totp">🛡️ Accesos TOTP</button>
     <button class="btn nav-btn" data-tab="templates">📝 Plantillas</button>
     <button class="btn nav-btn" data-tab="coupons">🎟️ Cupones</button>
@@ -1702,32 +1746,17 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
         <div class="mini-grid" id="ordersGrid"></div>
       </section>
 
-      <!-- Clientes + Recordatorios -->
+      <!-- Clientes -->
       <section id="tab-clients" class="admin-section">
         <div class="admin-toolbar">
-          <div class="input-wrap"><input class="input" id="clientSearch" type="search" placeholder="🔍 Buscar cliente, WhatsApp, servicio o pago..."></div>
+          <div class="input-wrap"><input class="input" id="clientSearch" type="search" placeholder="🔍 Buscar cliente por nombre o WhatsApp..."></div>
           <div class="actions">
             <button class="btn btn-primary" id="btnNewClient" type="button">＋ Cliente</button>
-            <button class="btn btn-primary" id="btnNewReminderFromClients" type="button">＋ Recordatorio</button>
-            <button class="btn chip" id="btnOnlyDueClients" type="button" aria-pressed="false">Vencidos</button>
             <button class="btn" id="btnReloadClients" type="button">↻</button>
-            <button class="btn btn-success" id="btnExportClients" type="button">⬇ Backup</button>
+            <button class="btn btn-success" id="btnExportClients" type="button">⬇ Export</button>
           </div>
         </div>
-        <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
-          <strong>👥 Clientes y pagos en una sola vista</strong>
-          <p class="help" style="margin:6px 0 0">Aquí verás cliente, historial, cuenta entregada y recordatorios de pago. Los vencidos quedan arriba para abrir WhatsApp más rápido.</p>
-        </div>
-        <div class="crm-split">
-          <div>
-            <div class="crm-section-title"><strong>👥 Clientes</strong><span class="help">Formato compacto para celular y PC</span></div>
-            <div class="line-list" id="clientsGrid"></div>
-          </div>
-          <div>
-            <div class="crm-section-title"><strong>🔔 Recordatorios de pago</strong><span class="help">Vencidos / pendientes / WhatsApp</span></div>
-            <div class="line-list" id="remindersMergedGrid"></div>
-          </div>
-        </div>
+        <div class="mini-grid" id="clientsGrid"></div>
       </section>
 
       <!-- Recordatorios -->
@@ -1744,77 +1773,70 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
           <strong>✅ Automático después de entrega</strong>
           <p class="help" style="margin:6px 0 0">Cuando apruebas y entregas una cuenta/código, el sistema crea un cliente y un recordatorio a 30 días usando el WhatsApp del pedido.</p>
         </div>
-        <div class="line-list" id="remindersGrid"></div>
+        <div class="mini-grid" id="remindersGrid"></div>
       </section>
 
 
       <!-- Operaciones PRO / fusión Recordatorio -->
-      
-      <!-- Chat Clientes / reemplazo de Operaciones PRO -->
-      <section id="tab-chat" class="admin-section">
-        <div class="live-chat-shell show-list" id="liveChatShell">
-          <aside class="live-chat-panel">
-            <div class="live-chat-hero">
-              <h2>💬 Chat Clientes</h2>
-              <p>El cliente entra con su celular y aquí aparece su conversación en vivo.</p>
-            </div>
-            <div class="live-chat-tools">
-              <input class="input" id="liveChatSearch" type="search" placeholder="🔍 Buscar por celular o mensaje...">
-              <div class="live-chat-filters">
-                <button class="chip" id="liveChatFilterOpen" type="button" aria-pressed="true">Abiertos</button>
-                <button class="chip" id="liveChatFilterClosed" type="button" aria-pressed="false">Cerrados</button>
-                <button class="chip" id="liveChatRefresh" type="button">↻ Actualizar</button>
+      <section id="tab-ops" class="admin-section">
+        <div class="ops-hero">
+          <div class="card">
+            <div class="ops-title">
+              <div>
+                <h2>🔐 Operaciones PRO</h2>
+                <p class="help" style="margin:4px 0 0">Cuentas, perfiles, PIN, usos permitidos, entrega rápida y recordatorio automático a 30 días, todo dentro del admin.</p>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-primary" id="btnOpsAddAccount" type="button">＋ Cuenta</button>
+                <button class="btn btn-success hidden" id="btnOpsAddCode" type="button" style="display:none">＋ Cuenta</button>
+                <button class="btn" id="btnOpsBulk" type="button">📥 Lote</button>
+                <button class="btn" id="btnOpsCompactHelp" type="button" title="Vista compacta por producto">☰ Lista</button>
               </div>
             </div>
-            <div class="live-chat-list" id="liveChatList">
-              <div class="empty-state"><span class="icon">💬</span><p>Cargando chats...</p></div>
+            <div class="ops-kpis">
+              <div class="ops-kpi"><div class="v" id="opsKpiAccounts">0</div><div class="l">Cuentas libres</div></div>
+              <div class="ops-kpi"><div class="v" id="opsKpiCodes">0</div><div class="l">Reservadas</div></div>
+              <div class="ops-kpi"><div class="v" id="opsKpiUsed">0</div><div class="l">Usadas</div></div>
+              <div class="ops-kpi"><div class="v" id="opsKpiPlans">0</div><div class="l">Planes activos</div></div>
             </div>
-          </aside>
-
-          <section class="live-chat-room">
-            <header class="live-chat-head">
-              <button class="btn btn-ghost mobile-only" id="liveChatBack" type="button">←</button>
-              <div class="live-chat-avatar">💬</div>
-              <div class="live-chat-head-info">
-                <b id="liveChatTitle">Selecciona un chat</b>
-                <span id="liveChatSub">Los mensajes llegarán en vivo sin recargar.</span>
-              </div>
-              <div class="live-chat-head-actions">
-                <button class="btn btn-success" id="liveChatOpenWhatsApp" type="button">🟢 WhatsApp</button>
-                <button class="btn" id="liveChatToggleStatus" type="button">Cerrar</button>
-                <button class="btn btn-danger" id="liveChatDeleteNow" type="button">🗑 Borrar para todos</button>
-              </div>
-            </header>
-            <div class="live-chat-messages" id="liveChatMessages">
-              <div class="live-chat-empty"><b>Panel listo 💬</b><br>Selecciona un cliente para responder como admin.</div>
+          </div>
+          <div class="card">
+            <strong>✅ Flujo recomendado</strong>
+            <div class="ops-mini-help" style="margin-top:10px">
+              1) Carga cuentas con correo, clave, perfil, PIN y usos permitidos.<br>
+              2) Presiona <b>Entregar + recordatorio</b>.<br>
+              3) Ingresa WhatsApp del cliente.<br>
+              4) Se copia el mensaje, se crea cliente y se guarda renovación a <b>30 días</b>.
             </div>
-            <footer class="live-compose">
-              <div class="live-cleaner">
-                <button class="btn btn-warning" id="liveChatDelete24" type="button">⏱ Borrar en 24h</button>
-                <input class="input" id="liveChatDeleteAmount" type="number" min="1" placeholder="Tiempo">
-                <select class="input" id="liveChatDeleteUnit">
-                  <option value="hours">Horas</option>
-                  <option value="days">Días</option>
-                </select>
-                <button class="btn" id="liveChatScheduleDelete" type="button">Programar borrado</button>
-                <div class="help" id="liveChatDeleteHint">También puedes conservar el chat: mientras no lo borres, el cliente vuelve con su número y verá su historial.</div>
-              </div>
-              <div class="live-preview" id="liveChatPreview">
-                <div class="live-fileicon" id="liveChatPreviewIcon">📎</div>
-                <div style="min-width:0;flex:1"><b id="liveChatPreviewName">archivo</b><span id="liveChatPreviewSize">0 KB</span></div>
-                <button class="btn btn-ghost btn-icon" id="liveChatPreviewClear" type="button">✕</button>
-              </div>
-              <div class="live-compose-row">
-                <label class="live-attach" title="Enviar foto o archivo">＋<input id="liveChatFile" type="file" hidden></label>
-                <textarea class="live-textarea" id="liveChatText" rows="1" placeholder="Escribe una respuesta..."></textarea>
-                <button class="live-send" id="liveChatSend" type="button">➤</button>
-              </div>
-            </footer>
-          </section>
+          </div>
         </div>
+
+        <div class="admin-toolbar">
+          <div class="input-wrap"><input class="input" id="opsSearch" type="search" placeholder="🔍 Buscar cuenta, producto, correo, perfil o PIN..."></div>
+          <select class="input" id="opsPlanFilter" style="max-width:260px"><option value="">Todos los planes</option></select>
+          <select class="input" id="opsStatusFilter" style="max-width:180px">
+            <option value="">Todos</option>
+            <option value="available">Disponibles</option>
+            <option value="reserved">Reservadas</option>
+            <option value="used">Usadas</option>
+          </select>
+          <div class="actions">
+            <button class="btn" id="btnOpsRefresh" type="button">↻</button>
+            <button class="btn btn-success" id="btnOpsExport" type="button">⬇ Backup</button>
+          </div>
+        </div>
+
+        <div class="ops-switch" role="tablist" aria-label="Vista de operaciones">
+          <button class="chip" data-ops-view="accounts" aria-pressed="true" type="button">🔐 Cuentas</button>
+          <button class="chip" data-ops-view="all" type="button">📦 Todo stock</button>
+        </div>
+
+        <div id="opsGrid" class="ops-grid ops-list"></div>
       </section>
 
-<section id="tab-totp" class="admin-section">
+
+      <!-- Accesos TOTP -->
+      <section id="tab-totp" class="admin-section">
         <div class="totp-hero">
           <div class="card">
             <div class="totp-title">
@@ -1878,8 +1900,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
           <div class="actions">
             <button class="btn btn-primary" id="btnNewTemplate" type="button">＋ Plantilla pago</button>
             <button class="btn btn-success" id="btnNewDeliveryTemplate" type="button">＋ Plantilla entrega</button>
-            <button class="btn" id="btnResetDefaultTemplate" type="button">Crear base pago</button>
-            <button class="btn btn-success" id="btnCreateDeliveryBases" type="button">Crear bases entrega</button>
+            <button class="btn" id="btnResetDefaultTemplate" type="button">Crear base</button>
           </div>
         </div>
         <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
@@ -1950,17 +1971,6 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
             </div>
             <div id="syncStatus" class="sync-note">—</div>
           </div>
-          <div class="card notif-card">
-            <strong style="display:block;margin-bottom:14px">🔔 Notificaciones y WhatsApp automático</strong>
-            <p class="help">Activa avisos del navegador, sonido y alertas cuando llega un pago, un chat, se agotan cupos o vence un cliente.</p>
-            <label class="settings-check"><input type="checkbox" id="setAutoOpenWaDue"> <span><b>Intentar abrir WhatsApp cuando venza</b><br><span class="help">El navegador puede bloquear ventanas si no hubo interacción, pero dejará botón rápido para abrir.</span></span></label>
-            <label class="settings-check"><input type="checkbox" id="setNotifyDue"> <span><b>Notificar recordatorios vencidos</b><br><span class="help">Aviso una vez por día por cada cliente/servicio vencido.</span></span></label>
-            <label class="settings-check"><input type="checkbox" id="setNotifyStock"> <span><b>Notificar cupos agotados</b><br><span class="help">Alerta cuando un plan llega a 0 cupos disponibles.</span></span></label>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-              <button class="btn btn-primary" id="btnTestNotification" type="button">🔊 Probar notificación</button>
-              <button class="btn btn-success" id="btnSaveAdminLocalSettings" type="button">Guardar ajustes</button>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -1976,7 +1986,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
     <button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Prod.</span></button>
     <button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Stock</span></button>
     <button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pagos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
-    <button class="btn" data-tab="clients" type="button"><span class="ico">🔔</span><span>Pagos</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
+    <button class="btn" data-tab="reminders" type="button"><span class="ico">🔔</span><span>Record.</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
     <button class="btn" id="btnMobileMore" type="button" onclick="openSidenav()"><span class="ico">☰</span><span>Más</span></button>
   </div>
 </nav>
@@ -2008,16 +2018,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
           <option value="wholesale">Proveedor</option>
         </select>
       </div>
-      <div class="full"><label class="subtle">Imagen URL / logo de respaldo</label><input class="input" id="pImage" placeholder="https://..."></div>
-      <div class="full video-admin-box">
-        <label class="subtle">Video del producto</label>
-        <input class="input" id="pVideo" placeholder="YouTube, Vimeo o video directo .mp4/.webm">
-        <div class="grid grid-2" style="margin-top:8px">
-          <div><label class="subtle">Tipo</label><select class="input" id="pVideoType"><option value="auto">Auto detectar</option><option value="youtube">YouTube</option><option value="vimeo">Vimeo</option><option value="file">MP4/WebM directo</option></select></div>
-          <div><label class="subtle">Video activo</label><select class="input" id="pVideoEnabled"><option value="true">Sí, mostrar</option><option value="false">No, usar logo</option></select></div>
-        </div>
-        <p class="video-help">El video se reproduce automático, silenciado y sin controles. Si no carga, la tienda mantiene el logo.</p>
-      </div>
+      <div class="full"><label class="subtle">Imagen URL</label><input class="input" id="pImage" placeholder="https://..."></div>
       <div class="full"><label class="subtle">Descripción</label><textarea class="input" id="pDesc"></textarea></div>
       <div><label class="subtle">Prioridad</label><input class="input" id="pPriority" type="number" value="100"></div>
       <div><label class="subtle">Estado</label>
@@ -2058,16 +2059,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
           <option value="false">Oculto</option>
         </select>
       </div>
-      <div class="full"><label class="subtle">Imagen específica / logo de respaldo</label><input class="input" id="plImage" placeholder="https://..."></div>
-      <div class="full video-admin-box">
-        <label class="subtle">Video específico del plan</label>
-        <input class="input" id="plVideo" placeholder="Opcional: YouTube, Vimeo o .mp4/.webm">
-        <div class="grid grid-2" style="margin-top:8px">
-          <div><label class="subtle">Tipo</label><select class="input" id="plVideoType"><option value="auto">Auto detectar</option><option value="youtube">YouTube</option><option value="vimeo">Vimeo</option><option value="file">MP4/WebM directo</option></select></div>
-          <div><label class="subtle">Video activo</label><select class="input" id="plVideoEnabled"><option value="true">Sí, mostrar</option><option value="false">No, usar logo</option></select></div>
-        </div>
-        <p class="video-help">Si el plan tiene video, reemplaza al video general del producto.</p>
-      </div>
+      <div class="full"><label class="subtle">Imagen específica</label><input class="input" id="plImage" placeholder="https://..."></div>
       <div class="full"><label class="subtle">Descripción</label><textarea class="input" id="plDesc"></textarea></div>
       <div class="full"><label class="subtle">Beneficios, uno por línea</label><textarea class="input" id="plBenefits"></textarea></div>
       <div class="full"><label class="subtle">Chips, separados por coma</label><input class="input" id="plChips" placeholder="4K, Premium, 5 pantallas"></div>
@@ -2118,8 +2110,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   </div>
   <div class="dlg-body">
     <input type="hidden" id="manualOrderId">
-    <input type="hidden" id="manualStockId">
-    <div style="margin-bottom:10px"><label class="subtle">Plan del pedido</label><select class="input" id="manualPlan"></select><div class="manual-stock-hint" id="manualStockHint">Selecciona un plan: si hay una cuenta libre, se cargará automáticamente.</div></div>
+    <div style="margin-bottom:10px"><label class="subtle">Plan del pedido</label><select class="input" id="manualPlan"></select></div>
     <div class="grid grid-2">
       <div><label class="subtle">Plantilla de entrega</label><select class="input" id="manualTemplate"></select></div>
       <div><label class="subtle">Fecha de inicio</label><input class="input" id="manualStartDate" type="date"></div>
@@ -2276,29 +2267,6 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   </div>
 </dialog>
 
-
-
-
-<!-- Ver cuentas por plan -->
-<dialog id="dlgPlanStockView" class="plan-stock-modal">
-  <div class="modal-header">
-    <strong id="planStockTitle">Cuentas registradas</strong>
-    <button class="btn btn-ghost btn-icon" data-close="dlgPlanStockView" type="button">✕</button>
-  </div>
-  <div class="dlg-body">
-    <div class="card stock-help-card" style="margin-bottom:12px">
-      <strong>📦 Cuentas dentro de este plan</strong>
-      <p class="help" style="margin:6px 0 0">Aquí ves exactamente qué cuentas están registradas para entrega automática. Si no hay cuentas disponibles, la entrega automática no tendrá correo/contraseña reales.</p>
-    </div>
-    <input type="hidden" id="planStockPlanId">
-    <div class="plan-stock-toolbar">
-      <input class="input" id="planStockSearch" type="search" placeholder="Buscar correo, perfil, PIN o estado...">
-      <button class="btn btn-primary" id="btnPlanStockAdd" type="button">＋ Cargar cuentas</button>
-      <button class="btn" id="btnPlanStockOps" type="button">Abrir Operaciones</button>
-    </div>
-    <div id="planStockList" class="plan-stock-list"></div>
-  </div>
-</dialog>
 
 <!-- Operaciones PRO: Cuenta -->
 <dialog id="dlgOpsStock">
@@ -2508,18 +2476,6 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   </div>
 </dialog>
 
-
-<!-- Historial cliente / entregas -->
-<dialog id="dlgClientHistory">
-  <div class="modal-header">
-    <strong id="clientHistoryTitle">Historial del cliente</strong>
-    <button class="btn btn-ghost btn-icon" data-close="dlgClientHistory" type="button">✕</button>
-  </div>
-  <div class="dlg-body">
-    <div id="clientHistoryBody" class="history-box"></div>
-  </div>
-</dialog>
-
 <!-- Chat pedido -->
 <dialog id="dlgOrderChat">
   <div class="modal-header">
@@ -2551,9 +2507,7 @@ let state={
   coupons:[],settings:[],summary:[],customers:[],reminders:[],templates:[],
   deliveryTemplates:[],orderInputs:[],orderChats:[],
   totpAccounts:[],totpCodes:[],totpEvents:[],totpView:'codes',totpDbError:null,
-  liveChatConversations:[],liveChatMessages:[],liveChatActive:null,liveChatFile:null,liveChatFilter:'open',
-  liveChatListChannel:null,liveChatMsgChannel:null,liveChatUserId:null,liveChatInit:false,liveChatCleanupTimer:null,
-  tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyDueClients:false,onlyPending:false
+  tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyPending:false
 };
 
 /* ---- Utilities ---- */
@@ -2656,10 +2610,6 @@ const DEFAULT_DELIVERY_BODY=`✅ PEDIDO #{pedido}
 Soporte: {soporte}
 — {tienda}`;
 
-
-const DEFAULT_DELIVERY_PROFILE_BODY=`✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n👤 Perfil: {perfil}\n🔢 PIN: {pin}\n\n📅 Inicio: {fecha_inicio}\n\n{restricciones}\n\nSoporte: {soporte}\n— {tienda}`;
-const DEFAULT_DELIVERY_SIMPLE_BODY=`✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n\n📅 Inicio: {fecha_inicio}\n\n{restricciones}\n\nSoporte: {soporte}\n— {tienda}`;
-
 function getPaymentSettings(){return state.settings.find(s=>s.key==='payment_public')?.value||{}}
 function getStoreSettings(){return state.settings.find(s=>s.key==='store_public')?.value||{}}
 function getDefaultTemplate(){
@@ -2736,220 +2686,8 @@ function renderDeliveryMessage(){
   if($('manualPreview'))$('manualPreview').textContent=msg;
 }
 
-
-
-/* ---- Chat Clientes en vivo ---- */
-function liveChatPhoneLabel(c){return c?.client_phone?('+'+String(c.client_phone).replace(/^\+/,'')).replace(/^\+51(\d{9})$/,'+$1'):'Sin número'}
-function liveChatTime(iso){try{return new Date(iso).toLocaleString('es-PE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}catch(_){return ''}}
-function liveChatDay(iso){try{return new Date(iso).toLocaleDateString('es-PE',{weekday:'long',day:'2-digit',month:'long'})}catch(_){return ''}}
-function liveChatSize(n){n=Number(n||0);if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(1)+' MB'}
-function liveChatSafeFileName(name){return String(name||'archivo').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(0,90)||'archivo'}
-function liveChatScroll(){const el=$('liveChatMessages');if(el)el.scrollTop=el.scrollHeight}
-function liveChatSetEmpty(msg='Selecciona un cliente para responder como admin.'){if($('liveChatMessages'))$('liveChatMessages').innerHTML=`<div class="live-chat-empty"><b>Panel listo 💬</b><br>${esc(msg)}</div>`}
-function liveChatSetMobileList(show){$('liveChatShell')?.classList.toggle('show-list',!!show)}
-function liveChatUpdateBadge(){
-  const open=(state.liveChatConversations||[]).filter(c=>String(c.status||'open')==='open').length;
-  ['tbChat','tbChatSide'].forEach(id=>{const b=$(id);if(b){b.textContent=open;b.style.display=open?'inline-flex':'none'}});
-}
-async function liveChatEnsureSession(){
-  const s=await db.auth.getSession();
-  if(!s.data.session){const r=await db.auth.signInAnonymously();if(r.error)throw r.error;}
-  const u=await db.auth.getUser();
-  if(u.error)throw u.error;
-  state.liveChatUserId=u.data.user.id;
-  return state.liveChatUserId;
-}
-async function initLiveChatAdmin(){
-  if(state.liveChatInit){await liveChatLoadConversations();return;}
-  state.liveChatInit=true;
-  try{
-    await liveChatEnsureSession();
-    liveChatBindUI();
-    await liveChatCleanupExpired();
-    await liveChatLoadConversations();
-    liveChatSubscribeList();
-    if(!state.liveChatCleanupTimer)state.liveChatCleanupTimer=setInterval(liveChatCleanupExpired,60000);
-    $('connText').textContent='Chat activo';
-  }catch(e){toast('Chat no iniciado: '+e.message,'bad');liveChatSetEmpty('Ejecuta primero el SQL de chat y activa Anonymous Sign-ins en Supabase.');}
-}
-function liveChatBindUI(){
-  if(state.liveChatUiBound)return;state.liveChatUiBound=true;
-  $('liveChatSearch')?.addEventListener('input',liveChatRenderConversations);
-  $('liveChatRefresh')?.addEventListener('click',liveChatLoadConversations);
-  $('liveChatFilterOpen')?.addEventListener('click',()=>{state.liveChatFilter='open';$('liveChatFilterOpen').setAttribute('aria-pressed','true');$('liveChatFilterClosed').setAttribute('aria-pressed','false');liveChatRenderConversations()});
-  $('liveChatFilterClosed')?.addEventListener('click',()=>{state.liveChatFilter='closed';$('liveChatFilterClosed').setAttribute('aria-pressed','true');$('liveChatFilterOpen').setAttribute('aria-pressed','false');liveChatRenderConversations()});
-  $('liveChatSend')?.addEventListener('click',liveChatSend);
-  $('liveChatText')?.addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,128)+'px'});
-  $('liveChatText')?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();liveChatSend()}});
-  $('liveChatFile')?.addEventListener('change',e=>liveChatPreviewFile(e.target.files?.[0]));
-  $('liveChatPreviewClear')?.addEventListener('click',liveChatClearPreview);
-  $('liveChatOpenWhatsApp')?.addEventListener('click',()=>{const c=state.liveChatActive;if(!c?.client_phone)return toast('Selecciona un chat','bad');window.open('https://wa.me/'+String(c.client_phone).replace(/\D/g,''),'_blank','noopener,noreferrer')});
-  $('liveChatToggleStatus')?.addEventListener('click',liveChatToggleStatus);
-  $('liveChatDeleteNow')?.addEventListener('click',()=>liveChatDeleteActive('now'));
-  $('liveChatDelete24')?.addEventListener('click',()=>liveChatScheduleActive(24,'hours'));
-  $('liveChatScheduleDelete')?.addEventListener('click',()=>{const n=Number($('liveChatDeleteAmount').value||0);if(!n)return toast('Coloca el tiempo','bad');liveChatScheduleActive(n,$('liveChatDeleteUnit').value)});
-  $('liveChatBack')?.addEventListener('click',()=>liveChatSetMobileList(true));
-}
-async function liveChatLoadConversations(){
-  const r=await db.from('conversations').select('*').order('last_message_at',{ascending:false});
-  if(r.error)throw r.error;
-  state.liveChatConversations=r.data||[];
-  liveChatRenderConversations();liveChatUpdateBadge();
-  if(state.liveChatActive){
-    const fresh=state.liveChatConversations.find(c=>c.id===state.liveChatActive.id);
-    if(fresh){state.liveChatActive=fresh;liveChatUpdateHeader()}else{state.liveChatActive=null;liveChatUpdateHeader();liveChatSetEmpty('El chat fue eliminado.');}
-  }
-}
-function liveChatRenderConversations(){
-  const list=$('liveChatList'); if(!list)return;
-  const q=String($('liveChatSearch')?.value||'').toLowerCase().trim();
-  let rows=[...(state.liveChatConversations||[])].filter(c=>String(c.status||'open')===state.liveChatFilter);
-  if(q)rows=rows.filter(c=>String(c.client_phone||'').includes(q)||String(c.last_message||'').toLowerCase().includes(q));
-  if(!rows.length){list.innerHTML='<div class="empty-state"><span class="icon">💬</span><p>Sin chats en esta vista.</p></div>';return;}
-  list.innerHTML=rows.map(c=>`<div class="live-chat-item ${state.liveChatActive?.id===c.id?'active':''}" data-id="${esc(c.id)}">
-    <div class="live-chat-item-top"><span class="live-chat-phone">📱 ${esc(liveChatPhoneLabel(c))}</span><span class="live-chat-time">${esc(liveChatTime(c.last_message_at||c.created_at))}</span></div>
-    <div class="live-chat-last">${esc(c.last_message||'Chat iniciado')}</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px"><span class="badge ${String(c.status)==='closed'?'b-bad':'b-ok'}">${String(c.status)==='closed'?'Cerrado':'Abierto'}</span>${c.delete_after_at?`<span class="badge b-warn">Borra: ${esc(liveChatTime(c.delete_after_at))}</span>`:''}</div>
-  </div>`).join('');
-  list.querySelectorAll('.live-chat-item').forEach(el=>el.onclick=()=>liveChatOpenConversation(el.dataset.id));
-}
-function liveChatUpdateHeader(){
-  const c=state.liveChatActive;
-  $('liveChatTitle').textContent=c?`Cliente ${liveChatPhoneLabel(c)}`:'Selecciona un chat';
-  $('liveChatSub').textContent=c?`${String(c.status)==='closed'?'Chat cerrado':'En línea / historial activo'}${c.delete_after_at?' · Borrado programado '+liveChatTime(c.delete_after_at):''}`:'Los mensajes llegarán en vivo sin recargar.';
-  $('liveChatToggleStatus').textContent=c?(String(c.status)==='closed'?'Reabrir':'Cerrar'):'Cerrar';
-  $('liveChatDeleteHint').textContent=c?.delete_after_at?`Este chat se borrará automáticamente cuando el admin esté abierto: ${liveChatTime(c.delete_after_at)}.`:'Si conservas el chat, el cliente entra con su número y verá su historial.';
-}
-async function liveChatOpenConversation(id){
-  const c=state.liveChatConversations.find(x=>x.id===id); if(!c)return;
-  state.liveChatActive=c; liveChatUpdateHeader(); liveChatRenderConversations(); liveChatSetMobileList(false);
-  await liveChatLoadMessages(); liveChatSubscribeMessages();
-}
-async function liveChatLoadMessages(){
-  if(!state.liveChatActive)return;
-  const box=$('liveChatMessages');box.innerHTML='<div class="live-chat-empty">Cargando mensajes...</div>';
-  const r=await db.from('messages').select('*').eq('conversation_id',state.liveChatActive.id).order('created_at',{ascending:true});
-  if(r.error){box.innerHTML='<div class="live-chat-empty">No se pudieron cargar mensajes.</div>';toast(r.error.message,'bad');return;}
-  state.liveChatMessages=r.data||[];box.innerHTML='';
-  if(!state.liveChatMessages.length){box.innerHTML='<div class="live-chat-empty"><b>Sin mensajes todavía</b><br>Escribe una respuesta para iniciar.</div>';return;}
-  let lastDay='';
-  for(const m of state.liveChatMessages){const d=liveChatDay(m.created_at);if(d!==lastDay){lastDay=d;const day=document.createElement('div');day.className='live-day';day.textContent=d;box.appendChild(day);} await liveChatRenderMessage(m,false)}
-  liveChatScroll();
-}
-async function liveChatSignedUrl(path,download=false,fileName='archivo'){
-  if(!path)return '#';
-  const opts=download?{download:fileName||true}:undefined;
-  const r=await db.storage.from('chat-files').createSignedUrl(path,3600,opts);
-  return r.data?.signedUrl||'#';
-}
-async function liveChatRenderMessage(m,play=true){
-  const box=$('liveChatMessages'); if(!box)return;
-  const empty=box.querySelector('.live-chat-empty'); if(empty)empty.remove();
-  const me=m.sender_role==='admin';
-  const div=document.createElement('div');div.className='live-msg '+(me?'me':'other');
-  let fileHtml='';
-  if(m.file_path){
-    const view=await liveChatSignedUrl(m.file_path,false,m.file_name);
-    const down=await liveChatSignedUrl(m.file_path,true,m.file_name);
-    const isImg=String(m.file_type||'').startsWith('image/');
-    fileHtml=`<div class="live-file">${isImg?`<img src="${view}" alt="${esc(m.file_name||'imagen')}">`:''}<div class="live-file-info"><div class="live-file-name">${isImg?'📷':'📎'} ${esc(m.file_name||'archivo')}</div><div class="live-file-sub">${esc(m.file_type||'archivo')} · ${liveChatSize(m.file_size)}</div><div class="live-file-actions"><a href="${view}" target="_blank" rel="noopener">Ver</a><a class="secondary" href="${down}" download="${esc(m.file_name||'archivo')}">Descargar</a></div></div></div>`;
-  }
-  div.innerHTML=`${m.body?`<div class="live-bubble">${esc(m.body)}</div>`:''}${fileHtml}<div class="live-meta"><span>${esc(new Date(m.created_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}))}</span>${me?'<span class="live-checks">✓✓</span>':''}</div>`;
-  box.appendChild(div);liveChatScroll();
-  if(play && !me)notifyWeb('Nuevo mensaje de cliente',String(m.body||m.file_name||'Archivo').slice(0,120),true);
-}
-function liveChatSubscribeList(){
-  if(state.liveChatListChannel)db.removeChannel(state.liveChatListChannel);
-  state.liveChatListChannel=db.channel('live-chat-list-'+Date.now())
-    .on('postgres_changes',{event:'*',schema:'public',table:'conversations'},()=>liveChatLoadConversations().catch(console.warn))
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},payload=>{
-      if(payload.new?.sender_role!=='admin')notifyWeb('Nuevo mensaje del chat',String(payload.new?.body||payload.new?.file_name||'Mensaje nuevo').slice(0,120),true);
-      if(payload.new?.conversation_id!==state.liveChatActive?.id)liveChatLoadConversations().catch(console.warn);
-    }).subscribe();
-}
-function liveChatSubscribeMessages(){
-  if(state.liveChatMsgChannel)db.removeChannel(state.liveChatMsgChannel);
-  if(!state.liveChatActive)return;
-  state.liveChatMsgChannel=db.channel('live-chat-room-'+state.liveChatActive.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`conversation_id=eq.${state.liveChatActive.id}`},async payload=>{
-      if((state.liveChatMessages||[]).some(x=>x.id===payload.new.id))return;
-      state.liveChatMessages.push(payload.new);await liveChatRenderMessage(payload.new,true);await liveChatLoadConversations();
-    }).subscribe();
-}
-function liveChatPreviewFile(file){
-  state.liveChatFile=file||null;const prev=$('liveChatPreview');
-  if(!file){liveChatClearPreview();return}
-  $('liveChatPreviewName').textContent=file.name;$('liveChatPreviewSize').textContent=liveChatSize(file.size);
-  const icon=$('liveChatPreviewIcon');icon.innerHTML='📎';
-  if(file.type.startsWith('image/')){const img=document.createElement('img');img.src=URL.createObjectURL(file);icon.innerHTML='';icon.appendChild(img)}
-  prev.classList.add('show');
-}
-function liveChatClearPreview(){state.liveChatFile=null;if($('liveChatFile'))$('liveChatFile').value='';$('liveChatPreview')?.classList.remove('show');$('liveChatPreviewIcon').innerHTML='📎'}
-async function liveChatUploadFile(file){
-  const path=`${state.liveChatActive.id}/${Date.now()}-${crypto.randomUUID()}-${liveChatSafeFileName(file.name)}`;
-  const r=await db.storage.from('chat-files').upload(path,file,{cacheControl:'3600',upsert:false});
-  if(r.error)throw r.error;
-  return {file_path:path,file_name:file.name,file_type:file.type||'application/octet-stream',file_size:file.size||0};
-}
-async function liveChatSend(){
-  if(!state.liveChatActive)return toast('Selecciona un chat primero','bad');
-  const body=$('liveChatText').value.trim();const file=state.liveChatFile;
-  if(!body&&!file)return;
-  $('liveChatSend').disabled=true;
-  try{
-    await liveChatEnsureSession();
-    let meta={}; if(file)meta=await liveChatUploadFile(file);
-    const payload={conversation_id:state.liveChatActive.id,sender_id:state.liveChatUserId,sender_role:'admin',body:body||null,...meta};
-    const r=await db.from('messages').insert(payload);
-    if(r.error)throw r.error;
-    $('liveChatText').value='';$('liveChatText').style.height='auto';liveChatClearPreview();
-  }catch(e){toast('No se envió: '+e.message,'bad')}
-  finally{$('liveChatSend').disabled=false;}
-}
-async function liveChatToggleStatus(){
-  const c=state.liveChatActive;if(!c)return toast('Selecciona un chat','bad');
-  const next=String(c.status||'open')==='closed'?'open':'closed';
-  const r=await db.from('conversations').update({status:next}).eq('id',c.id);
-  if(r.error)return toast(r.error.message,'bad');
-  toast(next==='closed'?'Chat cerrado':'Chat reabierto','ok');await liveChatLoadConversations();
-}
-async function liveChatDeleteFiles(conversationId){
-  const r=await db.from('messages').select('file_path').eq('conversation_id',conversationId).not('file_path','is',null);
-  const paths=[...new Set((r.data||[]).map(x=>x.file_path).filter(Boolean))];
-  if(paths.length){const rm=await db.storage.from('chat-files').remove(paths);if(rm.error)console.warn('storage remove',rm.error)}
-}
-async function liveChatDeleteConversation(conversationId){
-  await liveChatDeleteFiles(conversationId);
-  await db.from('messages').delete().eq('conversation_id',conversationId);
-  const r=await db.from('conversations').delete().eq('id',conversationId);
-  if(r.error)throw r.error;
-}
-async function liveChatDeleteActive(mode='now'){
-  const c=state.liveChatActive;if(!c)return toast('Selecciona un chat','bad');
-  if(!confirm('¿Borrar este chat para ambas partes? Se eliminarán mensajes, fotos y archivos.'))return;
-  try{await liveChatDeleteConversation(c.id);state.liveChatActive=null;liveChatUpdateHeader();liveChatSetEmpty('Chat eliminado para ambas partes.');await liveChatLoadConversations();toast('Chat eliminado completamente','ok')}
-  catch(e){toast('No se pudo borrar: '+e.message,'bad')}
-}
-async function liveChatScheduleActive(amount,unit){
-  const c=state.liveChatActive;if(!c)return toast('Selecciona un chat','bad');
-  const ms=unit==='days'?amount*86400000:amount*3600000;
-  const when=new Date(Date.now()+ms).toISOString();
-  const r=await db.from('conversations').update({delete_after_at:when,delete_mode:unit==='days'?'custom_days':amount===24?'24h':'custom_hours'}).eq('id',c.id);
-  if(r.error)return toast(r.error.message,'bad');
-  toast('Borrado programado para '+liveChatTime(when),'ok');await liveChatLoadConversations();
-}
-async function liveChatCleanupExpired(){
-  try{
-    await liveChatEnsureSession();
-    const r=await db.from('conversations').select('id').lte('delete_after_at',new Date().toISOString()).not('delete_after_at','is',null).limit(25);
-    if(r.error)return;
-    for(const c of (r.data||[]))await liveChatDeleteConversation(c.id);
-    if((r.data||[]).length)await liveChatLoadConversations();
-  }catch(e){console.warn('cleanup chat',e)}
-}
 /* ---- Auth ---- */
 async function login(){
-  localStorage.removeItem('innov_live_chat_test_mode');
   const btn=$('btnLogin');
   btn.disabled=true;btn.textContent='Entrando...';
   const r=await db.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPass').value});
@@ -2959,28 +2697,11 @@ async function login(){
   $('app').classList.remove('hidden');
   await loadAll();
 }
-async function loginTestChat(){
-  const btn=$('btnLoginTestChat');
-  btn.disabled=true;btn.textContent='Entrando al chat...';
-  try{
-    const s=await db.auth.getSession();
-    if(!s.data.session){const r=await db.auth.signInAnonymously();if(r.error)throw r.error;}
-    localStorage.setItem('innov_live_chat_test_mode','1');
-    $('auth').classList.add('hidden');$('app').classList.remove('hidden');
-    switchTab('chat');
-    await initLiveChatAdmin();
-  }catch(e){toast('No se pudo entrar en modo prueba: '+e.message,'bad')}
-  finally{btn.disabled=false;btn.textContent='💬 Probar chat sin correo ni clave'}
-}
 async function init(){
   const r=await db.auth.getSession();
-  if(r.data.session){
-    $('auth').classList.add('hidden');$('app').classList.remove('hidden');
-    if(localStorage.getItem('innov_live_chat_test_mode')==='1'){switchTab('chat');await initLiveChatAdmin();return;}
-    await loadAll();
-  }
+  if(r.data.session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');await loadAll();}
 }
-async function logout(){localStorage.removeItem('innov_live_chat_test_mode');await db.auth.signOut();location.reload()}
+async function logout(){await db.auth.signOut();location.reload()}
 
 /* ---- Loading ---- */
 let _loading=false;
@@ -3079,7 +2800,7 @@ function renderSummary(){
     <td data-label="Tipo"><span class="badge ${s.stock_mode==='controlled'?'b-ok':'b-warn'}">${s.stock_mode==='controlled'?'Auto':'Manual'}</span></td>
     <td data-label="Cupos"><span class="badge ${Number(s.available_stock)>0?'b-ok':'b-bad'}">${Number(s.available_stock)>=999999?'∞':s.available_stock+' cupos'}</span></td>
     <td data-label="Estado">${esc(s.availability_status)}</td>
-    <td data-label="Acción"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editPlan('${s.plan_id}')">Editar</button><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${s.plan_id}')">Ver cuentas</button></div></td>
+    <td data-label="Acción"><button class="btn btn-sm" onclick="editPlan('${s.plan_id}')">Editar</button></td>
   </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
 }
 
@@ -3098,10 +2819,8 @@ function renderProducts(){
         <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
         <span class="badge">${pls.length} planes</span>
         <span class="badge b-ok">${cups} cupos</span>
-        ${p.video_url?'<span class="badge video-badge">🎬 Video</span>':''}
       </div>
       <p class="help">${esc(p.description||'Sin descripción').slice(0,120)}</p>
-      ${p.video_url?`<div class="product-card-video">${esc(p.video_url).slice(0,120)}</div>`:''}
       <div class="line-actions">
         <button class="btn btn-primary" onclick="editProduct('${p.id}')">✏️ Editar</button>
         <button class="btn" onclick="newPlanFor('${p.id}')">＋ Plan</button>
@@ -3112,10 +2831,6 @@ function renderProducts(){
   }).join('')||'<div class="empty-state"><span class="icon">🧩</span><p>No hay productos.</p></div>';
 }
 
-function isTotpFriendlyPlan(p){
-  const txt=(prodName(p?.product_id)+' '+(p?.name||'')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  return /(chatgpt|gpt|openai|plus|totp|acceso|codigo)/.test(txt);
-}
 function renderPlans(){
   const q=($('planSearch')?.value||'').toLowerCase();
   let arr=state.plans.filter(p=>(p.name+' '+prodName(p.product_id)).toLowerCase().includes(q));
@@ -3132,74 +2847,12 @@ function renderPlans(){
     </div>
     <div class="line-actions">
       <button class="btn btn-primary" onclick="editPlan('${p.id}')">✏️ Editar cupos</button>
-      <button class="btn btn-success" onclick="openPlanStockView('${p.id}')">👁 Ver cuentas</button>
-      <button class="btn" onclick="openAddStock('${p.id}')">📥 Cargar</button>
-      ${isTotpFriendlyPlan(p)?`<button class="btn btn-primary" onclick="autoTotpCodesFromPlan('${p.id}')">🛡 TOTP</button>`:''}
+      <button class="btn" onclick="openAddStock('${p.id}')">📤 Cargar</button>
       <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
       <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">🗑 Eliminar</button>
     </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
 }
-
-
-function openPlanStockView(planId){
-  if(!$('dlgPlanStockView'))return;
-  $('planStockPlanId').value=planId||'';
-  const p=plan(planId)||{};
-  $('planStockTitle').textContent='Cuentas registradas · '+opsPlanGroupTitle(planId);
-  if($('planStockSearch'))$('planStockSearch').value='';
-  renderPlanStockView();
-  showDialog('dlgPlanStockView');
-}
-function planStockFilteredRows(){
-  const planId=$('planStockPlanId')?.value||'';
-  const q=($('planStockSearch')?.value||'').toLowerCase().trim();
-  let rows=state.stock.filter(x=>x.plan_id===planId);
-  if(q)rows=rows.filter(x=>{
-    const d=opsSecret(x);
-    return (`${x.title||''} ${x.notes||''} ${opsAvailableStatus(x)} ${d.correo||''} ${d.usuario||''} ${d.clave||''} ${d.perfil||''} ${d.pin||''} ${d.reserved_for||''} ${d.reserved_phone||''}`).toLowerCase().includes(q);
-  });
-  rows.sort((a,b)=>{
-    const order={available:0,reserved:1,used:2,delivered:2};
-    return (order[opsAvailableStatus(a)]??3)-(order[opsAvailableStatus(b)]??3)||String(b.created_at||'').localeCompare(String(a.created_at||''));
-  });
-  return rows;
-}
-function renderPlanStockView(){
-  const list=$('planStockList');if(!list)return;
-  const planId=$('planStockPlanId')?.value||'';
-  const rows=planStockFilteredRows();
-  const free=state.stock.filter(x=>x.plan_id===planId&&opsAvailableStatus(x)==='available').length;
-  const res=state.stock.filter(x=>x.plan_id===planId&&opsAvailableStatus(x)==='reserved').length;
-  const used=state.stock.filter(x=>x.plan_id===planId&&['used','delivered'].includes(opsAvailableStatus(x))).length;
-  if(!rows.length){
-    list.innerHTML=`<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><button class="btn btn-primary" onclick="openAddStockFromPlanView()">＋ Cargar cuentas ahora</button></div>`;
-    return;
-  }
-  list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${free} disponibles</span><span class="badge b-warn">${res} reservadas</span><span class="badge b-bad">${used} usadas</span><span class="badge">${rows.length} visibles</span></div>`+rows.map(x=>{
-    const d=opsSecret(x), st=opsAvailableStatus(x);
-    const pass=d.clave||d.pass||'';
-    const reserve=d.reserved_for?` · reservado para ${esc(d.reserved_for)} ${d.reserved_phone?esc(d.reserved_phone):''}`:'';
-    return `<div class="plan-stock-row">
-      <div class="plan-stock-main">
-        <div class="plan-stock-title">${esc(x.title||d.correo||'Cuenta')}</div>
-        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(Number(d.used_count||0))}/${esc(Number(d.max_uses||1))}</span>${reserve}</div>
-        <div class="plan-stock-secret"><span class="mono">📧 ${esc(d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${esc(pass)}</span>`:''}${d.perfil?`<span class="mono">👤 ${esc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${esc(d.pin)}</span>`:''}</div>
-      </div>
-      <div class="plan-stock-actions">
-        <button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>
-        <button class="btn" onclick="copyTextSafe(opsDeliveryText(state.stock.find(s=>s.id==='${x.id}')))">Copiar</button>
-        <button class="btn" onclick="openStockViewEdit('${x.id}')">Modificar</button>
-        <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function openStockViewDeliver(id){closeDialog('dlgPlanStockView');setTimeout(()=>openOpsDeliver(id),80)}
-function openStockViewEdit(id){closeDialog('dlgPlanStockView');setTimeout(()=>openOpsStockDialog('account',id),80)}
-function openAddStockFromPlanView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');openAddStock(planId)}
-function openOpsFromPlanStockView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');switchTab('ops');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps()},60)}
 
 function renderOrders(){
   const q=($('orderSearch')?.value||'').toLowerCase();
@@ -3242,91 +2895,65 @@ function renderOrders(){
 function renderClients(){
   if(!$('clientsGrid'))return;
   const q=($('clientSearch')?.value||'').toLowerCase();
-  let data=state.customers.filter(c=>{
-    const rem=state.reminders.filter(r=>r.customer_id===c.id);
-    const blob=`${c.name||''} ${c.phone_e164||''} ${c.email||''} ${c.notes||''} ${rem.map(r=>r.service_name+' '+r.status+' '+r.due_date).join(' ')}`.toLowerCase();
-    return blob.includes(q);
-  });
-  data=data.sort((a,b)=>clientSortScore(b)-clientSortScore(a));
+  const data=state.customers.filter(c=>(`${c.name||''} ${c.phone_e164||''} ${c.email||''}`).toLowerCase().includes(q));
   $('clientsGrid').innerHTML=data.map(c=>{
     const rem=state.reminders.filter(r=>r.customer_id===c.id);
     const pend=rem.filter(r=>r.status==='pending').length;
-    const due=rem.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO()).length;
-    const next=rem.filter(r=>r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')))[0];
-    const cls=due?'overdue':(next&&String(next.due_date||'')===todayISO()?'due':'');
     const msg=`Hola ${c.name||'cliente'} 👋`;
-    return `<div class="crm-row ${cls}">
-      <div class="crm-main"><div class="crm-title">${due?'🚨 ':''}${esc(c.name||'Sin nombre')}</div><div class="crm-sub">${esc(c.phone_e164||'Sin WhatsApp')} ${c.email?'· '+esc(c.email):''}</div></div>
-      <div class="crm-meta-line"><span class="badge ${due?'b-bad':pend?'b-warn':'b-ok'}">${due?due+' venc.':pend+' pend.'}</span><span class="badge">Total ${rem.length}</span><span class="badge">${esc(c.source||'manual')}</span></div>
-      <div class="crm-meta-line"><span class="pill ${next?calcDaysLeft(next.due_date)<0?'dueneg':calcDaysLeft(next.due_date)===0?'due0':'duepos':'duepos'}">📅 ${next?.due_date||'Sin deuda'}</span></div>
-      <div class="crm-actions">
-        <button class="btn btn-primary" onclick="editClient('${c.id}')">Editar</button>
-        <button class="btn" onclick="newReminderFor('${c.id}')">+ Pago</button>
-        <button class="btn" onclick="showClientHistory('${c.id}')">Historial</button>
-        <a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}">WhatsApp</a>
-        <button class="btn btn-danger" onclick="quickDeleteClient('${c.id}')">Eliminar</button>
+    return `<div class="mini-card crm-card">
+      <div class="mini-head">
+        <div><b>${esc(c.name||'Sin nombre')}</b><div class="help">${esc(c.phone_e164||'Sin WhatsApp')}</div></div>
+        <span class="badge ${pend?'b-warn':'b-ok'}">${pend} pend.</span>
+      </div>
+      <div class="crm-meta">
+        <div class="row"><span class="badge">Total: ${rem.length}</span><span class="badge">${esc(c.source||'manual')}</span></div>
+        <div class="help">${esc(c.notes||'')}</div>
+      </div>
+      <div class="line-actions">
+        <button class="btn btn-primary" onclick="editClient('${c.id}')">✏️ Editar</button>
+        <button class="btn" onclick="newReminderFor('${c.id}')">＋ Record.</button>
+        <a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}">💚 WhatsApp</a>
+        <button class="btn btn-danger" onclick="quickDeleteClient('${c.id}')">🗑 Eliminar</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">👥</span><p>Sin clientes todavía.</p></div>';
 }
-function clientSortScore(c){
-  const rem=state.reminders.filter(r=>r.customer_id===c.id);
-  const due=rem.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO()).length;
-  const pend=rem.filter(r=>r.status==='pending').length;
-  return due*1000+pend*100+new Date(c.created_at||0).getTime()/1e13;
-}
-function reminderRowsHtml(data,limit=0){
-  const rows=limit?data.slice(0,limit):data;
-  return rows.map(r=>{
-    const c=state.customers.find(x=>x.id===r.customer_id)||{};
-    const overdue=r.status==='pending'&&isOverdue(r.due_date);
-    const dueToday=r.status==='pending'&&String(r.due_date||'')===todayISO();
-    const cls=overdue?'overdue':(dueToday?'due':'');
-    const days=calcDaysLeft(r.due_date);
-    const pillCls=days<0?'dueneg':days===0?'due0':'duepos';
-    return `<div class="reminder-row ${cls}">
-      <div class="rem-main"><div class="rem-title">${overdue?'🚨 ':dueToday?'⏰ ':''}${esc(r.service_name||'Sin servicio')}</div><div class="rem-sub">${esc(c.name||'Sin cliente')} · ${esc(c.phone_e164||'Sin WhatsApp')}</div></div>
-      <div class="rem-meta-line"><span class="badge ${r.status==='paid'?'b-ok':r.status==='pending'&&overdue?'b-bad':r.status==='sent'?'b-pagado':'b-warn'}">${esc(r.status||'')}</span><span class="badge">${money(r.amount)}</span></div>
-      <div class="rem-meta-line"><span class="pill ${pillCls}">📅 ${r.due_date||'—'}${days!==''?' ('+days+'d)':''}</span></div>
-      <div class="rem-actions">
-        <button class="btn btn-primary" onclick="editReminder('${r.id}')">Editar</button>
-        <button class="btn btn-success" onclick="openReminderWhatsApp('${r.id}')">WhatsApp</button>
-        <button class="btn" onclick="markReminderPaid('${r.id}')">Pagado</button>
-        <button class="btn" onclick="renewReminder('${r.id}')">Renovar</button>
-        <button class="btn btn-danger" onclick="quickDeleteReminder('${r.id}')">Eliminar</button>
-      </div>
-    </div>`;
-  }).join('')||'<div class="empty-state"><span class="icon">🔔</span><p>Sin recordatorios.</p></div>';
-}
+
 function renderReminders(){
-  const searchVal=($('reminderSearch')?.value||$('clientSearch')?.value||'').toLowerCase();
-  const q=searchVal;
+  if(!$('remindersGrid'))return;
+  const q=($('reminderSearch')?.value||'').toLowerCase();
   let data=state.reminders.filter(r=>{
     const c=state.customers.find(x=>x.id===r.customer_id)||{};
     return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${r.status||''}`).toLowerCase().includes(q);
   });
-  if(state.onlyDue||state.onlyDueClients)data=data.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO());
+  if(state.onlyDue)data=data.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO());
   if(state.onlyPending)data=data.filter(r=>r.status==='pending');
-  data=data.sort((a,b)=>{
-    const ad=(a.status==='pending'&&String(a.due_date||'')<=todayISO())?0:1;
-    const bd=(b.status==='pending'&&String(b.due_date||'')<=todayISO())?0:1;
-    return ad-bd||String(a.due_date||'').localeCompare(String(b.due_date||''));
-  });
-  if($('remindersGrid'))$('remindersGrid').innerHTML=reminderRowsHtml(data);
-  if($('remindersMergedGrid'))$('remindersMergedGrid').innerHTML=reminderRowsHtml(data,120);
-}
-function showClientHistory(id){
-  const c=state.customers.find(x=>x.id===id);if(!c)return;
-  const phoneDigits=whatsappDigits(c.phone_e164||c.phone_raw||'');
-  const rem=state.reminders.filter(r=>r.customer_id===id).sort((a,b)=>String(b.due_date||'').localeCompare(String(a.due_date||'')));
-  const orderIds=new Set(rem.map(r=>r.order_id).filter(Boolean));
-  const orders=state.orders.filter(o=>orderIds.has(o.id)||whatsappDigits(o.customer_whatsapp||'')===phoneDigits);
-  const deliveries=state.deliveries.filter(d=>orderIds.has(d.order_id)||orders.some(o=>o.id===d.order_id)).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
-  $('clientHistoryTitle').textContent='Historial · '+(c.name||'Cliente');
-  const remHtml=rem.map(r=>`<div class="history-item"><div class="top"><span>🔔 ${esc(r.service_name||'Servicio')}</span><span>${esc(r.status||'')}</span></div><div class="help">Vence: ${esc(r.due_date||'—')} · ${money(r.amount)}</div>${r.whatsapp_message?`<pre>${esc(r.whatsapp_message)}</pre>`:''}</div>`).join('');
-  const delHtml=deliveries.map(d=>`<div class="history-item"><div class="top"><span>📦 Cuenta entregada</span><span>${d.created_at?esc(new Date(d.created_at).toLocaleString('es-PE')):'—'}</span></div><pre>${esc(d.delivered_message||d.message||JSON.stringify(d.delivery_data||{},null,2))}</pre></div>`).join('');
-  $('clientHistoryBody').innerHTML=(delHtml?'<strong>📦 Entregas</strong>'+delHtml:'')+(remHtml?'<strong>🔔 Recordatorios</strong>'+remHtml:'')||'<div class="empty-state"><span class="icon">📭</span><p>Sin historial aún.</p></div>';
-  showDialog('dlgClientHistory');
+  $('remindersGrid').innerHTML=data.map(r=>{
+    const c=state.customers.find(x=>x.id===r.customer_id)||{};
+    const overdue=r.status==='pending'&&isOverdue(r.due_date);
+    const dueToday=r.status==='pending'&&String(r.due_date||'')===todayISO();
+    const cls=overdue?'overdue':(dueToday?'due':'');
+    const msg=r.whatsapp_message||reminderMessage(c,r);
+    const days=calcDaysLeft(r.due_date);
+    const pillCls=days<0?'dueneg':days===0?'due0':'duepos';
+    return `<div class="mini-card crm-card ${cls}">
+      <div class="mini-head">
+        <div><b>${esc(r.service_name||'Sin servicio')}</b><div class="help">${esc(c.name||'Sin cliente')}</div></div>
+        <span class="badge ${r.status==='paid'?'b-ok':r.status==='pending'&&overdue?'b-bad':r.status==='sent'?'b-pagado':'b-warn'}">${esc(r.status)}</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">
+        <span class="badge">${money(r.amount)}</span>
+        <span class="pill ${pillCls}">📅 ${r.due_date||'—'}${days!==''?' ('+days+'d)':''}</span>
+      </div>
+      <div class="line-actions">
+        <button class="btn btn-primary" onclick="editReminder('${r.id}')">✏️ Editar</button>
+        <a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}" onclick="markReminderSent('${r.id}')">💚 WhatsApp</a>
+        <button class="btn" onclick="markReminderPaid('${r.id}')">✅ Pagado</button>
+        <button class="btn" onclick="renewReminder('${r.id}')">🔄 Renovar</button>
+        <button class="btn btn-danger" onclick="quickDeleteReminder('${r.id}')">🗑 Eliminar</button>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty-state"><span class="icon">🔔</span><p>Sin recordatorios.</p></div>';
 }
 
 function renderTemplates(){
@@ -3379,30 +3006,17 @@ function renderCoupons(){
   </div>`).join('')||'<div class="empty-state"><span class="icon">🎟️</span><p>Sin cupones.</p></div>';
 }
 
-function getAdminLocalSettings(){
-  try{return {...{autoOpenWaDue:false,notifyDue:true,notifyStock:true},...JSON.parse(localStorage.getItem('innov_admin_local_settings')||'{}')}}catch(_){return{autoOpenWaDue:false,notifyDue:true,notifyStock:true}}
-}
-function saveAdminLocalSettings(){
-  const cfg={autoOpenWaDue:!!$('setAutoOpenWaDue')?.checked,notifyDue:!!$('setNotifyDue')?.checked,notifyStock:!!$('setNotifyStock')?.checked};
-  localStorage.setItem('innov_admin_local_settings',JSON.stringify(cfg));
-  toast('Ajustes de notificaciones guardados','ok');
-}
 function renderSettings(){
   const pay=state.settings.find(s=>s.key==='payment_public')?.value||{};
   $('setYape').value=pay.yape_number||'991564053';
   $('setQr').value=pay.yape_qr_url||'img/yape-qr.png';
   $('qrPreview').src=$('setQr').value||'img/yape-qr.png';
-  const cfg=getAdminLocalSettings();
-  if($('setAutoOpenWaDue'))$('setAutoOpenWaDue').checked=!!cfg.autoOpenWaDue;
-  if($('setNotifyDue'))$('setNotifyDue').checked=cfg.notifyDue!==false;
-  if($('setNotifyStock'))$('setNotifyStock').checked=cfg.notifyStock!==false;
 }
 
 function switchTab(tab){
   state.tab=tab;
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  const section=$('tab-'+tab);
-  if(section)section.classList.add('active');
+  $('tab-'+tab).classList.add('active');
   document.querySelectorAll('[data-tab]').forEach(b=>{
     const on=b.dataset.tab===tab;
     b.classList.toggle('active',on);
@@ -3413,18 +3027,17 @@ function switchTab(tab){
   const activeTab=document.querySelector('.admin-tabs .nav-btn[aria-pressed="true"]');
   if(activeTab)activeTab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
   if(window.innerWidth<=800)window.scrollTo({top:0,behavior:'smooth'});
-  if(tab==='chat')initLiveChatAdmin();
 }
 
 /* ---- Products CRUD ---- */
 function blankProduct(){
-  ['pId','pName','pSlug','pImage','pDesc','pVideo'].forEach(id=>$(id).value='');
-  $('pCategory').value='otros';$('pSale').value='retail';$('pPriority').value=100;$('pActive').value='true';$('pVideoType').value='auto';$('pVideoEnabled').value='true';$('pBasePlan').checked=true;
+  ['pId','pName','pSlug','pImage','pDesc'].forEach(id=>$(id).value='');
+  $('pCategory').value='otros';$('pSale').value='retail';$('pPriority').value=100;$('pActive').value='true';$('pBasePlan').checked=true;
   if($('btnDeleteProduct'))$('btnDeleteProduct').style.display='none';$('productDlgTitle').textContent='Nuevo producto';showDialog('dlgProduct');
 }
 function editProduct(id){
   const p=prod(id);if(!p)return;
-  $('pId').value=p.id;$('pName').value=p.name||'';$('pSlug').value=p.slug||'';$('pCategory').value=p.category||'otros';$('pSale').value=p.sale_mode||'retail';$('pImage').value=p.image_url||'';$('pVideo').value=p.video_url||'';$('pVideoType').value=p.video_type||'auto';$('pVideoEnabled').value=String(p.video_enabled!==false);$('pDesc').value=p.description||'';$('pPriority').value=p.priority||100;$('pActive').value=String(p.active!==false);$('pBasePlan').checked=false;
+  $('pId').value=p.id;$('pName').value=p.name||'';$('pSlug').value=p.slug||'';$('pCategory').value=p.category||'otros';$('pSale').value=p.sale_mode||'retail';$('pImage').value=p.image_url||'';$('pDesc').value=p.description||'';$('pPriority').value=p.priority||100;$('pActive').value=String(p.active!==false);$('pBasePlan').checked=false;
   if($('btnDeleteProduct'))$('btnDeleteProduct').style.display='inline-flex';$('productDlgTitle').textContent='Editar producto';showDialog('dlgProduct');
 }
 
@@ -3459,7 +3072,7 @@ function buildCheckoutMetadata(base={}, productName='', planName=''){
 async function saveProduct(ev){
   ev.preventDefault();
   const id=$('pId').value;const name=$('pName').value.trim();if(!name)return toast('Falta nombre','bad');
-  const currentProduct=id?prod(id):{};const payload={name,slug:$('pSlug').value.trim()||slugify(name),category:$('pCategory').value,sale_mode:$('pSale').value,image_url:$('pImage').value.trim()||null,video_url:$('pVideo').value.trim()||null,video_type:$('pVideoType').value||'auto',video_enabled:$('pVideoEnabled').value==='true',description:$('pDesc').value.trim()||null,priority:Number($('pPriority').value||100),active:$('pActive').value==='true',metadata:buildCheckoutMetadata(currentProduct?.metadata||{},name,'')};
+  const currentProduct=id?prod(id):{};const payload={name,slug:$('pSlug').value.trim()||slugify(name),category:$('pCategory').value,sale_mode:$('pSale').value,image_url:$('pImage').value.trim()||null,description:$('pDesc').value.trim()||null,priority:Number($('pPriority').value||100),active:$('pActive').value==='true',metadata:buildCheckoutMetadata(currentProduct?.metadata||{},name,'')};
   let r=id?await db.from('products').update(payload).eq('id',id).select().single():await db.from('products').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
   if(!id&&$('pBasePlan').checked){await db.from('product_plans').insert({product_id:r.data.id,name:'Plan principal',slug:'plan-principal',price:0,currency:'PEN',period:'Mensual',stock_mode:'manual',manual_stock_count:0,availability_status:'consult',delivery_mode:'manual',active:true,priority:1,benefits:[],chips:['Nuevo']})}
@@ -3471,14 +3084,14 @@ async function deleteProduct(){const id=$('pId').value;if(!id)return;if(!confirm
 /* ---- Plans CRUD ---- */
 function blankPlan(pid=''){
   fillProductSelects();$('plId').value='';$('plProduct').value=pid||state.products[0]?.id||'';
-  ['plName','plSlug','plPrice','plImage','plVideo','plDesc','plBenefits','plChips','plManualStock','bulkText'].forEach(id=>$(id).value='');
-  $('plPeriod').value='Mensual';$('plDeliveryType').value='automatic';$('plAvailability').value='available';$('plPriority').value=100;$('plActive').value='true';$('plVideoType').value='auto';$('plVideoEnabled').value='true';
+  ['plName','plSlug','plPrice','plImage','plDesc','plBenefits','plChips','plManualStock','bulkText'].forEach(id=>$(id).value='');
+  $('plPeriod').value='Mensual';$('plDeliveryType').value='automatic';$('plAvailability').value='available';$('plPriority').value=100;$('plActive').value='true';
   if($('btnDeletePlan'))$('btnDeletePlan').style.display='none';syncDeliveryBoxes();$('planDlgTitle').textContent='Nuevo plan';showDialog('dlgPlan');
 }
 function newPlanFor(pid){blankPlan(pid)}
 function editPlan(id){
   const p=plan(id);if(!p)return;
-  fillProductSelects();$('plId').value=p.id;$('plProduct').value=p.product_id;$('plName').value=p.name||'';$('plSlug').value=p.slug||'';$('plPrice').value=p.price??'';$('plPeriod').value=p.period||'Mensual';$('plImage').value=p.image_url||'';$('plVideo').value=p.video_url||'';$('plVideoType').value=p.video_type||'auto';$('plVideoEnabled').value=String(p.video_enabled!==false);$('plDesc').value=p.description||'';$('plBenefits').value=Array.isArray(p.benefits)?p.benefits.join('\n'):'';$('plChips').value=Array.isArray(p.chips)?p.chips.join(', '):'';$('plDeliveryType').value=p.stock_mode==='controlled'?'automatic':'manual';$('plManualStock').value=p.manual_stock_count??'';$('plAvailability').value=p.availability_status||'available';$('plPriority').value=p.priority||100;$('plActive').value=String(p.active!==false);
+  fillProductSelects();$('plId').value=p.id;$('plProduct').value=p.product_id;$('plName').value=p.name||'';$('plSlug').value=p.slug||'';$('plPrice').value=p.price??'';$('plPeriod').value=p.period||'Mensual';$('plImage').value=p.image_url||'';$('plDesc').value=p.description||'';$('plBenefits').value=Array.isArray(p.benefits)?p.benefits.join('\n'):'';$('plChips').value=Array.isArray(p.chips)?p.chips.join(', '):'';$('plDeliveryType').value=p.stock_mode==='controlled'?'automatic':'manual';$('plManualStock').value=p.manual_stock_count??'';$('plAvailability').value=p.availability_status||'available';$('plPriority').value=p.priority||100;$('plActive').value=String(p.active!==false);
   if($('btnDeletePlan'))$('btnDeletePlan').style.display='inline-flex';syncDeliveryBoxes();$('planDlgTitle').textContent='Editar plan / cupos';showDialog('dlgPlan');
 }
 function openAddStock(id){editPlan(id);setTimeout(()=>$('bulkText').focus(),300)}
@@ -3490,7 +3103,7 @@ function syncDeliveryBoxes(){
 async function savePlan(ev){
   ev.preventDefault();
   const id=$('plId').value;const isAuto=$('plDeliveryType').value==='automatic';const name=$('plName').value.trim();if(!name)return toast('Falta nombre del plan','bad');
-  const currentPlan=id?plan(id):{};const parentProduct=prod($('plProduct').value)||{};const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:$('plPeriod').value||'Mensual',image_url:$('plImage').value.trim()||null,video_url:$('plVideo').value.trim()||null,video_type:$('plVideoType').value||'auto',video_enabled:$('plVideoEnabled').value==='true',description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true',metadata:buildCheckoutMetadata(currentPlan?.metadata||{},parentProduct?.name||'',name)};
+  const currentPlan=id?plan(id):{};const parentProduct=prod($('plProduct').value)||{};const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:$('plPeriod').value||'Mensual',image_url:$('plImage').value.trim()||null,description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true',metadata:buildCheckoutMetadata(currentPlan?.metadata||{},parentProduct?.name||'',name)};
   let r=id?await db.from('product_plans').update(payload).eq('id',id).select().single():await db.from('product_plans').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
   $('plId').value=r.data.id;await saveBulkIfAny(r.data.id);closeDialog('dlgPlan');toast('Plan/cupos guardado','ok');await loadAll();switchTab('inventory');
@@ -3501,32 +3114,14 @@ async function deletePlan(){const id=$('plId').value;if(!id)return;if(!confirm('
 function parseBulk(){
   const valid=[],doubt=[];
   arrLines($('bulkText').value).forEach(line=>{
-    const raw=line.trim();
-    if(!raw)return;
-    const pipe=raw.split('|').map(x=>x.trim());
-    const colon=raw.includes(':')&&!raw.includes('|')?raw.split(':').map(x=>x.trim()):null;
-    const parts=pipe.length>=2?pipe:(colon||[raw]);
-    const correo=parts[0]||'';
-    const clave=parts[1]||'';
-    if(parts.length>=2&&/^[^\s@]+@[^\s@]+\.[^\s@]+/.test(correo)&&clave){
-      let maxUses=1;
-      let nota='';
-      if(parts[4]){
-        const n=Number(parts[4]);
-        if(Number.isFinite(n)&&n>0){maxUses=n;nota=parts.slice(5).join(' | ')}
-        else nota=parts.slice(4).join(' | ');
-      }
-      const perfil=parts[2]||'';
-      const pin=parts[3]||'';
-      const secret_data={correo,email:correo,usuario:correo,clave,password:clave,pass:clave,contraseña:clave,perfil,pin,max_uses:maxUses,used_count:0,nota};
-      valid.push({stock_type:'account',title:correo,secret_data,notes:nota||null});
-    }else{
-      doubt.push(raw);
-    }
+    const parts=line.split('|').map(x=>x.trim()).filter(Boolean);
+    if(parts.length>=2&&/@/.test(parts[0]))valid.push({stock_type:'account',title:parts[0],secret_data:{correo:parts[0],clave:parts[1],nota:parts[2]||''},notes:parts[2]||null});
+    else if(parts.length===1&&parts[0].length>=5)valid.push({stock_type:'code',title:parts[0],secret_data:{codigo:parts[0]},notes:null});
+    else doubt.push(line);
   });
   $('validCount').textContent=valid.length+' válidas';
   $('doubtCount').textContent=doubt.length+' dudosas';
-  $('bulkPreview').innerHTML=valid.slice(0,30).map(v=>`<div class="preview-item"><b>${esc(v.title)}</b><div class="help">Cuenta · perfil ${esc(v.secret_data.perfil||'-')} · PIN ${esc(v.secret_data.pin||'-')} · usos ${esc(v.secret_data.max_uses||1)}</div></div>`).join('')+(doubt.length?'<div class="preview-item"><b>Dudosas</b><br>'+doubt.map(esc).join('<br>')+'</div>':'');
+  $('bulkPreview').innerHTML=valid.slice(0,10).map(v=>`<div class="preview-item"><b>${esc(v.title)}</b><div class="help">${esc(v.stock_type)}</div></div>`).join('')+(doubt.length?'<div class="preview-item"><b>Dudosas</b><br>'+doubt.map(esc).join('<br>')+'</div>':'');
   return{valid,doubt};
 }
 async function saveBulkIfAny(planId){
@@ -3538,58 +3133,6 @@ async function saveBulkIfAny(planId){
   $('bulkText').value='';
 }
 
-
-/* ---- Entrega manual inteligente / cupos ---- */
-function firstAvailableStockForPlan(planId){
-  return state.stock.find(x=>x.plan_id===planId && opsAvailableStatus(x)==='available' && opsIsAccount(x));
-}
-function autoFillManualFromStock(){
-  const planId=$('manualPlan')?.value||'';
-  const item=firstAvailableStockForPlan(planId);
-  if($('manualStockId'))$('manualStockId').value=item?.id||'';
-  const hint=$('manualStockHint');
-  if(!item){
-    if(hint)hint.textContent='No hay cuenta libre cargada para este plan. Puedes escribir la entrega manualmente.';
-    renderDeliveryMessage();return;
-  }
-  const d=opsSecret(item);
-  if($('manualUser'))$('manualUser').value=d.correo||d.usuario||'';
-  if($('manualPass'))$('manualPass').value=d.clave||d.pass||'';
-  if($('manualProfile'))$('manualProfile').value=d.perfil||'';
-  if($('manualPin'))$('manualPin').value=d.pin||'';
-  if($('manualGroup'))$('manualGroup').value=d.grupo||d.url||'';
-  if($('manualNote'))$('manualNote').value=d.nota||item.notes||'';
-  if(hint)hint.textContent='✅ Se cargó automáticamente una cuenta libre: '+(item.title||d.correo||'cuenta');
-  renderDeliveryMessage();
-}
-async function markManualStockUsed(orderId){
-  const id=$('manualStockId')?.value||''; if(!id)return;
-  const x=state.stock.find(s=>s.id===id); if(!x)return;
-  const d={...opsSecret(x)};
-  d.used_count=Math.min(Number(d.max_uses||1),Number(d.used_count||0)+1);
-  d.delivered_order_id=orderId;
-  d.delivered_at=new Date().toISOString();
-  const r=await db.from('stock_items').update({status:'used',secret_data:d}).eq('id',id);
-  if(r.error)toast('Entrega registrada, pero no se pudo marcar stock usado: '+r.error.message,'bad');
-}
-async function autoTotpCodesFromPlan(planId){
-  const p=plan(planId); if(!p)return;
-  if(!state.totpAccounts.length){toast('Primero crea una Cuenta TOTP para enlazar códigos.','bad');switchTab('totp');openTotpAccountDialog();return;}
-  const label=(prodName(p.product_id)+' '+(p.name||'')).toLowerCase();
-  const account=state.totpAccounts.find(a=>String(a.label||'').toLowerCase().includes('chatgpt')||label.includes(String(a.label||'').toLowerCase()))||state.totpAccounts[0];
-  const available=Math.max(1,Math.min(200,visibleStock(p)||state.stock.filter(x=>x.plan_id===planId&&opsAvailableStatus(x)==='available').length||1));
-  const qty=Number(prompt('¿Cuántos códigos TOTP crear para '+planName(planId)+'?', String(Math.min(available,10))));
-  if(!qty||qty<1)return;
-  const existing=new Set(state.totpCodes.map(c=>String(c.access_code||'').toUpperCase()));
-  const codes=[]; while(codes.length<Math.min(qty,200)){const c=makeTotpAccessCode(); if(!existing.has(c)){existing.add(c);codes.push(c)}}
-  const payload=codes.map(code=>({account_id:account.id,access_code:code,customer_name:null,customer_phone:null,max_uses:2,valid_days:30,active:true,notes:'Auto desde cupos: '+planName(planId),updated_at:new Date().toISOString()}));
-  const r=await db.from('totp_access_codes').insert(payload);
-  if(r.error)return toast(r.error.message,'bad');
-  toast(codes.length+' códigos TOTP creados para '+planName(planId),'ok');
-  notifyWeb('Códigos TOTP creados',codes.length+' códigos para '+planName(planId),true);
-  await loadAll();switchTab('totp');
-}
-
 /* ---- Orders ---- */
 async function approveOrder(id){
   if(!confirm('¿Aprobar pago? Si es activación por correo/texto, luego usa “Confirmar activación”. Si es cuenta, usa “Entregar cuenta”.'))return;
@@ -3597,23 +3140,7 @@ async function approveOrder(id){
   if(r.error)return toast(r.error.message,'bad');
   toast(r.data?.[0]?.message||'Pago aprobado','ok');
   await createRemindersFromOrder(id);await loadAll();
-  const status=r.data?.[0]?.delivery_status;
-  if(['waiting_manual_delivery','partial'].includes(status)){
-    openManualDelivery(id);
-    return;
-  }
-  openDeliveredOrderWhatsApp(id);
-}
-function openDeliveredOrderWhatsApp(orderId){
-  const o=state.orders.find(x=>x.id===orderId)||{};
-  const ds=state.deliveries.filter(d=>d.order_id===orderId).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
-  const msg=(ds[0]?.delivered_message||ds[0]?.message||'').trim();
-  if(!msg)return;
-  const phone=normalizePhone(o.customer_whatsapp||'');
-  if(!phone.ok)return toast('Entrega registrada, pero el WhatsApp del pedido no es válido','bad');
-  const url=waLink(phone.e164,msg);
-  if(url!=='#')window.open(url,'_blank','noopener,noreferrer');
-  toast('WhatsApp abierto con la cuenta entregada','ok');
+  if(['waiting_manual_delivery','partial'].includes(r.data?.[0]?.delivery_status))openManualDelivery(id);
 }
 async function rejectOrder(id){
   const motivo=prompt('Motivo del rechazo para mostrar al cliente:', 'Pago no validado. Si fue un error, escríbenos por el chat del pedido.');
@@ -3647,7 +3174,6 @@ function viewDelivery(id){const ds=state.deliveries.filter(d=>d.order_id===id);a
 
 function openManualDelivery(id){
   $('manualOrderId').value=id;
-  if($('manualStockId'))$('manualStockId').value='';
   const its=state.items.filter(i=>i.order_id===id);
   $('manualPlan').innerHTML=its.map(i=>`<option value="${i.plan_id}">${esc(planName(i.plan_id))} x${i.quantity}</option>`).join('');
   $('manualUser').value='';$('manualPass').value='';$('manualProfile').value='';$('manualPin').value='';$('manualGroup').value='';$('manualUrl').value='';$('manualCode').value='';$('manualNote').value='';
@@ -3660,7 +3186,6 @@ function openManualDelivery(id){
   else match=state.deliveryTemplates.find(t=>t.is_default)||state.deliveryTemplates[0];
   if(match)$('manualTemplate').value=match.id;
   $('manualRestrictions').value=(match?.restrictions)||`🚫 RESTRICCIONES:\n❌ Respetar el horario de soporte\n❌ No modificar nada sin autorización\n❌ No compartir la cuenta\n✅ Uso permitido en un solo dispositivo`;
-  autoFillManualFromStock();
   renderDeliveryMessage();showDialog('dlgManual');
 }
 function generateManualMsg(){renderDeliveryMessage()}
@@ -3675,19 +3200,15 @@ async function saveManualDelivery(){
   if($('manualUrl').value.trim())data.url=$('manualUrl').value.trim();
   if($('manualCode').value.trim())data.codigo=$('manualCode').value.trim();
   if($('manualNote').value.trim())data.nota=$('manualNote').value.trim();
-  if($('manualStockId')?.value)data.stock_id=$('manualStockId').value;
   if($('manualStartDate').value)data.fecha_inicio=displayDateFromInput($('manualStartDate').value);
   if($('manualRestrictions').value.trim())data.restricciones=$('manualRestrictions').value.trim();
   const tpl=getDeliveryTemplate();if(tpl?.template_key)data.template_key=tpl.template_key;
   if(!Object.keys(data).some(k=>!['restricciones','fecha_inicio','template_key'].includes(k)))return toast('Ingresa datos reales para entregar','bad');
   const r=await db.rpc('admin_manual_deliver_order',{p_order_id:$('manualOrderId').value,p_plan_id:$('manualPlan').value,p_delivery_data:data,p_delivery_message:$('manualMessage').value});
   if(r.error)return toast(r.error.message,'bad');
-  await markManualStockUsed($('manualOrderId').value);
   closeDialog('dlgManual');toast('Entrega registrada','ok');
   await createRemindersFromOrder($('manualOrderId').value);await loadAll();
-  openDeliveredOrderWhatsApp($('manualOrderId').value);
 }
-
 
 function copyTextSafe(text){navigator.clipboard?.writeText(text).then(()=>toast('Copiado','ok')).catch(()=>{prompt('Copia manual:',text)})}
 function copyOrderSummary(id){
@@ -3816,22 +3337,6 @@ async function setDefaultDeliveryTemplate(id){
   const r=await db.from('delivery_message_templates').update({is_default:true,active:true}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   toast('Plantilla principal de entrega actualizada','ok');await loadAll();
-}
-
-
-async function createBaseDeliveryTemplates(){
-  const baseRestrictions='🚫 RESTRICCIONES:\n❌ No cambiar correo, contraseña ni perfil\n❌ No compartir la cuenta\n✅ Uso personal / según plan comprado\n🛟 Soporte por WhatsApp';
-  const rows=[];
-  if(!state.deliveryTemplates.some(t=>String(t.template_key||'').toLowerCase()==='streaming_profile')){
-    rows.push({name:'Streaming con perfil y PIN',template_key:'streaming_profile',body:DEFAULT_DELIVERY_PROFILE_BODY,restrictions:baseRestrictions,active:true,is_default:state.deliveryTemplates.length===0});
-  }
-  if(!state.deliveryTemplates.some(t=>String(t.template_key||'').toLowerCase()==='account_simple')){
-    rows.push({name:'Cuenta simple — correo y contraseña',template_key:'account_simple',body:DEFAULT_DELIVERY_SIMPLE_BODY,restrictions:baseRestrictions,active:true,is_default:false});
-  }
-  if(!rows.length){toast('Las plantillas de entrega base ya existen','ok');return;}
-  const r=await db.from('delivery_message_templates').insert(rows);
-  if(r.error)return toast(r.error.message,'bad');
-  toast('Plantillas de entrega base creadas','ok');await loadAll();switchTab('templates');
 }
 
 /* ---- Clients ---- */
@@ -4056,23 +3561,10 @@ function opsAvailableStatus(x){return String(x?.status||'available').toLowerCase
 function opsIsAccount(x){return String(x?.stock_type||'').toLowerCase()==='account' || !!opsSecret(x).correo || !!opsSecret(x).clave;}
 function opsIsCode(x){return String(x?.stock_type||'').toLowerCase()==='code' || !!opsSecret(x).codigo;}
 function opsSecret(x){
-  const raw=x?.secret_data;
-  let d={};
-  if(!raw)d={};
-  else if(typeof raw==='string'){
-    try{d=JSON.parse(raw)||{}}catch(_){d={raw}}
-  }else d={...raw};
-  const correo=d.correo||d.email||d.usuario||d.user||'';
-  const clave=d.clave||d.password||d.pass||d['contraseña']||d.contrasena||'';
-  if(correo){d.correo=correo;d.email=d.email||correo;d.usuario=d.usuario||correo;}
-  if(clave){d.clave=clave;d.password=d.password||clave;d.pass=d.pass||clave;d['contraseña']=d['contraseña']||clave;}
-  if(d.profile&&!d.perfil)d.perfil=d.profile;
-  if(d.profile_pin&&!d.pin)d.pin=d.profile_pin;
-  if(d.group&&!d.grupo)d.grupo=d.group;
-  if(d.note&&!d.nota)d.nota=d.note;
-  if(!d.max_uses)d.max_uses=1;
-  if(!d.used_count)d.used_count=0;
-  return d;
+  const d=x?.secret_data;
+  if(!d)return{};
+  if(typeof d==='string'){try{return JSON.parse(d)||{}}catch(_){return{raw:d}}}
+  return d||{};
 }
 function opsKeyFromItem(x){
   const d=opsSecret(x);
@@ -4108,34 +3600,21 @@ function fillOpsSelects(){
     if(current)el.value=current;
   });
 }
-function opsDeliveryTemplateForItem(item){
-  const d=opsSecret(item);
-  const service=(planName(item.plan_id)||'').toLowerCase();
-  const hasProfile=!!(d.perfil||d.pin)||/netflix|disney|prime|crunchy|max|hbo|vix|paramount|iptv/.test(service);
-  const active=state.deliveryTemplates.filter(t=>t.active!==false);
-  if(hasProfile){
-    return active.find(t=>/streaming_profile|perfil|profile/.test(String(t.template_key||t.name||'').toLowerCase()))||active.find(t=>t.is_default)||active[0]||null;
-  }
-  return active.find(t=>/account_simple|simple|sin_perfil|correo/.test(String(t.template_key||t.name||'').toLowerCase()))||active.find(t=>t.is_default)||active[0]||null;
-}
-function renderTemplateText(body,vars){
-  return String(body||'').replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m);
-}
 function opsDeliveryText(item){
-  const d=opsSecret(item);
-  const tpl=opsDeliveryTemplateForItem(item);
-  const pay=getPaymentSettings(),store=getStoreSettings();
-  const vars={
-    pedido:'', producto:prodName(plan(item.plan_id)?.product_id)||planName(item.plan_id), plan:planName(item.plan_id),
-    correo:d.correo||d.usuario||'', contraseña:d.clave||d.pass||'', perfil:d.perfil||'', pin:d.pin||'',
-    grupo:d.grupo||'', url:d.url||d.grupo||'', codigo:d.codigo||'', nota:d.nota||item.notes||'',
-    fecha_inicio:displayDateFromInput(todayInput()), restricciones:tpl?.restrictions||d.reglas||'🚫 No compartir la cuenta\n✅ Uso personal\n🛟 Soporte por WhatsApp',
-    soporte:pay.yape_number||'991564053', tienda:store.store_name||'Innov IA'
-  };
-  const body=tpl?.body || (vars.perfil||vars.pin
-    ? '✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n👤 Perfil: {perfil}\n🔢 PIN: {pin}\n\n{restricciones}\n\nSoporte: {soporte}'
-    : '✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n\n{restricciones}\n\nSoporte: {soporte}');
-  return renderTemplateText(body,vars).replace(/\n{3,}/g,'\n\n').trim();
+  const d=opsSecret(item), lines=[];
+  lines.push('✅ Acceso listo');
+  lines.push('📦 Servicio: '+planName(item.plan_id));
+  if(d.correo||d.usuario)lines.push('📧 Correo/usuario: '+(d.correo||d.usuario));
+  if(d.clave||d.pass)lines.push('🔒 Clave: '+(d.clave||d.pass));
+  if(d.perfil)lines.push('👤 Perfil: '+d.perfil);
+  if(d.pin)lines.push('🔢 PIN: '+d.pin);
+  if(d.max_uses)lines.push('🔁 Usos permitidos: '+d.max_uses);
+  if(d.grupo)lines.push('📱 Grupo/URL: '+d.grupo);
+  if(d.url&&!d.grupo)lines.push('🔗 URL: '+d.url);
+  if(item.notes||d.nota)lines.push('\n📝 Nota: '+(d.nota||item.notes));
+  lines.push('\nSoporte por WhatsApp.');
+  lines.push('\nGracias por tu compra 💙');
+  return lines.filter(Boolean).join('\n');
 }
 function opsPlanGroupTitle(planId){
   const p=plan(planId)||{};
@@ -4173,7 +3652,7 @@ function opsRenderRow(x){
       <span class="ops-mini-chip">Usos ${esc(uses)}</span>
     </div>
     <div class="ops-row-actions">
-      <button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>
+      <button class="btn btn-success" onclick="openOpsDeliver('${x.id}')">Entregar</button>
       <button class="btn" onclick="openOpsReserve('${x.id}')">Reservar</button>
       <button class="btn" onclick="openOpsStockDialog('', '${x.id}')">Modificar</button>
       <button class="btn" onclick="copyTextSafe(opsDeliveryText(state.stock.find(s=>s.id==='${x.id}')))">Copiar</button>
@@ -4273,8 +3752,6 @@ async function saveOpsStock(ev){
   const d={...currentSecret};
   d.correo=$('opsStockUser').value.trim();
   d.clave=$('opsStockPass').value.trim();
-  if(d.correo){d.email=d.correo;d.usuario=d.correo;}
-  if(d.clave){d.password=d.clave;d.pass=d.clave;d['contraseña']=d.clave;}
   d.perfil=$('opsStockProfile').value.trim();
   d.pin=$('opsStockPin').value.trim();
   d.max_uses=Math.max(1,Number($('opsStockMaxUses')?.value||1));
@@ -4413,7 +3890,7 @@ function parseOpsBulk(){
       if(Number.isFinite(n)&&n>0){maxUses=n; nota=parts.slice(5).join(' | ');}
       else {nota=parts.slice(4).join(' | ');}
     }
-    const item={stock_type:'account',title:correo,secret_data:{correo,email:correo,usuario:correo,clave,password:clave,pass:clave,contraseña:clave,perfil:parts[2]||'',pin:parts[3]||'',max_uses:maxUses,used_count:0,nota},notes:nota||null};
+    const item={stock_type:'account',title:correo,secret_data:{correo,clave,perfil:parts[2]||'',pin:parts[3]||'',max_uses:maxUses,used_count:0,nota},notes:nota||null};
     const key=correo.toLowerCase();
     if(existing.has(key)){dup.push(raw);continue;}
     existing.add(key);valid.push(item);
@@ -4655,32 +4132,6 @@ function exportTotpBackup(){
 }
 
 
-
-
-/* ---- TOTP vista compacta override ---- */
-const _renderTotpOriginal=renderTotp;
-renderTotp=function(){
-  if(!$('totpGrid'))return;
-  const q=String($('totpSearch')?.value||'').toLowerCase();
-  const filter=$('totpStatusFilter')?.value||'';
-  const codes=state.totpCodes||[], accounts=state.totpAccounts||[], events=state.totpEvents||[];
-  $('totpKpiAccounts').textContent=accounts.length;
-  $('totpKpiCodes').textContent=codes.length;
-  $('totpKpiUsed').textContent=codes.filter(c=>Number(c.used_count||0)>0).length;
-  $('totpKpiExpired').textContent=codes.filter(totpIsExpired).length;
-  fillTotpAccountSelect();
-  $('totpGrid').classList.add('compact');
-  if(state.totpDbError){$('totpGrid').innerHTML=`<div class="empty-state"><span class="icon">🛠️</span><p>Falta ejecutar el SQL de Supabase para crear las tablas TOTP.</p><p class="help">Detalle: ${esc(state.totpDbError)}</p></div>`;return;}
-  if(state.totpView==='accounts'){
-    let data=accounts.filter(a=>[a.label,a.issuer,a.notes,a.totp_secret].join(' ').toLowerCase().includes(q));
-    $('totpGrid').innerHTML=data.map(a=>`<div class="totp-row"><div class="totp-main"><div class="totp-title-line">🔑 ${esc(a.label)}</div><div class="totp-sub-line">${esc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div><div class="totp-meta-line">${totpStatusBadge(a.active!==false?'active':'inactive')}<span class="badge">${codes.filter(c=>c.account_id===a.id).length} códigos</span></div><div class="totp-meta-line"><span class="mono">${esc(totpMaskSecret(a.totp_secret))}</span></div><div class="totp-actions-line"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Desactivar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">Eliminar</button></div></div>`).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';return;
-  }
-  if(state.totpView==='events'){_renderTotpOriginal();$('totpGrid').classList.remove('compact');return;}
-  let data=codes.filter(c=>{const a=state.totpAccounts.find(x=>x.id===c.account_id)||{};return [c.access_code,c.customer_name,c.customer_phone,c.notes,a.label].join(' ').toLowerCase().includes(q)});
-  if(filter)data=data.filter(c=>totpCodeStatus(c)===filter);
-  $('totpGrid').innerHTML=data.map(c=>{const st=totpCodeStatus(c);return `<div class="totp-row"><div class="totp-main"><div class="totp-title-line">🎫 ${esc(c.access_code)}</div><div class="totp-sub-line">${esc(totpAccountName(c.account_id))}</div></div><div class="totp-meta-line">${totpStatusBadge(st)}<span class="badge">Usos ${Number(c.used_count||0)}/${Number(c.max_uses||0)}</span></div><div class="totp-meta-line"><span class="badge">👤 ${esc(c.customer_name||'Sin cliente')}</span><span class="badge">${esc(c.customer_phone||'Sin WhatsApp')}</span></div><div class="totp-actions-line"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">Editar</button><button class="btn" onclick="copyTextSafe('${esc(String(c.access_code||'')).replaceAll('&#39;','\\&#39;')}')">Copiar</button><button class="btn" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">Eliminar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>';
-};
-
 /* ---- Web notifications + sound ---- */
 state.notifEnabled=localStorage.getItem('innov_admin_notifications')==='1';
 state.seenOrderIds=new Set();
@@ -4731,55 +4182,13 @@ async function enableWebNotifications(){
 function seedNotificationMemory(){
   state.seenOrderIds=new Set((state.orders||[]).map(o=>o.id));
   state.seenChatIds=new Set((state.orderChats||[]).map(c=>c.id));
-  state.orderStatusMap=new Map((state.orders||[]).map(o=>[o.id,String(o.status||'')+'|'+String(o.delivery_status||'')]));
-  state.zeroStockPlans=new Set((state.plans||[]).filter(p=>p.active!==false&&visibleStock(p)<=0).map(p=>p.id));
-  try{state.dueReminderNotified=new Set(JSON.parse(localStorage.getItem('innov_admin_due_notified')||'[]'))}catch(_){state.dueReminderNotified=new Set()}
-}
-function rememberDueKey(key){
-  state.dueReminderNotified=state.dueReminderNotified||new Set();
-  state.dueReminderNotified.add(key);
-  try{localStorage.setItem('innov_admin_due_notified',JSON.stringify([...state.dueReminderNotified].slice(-600)))}catch(_){ }
-}
-function showActionToast(title,body,actionText,action){
-  const d=document.createElement('div');d.className='toast toast-ok';
-  d.innerHTML=`<b>${esc(title)}</b><br><span>${esc(body||'')}</span>${actionText?`<div class="actions" style="margin-top:8px"><button class="btn btn-primary btn-sm" type="button">${esc(actionText)}</button></div>`:''}`;
-  $('toastContainer').appendChild(d);
-  if(actionText)d.querySelector('button').onclick=()=>{try{action()}catch(e){console.warn(e)} d.remove();};
-  setTimeout(()=>{if(d.isConnected){d.style.opacity='0';d.style.transform='translateX(60px)';d.style.transition='all .3s';setTimeout(()=>d.remove(),300)}},12000);
 }
 function detectNewActivity(prevOrders=[],prevChats=[]){
   if(!state.seenOrderIds||!state.seenChatIds)return seedNotificationMemory();
-  const cfg=getAdminLocalSettings();
   const newOrders=(state.orders||[]).filter(o=>!state.seenOrderIds.has(o.id));
   const newChats=(state.orderChats||[]).filter(c=>!state.seenChatIds.has(c.id));
-  newOrders.forEach(o=>notifyWeb('Nuevo pedido recibido',`${o.order_code||'Pedido'} · ${o.customer_name||'Cliente'} · ${money(o.total||o.total_amount)}`));
+  newOrders.forEach(o=>notifyWeb('Nuevo pedido recibido',`${o.order_code||'Pedido'} · ${o.customer_name||'Cliente'} · ${money(o.total??o.total_amount)}`));
   newChats.forEach(c=>notifyWeb('Nuevo mensaje en checkout',String(c.message||'Mensaje nuevo').slice(0,120)));
-  const oldStatus=state.orderStatusMap||new Map();
-  (state.orders||[]).forEach(o=>{
-    const cur=String(o.status||'')+'|'+String(o.delivery_status||'');
-    const prev=oldStatus.get(o.id);
-    if(prev&&prev!==cur&&['payment_review','pending_payment'].includes(String(o.status||''))){notifyWeb('Pedido cambió de estado',`${o.order_code||'Pedido'} · ${cur}`,true)}
-  });
-  if(cfg.notifyStock!==false){
-    const oldZero=state.zeroStockPlans||new Set();
-    (state.plans||[]).filter(p=>p.active!==false&&visibleStock(p)<=0).forEach(p=>{
-      if(!oldZero.has(p.id))notifyWeb('Cupos agotados',planName(p.id)+' llegó a 0 cupos.',true);
-    });
-  }
-  if(cfg.notifyDue!==false){
-    const today=todayISO();
-    (state.reminders||[]).filter(r=>r.status==='pending'&&String(r.due_date||'')<=today).forEach(r=>{
-      const key=`${r.id}|${r.due_date}|${today}`;
-      if(state.dueReminderNotified?.has(key))return;
-      const c=state.customers.find(x=>x.id===r.customer_id)||{};
-      const msg=r.whatsapp_message||reminderMessage(c,r);
-      const url=waLink(c.phone_e164,msg);
-      notifyWeb('Cliente vencido',`${c.name||'Cliente'} · ${r.service_name||'Servicio'} · vence ${r.due_date}`,true);
-      showActionToast('Pago vencido',`${c.name||'Cliente'} · ${r.service_name||'Servicio'}`,'Abrir WhatsApp',()=>{if(url!=='#')window.open(url,'_blank','noopener,noreferrer');markReminderSent(r.id)});
-      if(cfg.autoOpenWaDue&&url!=='#'){try{window.open(url,'_blank','noopener,noreferrer')}catch(_){}}
-      rememberDueKey(key);
-    });
-  }
   seedNotificationMemory();
 }
 /* ---- Auto refresh ---- */
@@ -4790,14 +4199,9 @@ async function adminAutoRefresh(){
   adminAutoRefreshBusy=true;
   try{
     const prevOrders=state.orders||[], prevChats=state.orderChats||[];
-    await Promise.all([loadOrders(),loadReminders(),loadStock(),loadSummary(),loadTotpCodes().catch(()=>{})]);
-    renderKPIs();
+    await loadOrders();renderKPIs();
     detectNewActivity(prevOrders,prevChats);
     if(state.tab==='orders')renderOrders();
-    if(state.tab==='clients'){renderClients();renderReminders();}
-    if(state.tab==='reminders')renderReminders();
-    if(state.tab==='inventory')renderPlans();
-    if(state.tab==='totp')renderTotp();
     if($('dlgOrderChat')?.open&&$('chatOrderId').value)renderOrderChatThread($('chatOrderId').value);
   }catch(e){console.warn('Auto refresh',e);}
   finally{adminAutoRefreshBusy=false;}
@@ -4805,7 +4209,6 @@ async function adminAutoRefresh(){
 
 /* ---- Event bindings ---- */
 $('btnLogin').onclick=login;
-if($('btnLoginTestChat'))$('btnLoginTestChat').onclick=loginTestChat;
 $('loginPass').onkeydown=e=>{if(e.key==='Enter')login()};
 $('btnLogout').onclick=logout;
 $('btnTheme').onclick=()=>{
@@ -4839,8 +4242,7 @@ $('btnOnlySupport').onclick=()=>{state.onlySupport=!state.onlySupport;$('btnOnly
 $('btnGenerateManualMsg').onclick=generateManualMsg;
 $('btnCopyManualMsg').onclick=()=>copyTextSafe($('manualMessage').value);
 $('manualTemplate')?.addEventListener('change',()=>{const tpl=getDeliveryTemplate();$('manualRestrictions').value=tpl?.restrictions||$('manualRestrictions').value;renderDeliveryMessage()});
-['manualUser','manualPass','manualProfile','manualPin','manualGroup','manualUrl','manualCode','manualNote','manualStartDate','manualRestrictions'].forEach(id=>$(id)?.addEventListener('input',renderDeliveryMessage));
-$('manualPlan')?.addEventListener('change',autoFillManualFromStock);
+['manualUser','manualPass','manualProfile','manualPin','manualGroup','manualUrl','manualCode','manualNote','manualStartDate','manualRestrictions','manualPlan'].forEach(id=>$(id)?.addEventListener('input',renderDeliveryMessage));
 $('btnSaveManualDelivery').onclick=saveManualDelivery;
 $('btnSaveCoupon').onclick=saveCoupon;
 if($('btnNewCoupon'))$('btnNewCoupon').onclick=blankCoupon;
@@ -4856,29 +4258,21 @@ $('templateForm').onsubmit=saveTemplate;
 $('btnDeleteTemplate').onclick=deleteTemplate;
 $('templateSearch').oninput=()=>{renderTemplates();renderDeliveryTemplates()};
 $('btnResetDefaultTemplate').onclick=createBaseTemplate;
-if($('btnCreateDeliveryBases'))$('btnCreateDeliveryBases').onclick=createBaseDeliveryTemplates;
-if($('planStockSearch'))$('planStockSearch').oninput=renderPlanStockView;
-if($('btnPlanStockAdd'))$('btnPlanStockAdd').onclick=openAddStockFromPlanView;
-if($('btnPlanStockOps'))$('btnPlanStockOps').onclick=openOpsFromPlanStockView;
 $('btnNewReminder').onclick=()=>blankReminder();
-if($('btnNewReminderFromClients'))$('btnNewReminderFromClients').onclick=()=>blankReminder();
 $('reminderForm').onsubmit=saveReminder;
 $('btnDeleteReminder').onclick=deleteReminder;
 $('btnApplyTemplate').onclick=applySelectedTemplate;
 $('btnSaveReminderOpen').onclick=saveReminderAndOpen;
 $('rTemplate').onchange=applySelectedTemplate;
-$('clientSearch').oninput=()=>{renderClients();renderReminders()};
+$('clientSearch').oninput=renderClients;
 $('reminderSearch').oninput=renderReminders;
 $('btnReloadClients').onclick=loadAll;
 $('btnOnlyDue').onclick=()=>{state.onlyDue=!state.onlyDue;$('btnOnlyDue').setAttribute('aria-pressed',state.onlyDue);renderReminders()};
 $('btnOnlyPending').onclick=()=>{state.onlyPending=!state.onlyPending;$('btnOnlyPending').setAttribute('aria-pressed',state.onlyPending);renderReminders()};
-if($('btnOnlyDueClients'))$('btnOnlyDueClients').onclick=()=>{state.onlyDueClients=!state.onlyDueClients;$('btnOnlyDueClients').setAttribute('aria-pressed',state.onlyDueClients);renderReminders()};
 $('rPlan').onchange=()=>{const p=plan($('rPlan').value);if(p){$('rProduct').value=p.product_id;$('rService').value=planName(p.id);if(!$('rAmount').value)$('rAmount').value=p.price??'';applySelectedTemplate()}};
 $('rCustomer').onchange=applySelectedTemplate;
 $('btnUploadQr').onclick=uploadQr;
 $('btnSavePayment').onclick=savePayment;
-if($('btnSaveAdminLocalSettings'))$('btnSaveAdminLocalSettings').onclick=saveAdminLocalSettings;
-if($('btnTestNotification'))$('btnTestNotification').onclick=()=>{enableWebNotifications();notifyWeb('Prueba Innov IA','Notificación, sonido y alerta funcionando.',true)};
 $('btnExportBackup').onclick=exportBackup;
 $('btnExportProducts').onclick=exportBackup;
 $('btnSendAdminChat').onclick=sendAdminChat;
@@ -4937,5 +4331,340 @@ if($('btnTotpDeleteCode'))$('btnTotpDeleteCode').onclick=()=>deleteTotpCode();
 init();
 setInterval(adminAutoRefresh,2000);
 </script>
+
+<!-- ============ CLEAN PRO PATCH v11: UI + Chrome notifications + realtime ============ -->
+<script>
+(function(){
+  'use strict';
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const byId = id => document.getElementById(id);
+  const safeJson = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
+  const writeJson = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} };
+  const sectionInfo = {
+    dashboard:['📊 Centro de control','Vista rápida de productos, stock, pedidos, pagos y alertas importantes.'],
+    products:['🧩 Productos','Administra productos principales, imágenes, estado visible y planes vinculados.'],
+    inventory:['📦 Cupos y planes','Controla planes, stock manual, stock automático y disponibilidad.'],
+    orders:['🧾 Pagos y pedidos','Revisa pagos, confirma activaciones, entrega cuentas y atiende mensajes.'],
+    clients:['👥 Clientes','Base CRM para WhatsApp, historial de compras y renovaciones.'],
+    reminders:['🔔 Recordatorios de pago','Alertas automáticas para renovaciones vencidas, de hoy y por vencer.'],
+    ops:['🔐 Operaciones PRO','Cuentas segmentadas por producto/plan, reserva, entrega y recordatorio a 30 días.'],
+    totp:['🛡️ Accesos TOTP','Códigos, usos, vencimientos y cuentas de autenticación.'],
+    templates:['📝 Plantillas','Mensajes de entrega y recordatorios con variables automáticas.'],
+    coupons:['🎟️ Cupones','Promociones, códigos de descuento y reglas de campaña.'],
+    settings:['⚙️ Ajustes','Datos públicos, pagos, QR, WhatsApp, respaldos y sincronización.']
+  };
+
+  function appVisible(){ return byId('app') && !byId('app').classList.contains('hidden'); }
+  function syncAuthClass(){ document.body.classList.toggle('is-authenticated', appVisible()); }
+  function getTodayISO(){ return (typeof todayISO === 'function') ? todayISO() : new Date().toISOString().slice(0,10); }
+  function getDaysLeft(date){
+    if(typeof calcDaysLeft === 'function') return calcDaysLeft(date);
+    if(!date) return '';
+    const a = new Date(new Date().toISOString().slice(0,10));
+    const b = new Date(String(date)+'T00:00:00');
+    return Math.ceil((b-a)/86400000);
+  }
+  function moneySafe(n){ try { return typeof money === 'function' ? money(n) : ('S/ '+Number(n||0).toFixed(2)); } catch(_) { return 'S/ '+Number(n||0).toFixed(2); } }
+  function customerByReminder(rem){ try { return (state.customers||[]).find(c=>c.id===rem.customer_id) || {}; } catch(_) { return {}; } }
+  function notificationPermissionLabel(){
+    if(!('Notification' in window)) return ['No compatible','bad'];
+    if(Notification.permission === 'granted' && state && state.notifEnabled) return ['Activas','ok'];
+    if(Notification.permission === 'denied') return ['Bloqueadas','bad'];
+    return ['Pendientes','warn'];
+  }
+
+  function ensureCleanUi(){
+    document.body.classList.add('clean-pro');
+    syncAuthClass();
+    ensureRealtimePill();
+    ensureSectionHeads();
+    ensureNotificationNotice();
+    updateCleanNotificationStatus();
+    updateCleanReminderPanel();
+    markActiveSideNav();
+  }
+
+  function ensureRealtimePill(){
+    const actions = document.querySelector('.header-actions');
+    if(!actions || byId('rtStatusPill')) return;
+    const pill = document.createElement('span');
+    pill.id = 'rtStatusPill';
+    pill.className = 'rt-pill';
+    pill.innerHTML = '<span class="clean-status-dot"></span><span id="rtStatusText">Tiempo real</span>';
+    actions.insertBefore(pill, byId('btnEnableNotifications') || actions.firstChild);
+  }
+
+  function setRealtimeStatus(text, mode='warn'){
+    const pill = byId('rtStatusPill');
+    const label = byId('rtStatusText');
+    if(label) label.textContent = text;
+    if(pill){ pill.classList.toggle('ok', mode==='ok'); pill.classList.toggle('bad', mode==='bad'); }
+    const dot = pill?.querySelector('.clean-status-dot');
+    if(dot){ dot.classList.toggle('ok', mode==='ok'); dot.classList.toggle('bad', mode==='bad'); }
+  }
+
+  function ensureSectionHeads(){
+    Object.entries(sectionInfo).forEach(([tab, info])=>{
+      const sec = byId('tab-'+tab);
+      if(!sec || sec.querySelector('.clean-section-head')) return;
+      const head = document.createElement('div');
+      head.className = 'clean-section-head';
+      head.innerHTML = `<div><h2>${info[0]}</h2><p>${info[1]}</p></div><span class="clean-head-pill">Auto-sync Chrome</span>`;
+      sec.insertBefore(head, sec.firstChild);
+    });
+  }
+
+  function ensureNotificationNotice(){
+    const dash = byId('tab-dashboard');
+    if(dash && !byId('cleanProNotice')){
+      const notice = document.createElement('div');
+      notice.id = 'cleanProNotice';
+      notice.className = 'clean-notice';
+      notice.innerHTML = `
+        <div>
+          <strong>🔔 Notificaciones de pagos para Chrome</strong>
+          <p>Actívalas una vez y el panel avisará con sonido cuando entren pedidos, mensajes o recordatorios vencidos/de hoy/por vencer.</p>
+        </div>
+        <div class="clean-notice-actions">
+          <span class="clean-status-pill"><span class="clean-status-dot" id="cleanNotifDot"></span><span id="cleanNotifStatus">Pendientes</span></span>
+          <button class="btn btn-primary" id="btnCleanEnableNotif" type="button">Activar</button>
+          <button class="btn" id="btnCleanTestNotif" type="button">Probar</button>
+        </div>`;
+      const afterHead = dash.querySelector('.clean-section-head');
+      dash.insertBefore(notice, afterHead ? afterHead.nextSibling : dash.firstChild);
+    }
+    const rem = byId('tab-reminders');
+    if(rem && !byId('cleanReminderPanel')){
+      const panel = document.createElement('div');
+      panel.id = 'cleanReminderPanel';
+      panel.className = 'clean-reminder-panel';
+      panel.innerHTML = `
+        <div class="clean-reminder-stat"><div class="v" id="cleanRemOverdue">0</div><div class="l">Vencidos</div></div>
+        <div class="clean-reminder-stat"><div class="v" id="cleanRemToday">0</div><div class="l">Vencen hoy</div></div>
+        <div class="clean-reminder-stat"><div class="v" id="cleanRemSoon">0</div><div class="l">Por vencer</div></div>`;
+      const toolbar = rem.querySelector('.admin-toolbar');
+      rem.insertBefore(panel, toolbar ? toolbar.nextSibling : rem.firstChild);
+    }
+    const enableBtn = byId('btnCleanEnableNotif');
+    if(enableBtn && !enableBtn.dataset.bound){ enableBtn.dataset.bound='1'; enableBtn.onclick = () => enableNotificationsImproved(true); }
+    const testBtn = byId('btnCleanTestNotif');
+    if(testBtn && !testBtn.dataset.bound){ testBtn.dataset.bound='1'; testBtn.onclick = () => testCleanNotification(); }
+    const headerBtn = byId('btnEnableNotifications');
+    if(headerBtn && !headerBtn.dataset.boundClean){ headerBtn.dataset.boundClean='1'; headerBtn.onclick = () => enableNotificationsImproved(true); }
+  }
+
+  function updateCleanNotificationStatus(){
+    if(!byId('cleanNotifStatus')) return;
+    const [label, mode] = notificationPermissionLabel();
+    byId('cleanNotifStatus').textContent = label;
+    const dot = byId('cleanNotifDot');
+    if(dot){ dot.classList.toggle('ok', mode==='ok'); dot.classList.toggle('bad', mode==='bad'); }
+    const btn = byId('btnCleanEnableNotif');
+    if(btn) btn.textContent = mode==='ok' ? 'Activadas' : (mode==='bad' ? 'Revisar Chrome' : 'Activar');
+  }
+
+  function updateCleanReminderPanel(){
+    if(!byId('cleanReminderPanel') || typeof state === 'undefined') return;
+    let overdue=0, today=0, soon=0;
+    (state.reminders||[]).forEach(r=>{
+      if(r.status !== 'pending') return;
+      const d = Number(getDaysLeft(r.due_date));
+      if(Number.isNaN(d)) return;
+      if(d < 0) overdue++;
+      else if(d === 0) today++;
+      else if(d <= 2) soon++;
+    });
+    if(byId('cleanRemOverdue')) byId('cleanRemOverdue').textContent = overdue;
+    if(byId('cleanRemToday')) byId('cleanRemToday').textContent = today;
+    if(byId('cleanRemSoon')) byId('cleanRemSoon').textContent = soon;
+  }
+
+  async function enableNotificationsImproved(userGesture=false){
+    try{
+      if(!('Notification' in window)){
+        toast?.('Este navegador no soporta notificaciones web.', 'bad');
+        return false;
+      }
+      if(Notification.permission !== 'granted'){
+        const perm = await Notification.requestPermission();
+        if(perm !== 'granted'){
+          toast?.('Chrome no autorizó las notificaciones. Revísalo en el candado del sitio.', 'bad');
+          updateCleanNotificationStatus();
+          return false;
+        }
+      }
+      if(typeof state !== 'undefined') state.notifEnabled = true;
+      localStorage.setItem('innov_admin_notifications','1');
+      if(typeof updateNotifButton === 'function') updateNotifButton();
+      updateCleanNotificationStatus();
+      if(userGesture) notifyChrome('Notificaciones activas', 'Listo: pedidos, mensajes y recordatorios de pago avisarán con sonido.', {force:true, tag:'innov-admin-enabled'});
+      checkReminderNotifications(userGesture);
+      return true;
+    }catch(e){ toast?.('No se pudo activar notificaciones: '+e.message, 'bad'); return false; }
+  }
+
+  function playSoundSafe(){
+    try{ if(typeof playNotifySound === 'function') playNotifySound(); } catch(_) {}
+  }
+
+  function notifyChrome(title, body='', opts={}){
+    if(opts.force || (typeof state !== 'undefined' && state.notifEnabled)) playSoundSafe();
+    try{
+      if(typeof notifyWeb === 'function' && !opts.noNotifyWeb){
+        notifyWeb(title, body, !!opts.forceSound);
+        return;
+      }
+    }catch(_){}
+    try{
+      if(typeof state !== 'undefined' && state.notifEnabled && 'Notification' in window && Notification.permission === 'granted'){
+        const n = new Notification(title, { body, tag: opts.tag || 'innov-admin', renotify: true, requireInteraction: !!opts.requireInteraction });
+        n.onclick = () => { window.focus(); if(opts.tab && typeof switchTab === 'function') switchTab(opts.tab); };
+      }
+    }catch(e){ console.warn('notification', e); }
+  }
+
+  function testCleanNotification(){
+    enableNotificationsImproved(true).then(ok=>{
+      if(!ok) return;
+      notifyChrome('Prueba de notificación', 'Chrome + sonido funcionando correctamente.', {force:true, tag:'innov-admin-test', noNotifyWeb:true});
+      toast?.('Prueba enviada', 'ok');
+    });
+  }
+
+  function reminderAlertPayload(r){
+    if(!r || r.status !== 'pending' || !r.due_date) return null;
+    const days = Number(getDaysLeft(r.due_date));
+    if(Number.isNaN(days) || days > 2) return null;
+    const c = customerByReminder(r);
+    const who = c.name || c.phone_e164 || 'Cliente';
+    const amount = r.amount ? moneySafe(r.amount) : 'monto pendiente';
+    const service = r.service_name || 'Servicio';
+    if(days < 0) return {title:'🚨 Pago vencido', body:`${who} · ${service} · venció hace ${Math.abs(days)} día(s) · ${amount}`, level:'overdue'};
+    if(days === 0) return {title:'🔔 Pago vence hoy', body:`${who} · ${service} · vence hoy · ${amount}`, level:'today'};
+    return {title:'⏳ Pago por vencer', body:`${who} · ${service} · vence en ${days} día(s) · ${amount}`, level:'soon'};
+  }
+
+  function checkReminderNotifications(force=false){
+    if(typeof state === 'undefined') return;
+    updateCleanReminderPanel();
+    const today = getTodayISO();
+    const memory = safeJson('innov_admin_reminder_notified_v11', {});
+    let changed = false;
+    (state.reminders||[]).forEach(r=>{
+      const payload = reminderAlertPayload(r);
+      if(!payload) return;
+      const key = `${r.id || r.service_name}_${r.due_date}_${today}_${payload.level}`;
+      if(!force && memory[key]) return;
+      memory[key] = new Date().toISOString();
+      changed = true;
+      notifyChrome(payload.title, payload.body, {tag:'reminder-'+(r.id||key), tab:'reminders', requireInteraction: payload.level !== 'soon'});
+    });
+    if(changed) writeJson('innov_admin_reminder_notified_v11', memory);
+  }
+
+  function markActiveSideNav(){
+    if(typeof state === 'undefined') return;
+    $$('.nav-btn-side').forEach(b=>{
+      const on = b.dataset.tab === state.tab;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  function scheduleFullRefresh(source='realtime'){
+    clearTimeout(window.__cleanRefreshTimer);
+    window.__cleanRefreshTimer = setTimeout(async()=>{
+      if(!appVisible() || typeof loadAll !== 'function') return;
+      try{ await loadAll(); setRealtimeStatus(source === 'poll' ? 'Auto-sync' : 'Tiempo real', 'ok'); }
+      catch(e){ console.warn('clean refresh', e); setRealtimeStatus('Reintentar sync', 'bad'); }
+    }, source==='realtime' ? 350 : 0);
+  }
+
+  function setupSupabaseRealtime(){
+    if(window.__cleanRealtimeStarted || typeof db === 'undefined' || !db.channel) return;
+    window.__cleanRealtimeStarted = true;
+    try{
+      const tables = ['orders','order_items','payment_proofs','deliveries','order_chat_messages','products','product_plans','stock_items','crm_customers','payment_reminders','payment_message_templates','delivery_message_templates','coupons','app_settings','totp_accounts','totp_access_codes','totp_access_events'];
+      const ch = db.channel('innov-admin-realtime-v11');
+      tables.forEach(table=>{
+        ch.on('postgres_changes', {event:'*', schema:'public', table}, payload=>{
+          if(table === 'orders' && payload.eventType === 'INSERT') notifyChrome('🧾 Nuevo pedido', `${payload.new?.order_code || 'Pedido'} · ${payload.new?.customer_name || 'Cliente'} · ${moneySafe(payload.new?.total ?? payload.new?.total_amount)}`, {tag:'order-'+payload.new?.id, tab:'orders'});
+          if(table === 'order_chat_messages' && payload.eventType === 'INSERT') notifyChrome('💬 Nuevo mensaje', String(payload.new?.message || 'Mensaje nuevo').slice(0,130), {tag:'chat-'+payload.new?.id, tab:'orders'});
+          if(table === 'payment_reminders'){
+            if(payload.eventType === 'INSERT') notifyChrome('🔔 Nuevo recordatorio creado', `${payload.new?.service_name || 'Servicio'} · vence ${payload.new?.due_date || ''}`, {tag:'reminder-new-'+payload.new?.id, tab:'reminders'});
+            setTimeout(()=>checkReminderNotifications(false), 900);
+          }
+          scheduleFullRefresh('realtime');
+        });
+      });
+      ch.subscribe(status=>{
+        if(status === 'SUBSCRIBED') setRealtimeStatus('Tiempo real activo','ok');
+        else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') setRealtimeStatus('Modo auto-sync','bad');
+        else setRealtimeStatus('Conectando...','warn');
+      });
+      window.__cleanRealtimeChannel = ch;
+    }catch(e){ console.warn('Realtime no disponible', e); setRealtimeStatus('Modo auto-sync','bad'); }
+  }
+
+  function patchCoreFunctions(){
+    if(window.__cleanCorePatched) return;
+    window.__cleanCorePatched = true;
+    try{
+      const originalRenderAll = renderAll;
+      renderAll = function(){
+        const out = originalRenderAll.apply(this, arguments);
+        ensureCleanUi();
+        checkReminderNotifications(false);
+        return out;
+      };
+    }catch(e){ console.warn('patch renderAll', e); }
+    try{
+      const originalSwitchTab = switchTab;
+      switchTab = function(tab){
+        const out = originalSwitchTab.apply(this, arguments);
+        setTimeout(()=>{ ensureCleanUi(); markActiveSideNav(); }, 0);
+        return out;
+      };
+    }catch(e){ console.warn('patch switchTab', e); }
+    try{
+      const originalUpdateNotifButton = updateNotifButton;
+      updateNotifButton = function(){ const out = originalUpdateNotifButton.apply(this, arguments); updateCleanNotificationStatus(); return out; };
+    }catch(_){}
+  }
+
+  function startCleanAutoSync(){
+    if(window.__cleanAutoSyncStarted) return;
+    window.__cleanAutoSyncStarted = true;
+    setInterval(()=>{ if(appVisible()) checkReminderNotifications(false); }, 60000);
+    setInterval(()=>{ if(appVisible()) scheduleFullRefresh('poll'); }, 15000);
+    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && appVisible()) scheduleFullRefresh('poll'); });
+    window.addEventListener('online', ()=>{ setRealtimeStatus('Reconectado','ok'); scheduleFullRefresh('poll'); });
+    window.addEventListener('offline', ()=>setRealtimeStatus('Sin conexión','bad'));
+  }
+
+  function bootCleanPro(){
+    try{
+      patchCoreFunctions();
+      ensureCleanUi();
+      setupSupabaseRealtime();
+      startCleanAutoSync();
+      if(localStorage.getItem('innov_admin_notifications') === '1' && 'Notification' in window && Notification.permission === 'granted'){
+        if(typeof state !== 'undefined') state.notifEnabled = true;
+        if(typeof updateNotifButton === 'function') updateNotifButton();
+      }
+      updateCleanNotificationStatus();
+      checkReminderNotifications(false);
+    }catch(e){ console.warn('Clean PRO boot', e); }
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootCleanPro);
+  else bootCleanPro();
+  setTimeout(bootCleanPro, 1200);
+  setTimeout(bootCleanPro, 3000);
+})();
+</script>
+
 </body>
 </html>
+
+
