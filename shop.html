@@ -10,12 +10,12 @@
 <meta name="description" content="Explora Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp.">
 <meta name="keywords" content="Innov AI Tienda, tienda, servicios digitales, Perú, ChatGPT Plus, Gemini Pro, CapCut Pro, Perplexity, Canva, Autodesk, Netflix, Disney, Max, Prime Video, ViX, IPTV, Crunchyroll, Surfshark">
 <meta name="theme-color" content="#0d6efd">
-<link rel="canonical" href="https://innovaistreaming.vercel.app/shop.html">
+<link rel="canonical" href="https://innovia-five.vercel.app/shop.html">
 
 <meta property="og:locale" content="es_PE">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Innov AI Tienda">
-<meta property="og:url" content="https://innovaistreaming.vercel.app/shop.html">
+<meta property="og:url" content="https://innovia-five.vercel.app/shop.html">
 <meta property="og:title" content="Innov AI Tienda — Tienda">
 <meta property="og:description" content="Explora Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp.">
 
@@ -1147,6 +1147,25 @@
 .product-video-shell video::-webkit-media-controls{display:none!important;}
 .product-video-shell video::-webkit-media-controls-enclosure{display:none!important;}
 
+
+
+/* ================================================================
+   FIX HOSTING/VIDEO v17 — fallback Google Drive + dominio nuevo
+   ================================================================ */
+.product-video-shell.is-gdrive-preview iframe{pointer-events:none!important;}
+.modal-product-media .product-video-shell.is-gdrive-preview iframe{pointer-events:auto!important;}
+.product-video-shell.is-gdrive-preview + .product-video-shade{opacity:.18!important;}
+.product-video-shell.media-loading::after{
+  content:"";
+  position:absolute;
+  inset:auto 12px 12px auto;
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.55);
+  border-top-color:#fff;
+  animation:spin .75s linear infinite;
+  z-index:7;
+}
+
 </style>
 </head>
 
@@ -1922,6 +1941,10 @@
     function googleDriveDirectVideoUrl(id){
       return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(id)}`;
     }
+    function googleDrivePreviewVideoUrl(id){
+      // Más estable cuando Google Drive bloquea el enlace directo por cookies/cuota/rango.
+      return `https://drive.google.com/file/d/${encodeURIComponent(id)}/preview`;
+    }
 
     function detectVideoSource(url){
       const clean = normalizeUrl(url);
@@ -1931,7 +1954,7 @@
       const vm = extractVimeoId(clean);
       if(vm) return {type:'vimeo', id:vm, url:clean};
       const gd = extractGoogleDriveId(clean);
-      if(gd) return {type:'gdrive', id:gd, url:clean, directUrl: googleDriveDirectVideoUrl(gd)};
+      if(gd) return {type:'gdrive', id:gd, url:clean, directUrl: googleDriveDirectVideoUrl(gd), previewUrl: googleDrivePreviewVideoUrl(gd)};
       const tk = extractTikTokId(clean);
       if(tk || /tiktok\.com/i.test(clean)) return tk ? {type:'tiktok', id:tk, url:clean} : {type:'unsupported', url:clean};
       if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(clean)) return {type:'file', url:clean};
@@ -1983,6 +2006,32 @@
       try{ if(shell._player && shell._player.stopVideo) shell._player.stopVideo(); }catch(e){}
       try{ if(shell._videoEl) shell._videoEl.pause(); }catch(e){}
     }
+    function mountGoogleDrivePreview(shell, media, soundBtn, statusEl){
+      if(!shell || !media || !media.previewUrl || shell.dataset.gdrivePreviewMounted === '1') return;
+      shell.dataset.gdrivePreviewMounted = '1';
+      shell.classList.remove('media-loading');
+      shell.classList.add('is-iframe-source','is-gdrive-preview');
+      try{ if(shell._videoEl){ shell._videoEl.pause(); shell._videoEl.remove(); shell._videoEl = null; } }catch(e){}
+      const iframe = document.createElement('iframe');
+      iframe.src = media.previewUrl;
+      iframe.setAttribute('allow','autoplay; fullscreen; encrypted-media; picture-in-picture');
+      iframe.setAttribute('loading','lazy');
+      iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+      iframe.setAttribute('allowfullscreen','');
+      iframe.onload = () => setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 900 : 450);
+      shell.appendChild(iframe);
+      shell._iframe = iframe;
+      shell._sourceKind = 'gdrive-preview';
+      if(shell.dataset.cardVideo === '1'){
+        const shield = document.createElement('span');
+        shield.className = 'video-click-shield';
+        shield.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); });
+        shell.appendChild(shield);
+      }
+      if(soundBtn) soundBtn.hidden = true;
+      markVideoStatus(statusEl, '', false);
+    }
+
     function startSmartVideoShell(shell, soundBtn, statusEl){
       if(!shell || shell.dataset.started === '1' || shell.dataset.failed === '1') return;
       const media = detectVideoSource(shell.dataset.videoUrl || '');
@@ -1997,6 +2046,7 @@
       if(media.type === 'file' || media.type === 'gdrive'){
         const v = document.createElement('video');
         const wantSound = shell.dataset.muted === '0';
+        shell.classList.add('media-loading');
         v.autoplay = true;
         v.muted = !wantSound;
         v.loop = true;
@@ -2011,7 +2061,15 @@
         v.setAttribute('disablepictureinpicture','');
         v.src = media.type === 'gdrive' ? media.directUrl : media.url;
 
+        let settled = false;
+        const driveFallbackTimer = media.type === 'gdrive'
+          ? setTimeout(()=>{ if(!settled) mountGoogleDrivePreview(shell, media, soundBtn, statusEl); }, 4200)
+          : null;
+
         const playClean = () => {
+          settled = true;
+          if(driveFallbackTimer) clearTimeout(driveFallbackTimer);
+          shell.classList.remove('media-loading');
           revealSmartVideo(shell);
           const p = v.play();
           if(p && typeof p.catch === 'function'){
@@ -2034,7 +2092,13 @@
 
         v.addEventListener('loadeddata', playClean, {once:true});
         v.addEventListener('canplay', playClean, {once:true});
-        v.addEventListener('error', ()=>fallbackSmartVideo(shell, statusEl), {once:true});
+        v.addEventListener('error', ()=>{
+          settled = true;
+          if(driveFallbackTimer) clearTimeout(driveFallbackTimer);
+          shell.classList.remove('media-loading');
+          if(media.type === 'gdrive') mountGoogleDrivePreview(shell, media, soundBtn, statusEl);
+          else fallbackSmartVideo(shell, statusEl);
+        }, {once:true});
         shell.appendChild(v);
         shell._videoEl = v;
         shell._sourceKind = media.type;
@@ -2790,7 +2854,7 @@
             "name": "DOX CEO",
             "price": 5,
             "cat": "otros",
-            "url": "https://innovaistreming.vercel.app/shop.html",
+            "url": "https://innovia-five.vercel.app/shop.html",
             "thumb": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgXdj-JxPTeKEbXY6fMhE44KYY4aVoWMULLw&s",
             "period": "Entrega rápida",
             "cupo": null,
@@ -4738,7 +4802,6 @@ window.addEventListener('message', function(event){
 
 </body>
 </html>
-
 
 
 
