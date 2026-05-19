@@ -1696,8 +1696,23 @@
       if(!u) return '';
       u = String(u).trim();
       if(!u) return '';
-      if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
-      return u;
+
+      // URLs completas o especiales
+      if(/^(https?:|blob:|data:)/i.test(u)) return u;
+
+      // URL tipo //cdn.com/video.mp4
+      if(/^\/\//.test(u)) return window.location.protocol + u;
+
+      // Ruta absoluta del hosting actual: /videos/demo.mp4
+      if(u.startsWith('/')) return window.location.origin + u;
+
+      // Ruta relativa del hosting actual: videos/demo.mp4, assets/demo.mp4, media/demo.mp4
+      if(/^(videos|video|assets|asset|media|img|images|uploads)\//i.test(u)){
+        return window.location.origin + '/' + u.replace(/^\/+/, '');
+      }
+
+      // Dominio sin protocolo
+      return 'https://' + u;
     }
 
     /* ================== Deep links por producto ================== */
@@ -2005,10 +2020,86 @@
       if(soundBtn) soundBtn.hidden = false;
       markVideoStatus(statusEl, '', false);
 
-      if(media.type === 'file' || media.type === 'gdrive'){
+      if(media.type === 'gdrive'){
+        const showDrivePreview = () => {
+          shell.innerHTML = '';
+          shell.classList.add('fit-contain');
+          const iframe = document.createElement('iframe');
+          iframe.src = media.previewUrl || media.url;
+          iframe.setAttribute('allow','autoplay; encrypted-media; fullscreen; picture-in-picture');
+          iframe.setAttribute('allowfullscreen','');
+          iframe.setAttribute('loading', shell.dataset.cardVideo === '1' ? 'lazy' : 'eager');
+          iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+          iframe.onload = () => setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 700 : 250);
+          shell.appendChild(iframe);
+          shell._iframe = iframe;
+          shell._gdriveFrame = iframe;
+          if(soundBtn) soundBtn.hidden = true; // Drive preview no permite controlar audio por JS
+          setTimeout(()=>revealSmartVideo(shell), 1200);
+        };
+
+        const v = document.createElement('video');
+        const wantSound = false; // primero siempre mudo para que el navegador permita autoplay
+        const sourceList = (media.urls || [media.directUrl]).filter(Boolean);
+        let sourceIndex = 0;
+        let revealed = false;
+
+        v.autoplay = true;
+        v.muted = true;
+        v.loop = true;
+        v.playsInline = true;
+        v.controls = false;
+        v.preload = 'metadata';
+        v.disablePictureInPicture = true;
+        v.controlsList = 'nodownload noplaybackrate noremoteplayback';
+        v.setAttribute('playsinline','');
+        v.setAttribute('webkit-playsinline','');
+        v.setAttribute('controlsList','nodownload noplaybackrate noremoteplayback');
+        v.setAttribute('disablepictureinpicture','');
+
+        const setCurrentSource = () => {
+          if(!sourceList[sourceIndex]) return showDrivePreview();
+          v.src = sourceList[sourceIndex];
+          try{ v.load(); }catch(e){}
+        };
+
+        const playClean = () => {
+          if(revealed) return;
+          revealed = true;
+          revealSmartVideo(shell);
+          const p = v.play();
+          if(p && typeof p.catch === 'function'){
+            p.catch(()=>showDrivePreview());
+          }
+        };
+
+        v.addEventListener('loadeddata', playClean, {once:true});
+        v.addEventListener('canplay', playClean, {once:true});
+        v.addEventListener('error', ()=>{
+          sourceIndex += 1;
+          if(sourceIndex < sourceList.length){
+            setCurrentSource();
+            return;
+          }
+          showDrivePreview();
+        });
+
+        shell.appendChild(v);
+        shell._videoEl = v;
+        shell._sourceKind = media.type;
+        shell._gdrivePreviewUrl = media.previewUrl || '';
+        if(soundBtn) soundBtn.hidden = true;
+        setCurrentSource();
+
+        // Si Drive no entrega stream directo, mostramos preview en vez de dejarlo en blanco.
+        setTimeout(()=>{ if(!revealed && !shell.classList.contains('media-ready')) showDrivePreview(); }, 4500);
+        return;
+      }
+
+      if(media.type === 'file'){
         const v = document.createElement('video');
         const wantSound = shell.dataset.muted === '0';
-        const sourceList = media.type === 'gdrive' ? (media.urls || [media.directUrl]).filter(Boolean) : [media.url];
+        const sourceList = [media.url];
         let sourceIndex = 0;
 
         v.autoplay = true;
@@ -2034,8 +2125,6 @@
           const p = v.play();
           if(p && typeof p.catch === 'function'){
             p.catch(() => {
-              // Navegadores móviles pueden bloquear audio automático.
-              // Si ocurre, reproducimos sin audio y el botón queda listo.
               if(wantSound){
                 v.muted = true;
                 shell.dataset.muted = '1';
@@ -2053,21 +2142,12 @@
         v.addEventListener('loadeddata', playClean, {once:true});
         v.addEventListener('canplay', playClean, {once:true});
         v.addEventListener('error', ()=>{
-          sourceIndex += 1;
-          if(sourceIndex < sourceList.length){
-            setCurrentSource();
-            return;
-          }
-
-          // Google Drive solo funcionará si el archivo es público y puede servirse como video.
-          // Si Drive responde con login/HTML/cuota, dejamos el logo.
           fallbackSmartVideo(shell, statusEl);
         });
 
         shell.appendChild(v);
         shell._videoEl = v;
         shell._sourceKind = media.type;
-        shell._gdrivePreviewUrl = media.previewUrl || '';
         if(soundBtn) soundBtn.hidden = false;
         setCurrentSource();
         return;
@@ -2124,46 +2204,56 @@
         return;
       }
 
-      ensureYoutubeApi().then(()=>{
-        const holder = document.createElement('div');
-        holder.id = 'ytp_' + Math.random().toString(36).slice(2);
-        shell.appendChild(holder);
+      if(media.type === 'youtube'){
+        const iframe = document.createElement('iframe');
+        const origin = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : '';
+        const mutedParam = (shell.dataset.muted === '0') ? '0' : '1';
+        const params = new URLSearchParams({
+          autoplay: '1',
+          mute: mutedParam,
+          controls: '0',
+          rel: '0',
+          loop: '1',
+          playlist: media.id,
+          playsinline: '1',
+          fs: '0',
+          disablekb: '1',
+          iv_load_policy: '3',
+          cc_load_policy: '0',
+          modestbranding: '1',
+          enablejsapi: '1'
+        });
+        if(origin) params.set('origin', origin);
+
+        iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(media.id)}?${params.toString()}`;
+        iframe.setAttribute('allow','autoplay; encrypted-media; fullscreen; picture-in-picture');
+        iframe.setAttribute('allowfullscreen','');
+        iframe.setAttribute('loading', shell.dataset.cardVideo === '1' ? 'lazy' : 'eager');
+        iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+        iframe.onload = () => {
+          setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 900 : 350);
+          setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 500);
+        };
+
+        shell.appendChild(iframe);
         const shield = document.createElement('span');
         shield.className = 'video-click-shield';
-        shield.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); try{ if(shell._player) shell._player.playVideo(); }catch(err){} });
-        shell.appendChild(shield);
-        const origin = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : undefined;
-        const player = new YT.Player(holder.id, {
-          videoId: media.id,
-          host: 'https://www.youtube-nocookie.com',
-          playerVars: {
-            autoplay: 1, mute: 1, controls: 0, rel: 0, loop: 1, playlist: media.id,
-            playsinline: 1, fs: 0, disablekb: 1, iv_load_policy: 3, cc_load_policy: 0,
-            modestbranding: 1, origin
-          },
-          events: {
-            onReady: function(e){
-              try{
-                const wantSound = shell.dataset.muted === '0';
-                if(wantSound){ e.target.unMute(); e.target.setVolume(75); }
-                else { e.target.mute(); e.target.setVolume(0); }
-                e.target.playVideo();
-                setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 350);
-              }catch(err){}
-            },
-            onStateChange: function(e){
-              if(e.data === YT.PlayerState.PLAYING){
-                setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 1500 : 800);
-                markVideoStatus(statusEl, '', false);
-              }
-              if(e.data === YT.PlayerState.PAUSED){ try{ e.target.playVideo(); }catch(err){} }
-            },
-            onError: function(){ fallbackSmartVideo(shell, statusEl); }
-          }
+        shield.addEventListener('click', e=>{
+          e.preventDefault();
+          e.stopPropagation();
+          try{ applySmartVideoSound(shell, shell.dataset.muted === '0'); }catch(err){}
         });
-        shell._player = player;
-        setTimeout(()=>{ if(!shell.classList.contains('media-ready')) fallbackSmartVideo(shell, statusEl); }, 9000);
-      }).catch(()=>fallbackSmartVideo(shell, statusEl));
+        shell.appendChild(shield);
+        shell._iframe = iframe;
+        shell._youtubeFrame = iframe;
+        if(soundBtn) soundBtn.hidden = false;
+
+        // No dejamos el cuadro en blanco si el iframe tarda en avisar.
+        setTimeout(()=>{ if(!shell.classList.contains('media-ready')) revealSmartVideo(shell); }, 1800);
+        return;
+      }
+
+      fallbackSmartVideo(shell, statusEl);
     }
     const productVideoObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(entries=>{
       entries.forEach(entry=>{
@@ -2227,6 +2317,29 @@
             shell._player.setVolume(0);
           }
           shell._player.playVideo();
+        }
+      }catch(e){}
+
+      try{
+        if(shell._youtubeFrame && shell._youtubeFrame.contentWindow){
+          const sendYT = (func, args=[]) => {
+            try{
+              shell._youtubeFrame.contentWindow.postMessage(JSON.stringify({
+                event:'command',
+                func,
+                args
+              }), '*');
+            }catch(err){}
+          };
+          sendYT('playVideo');
+          if(wantSound){
+            sendYT('unMute');
+            sendYT('setVolume', [volume]);
+          }else{
+            sendYT('mute');
+            sendYT('setVolume', [0]);
+          }
+          setTimeout(()=>sendYT('playVideo'), 300);
         }
       }catch(e){}
 
@@ -2328,8 +2441,9 @@
       shell.dataset.videoFit = item?.videoFit || item?.video_fit || 'cover';
       if(btn){ btn.hidden = false; btn.textContent = '🔊'; btn.setAttribute('aria-label','Silenciar video'); btn.classList.add('is-sound-on'); }
       initSmartVideoShell(shell, btn, statusEl);
-      // Arrancar en el mismo click que abrió el producto ayuda a que TikTok/Drive tengan audio.
-      startSmartVideoShell(shell, btn, statusEl);
+      const liveBtn = shell._soundBtn || document.getElementById('modalSoundBtn') || btn;
+      // Arrancar en el mismo click que abrió el producto ayuda a que el navegador permita autoplay.
+      startSmartVideoShell(shell, liveBtn, statusEl);
       setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 250);
       setTimeout(()=>applySmartVideoSound(shell, shell.dataset.muted === '0'), 900);
     }
@@ -4795,3 +4909,4 @@ window.addEventListener('message', function(event){
 
 </body>
 </html>
+
