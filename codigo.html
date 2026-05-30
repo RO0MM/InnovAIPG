@@ -192,14 +192,17 @@
   function startWaitingForFreshCycle(){
     showScreen('screenWaiting');hideMsg();
     const period=Number(activeAccount?.period||30);
-    waitingId=setInterval(async()=>{
+    const tick=async()=>{
       const inside=secondsIntoPeriod(period), wait=inside===0?0:period-inside;
       $('waitCounter').textContent=wait+' s';
       if(inside<=1){
-        clearInterval(waitingId);waitingId=null;
+        waitingId=null;
         await showTotp();
+        return;
       }
-    },250);
+      waitingId=setTimeout(tick, Math.min(1000, wait*1000));
+    };
+    tick();
   }
 
   async function showTotp(){
@@ -211,10 +214,10 @@
         const code=await totp(activeAccount.secret,period,digits);
         const left=secondsLeft(period), percent=(left/period)*100;
         $('otpCode').textContent=code;$('timerFill').style.width=percent+'%';$('timerText').textContent='Tiempo restante: '+left+' s';
-        if(left<=1){clearInterval(timerId);timerId=null;showThanksThenReset()}
+        if(left<=1){timerId=null;showThanksThenReset();return}
+        timerId=setTimeout(refresh, 1000);
       }catch(e){showScreen('screenForm');showMsg('Error generando el código. Contacta a soporte.','err');console.error(e)}
     };
-    timerId=setInterval(refresh,250);
     await refresh();
   }
 
@@ -247,3 +250,4 @@
 </script>
 </body>
 </html>
+
