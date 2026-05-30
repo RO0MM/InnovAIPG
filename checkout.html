@@ -221,14 +221,16 @@
     const CART_KEY = 'innov_cart_v1';
     const CURRENT_ORDER_KEY = 'innov_current_checkout_order_v5';
     const APPLIED_COUPON_KEY = 'innov_applied_coupon_v1';
-    const POLL_MS = 2000;
+    // Sin polling: el estado del pedido se actualiza por eventos de Supabase Realtime.
     const $ = id => document.getElementById(id);
 
     let cart = [];
     let currentOrder = null;
     let currentCoupon = '';
     let couponPreview = null;
-    let pollTimer = null;
+    let orderRealtimeChannel = null;
+    let orderRealtimeTimer = null;
+    let orderRealtimePending = false;
     let settings = { yape_number:'991564053', yape_qr_url:'img/yape-qr.png' };
     let deliverySummary = { type:'manual', label:'Entrega manual', help:'Se requiere revisión/entrega por administrador.' };
     let planRequirementMap = new Map();
@@ -656,9 +658,10 @@
       }
     }
     function clearCurrentOrderLocal(){
-      currentOrder=null; sessionStorage.removeItem(CURRENT_ORDER_KEY); stopPolling();
+      currentOrder=null; sessionStorage.removeItem(CURRENT_ORDER_KEY); stopOrderRealtime();
     }
     function showFormView(){
+      stopOrderRealtime();
       clearCurrentOrderLocal();
       $('generatedView').classList.add('hidden');
       $('formView').classList.remove('hidden');
@@ -681,7 +684,7 @@
       currentOrder = saved;
       if(saved._phone){ $('phone').value=saved._phone; $('lookupPhone').value=saved._phone; }
       showGeneratedView(currentOrder, false);
-      startPolling();
+      startOrderRealtime();
       checkStatus({ target:'statusBox', silent:true });
     }
 
@@ -727,6 +730,7 @@
       btn.disabled = false; btn.innerHTML = '<i class="fa fa-qrcode"></i> Generar pedido y pagar';
       if(r.error){ toast(r.error.message); return; }
       currentOrder = {...r.data[0], _phone:phone, _cartSig:cartSignature(), _paymentSent:false, _activationSent:false};
+      startOrderRealtime();
 
       // Respaldo: guarda los correos/datos requeridos en order_customer_inputs aunque la función de creación antigua no los registre.
       // Si ya fueron guardados por create_public_order_v2, esta llamada solo actualiza el mismo registro.
@@ -787,15 +791,61 @@ async function sendPaymentReview(){
       if(r.error){ toast(r.error.message); return; }
       currentOrder._paymentSent=true; persistOrder();
       setStep(4);
-      $('statusBox').innerHTML = '<div class="alert-wait">Pago enviado a revisión. Verificando entrega cada 2 segundos...</div>';
-      startPolling();
+      $('statusBox').innerHTML = '<div class="alert-wait">Pago enviado a revisión. Se actualizará automáticamente cuando el administrador libere la entrega.</div>';
+      startOrderRealtime();
       await notifyTelegram('payment_review', { operation_code: operation, message: $('customerNote').value.trim() });
       await checkStatus({ target:'statusBox', silent:true });
       toast('Pago enviado a revisión.');
     }
 
-    function startPolling(){ stopPolling(); pollTimer = setInterval(()=>checkStatus({target:'statusBox', silent:true}), POLL_MS); }
-    function stopPolling(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+    function getActiveOrderCode(){ return String(currentOrder?.order_code || $('lookupOrderCode')?.value || '').trim().toUpperCase(); }
+    function getActiveOrderPhone(){ return String($('phone')?.value || currentOrder?._phone || $('lookupPhone')?.value || '').trim(); }
+    function scheduleOrderRealtimeCheck(reason='change'){
+      if(document.hidden){ orderRealtimePending = true; return; }
+      clearTimeout(orderRealtimeTimer);
+      orderRealtimeTimer = setTimeout(()=>{
+        if(document.hidden){ orderRealtimePending = true; return; }
+        const code = getActiveOrderCode();
+        const phone = getActiveOrderPhone();
+        if(code && phone) checkStatus({ orderCode:code, phone, target:'statusBox', silent:true });
+      }, 650);
+    }
+    function startOrderRealtime(){
+      const code = getActiveOrderCode();
+      if(!code || !db?.channel) return;
+      stopOrderRealtime();
+      let ch = db.channel('innov-order-realtime-' + code + '-' + Date.now());
+      try{
+        ch = ch.on('postgres_changes', { event:'*', schema:'public', table:'orders', filter:`order_code=eq.${code}` }, () => scheduleOrderRealtimeCheck('orders'));
+        // Estas tablas pueden no tener order_code visible; por eso se escucha el cambio y luego se valida por RPC con ID + WhatsApp.
+        ['payment_proofs','deliveries','order_customer_inputs','order_chat_messages'].forEach(table=>{
+          ch = ch.on('postgres_changes', { event:'*', schema:'public', table }, () => scheduleOrderRealtimeCheck(table));
+        });
+        ch.subscribe();
+        orderRealtimeChannel = ch;
+      }catch(e){ console.warn('No se pudo iniciar realtime del pedido:', e); }
+    }
+    function stopOrderRealtime(){
+      clearTimeout(orderRealtimeTimer);
+      orderRealtimeTimer = null;
+      orderRealtimePending = false;
+      if(orderRealtimeChannel){
+        try{ db.removeChannel(orderRealtimeChannel); }catch(e){}
+        orderRealtimeChannel = null;
+      }
+    }
+    document.addEventListener('visibilitychange', ()=>{
+      if(!document.hidden && orderRealtimePending){
+        orderRealtimePending = false;
+        scheduleOrderRealtimeCheck('resume');
+      }
+    });
+    window.addEventListener('focus', ()=>{
+      if(orderRealtimePending){
+        orderRealtimePending = false;
+        scheduleOrderRealtimeCheck('focus');
+      }
+    });
 
     async function checkStatus(opts={}){
       if(!opts.silent) chatMinimized = false;
@@ -818,14 +868,14 @@ async function sendPaymentReview(){
       }
       if(['rejected','cancelled'].includes(String(info.status)) || ['cancelled'].includes(String(info.delivery_status))){
         content += `<div class="alert-wait" style="margin-top:8px"><b>❌ Pedido ${esc(info.status)}</b><br>Este pedido fue rechazado o cancelado. Si crees que es un error, genera un nuevo pedido.</div>`;
-        stopPolling();
+        stopOrderRealtime();
         clearCurrentOrderLocal();
       } else if(delivered){
         const deliveryText = buildDeliveryText(info, orderCode);
         content += '<div style="margin-top:8px"><b>✅ Cuenta / datos entregados:</b></div>';
         content += `<div class="delivery-data">${esc(deliveryText)}</div>`;
         content += `<div class="download-row"><button class="btn btn-primary btn-small" onclick="downloadDeliveryTxt('${esc(orderCode)}')"><i class="fa fa-download"></i> Descargar bloc de notas</button></div>`;
-        stopPolling(); clearCart(); renderCart(); clearCurrentOrderLocal(); try{sessionStorage.removeItem(APPLIED_COUPON_KEY);}catch(e){} setStep(4);
+        stopOrderRealtime(); clearCart(); renderCart(); clearCurrentOrderLocal(); try{sessionStorage.removeItem(APPLIED_COUPON_KEY);}catch(e){} setStep(4);
       } else {
         content += '<div class="mini-muted" style="margin-top:8px">Aún no hay entrega registrada. Si ya enviaste el pago, espera aprobación del administrador.</div>';
       }
@@ -874,6 +924,7 @@ async function sendPaymentReview(){
       const info = verify.data[0];
       currentOrder = Object.assign({}, currentOrder||{}, { order_code: orderCode, _phone: phone, total: info.total || currentOrder?.total || 0, _cartSig: currentOrder?._cartSig || '' });
       persistOrder();
+      startOrderRealtime();
       try{
         await db.rpc('public_send_order_message', {
           p_order_code: orderCode,
@@ -926,12 +977,16 @@ async function sendPaymentReview(){
       await detectDeliveryMode();
       await loadSpecialRequirements();
       restoreOrder();
-      if(currentOrder?.order_code){ renderActivationBox(true); startPolling(); checkStatus({ target:'statusBox', silent:true }); }
+      if(currentOrder?.order_code){ renderActivationBox(true); startOrderRealtime(); checkStatus({ target:'statusBox', silent:true }); }
     }
     init();
   </script>
 </body>
 </html>
+
+
+
+
 
 
 
