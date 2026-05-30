@@ -1530,6 +1530,140 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
 @media(max-width:850px){.crm-row,.reminder-row,.totp-row{grid-template-columns:1fr;gap:7px}.crm-actions,.rem-actions,.totp-actions-line{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}.crm-actions .btn,.rem-actions .btn,.totp-actions-line .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crm-section-title{align-items:flex-start}.manual-stock-hint{font-size:.76rem}}
 @media(max-width:430px){.crm-actions,.rem-actions,.totp-actions-line{grid-template-columns:1fr 1fr}.header-actions .badge{display:none}.app-title{font-size:.92rem}}
 
+
+
+/* ================================================================
+   V14 — Corrección real: recordatorios libres + stock manual compacto
+   ================================================================ */
+.admin-toolbar{padding:9px 10px;margin:0 0 10px;gap:7px;align-items:center}
+.admin-toolbar .actions{gap:6px}
+.admin-toolbar .actions .btn,.line-actions .btn,.ops-actions .btn{padding:6px 9px;font-size:.78rem;border-radius:9px}
+.mini-card{padding:12px}.mini-grid{gap:10px}.line-actions{gap:5px}
+.reminder-client-note{border-left:3px solid var(--primary);background:var(--primary-alpha2);border-radius:12px;padding:9px 10px;font-size:.82rem;color:var(--muted);grid-column:1/-1}
+.form-mini-help{font-size:.76rem;color:var(--muted);margin-top:4px;line-height:1.35}
+.hidden-admin-field{display:none!important}
+@media(max-width:800px){
+  .admin-toolbar{padding:8px;gap:6px;margin-top:0;margin-bottom:8px;top:var(--header-h)}
+  .admin-toolbar .actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .admin-toolbar .actions .btn{padding:7px 5px;font-size:.7rem}
+  .line-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .line-actions .btn{padding:7px 5px;font-size:.68rem}
+  .mini-card{padding:10px}.mini-grid{gap:8px}
+}
+@media(max-width:420px){
+  .admin-toolbar .actions,.line-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+
+/* ================================================================
+   PATCH V15 — compactación móvil real + WhatsApp recordatorio manual
+   ================================================================ */
+@media(max-width:800px){
+  main#main{margin-top:0!important;padding-top:0!important;}
+  .container{padding-top:4px!important;}
+  .admin-section{margin-top:0!important;padding-top:0!important;}
+  .admin-section.active{display:block!important;}
+  .admin-toolbar{
+    position:relative!important;
+    top:auto!important;
+    margin:4px 0 8px!important;
+    padding:7px!important;
+    border-radius:14px!important;
+    box-shadow:0 1px 6px rgba(0,0,0,.06)!important;
+  }
+  .admin-toolbar input[type=search],
+  .admin-toolbar .input{height:40px!important;padding:7px 10px!important;font-size:.82rem!important;}
+  .admin-toolbar .actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;}
+  .admin-toolbar .actions .btn{height:34px!important;min-height:34px!important;padding:5px 6px!important;font-size:.72rem!important;border-radius:10px!important;}
+  #tab-clients>.card,#tab-orders>.card{display:none!important;}
+  .crm-section-title{margin:6px 0 6px!important;gap:6px!important;}
+  .crm-section-title .help{font-size:.72rem!important;}
+  .line-list{gap:7px!important;}
+  .crm-row,.reminder-row,.totp-row{
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    gap:6px!important;
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    box-shadow:0 1px 5px rgba(0,0,0,.06)!important;
+  }
+  .crm-title,.rem-title,.totp-title-line{font-size:.92rem!important;line-height:1.12!important;letter-spacing:.01em!important;}
+  .crm-sub,.rem-sub,.totp-sub-line{font-size:.74rem!important;line-height:1.15!important;margin-top:1px!important;}
+  .crm-meta-line,.rem-meta-line,.totp-meta-line{gap:5px!important;margin-top:1px!important;}
+  .badge{font-size:.68rem!important;padding:2px 7px!important;line-height:1.25!important;}
+  .pill{font-size:.67rem!important;padding:2px 7px!important;}
+  .crm-actions,.rem-actions,.totp-actions-line{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:5px!important;
+    margin-top:2px!important;
+  }
+  .crm-actions .btn,.crm-actions a.btn,.rem-actions .btn,.rem-actions a.btn,.totp-actions-line .btn{
+    height:32px!important;
+    min-height:32px!important;
+    padding:5px 4px!important;
+    font-size:.7rem!important;
+    border-radius:9px!important;
+    width:100%!important;
+  }
+  .crm-actions .btn-danger{grid-column:1 / 2!important;}
+  .mini-card{padding:10px!important;border-radius:13px!important;}
+  .mini-card p.help{margin:5px 0!important;line-height:1.25!important;font-size:.78rem!important;}
+  .mini-head{gap:6px!important;margin-bottom:6px!important;}
+  .line-actions,.ops-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;}
+  .line-actions .btn,.ops-actions .btn{height:32px!important;padding:5px 4px!important;font-size:.68rem!important;border-radius:9px!important;}
+  .bottom-bar{height:62px!important;}
+  .bottom-actions .btn{font-size:.6rem!important;}
+}
+@media(min-width:801px){
+  .admin-toolbar{margin-top:0!important;}
+  .crm-row{grid-template-columns:minmax(180px,1fr) minmax(150px,.75fr) minmax(130px,.65fr) minmax(260px,auto)!important;}
+}
+
+
+/* ================================================================
+   PATCH V16 — distribución compacta móvil + acciones reales
+   ================================================================ */
+.choice-list{display:grid;gap:8px}.choice-card{border:1px solid var(--border);background:var(--card2);border-radius:13px;padding:10px;display:grid;gap:7px}.choice-card .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}.choice-card b{color:var(--card-ink)}.choice-card .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.choice-card .btn{width:100%}
+@media(max-width:800px){
+  header.app{min-height:54px!important;height:54px!important;margin-bottom:0!important}
+  .admin-tabs{display:none!important;height:0!important;padding:0!important;margin:0!important;border:0!important;overflow:hidden!important}
+  main#main,.container,.admin-section.active{margin-top:0!important;padding-top:0!important;transform:translateY(-14px)}
+  .container{padding-left:10px!important;padding-right:10px!important;padding-bottom:calc(var(--bottombar-h) + 12px)!important}
+  .admin-toolbar{margin:0 0 7px!important;padding:7px!important;gap:5px!important;border-radius:13px!important}
+  .admin-toolbar .input-wrap{margin:0!important}.admin-toolbar .actions{gap:5px!important}
+  .admin-toolbar input[type=search],.admin-toolbar .input{height:37px!important;font-size:.78rem!important;border-radius:11px!important}
+  .admin-toolbar .actions .btn{height:31px!important;min-height:31px!important;font-size:.66rem!important;padding:4px 5px!important;border-radius:9px!important}
+  .crm-section-title{display:none!important}.crm-split{gap:8px!important}.line-list{gap:6px!important}
+  .crm-row,.reminder-row{padding:8px 9px!important;border-radius:12px!important;gap:5px!important;box-shadow:0 1px 4px rgba(0,0,0,.055)!important}
+  .crm-title,.rem-title{font-size:.86rem!important;line-height:1.06!important}.crm-sub,.rem-sub{font-size:.69rem!important;line-height:1.08!important}
+  .badge{font-size:.62rem!important;padding:1px 6px!important}.pill{font-size:.62rem!important;padding:1px 6px!important}
+  .crm-meta-line,.rem-meta-line{gap:4px!important}.crm-actions,.rem-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px!important}
+  .crm-actions .btn,.rem-actions .btn{height:28px!important;min-height:28px!important;font-size:.62rem!important;padding:3px!important;border-radius:8px!important}
+  .crm-actions .btn-danger,.rem-actions .btn-danger{grid-column:auto!important}
+  .mini-grid{gap:7px!important}.mini-card{padding:9px!important;border-radius:12px!important}.mini-head{margin-bottom:4px!important}.mini-head b{font-size:.9rem!important}.mini-card .help{font-size:.72rem!important;line-height:1.18!important}
+  .line-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important}.line-actions .btn{height:29px!important;font-size:.62rem!important;padding:3px!important;border-radius:8px!important}
+  .plan-stock-toolbar{gap:6px!important}.plan-stock-row{padding:8px!important;border-radius:12px!important}.plan-stock-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}.plan-stock-actions .btn{height:30px!important;font-size:.65rem!important;padding:4px!important}
+}
+@media(max-width:380px){.crm-actions,.rem-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}.line-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+
+
+/* --- Compactación móvil reforzada v3 --- */
+@media (max-width: 800px){
+  .container{padding-top:6px!important;}
+  header.app{margin-bottom:4px!important;}
+  .admin-toolbar,.toolbar{margin-top:-4px!important;margin-bottom:8px!important;padding:8px!important;gap:6px!important;border-radius:14px!important;}
+  .admin-toolbar .btn,.toolbar .btn{min-height:38px!important;padding:7px 10px!important;font-size:.82rem!important;}
+  .admin-toolbar input,.toolbar input,.admin-toolbar select,.toolbar select{min-height:38px!important;padding:7px 10px!important;font-size:.84rem!important;}
+  .mini-card,.mitem,.client-card,.card.compact-card{padding:12px!important;border-radius:14px!important;margin-bottom:8px!important;}
+  .mini-head,.mhead{padding:0!important;margin-bottom:6px!important;}
+  .line-actions{gap:6px!important;margin-top:8px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .line-actions .btn,.mitem .btn,.client-card .btn{min-height:36px!important;padding:7px 8px!important;font-size:.82rem!important;border-radius:10px!important;}
+  .badge{padding:3px 8px!important;font-size:.72rem!important;}
+  .help{font-size:.78rem!important;line-height:1.35!important;}
+}
+
 </style>
 </head>
 <body>
@@ -1933,6 +2067,9 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
             <input class="input" id="setYape" placeholder="991564053" style="margin-bottom:8px">
             <label class="subtle">URL QR</label>
             <input class="input" id="setQr" placeholder="img/yape-qr.png o https://..." style="margin-bottom:8px">
+            <label class="subtle">Grupo WhatsApp general</label>
+            <input class="input" id="setWaGroup" placeholder="https://chat.whatsapp.com/..." style="margin-bottom:8px">
+            <p class="help" style="margin:0 0 8px">Este link se usa automáticamente en plantillas con {grupo}, {{grupo}}, {url_grupo} o {{url_grupo}}. Si cambias el grupo aquí, todos los nuevos envíos usarán el link actualizado.</p>
             <label class="subtle">Subir QR a Supabase Storage</label>
             <input class="input" id="qrFile" type="file" accept="image/*" style="margin-bottom:12px">
             <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1975,8 +2112,8 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
     <button class="btn active" data-tab="dashboard" type="button"><span class="ico">📊</span><span>Inicio</span></button>
     <button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Prod.</span></button>
     <button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Stock</span></button>
-    <button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pagos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
-    <button class="btn" data-tab="clients" type="button"><span class="ico">🔔</span><span>Pagos</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
+    <button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pedidos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
+    <button class="btn" data-tab="clients" type="button"><span class="ico">👥</span><span>Clientes</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
     <button class="btn" id="btnMobileMore" type="button" onclick="openSidenav()"><span class="ico">☰</span><span>Más</span></button>
   </div>
 </nav>
@@ -2225,7 +2362,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
       </label>
       <div class="full"><label class="subtle">Cuerpo de plantilla *</label><textarea class="input" id="dtBody" style="min-height:220px" required></textarea></div>
       <div class="full"><label class="subtle">Restricciones por defecto</label><textarea class="input" id="dtRestrictions" style="min-height:110px"></textarea></div>
-      <div class="full"><p class="help" style="line-height:1.8">Variables: <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{plan}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{nota}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{restricciones}</span> <span class="mono">{soporte}</span> <span class="mono">{tienda}</span></p></div>
+      <div class="full"><p class="help" style="line-height:1.8">Variables: <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{plan}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{nota}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{fecha_pago}</span> <span class="mono">{cliente}</span> <span class="mono">{telefono}</span> <span class="mono">{monto}</span> <span class="mono">{restricciones}</span> <span class="mono">{soporte}</span> <span class="mono">{tienda}</span></p></div>
     </div>
   </form>
   <div class="modal-actions">
@@ -2244,29 +2381,21 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   <form id="reminderForm">
     <input type="hidden" id="rId">
     <div class="grid grid-2">
-      <div class="full"><label class="subtle">Cliente *</label><select class="input" id="rCustomer" required></select></div>
+      <input type="hidden" id="rCustomer">
+      <input type="hidden" id="rStatus" value="pending">
+      <div class="reminder-client-note">
+        <b>Recordatorio libre:</b> escribe cualquier nombre y número. Si el cliente no existe, se crea automáticamente.
+      </div>
+      <div><label class="subtle">Nombre cliente *</label><input class="input" id="rCustomerName" placeholder="Nombre del cliente" required></div>
+      <div><label class="subtle">WhatsApp / celular *</label><input class="input" id="rCustomerPhone" placeholder="991564053 o +51991564053" required></div>
+      <div><label class="subtle">Correo opcional</label><input class="input" id="rCustomerEmail" type="email" placeholder="cliente@correo.com"></div>
+      <div><label class="subtle">Servicio / concepto *</label><input class="input" id="rService" placeholder="Netflix, ChatGPT, Gemini Pro..." required><div class="form-mini-help">Al escribir Netflix, ChatGPT, Gemini, Canva, etc. se intenta seleccionar el producto/plan automáticamente. Puedes volver a “Sin producto específico”.</div></div>
       <div><label class="subtle">Producto</label><select class="input" id="rProduct"></select></div>
       <div><label class="subtle">Plan</label><select class="input" id="rPlan"></select></div>
-      <div><label class="subtle">Servicio / concepto *</label><input class="input" id="rService" placeholder="Netflix perfil, ChatGPT Plus..." required></div>
-      <div><label class="subtle">Monto S/</label><input class="input" id="rAmount" type="number" step="0.01"></div>
-      <div><label class="subtle">Vence *</label><input class="input" id="rDue" type="date" required></div>
-      <div><label class="subtle">Estado</label>
-        <select class="input" id="rStatus">
-          <option value="pending">Pendiente</option>
-          <option value="sent">Mensaje enviado</option>
-          <option value="paid">Pagado/Renovado</option>
-          <option value="cancelled">Cancelado</option>
-        </select>
-      </div>
-      <div class="full">
-        <label class="subtle">Plantilla de pago</label>
-        <select class="input" id="rTemplate"></select>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-          <button class="btn btn-sm" type="button" id="btnApplyTemplate">⚡ Aplicar plantilla</button>
-          <button class="btn btn-success btn-sm" type="button" id="btnSaveReminderOpen">💚 Guardar y abrir WhatsApp</button>
-        </div>
-      </div>
-      <div class="full"><label class="subtle">Mensaje WhatsApp</label><textarea class="input" id="rMsg" style="min-height:140px"></textarea></div>
+      <div><label class="subtle">Monto S/</label><input class="input" id="rAmount" type="number" step="0.01" placeholder="Ej: 10"></div>
+      <div><label class="subtle">Vence *</label><input class="input" id="rDue" type="date" required><div class="form-mini-help">Por defecto se programa para el siguiente mes.</div></div>
+      <select class="input hidden-admin-field" id="rTemplate" aria-hidden="true" tabindex="-1"></select>
+      <div class="full"><label class="subtle">Mensaje WhatsApp automático</label><textarea class="input" id="rMsg" style="min-height:140px" placeholder="Se genera con la plantilla principal. También puedes editarlo aquí."></textarea><div class="form-mini-help">La plantilla principal se toma automáticamente desde Plantillas. No necesitas seleccionar ni aplicar nada.</div></div>
     </div>
   </form>
   <div class="modal-actions">
@@ -2342,16 +2471,19 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
 <!-- Operaciones PRO: Entrega rápida -->
 <dialog id="dlgOpsDeliver">
   <div class="modal-header">
-    <strong>💚 Entregar + crear recordatorio</strong>
+    <strong>Entregar + crear recordatorio</strong>
     <button class="btn btn-ghost btn-icon" data-close="dlgOpsDeliver" type="button">✕</button>
   </div>
   <div class="dlg-body">
     <input type="hidden" id="opsDeliverStockId">
+    <input type="hidden" id="opsDeliverPlanId">
     <div class="grid grid-2">
       <div><label class="subtle">Nombre cliente *</label><input class="input" id="opsDeliverName" placeholder="Cliente"></div>
       <div><label class="subtle">WhatsApp *</label><input class="input" id="opsDeliverPhone" placeholder="991564053"></div>
       <div><label class="subtle">Servicio</label><input class="input" id="opsDeliverService"></div>
       <div><label class="subtle">Monto S/</label><input class="input" id="opsDeliverAmount" type="number" step="0.01"></div>
+      <div><label class="subtle">Fecha de inicio</label><input class="input" id="opsDeliverStart" type="date"></div>
+      <div><label class="subtle">Fecha de pago</label><input class="input" id="opsDeliverPayDate" type="date"></div>
       <div><label class="subtle">Vence / renovación</label><input class="input" id="opsDeliverDue" type="date"></div>
       <div><label class="subtle">Estado stock</label>
         <select class="input" id="opsDeliverNewStatus">
@@ -2368,7 +2500,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   </div>
   <div class="modal-actions">
     <button class="btn" id="btnOpsCopyDeliver" type="button">📋 Copiar</button>
-    <button class="btn btn-primary" id="btnOpsSaveDeliver" type="button">✅ Guardar y abrir</button>
+    <button class="btn btn-primary" id="btnOpsSaveDeliver" type="button">✅ Registrar entrega</button>
   </div>
 
 </dialog>
@@ -2520,6 +2652,29 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   </div>
 </dialog>
 
+<!-- Elegir recordatorio para WhatsApp -->
+<dialog id="dlgClientReminderChoice">
+  <div class="modal-header">
+    <strong id="clientReminderChoiceTitle">Enviar WhatsApp</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgClientReminderChoice" type="button">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div id="clientReminderChoiceBody" class="choice-list"></div>
+  </div>
+</dialog>
+
+<!-- Opciones rápidas de cliente -->
+<dialog id="dlgClientQuickActions">
+  <div class="modal-header">
+    <strong id="clientQuickTitle">Opciones del cliente</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgClientQuickActions" type="button">✕</button>
+  </div>
+  <div class="dlg-body">
+    <input type="hidden" id="clientQuickId">
+    <div class="choice-list" id="clientQuickBody"></div>
+  </div>
+</dialog>
+
 <!-- Chat pedido -->
 <dialog id="dlgOrderChat">
   <div class="modal-header">
@@ -2620,19 +2775,25 @@ function todayInput(){return new Date().toISOString().slice(0,10)}
 function isOverdue(date){return String(date||'')<todayISO()}
 function reminderMessage(customer,reminder){return buildTemplateMessage(getDefaultTemplate(),customer,reminder)}
 function waLink(phone,msg){const digits=whatsappDigits(phone);return digits?`https://wa.me/${digits}?text=${encodeURIComponent(msg||'')}`:'#'}
-function displayDateFromInput(v){if(!v)return'';const [y,m,d]=v.split('-');return`${d}/${m}/${y}`}
+function displayDateFromInput(v){if(!v)return'';const [y,m,d]=String(v).slice(0,10).split('-');return y&&m&&d?`${d}/${m}/${y}`:String(v)}
+function saludoSegunHora(date=new Date()){
+  const h=date.getHours();
+  if(h<12)return'Buenos días';
+  if(h<19)return'Buenas tardes';
+  return'Buenas noches';
+}
 function planProductName(planId){const p=plan(planId);return prodName(p?.product_id)||''}
 
-const DEFAULT_PAYMENT_TEMPLATE=`Hola {cliente} 👋
+const DEFAULT_PAYMENT_TEMPLATE=`✨ INNOV IA ✨
+Hola {cliente} 👋
 
-Te recordamos que tu renovación de {servicio} vence el {vence}.
+Tu renovación de {servicio} vence el {vence}.
 Monto: {monto}
 
-Puedes pagar por Yape/Plin al número: {yape}
+Para continuar sin interrupciones, puedes regularizar por Yape/Plin: {yape}.
+Cuando realices el pago, envíanos tu comprobante ✅
 
-Cuando realices el pago, envíanos tu comprobante para renovar tu servicio ✅
-
-Atte: {tienda}`;
+Gracias por confiar en {tienda}.`;
 
 const DEFAULT_DELIVERY_BODY=`✅ PEDIDO #{pedido}
 📦 Producto: {producto} — {plan}
@@ -2659,6 +2820,26 @@ Soporte: {soporte}
 
 const DEFAULT_DELIVERY_PROFILE_BODY=`✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n👤 Perfil: {perfil}\n🔢 PIN: {pin}\n\n📅 Inicio: {fecha_inicio}\n\n{restricciones}\n\nSoporte: {soporte}\n— {tienda}`;
 const DEFAULT_DELIVERY_SIMPLE_BODY=`✅ *Cuenta de {producto}*\n\n📧 Correo: {correo}\n🔒 Contraseña: {contraseña}\n\n📅 Inicio: {fecha_inicio}\n\n{restricciones}\n\nSoporte: {soporte}\n— {tienda}`;
+const DEFAULT_DELIVERY_INVITE_BODY=`✨ *INNOV IA* ✨
+Hola {cliente} 👋
+
+✅ Tu cuenta de *{producto}* ya fue activada.
+📦 Plan: {plan}
+📅 Inicio: {fecha_inicio}
+📆 Próximo pago: {fecha_pago}
+💰 Monto: {monto}
+
+🔑 Datos de acceso:
+📧 Correo: {correo}
+🔒 Contraseña: {contraseña}
+👤 Perfil: {perfil}
+🔢 PIN: {pin}
+🔗 Link/Grupo: {url}
+
+{restricciones}
+
+Soporte: {soporte}
+— {tienda}`;
 
 function getPaymentSettings(){return state.settings.find(s=>s.key==='payment_public')?.value||{}}
 function getStoreSettings(){return state.settings.find(s=>s.key==='store_public')?.value||{}}
@@ -2674,31 +2855,47 @@ function calcDaysLeft(due){
 function buildTemplateMessage(template,customer,reminder){
   const pay=getPaymentSettings(),store=getStoreSettings();
   const days=calcDaysLeft(reminder?.due_date);
+  const productName=reminder?.product_id?prodName(reminder.product_id):(reminder?.plan_id?prodName(plan(reminder.plan_id)?.product_id):'');
+  const planLabel=reminder?.plan_id?(plan(reminder.plan_id)?.name||planName(reminder.plan_id)):'';
+  const due=reminder?.due_date||'';
   const vars={
+    saludo:saludoSegunHora(),
+    nombre:customer?.name||'cliente',
     cliente:customer?.name||'cliente',
-    servicio:reminder?.service_name||'tu servicio',
-    monto:reminder?.amount?money(reminder.amount):'monto pendiente',
-    vence:reminder?.due_date||'fecha pendiente',
+    producto:productName||reminder?.service_name||'tu servicio',
+    servicio:reminder?.service_name||productName||'tu servicio',
+    plan:planLabel,
+    monto:reminder?.amount!=null?money(reminder.amount):'monto pendiente',
+    fecha_vencimiento:displayDateFromInput(due)||due||'fecha pendiente',
+    vence:displayDateFromInput(due)||due||'fecha pendiente',
+    fecha_inicio:displayDateFromInput(reminder?.fecha_inicio||todayISO()),
+    fecha_pago:displayDateFromInput(reminder?.fecha_pago||todayISO()),
+    periodo:plan(reminder?.plan_id)?.period||'mensual',
+    link_pago:pay.payment_link||pay.link_pago||'',
+    correo_activado:customer?.email||reminder?.correo_activado||'',
     dias:days===''?'':String(days),
     pedido:reminder?.order_id||'',
-    telefono:customer?.phone_e164||'',
+    telefono:customer?.phone_e164||customer?.phone_raw||'',
     yape:pay.yape_number||'991564053',
+    grupo:pay.whatsapp_group_url||pay.grupo_whatsapp||'',
+    url_grupo:pay.whatsapp_group_url||pay.grupo_whatsapp||'',
+    soporte:pay.yape_number||'991564053',
     tienda:store.store_name||'Innov IA'
   };
-  return String(template?.body||DEFAULT_PAYMENT_TEMPLATE).replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m);
+  return renderTemplateText(String(template?.body||DEFAULT_PAYMENT_TEMPLATE),vars).replace(/\n{3,}/g,'\n\n').trim();
 }
 function currentReminderDraft(){
-  const c=state.customers.find(x=>x.id===$('rCustomer')?.value)||{};
-  return{customer_id:$('rCustomer')?.value||null,product_id:$('rProduct')?.value||null,plan_id:$('rPlan')?.value||null,service_name:$('rService')?.value||'',amount:$('rAmount')?.value===''?null:Number($('rAmount')?.value||0),currency:'PEN',due_date:$('rDue')?.value||todayISO(),status:$('rStatus')?.value||'pending',whatsapp_message:$('rMsg')?.value||null};
+  return{customer_id:$('rCustomer')?.value||null,product_id:$('rProduct')?.value||null,plan_id:$('rPlan')?.value||null,service_name:$('rService')?.value||'',amount:$('rAmount')?.value===''?null:Number($('rAmount')?.value||0),currency:'PEN',due_date:$('rDue')?.value||todayISO(),status:'pending',whatsapp_message:$('rMsg')?.value||null};
 }
 function selectedTemplate(){
   const id=$('rTemplate')?.value;
   return state.templates.find(t=>t.id===id)||getDefaultTemplate();
 }
 function applySelectedTemplate(){
-  const c=state.customers.find(x=>x.id===$('rCustomer')?.value)||{};
+  const fields=reminderCustomerFromFields();
+  const c=state.customers.find(x=>x.id===fields.id)||fields||{};
   const draft=currentReminderDraft();
-  $('rMsg').value=buildTemplateMessage(selectedTemplate(),c,draft);
+  if($('rMsg'))$('rMsg').value=buildTemplateMessage(getDefaultTemplate(),c,draft);
 }
 
 /* ---- Delivery Template ---- */
@@ -3049,9 +3246,9 @@ function fillProductSelects(){
   fillReminderSelects();
 }
 function fillReminderSelects(){
-  if($('rCustomer'))$('rCustomer').innerHTML=state.customers.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.phone_e164||'')}</option>`).join('')||'<option value="">Sin clientes</option>';
+  if($('rCustomer') && $('rCustomer').tagName==='SELECT')$('rCustomer').innerHTML=state.customers.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.phone_e164||'')}</option>`).join('')||'<option value="">Sin clientes</option>';
   if($('rProduct'))$('rProduct').innerHTML='<option value="">Sin producto específico</option>'+state.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
-  if($('rPlan'))$('rPlan').innerHTML='<option value="">Sin plan específico</option>'+state.plans.map(p=>`<option value="${p.id}">${esc(prodName(p.product_id))} — ${esc(p.name)}</option>`).join('');
+  if($('rPlan'))$('rPlan').innerHTML='<option value="">Sin plan específico</option>'+state.plans.map(p=>`<option value="${p.id}">${esc(prodName(p.product_id))} — ${esc(p.name)}${p.period?' · '+esc(p.period):''}</option>`).join('');
   if($('rTemplate'))$('rTemplate').innerHTML=state.templates.filter(t=>t.active!==false).map(t=>`<option value="${t.id}">${esc(t.name)}${t.is_default?' · principal':''}</option>`).join('')||'<option value="">Plantilla base</option>';
 }
 
@@ -3103,10 +3300,10 @@ function renderProducts(){
       <p class="help">${esc(p.description||'Sin descripción').slice(0,120)}</p>
       ${p.video_url?`<div class="product-card-video">${esc(p.video_url).slice(0,120)}</div>`:''}
       <div class="line-actions">
-        <button class="btn btn-primary" onclick="editProduct('${p.id}')">✏️ Editar</button>
+        <button class="btn btn-primary" onclick="editProduct('${p.id}')">Editar</button>
         <button class="btn" onclick="newPlanFor('${p.id}')">＋ Plan</button>
         <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="toggleProduct('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
-        <button class="btn btn-danger" onclick="quickDeleteProduct('${p.id}')">🗑 Eliminar</button>
+        <button class="btn btn-danger" onclick="quickDeleteProduct('${p.id}')">Elim.</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">🧩</span><p>No hay productos.</p></div>';
@@ -3131,19 +3328,20 @@ function renderPlans(){
       <span class="badge">${esc(p.availability_status||'available')}</span>
     </div>
     <div class="line-actions">
-      <button class="btn btn-primary" onclick="editPlan('${p.id}')">✏️ Editar cupos</button>
-      <button class="btn btn-success" onclick="openPlanStockView('${p.id}')">👁 Ver cuentas</button>
-      <button class="btn" onclick="openAddStock('${p.id}')">📥 Cargar</button>
+      <button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar</button>
+      <button class="btn btn-success" onclick="openPlanStockView('${p.id}')">👁 Ver</button>
+      <button class="btn btn-primary" onclick="openPlanManualDelivery('${p.id}')">Entregar</button>
+      <button class="btn" onclick="openAddStock('${p.id}')">Cargar</button>
       ${isTotpFriendlyPlan(p)?`<button class="btn btn-primary" onclick="autoTotpCodesFromPlan('${p.id}')">🛡 TOTP</button>`:''}
       <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
-      <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">🗑 Eliminar</button>
+      <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">Elim.</button>
     </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
 }
 
 
 function openPlanStockView(planId){
-  if(!$('dlgPlanStockView'))return;
+  if(!$('dlgPlanStockView')){switchTab('ops');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps();},60);return;}
   $('planStockPlanId').value=planId||'';
   const p=plan(planId)||{};
   $('planStockTitle').textContent='Cuentas registradas · '+opsPlanGroupTitle(planId);
@@ -3233,7 +3431,7 @@ function renderOrders(){
         <button class="btn" onclick="copyOrderSummary('${o.id}')">📋 Copiar</button>
         <button class="btn" onclick="viewDelivery('${o.id}')">👁 Ver entrega</button>
         <button class="btn btn-danger" onclick="rejectOrder('${o.id}')">✕ Rechazar</button>
-        <button class="btn btn-danger" onclick="deleteOrder('${o.id}')">🗑 Eliminar</button>
+        <button class="btn btn-danger" onclick="deleteOrder('${o.id}')">Elim.</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">🧾</span><p>Sin pedidos.</p></div>';
@@ -3247,6 +3445,9 @@ function renderClients(){
     const blob=`${c.name||''} ${c.phone_e164||''} ${c.email||''} ${c.notes||''} ${rem.map(r=>r.service_name+' '+r.status+' '+r.due_date).join(' ')}`.toLowerCase();
     return blob.includes(q);
   });
+  if(state.onlyDueClients){
+    data=data.filter(c=>state.reminders.some(r=>r.customer_id===c.id&&r.status==='pending'&&String(r.due_date||'')<=todayISO()));
+  }
   data=data.sort((a,b)=>clientSortScore(b)-clientSortScore(a));
   $('clientsGrid').innerHTML=data.map(c=>{
     const rem=state.reminders.filter(r=>r.customer_id===c.id);
@@ -3254,17 +3455,16 @@ function renderClients(){
     const due=rem.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO()).length;
     const next=rem.filter(r=>r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')))[0];
     const cls=due?'overdue':(next&&String(next.due_date||'')===todayISO()?'due':'');
-    const msg=`Hola ${c.name||'cliente'} 👋`;
+    const source=String(c.source||'manual');
     return `<div class="crm-row ${cls}">
-      <div class="crm-main"><div class="crm-title">${due?'🚨 ':''}${esc(c.name||'Sin nombre')}</div><div class="crm-sub">${esc(c.phone_e164||'Sin WhatsApp')} ${c.email?'· '+esc(c.email):''}</div></div>
-      <div class="crm-meta-line"><span class="badge ${due?'b-bad':pend?'b-warn':'b-ok'}">${due?due+' venc.':pend+' pend.'}</span><span class="badge">Total ${rem.length}</span><span class="badge">${esc(c.source||'manual')}</span></div>
+      <div class="crm-main"><div class="crm-title">${due?'🚨 ':''}${esc(c.name||'Sin nombre')}</div><div class="crm-sub">${esc(c.phone_e164||'Sin WhatsApp')}${c.email?' · '+esc(c.email):''}</div></div>
+      <div class="crm-meta-line"><span class="badge ${due?'b-bad':pend?'b-warn':'b-ok'}">${due?due+' venc.':pend+' pend.'}</span><span class="badge">Total ${rem.length}</span><span class="badge">${esc(source)}</span></div>
       <div class="crm-meta-line"><span class="pill ${next?calcDaysLeft(next.due_date)<0?'dueneg':calcDaysLeft(next.due_date)===0?'due0':'duepos':'duepos'}">📅 ${next?.due_date||'Sin deuda'}</span></div>
       <div class="crm-actions">
         <button class="btn btn-primary" onclick="editClient('${c.id}')">Editar</button>
-        <button class="btn" onclick="newReminderFor('${c.id}')">+ Pago</button>
-        <button class="btn" onclick="showClientHistory('${c.id}')">Historial</button>
-        <a class="btn btn-success" target="_blank" href="${waLink(c.phone_e164,msg)}">WhatsApp</a>
-        <button class="btn btn-danger" onclick="quickDeleteClient('${c.id}')">Eliminar</button>
+        <button class="btn" onclick="openClientPaymentOptions('${c.id}')">+ Pago</button>
+        <button class="btn btn-success" onclick="openClientReminderWhatsApp('${c.id}')">WhatsApp</button>
+        <button class="btn" onclick="openClientMore('${c.id}')">Más</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">👥</span><p>Sin clientes todavía.</p></div>';
@@ -3340,10 +3540,10 @@ function renderTemplates(){
     </div>
     <p class="help" style="white-space:pre-wrap;max-height:120px;overflow:auto">${esc(t.body||'').slice(0,300)}</p>
     <div class="line-actions">
-      <button class="btn btn-primary" onclick="editTemplate('${t.id}')">✏️ Editar</button>
+      <button class="btn btn-primary" onclick="editTemplate('${t.id}')">Editar</button>
       <button class="btn" onclick="duplicateTemplate('${t.id}')">Duplicar</button>
       <button class="btn ${t.is_default?'btn-warning':'btn-success'}" onclick="setDefaultTemplate('${t.id}')">${t.is_default?'Principal':'Hacer principal'}</button>
-      <button class="btn btn-danger" onclick="quickDeleteTemplate('${t.id}')">🗑 Eliminar</button>
+      <button class="btn btn-danger" onclick="quickDeleteTemplate('${t.id}')">Elim.</button>
     </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">📝</span><p>Sin plantillas. Crea una plantilla base.</p></div>';
 }
@@ -3359,10 +3559,10 @@ function renderDeliveryTemplates(){
     </div>
     <p class="help" style="white-space:pre-wrap;max-height:140px;overflow:auto">${esc(t.body||'').slice(0,400)}</p>
     <div class="line-actions">
-      <button class="btn btn-primary" onclick="editDeliveryTemplate('${t.id}')">✏️ Editar</button>
+      <button class="btn btn-primary" onclick="editDeliveryTemplate('${t.id}')">Editar</button>
       <button class="btn" onclick="duplicateDeliveryTemplate('${t.id}')">Duplicar</button>
       <button class="btn ${t.is_default?'btn-warning':'btn-success'}" onclick="setDefaultDeliveryTemplate('${t.id}')">${t.is_default?'Principal':'Hacer principal'}</button>
-      <button class="btn btn-danger" onclick="quickDeleteDeliveryTemplate('${t.id}')">🗑 Eliminar</button>
+      <button class="btn btn-danger" onclick="quickDeleteDeliveryTemplate('${t.id}')">Elim.</button>
     </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin plantillas de entrega.</p></div>';
 }
@@ -3372,9 +3572,9 @@ function renderCoupons(){
     <div class="mini-head"><b>${esc(c.code)}</b><span class="badge ${c.active?'b-ok':'b-bad'}">${c.active?'Activo':'Inactivo'}</span></div>
     <p>${c.discount_type==='percent'?c.discount_value+'%':money(c.discount_value)} · ${c.used_count||0}/${c.max_uses} usos</p>
     <div class="line-actions">
-      <button class="btn btn-primary" onclick="editCoupon('${c.id}')">✏️ Editar</button>
+      <button class="btn btn-primary" onclick="editCoupon('${c.id}')">Editar</button>
       <button class="btn ${c.active?'btn-warning':'btn-success'}" onclick="toggleCoupon('${c.id}')">${c.active?'Desactivar':'Activar'}</button>
-      <button class="btn btn-danger" onclick="deleteCoupon('${c.id}')">🗑 Eliminar</button>
+      <button class="btn btn-danger" onclick="deleteCoupon('${c.id}')">Elim.</button>
     </div>
   </div>`).join('')||'<div class="empty-state"><span class="icon">🎟️</span><p>Sin cupones.</p></div>';
 }
@@ -3391,6 +3591,7 @@ function renderSettings(){
   const pay=state.settings.find(s=>s.key==='payment_public')?.value||{};
   $('setYape').value=pay.yape_number||'991564053';
   $('setQr').value=pay.yape_qr_url||'img/yape-qr.png';
+  if($('setWaGroup'))$('setWaGroup').value=pay.whatsapp_group_url||pay.grupo_whatsapp||'';
   $('qrPreview').src=$('setQr').value||'img/yape-qr.png';
   const cfg=getAdminLocalSettings();
   if($('setAutoOpenWaDue'))$('setAutoOpenWaDue').checked=!!cfg.autoOpenWaDue;
@@ -3828,6 +4029,9 @@ async function createBaseDeliveryTemplates(){
   if(!state.deliveryTemplates.some(t=>String(t.template_key||'').toLowerCase()==='account_simple')){
     rows.push({name:'Cuenta simple — correo y contraseña',template_key:'account_simple',body:DEFAULT_DELIVERY_SIMPLE_BODY,restrictions:baseRestrictions,active:true,is_default:false});
   }
+  if(!state.deliveryTemplates.some(t=>String(t.template_key||'').toLowerCase()==='manual_activation_invite')){
+    rows.push({name:'Entrega manual / activación por invitación',template_key:'manual_activation_invite',body:DEFAULT_DELIVERY_INVITE_BODY,restrictions:baseRestrictions,active:true,is_default:false});
+  }
   if(!rows.length){toast('Las plantillas de entrega base ya existen','ok');return;}
   const r=await db.from('delivery_message_templates').insert(rows);
   if(r.error)return toast(r.error.message,'bad');
@@ -3862,29 +4066,135 @@ async function deleteClient(){
   closeDialog('dlgClient');await loadAll();
 }
 
+
+function reminderCustomerFromFields(){
+  const id=$('rCustomer')?.value||'';
+  const existing=state.customers.find(x=>x.id===id)||null;
+  return {
+    id,
+    name:($('rCustomerName')?.value||existing?.name||'').trim(),
+    phone_raw:($('rCustomerPhone')?.value||existing?.phone_raw||existing?.phone_e164||'').trim(),
+    phone_e164:($('rCustomerPhone')?.value||existing?.phone_e164||'').trim(),
+    email:($('rCustomerEmail')?.value||existing?.email||'').trim()
+  };
+}
+function addMonthsInput(base,months=1){
+  const d=base?new Date(base+'T00:00:00'):new Date();
+  const day=d.getDate();
+  d.setMonth(d.getMonth()+months);
+  if(d.getDate()<day)d.setDate(0);
+  return d.toISOString().slice(0,10);
+}
+function planRenewalDue(planId,base=todayISO()){
+  const p=plan(planId)||{};
+  const text=normalizeServiceText((p.period||'')+' '+(p.name||''));
+  if(/anual|annual|year|año|ano|12\s*mes/.test(text))return addMonthsInput(base,12);
+  if(/semestral|6\s*mes/.test(text))return addMonthsInput(base,6);
+  if(/trimestral|3\s*mes/.test(text))return addMonthsInput(base,3);
+  if(/bimestral|2\s*mes/.test(text))return addMonthsInput(base,2);
+  if(/semanal|week|7\s*d/.test(text)){const d=new Date(base+'T00:00:00');d.setDate(d.getDate()+7);return d.toISOString().slice(0,10)}
+  if(/diario|daily|1\s*d/.test(text)){const d=new Date(base+'T00:00:00');d.setDate(d.getDate()+1);return d.toISOString().slice(0,10)}
+  return addMonthsInput(base,1);
+}
+async function consumePlanStock(planId,context={}){
+  if(!planId)return {ok:true,skipped:true};
+  const p=plan(planId)||{};
+  const available=state.stock.find(x=>x.plan_id===planId && opsAvailableStatus(x)==='available');
+  if(available){
+    const d={...opsSecret(available)};
+    d.used_count=Number(d.used_count||0)+1;
+    d.last_customer=context.customer_name||'';
+    d.last_phone=context.customer_phone||'';
+    d.last_used_at=new Date().toISOString();
+    const max=Number(d.max_uses||1);
+    const finalStatus=d.used_count>=max?'used':'available';
+    const r=await db.from('stock_items').update({status:finalStatus,secret_data:d}).eq('id',available.id);
+    if(r.error)return {ok:false,error:r.error.message};
+    return {ok:true,stock_id:available.id,status:finalStatus};
+  }
+  if(p.stock_mode==='manual' && Number(p.manual_stock_count||0)>0){
+    const next=Math.max(0,Number(p.manual_stock_count||0)-1);
+    const r=await db.from('product_plans').update({manual_stock_count:next}).eq('id',planId);
+    if(r.error)return {ok:false,error:r.error.message};
+    return {ok:true,manual:true,next};
+  }
+  return {ok:true,skipped:true,no_stock:true};
+}
+function normalizeServiceText(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim()}
+function findBestProductPlanForService(txt){
+  const q=normalizeServiceText(txt); if(!q)return {product:null,plan:null};
+  const aliases=[
+    ['netflix',['netflix']],['chatgpt',['chatgpt','gpt','openai']],['gemini',['gemini','google ai']],['google one',['google one','drive','google']],
+    ['canva',['canva']],['disney',['disney']],['prime',['prime','amazon']],['spotify',['spotify']],['youtube',['youtube']],['capcut',['capcut']],['office',['office','microsoft']],['autodesk',['autodesk']]
+  ];
+  let keys=[q];
+  for(const [main,arr] of aliases){ if(arr.some(a=>q.includes(a))){ keys=[main,...arr]; break; } }
+  const prods=state.products||[], plans=state.plans||[];
+  let product=prods.find(p=>keys.some(k=>normalizeServiceText(p.name).includes(k)))||null;
+  let planMatch=null;
+  if(product){ planMatch=plans.find(p=>p.product_id===product.id && /mensual|mes|month|30/i.test(String(p.period||'')+' '+String(p.name||''))) || plans.find(p=>p.product_id===product.id) || null; }
+  if(!planMatch){ planMatch=plans.find(p=>keys.some(k=>normalizeServiceText(prodName(p.product_id)+' '+(p.name||'')).includes(k)))||null; if(planMatch)product=prods.find(p=>p.id===planMatch.product_id)||product; }
+  return {product,plan:planMatch};
+}
+function autoFillReminderFromService(force=false){
+  if(!$('rService'))return;
+  if(!force && (($('rProduct')?.value)||($('rPlan')?.value)))return;
+  const m=findBestProductPlanForService($('rService').value);
+  if(m.product&&$('rProduct'))$('rProduct').value=m.product.id;
+  if(m.plan&&$('rPlan')){ $('rPlan').value=m.plan.id; if($('rAmount')&&!$('rAmount').value)$('rAmount').value=m.plan.price??''; if($('rDue'))$('rDue').value=planRenewalDue(m.plan.id); }
+  if($('rMsg'))applySelectedTemplate();
+}
+async function upsertReminderCustomerFromFields(){
+  const data=reminderCustomerFromFields();
+  const phone=normalizePhone(data.phone_raw||data.phone_e164);
+  if(!data.name)return {error:'Escribe el nombre del cliente'};
+  if(!phone.ok)return {error:phone.error||'WhatsApp inválido'};
+  const existingByPhone=state.customers.find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
+  const finalName=(existingByPhone?.name||data.name||'Cliente').trim();
+  const payload={name:finalName,phone_raw:data.phone_raw||phone.e164,phone_e164:phone.e164,email:data.email||existingByPhone?.email||null,source:existingByPhone?.source||'recordatorio_manual',notes:existingByPhone?.notes||'Creado desde recordatorio'};
+  const existingId=data.id||existingByPhone?.id||'';
+  const res=existingId?await db.from('crm_customers').update(payload).eq('id',existingId).select().single():await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
+  if(res.error)return {error:res.error.message};
+  return {customer:res.data,existing:!!existingId};
+}
+
+
 /* ---- Reminders ---- */
 function blankReminder(cid=''){
   fillReminderSelects();
-  ['rId','rService','rAmount','rMsg'].forEach(id=>$(id).value='');
-  $('rCustomer').value=cid||state.customers[0]?.id||'';$('rProduct').value='';$('rPlan').value='';$('rDue').value=daysFromNow(30);$('rStatus').value='pending';
-  fillReminderSelects();if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
+  ['rId','rCustomer','rCustomerName','rCustomerPhone','rCustomerEmail','rService','rAmount','rMsg'].forEach(id=>{if($(id))$(id).value=''});
+  $('rProduct').value='';$('rPlan').value='';$('rDue').value=addMonthsInput(todayISO(),1);if($('rStatus'))$('rStatus').value='pending';
+  const c=state.customers.find(x=>x.id===cid);
+  if(c){$('rCustomer').value=c.id;$('rCustomerName').value=c.name||'';$('rCustomerPhone').value=c.phone_e164||c.phone_raw||'';$('rCustomerEmail').value=c.email||'';}
+  if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
+  applySelectedTemplate();
   if($('btnDeleteReminder'))$('btnDeleteReminder').style.display='none';$('reminderDlgTitle').textContent='Nuevo recordatorio';showDialog('dlgReminder');
 }
 function newReminderFor(cid){blankReminder(cid)}
 function editReminder(id){
   const r=state.reminders.find(x=>x.id===id);if(!r)return;
-  fillReminderSelects();$('rId').value=r.id;$('rCustomer').value=r.customer_id||'';$('rProduct').value=r.product_id||'';$('rPlan').value=r.plan_id||'';$('rService').value=r.service_name||'';$('rAmount').value=r.amount??'';$('rDue').value=r.due_date||todayISO();$('rStatus').value=r.status||'pending';$('rMsg').value=r.whatsapp_message||'';if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
+  fillReminderSelects();const c=state.customers.find(x=>x.id===r.customer_id)||{};
+  $('rId').value=r.id;$('rCustomer').value=r.customer_id||'';$('rCustomerName').value=c.name||'';$('rCustomerPhone').value=c.phone_e164||c.phone_raw||'';$('rCustomerEmail').value=c.email||'';
+  $('rProduct').value=r.product_id||'';$('rPlan').value=r.plan_id||'';$('rService').value=r.service_name||'';$('rAmount').value=r.amount??'';$('rDue').value=r.due_date||addMonthsInput(todayISO(),1);if($('rStatus'))$('rStatus').value=r.status||'pending';$('rMsg').value=r.whatsapp_message||'';if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
   if($('btnDeleteReminder'))$('btnDeleteReminder').style.display='inline-flex';$('reminderDlgTitle').textContent='Editar recordatorio';showDialog('dlgReminder');
 }
 async function saveReminder(ev,silent=false){
   if(ev)ev.preventDefault();
-  const c=state.customers.find(x=>x.id===$('rCustomer').value)||{};
-  const draft={customer_id:$('rCustomer').value||null,product_id:$('rProduct').value||null,plan_id:$('rPlan').value||null,service_name:$('rService').value.trim(),amount:$('rAmount').value===''?null:Number($('rAmount').value),currency:'PEN',due_date:$('rDue').value,status:$('rStatus').value,whatsapp_message:$('rMsg').value.trim()||null};
-  if(!draft.whatsapp_message)draft.whatsapp_message=buildTemplateMessage(selectedTemplate(),c,draft);
+  autoFillReminderFromService(false);
+  const up=await upsertReminderCustomerFromFields();
+  if(up.error){toast(up.error,'bad');return null}
+  const c=up.customer;
   const id=$('rId').value;
+  const selectedPlanId=$('rPlan').value||null;
+  const draft={customer_id:c.id,product_id:$('rProduct').value||null,plan_id:selectedPlanId,service_name:$('rService').value.trim()||'Servicio',amount:$('rAmount').value===''?null:Number($('rAmount').value),currency:'PEN',due_date:$('rDue').value||planRenewalDue(selectedPlanId||''),status:'pending',whatsapp_message:$('rMsg').value.trim()||null};
+  if(!draft.whatsapp_message)draft.whatsapp_message=buildTemplateMessage(getDefaultTemplate(),c,draft);
   const r=id?await db.from('payment_reminders').update(draft).eq('id',id).select().single():await db.from('payment_reminders').insert(draft).select().single();
   if(r.error){toast(r.error.message,'bad');return null}
-  if(!silent){closeDialog('dlgReminder');toast('Recordatorio guardado','ok');await loadAll();switchTab('reminders')}
+  if(!id && selectedPlanId){
+    const used=await consumePlanStock(selectedPlanId,{customer_name:c.name,customer_phone:c.phone_e164,source:'recordatorio'});
+    if(!used.ok)toast('Recordatorio creado, pero no se pudo descontar cupo: '+used.error,'bad');
+  }
+  if(!silent){closeDialog('dlgReminder');toast('Cliente + recordatorio guardados','ok');await loadAll();switchTab('reminders')}
   else{await loadAll()}
   return r.data;
 }
@@ -3913,6 +4223,57 @@ async function openReminderWhatsApp(id){
   if(url==='#')return toast('El cliente no tiene WhatsApp válido','bad');
   window.open(url,'_blank','noopener,noreferrer');
   await markReminderSent(id);toast('WhatsApp abierto y recordatorio marcado como enviado','ok');await loadAll();
+}
+function renderReminderChoiceCard(r,c){
+  const days=calcDaysLeft(r.due_date);
+  const pillCls=days<0?'dueneg':days===0?'due0':'duepos';
+  return `<div class="choice-card">
+    <div class="top"><b>${esc(r.service_name||'Recordatorio')}</b><span class="badge ${days<0?'b-bad':'b-warn'}">${esc(r.status||'pending')}</span></div>
+    <div class="help">${esc(c.name||'Cliente')} · ${money(r.amount)} · <span class="pill ${pillCls}">📅 ${esc(r.due_date||'—')}${days!==''?' ('+days+'d)':''}</span></div>
+    <div class="actions"><button class="btn btn-success" onclick="sendChosenClientReminder('${r.id}')">Enviar WhatsApp</button><button class="btn" onclick="editReminder('${r.id}');closeDialog('dlgClientReminderChoice')">Editar</button></div>
+  </div>`;
+}
+async function sendChosenClientReminder(reminderId){
+  closeDialog('dlgClientReminderChoice');
+  await openReminderWhatsApp(reminderId);
+}
+async function openClientReminderWhatsApp(customerId){
+  const c=state.customers.find(x=>x.id===customerId)||{};
+  if(!c.id)return toast('Cliente no encontrado','bad');
+  const rems=state.reminders.filter(r=>r.customer_id===customerId);
+  const pending=rems.filter(r=>r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')));
+  const list=pending.length?pending:rems.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  if(!list.length)return toast('Este cliente no tiene recordatorios para enviar','bad');
+  if(list.length===1){await openReminderWhatsApp(list[0].id);return;}
+  if(!$('dlgClientReminderChoice')){await openReminderWhatsApp(list[0].id);return;}
+  $('clientReminderChoiceTitle').textContent='Elegir recordatorio · '+(c.name||'Cliente');
+  $('clientReminderChoiceBody').innerHTML=list.map(r=>renderReminderChoiceCard(r,c)).join('');
+  showDialog('dlgClientReminderChoice');
+}
+function openClientPaymentOptions(customerId){
+  const c=state.customers.find(x=>x.id===customerId)||{};
+  if(!c.id)return toast('Cliente no encontrado','bad');
+  if(!$('dlgClientQuickActions')){newReminderFor(customerId);return;}
+  $('clientQuickId').value=customerId;
+  $('clientQuickTitle').textContent='Pago · '+(c.name||'Cliente');
+  const pending=state.reminders.filter(r=>r.customer_id===customerId&&r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')));
+  $('clientQuickBody').innerHTML=`<div class="choice-card"><b>¿Qué deseas hacer?</b><div class="actions"><button class="btn btn-primary" onclick="closeDialog('dlgClientQuickActions');newReminderFor('${customerId}')">Nuevo recordatorio</button><button class="btn btn-success" onclick="markNearestClientReminderPaid('${customerId}')">Marcar pagado</button></div></div>`+
+    (pending.length?pending.slice(0,6).map(r=>renderReminderChoiceCard(r,c).replace('Enviar WhatsApp','Enviar')).join(''):'<p class="help">No tiene recordatorios pendientes.</p>');
+  showDialog('dlgClientQuickActions');
+}
+async function markNearestClientReminderPaid(customerId){
+  const pending=state.reminders.filter(r=>r.customer_id===customerId&&r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')));
+  if(!pending.length)return toast('No hay recordatorios pendientes para marcar como pagado','bad');
+  closeDialog('dlgClientQuickActions');
+  await markReminderPaid(pending[0].id);
+}
+function openClientMore(customerId){
+  const c=state.customers.find(x=>x.id===customerId)||{};
+  if(!$('dlgClientQuickActions')){showClientHistory(customerId);return;}
+  $('clientQuickId').value=customerId;
+  $('clientQuickTitle').textContent='Más opciones · '+(c.name||'Cliente');
+  $('clientQuickBody').innerHTML=`<div class="choice-card"><b>Acciones rápidas</b><div class="actions"><button class="btn" onclick="closeDialog('dlgClientQuickActions');showClientHistory('${customerId}')">Historial</button><button class="btn btn-danger" onclick="closeDialog('dlgClientQuickActions');quickDeleteClient('${customerId}')">Eliminar</button></div></div>`;
+  showDialog('dlgClientQuickActions');
 }
 async function saveReminderAndOpen(){
   const idBefore=$('rId').value;const saved=await saveReminder(null,true);if(!saved)return;
@@ -4037,8 +4398,11 @@ async function uploadQr(){
   $('setQr').value=url;$('qrPreview').src=url;toast('QR subido. Guarda configuración.','ok');
 }
 async function savePayment(){
-  const r=await db.from('app_settings').upsert({key:'payment_public',value:{yape_number:$('setYape').value.trim()||'991564053',yape_qr_url:$('setQr').value.trim()||'img/yape-qr.png'}});
-  if(r.error)return toast(r.error.message,'bad');toast('Pago guardado','ok');await loadAll();
+  const current=getPaymentSettings();
+  const value={...current,yape_number:$('setYape').value.trim()||'991564053',yape_qr_url:$('setQr').value.trim()||'img/yape-qr.png',whatsapp_group_url:$('setWaGroup')?.value.trim()||''};
+  value.grupo_whatsapp=value.whatsapp_group_url;
+  const r=await db.from('app_settings').upsert({key:'payment_public',value});
+  if(r.error)return toast(r.error.message,'bad');toast('Pago y grupo WhatsApp guardados','ok');await loadAll();
 }
 function exportBackup(){
   const data={...state,exported_at:new Date().toISOString()};
@@ -4119,7 +4483,10 @@ function opsDeliveryTemplateForItem(item){
   return active.find(t=>/account_simple|simple|sin_perfil|correo/.test(String(t.template_key||t.name||'').toLowerCase()))||active.find(t=>t.is_default)||active[0]||null;
 }
 function renderTemplateText(body,vars){
-  return String(body||'').replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m);
+  const data=vars||{};
+  return String(body||'')
+    .replace(/\{\{\s*([\w_]+)\s*\}\}/g,(m,k)=>data[k]??m)
+    .replace(/\{([\w_]+)\}/g,(m,k)=>data[k]??m);
 }
 function opsDeliveryText(item){
   const d=opsSecret(item);
@@ -4128,8 +4495,8 @@ function opsDeliveryText(item){
   const vars={
     pedido:'', producto:prodName(plan(item.plan_id)?.product_id)||planName(item.plan_id), plan:planName(item.plan_id),
     correo:d.correo||d.usuario||'', contraseña:d.clave||d.pass||'', perfil:d.perfil||'', pin:d.pin||'',
-    grupo:d.grupo||'', url:d.url||d.grupo||'', codigo:d.codigo||'', nota:d.nota||item.notes||'',
-    fecha_inicio:displayDateFromInput(todayInput()), restricciones:tpl?.restrictions||d.reglas||'🚫 No compartir la cuenta\n✅ Uso personal\n🛟 Soporte por WhatsApp',
+    grupo:d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url:d.url||d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url_grupo:d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', codigo:d.codigo||'', nota:d.nota||item.notes||'',
+    fecha_inicio:displayDateFromInput(todayInput()), fecha_pago:displayDateFromInput(todayISO()), fecha_vencimiento:displayDateFromInput(planRenewalDue(item.plan_id)), cliente:d.reserved_for||'', telefono:d.reserved_phone||'', monto:'', restricciones:tpl?.restrictions||d.reglas||'🚫 No compartir la cuenta\n✅ Uso personal\n🛟 Soporte por WhatsApp',
     soporte:pay.yape_number||'991564053', tienda:store.store_name||'Innov IA'
   };
   const body=tpl?.body || (vars.perfil||vars.pin
@@ -4347,47 +4714,114 @@ async function saveOpsReserve(){
   if(r.error)return toast(r.error.message,'bad');
   closeDialog('dlgOpsReserve');toast(status==='reserved'?'Cuenta reservada':'Estado actualizado','ok');await loadAll();switchTab('ops');
 }
-function openOpsDeliver(id){
-  const x=state.stock.find(s=>s.id===id);if(!x)return;
-  const d=opsSecret(x);
-  $('opsDeliverStockId').value=id;
+
+function defaultDeliveryTemplateForPlan(planId){
+  const active=state.deliveryTemplates.filter(t=>t.active!==false);
+  const p=plan(planId)||{};
+  const text=normalizeServiceText(prodName(p.product_id)+' '+(p.name||''));
+  if(/netflix|disney|prime|crunchy|max|hbo|vix|paramount|iptv/.test(text))return active.find(t=>/streaming|perfil|profile/.test(normalizeServiceText(t.template_key+' '+t.name)))||active.find(t=>t.is_default)||active[0]||null;
+  return active.find(t=>/entrega|activacion|invite|manual|simple|cuenta/.test(normalizeServiceText(t.template_key+' '+t.name)))||active.find(t=>t.is_default)||active[0]||null;
+}
+function opsDeliveryTextFromPlan(planId,extra={}){
+  const p=plan(planId)||{}, pay=getPaymentSettings(), store=getStoreSettings();
+  const tpl=defaultDeliveryTemplateForPlan(planId);
+  const vars={
+    pedido:'', producto:prodName(p.product_id)||planName(planId)||extra.servicio||'', plan:p.name||'',
+    cliente:extra.cliente||'', telefono:extra.telefono||'', monto:extra.monto?money(extra.monto):'',
+    correo:extra.correo||'', contraseña:extra.contraseña||'', perfil:extra.perfil||'', pin:extra.pin||'',
+    grupo:extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url:extra.url||extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url_grupo:extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', codigo:extra.codigo||'', nota:extra.nota||'',
+    fecha_inicio:displayDateFromInput(extra.fecha_inicio||todayInput()), fecha_pago:displayDateFromInput(extra.fecha_pago||todayISO()), fecha_vencimiento:displayDateFromInput(extra.fecha_vencimiento||extra.due||planRenewalDue(planId)),
+    restricciones:tpl?.restrictions||'🚫 No compartir la cuenta\n✅ Uso personal\n🛟 Soporte por WhatsApp',
+    soporte:pay.yape_number||'991564053', tienda:store.store_name||'Innov IA'
+  };
+  const fallback=DEFAULT_DELIVERY_INVITE_BODY||DEFAULT_DELIVERY_BODY;
+  return renderTemplateText(tpl?.body||fallback,vars).replace(/\n{3,}/g,'\n\n').trim();
+}
+function planAvailableStock(planId){
+  return state.stock.find(x=>x.plan_id===planId && ['available','activo','active','disponible'].includes(String(x.status||'available').toLowerCase())) || state.stock.find(x=>x.plan_id===planId && opsAvailableStatus(x)!=='used');
+}
+function openPlanManualDelivery(planId){
+  const available=state.stock.filter(x=>x.plan_id===planId&&opsAvailableStatus(x)==='available');
+  if(available.length===1){openOpsDeliver(available[0].id,planId);return;}
+  if(available.length>1){openPlanStockView(planId);toast('Elige la cuenta que deseas entregar','ok');return;}
+  // Entrega manual sin cuenta cargada: debe abrir igual y descontar cupo manual del plan.
+  openOpsDeliver('',planId);
+  toast('No hay cuenta cargada: se hará entrega manual y se descontará cupo manual si existe','ok');
+}
+function refreshOpsDeliverMessage(){
+  if(!$('opsDeliverText'))return;
+  const stockId=$('opsDeliverStockId')?.value||'';
+  const planId=$('opsDeliverPlanId')?.value || (stockId?(state.stock.find(s=>s.id===stockId)||{}).plan_id:'');
+  const item=stockId?state.stock.find(s=>s.id===stockId):null;
+  const secret=item?opsSecret(item):{};
+  $('opsDeliverText').value=opsDeliveryTextFromPlan(planId,{cliente:$('opsDeliverName')?.value||'',telefono:$('opsDeliverPhone')?.value||'',monto:$('opsDeliverAmount')?.value||'',fecha_inicio:$('opsDeliverStart')?.value||todayISO(),fecha_pago:$('opsDeliverPayDate')?.value||todayISO(),fecha_vencimiento:$('opsDeliverDue')?.value||planRenewalDue(planId),correo:secret.correo||secret.usuario||'',contraseña:secret.clave||secret.pass||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',url:secret.url||secret.grupo||'',codigo:secret.codigo||'',nota:secret.nota||item?.notes||''});
+}
+
+function openOpsDeliver(id,forcedPlanId=''){
+  const x=id?state.stock.find(s=>s.id===id):null;
+  const planId=x?.plan_id||forcedPlanId||$('opsDeliverPlanId')?.value||'';
+  if(!planId){toast('Selecciona un plan para entregar','bad');return;}
+  const d=x?opsSecret(x):{};
+  $('opsDeliverStockId').value=x?.id||'';
+  if($('opsDeliverPlanId'))$('opsDeliverPlanId').value=planId;
   $('opsDeliverName').value=d.reserved_for||'';
   $('opsDeliverPhone').value=d.reserved_phone||'';
-  $('opsDeliverService').value=planName(x.plan_id);
-  const p=plan(x.plan_id);
+  $('opsDeliverService').value=planName(planId);
+  const p=plan(planId);
   $('opsDeliverAmount').value=p?.price??'';
-  $('opsDeliverDue').value=daysFromNow(30);
-  $('opsDeliverNewStatus').value='used';
-  $('opsDeliverText').value=opsDeliveryText(x);
+  if($('opsDeliverStart'))$('opsDeliverStart').value=todayISO();
+  if($('opsDeliverPayDate'))$('opsDeliverPayDate').value=todayISO();
+  $('opsDeliverDue').value=planRenewalDue(planId);
+  $('opsDeliverNewStatus').value=x?'used':'available';
+  refreshOpsDeliverMessage();
   showDialog('dlgOpsDeliver');
 }
 async function saveOpsDeliver(){
   const id=$('opsDeliverStockId').value;
-  const x=state.stock.find(s=>s.id===id);if(!x)return;
+  const x=id?state.stock.find(s=>s.id===id):null;
+  const planId=(x?.plan_id)||$('opsDeliverPlanId')?.value||'';
   const name=$('opsDeliverName').value.trim()||'Cliente';
   const phone=normalizePhone($('opsDeliverPhone').value);
   if(!phone.ok)return toast(phone.error||'WhatsApp inválido','bad');
-  const payload={name,phone_raw:$('opsDeliverPhone').value.trim(),phone_e164:phone.e164,email:null,source:'operaciones_pro',notes:'Creado desde Operaciones PRO'};
-  const c=await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
+  const existingByPhone=state.customers.find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
+  const finalName=(existingByPhone?.name||name).trim();
+  const payload={name:finalName,phone_raw:$('opsDeliverPhone').value.trim()||phone.e164,phone_e164:phone.e164,email:existingByPhone?.email||null,source:existingByPhone?.source||'entrega_manual_stock',notes:existingByPhone?.notes||'Creado desde entrega manual de stock'};
+  const c=existingByPhone?.id?await db.from('crm_customers').update(payload).eq('id',existingByPhone.id).select().single():await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
   if(c.error)return toast('Cliente no guardado: '+c.error.message,'bad');
-  const service=$('opsDeliverService').value.trim()||planName(x.plan_id);
+  const service=$('opsDeliverService').value.trim()||planName(planId)||'Servicio';
   const amount=$('opsDeliverAmount').value===''?null:Number($('opsDeliverAmount').value||0);
-  const due=$('opsDeliverDue').value||daysFromNow(30);
-  const reminderDraft={customer_id:c.data.id,product_id:plan(x.plan_id)?.product_id||null,plan_id:x.plan_id,service_name:service,amount,currency:'PEN',due_date:due,status:'pending'};
+  const startDate=$('opsDeliverStart')?.value||todayISO();
+  const payDate=$('opsDeliverPayDate')?.value||todayISO();
+  const due=$('opsDeliverDue').value||planRenewalDue(planId);
+  // Usamos fecha_inicio/fecha_pago solo para armar la plantilla de WhatsApp.
+  // No se insertan en payment_reminders porque esa tabla no tiene esas columnas en tu Supabase.
+  const reminderDraft={customer_id:c.data.id,product_id:plan(planId)?.product_id||null,plan_id:planId||null,service_name:service,amount,currency:'PEN',due_date:due,status:'pending',fecha_inicio:startDate,fecha_pago:payDate};
   reminderDraft.whatsapp_message=buildTemplateMessage(getDefaultTemplate(),c.data,reminderDraft);
-  const r=await db.from('payment_reminders').insert(reminderDraft);
+  const reminderDbPayload={customer_id:reminderDraft.customer_id,product_id:reminderDraft.product_id,plan_id:reminderDraft.plan_id,service_name:reminderDraft.service_name,amount:reminderDraft.amount,currency:reminderDraft.currency,due_date:reminderDraft.due_date,status:reminderDraft.status,whatsapp_message:reminderDraft.whatsapp_message};
+  const r=await db.from('payment_reminders').insert(reminderDbPayload);
   if(r.error)return toast('Recordatorio no creado: '+r.error.message,'bad');
-  const newStatus=$('opsDeliverNewStatus').value;
-  const d={...opsSecret(x)};
-  d.used_count=Math.min(Number(d.max_uses||1),Number(d.used_count||0)+1);
-  delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
-  await db.from('stock_items').update({status:newStatus,secret_data:d}).eq('id',id);
-  const msg=$('opsDeliverText').value.trim()||opsDeliveryText(x);
+  if(x){
+    const d={...opsSecret(x)};
+    d.used_count=Number(d.used_count||0)+1;
+    d.last_customer=finalName;
+    d.last_phone=phone.e164;
+    d.last_used_at=new Date().toISOString();
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+    const max=Number(d.max_uses||1);
+    const chosen=$('opsDeliverNewStatus').value;
+    const finalStatus=(d.used_count>=max)?'used':(chosen==='used'?'used':chosen||'available');
+    const st=await db.from('stock_items').update({status:finalStatus,secret_data:d}).eq('id',id);
+    if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
+  }else if(planId){
+    const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
+    if(!used.ok)toast('Entrega registrada, pero no se pudo descontar cupo: '+used.error,'bad');
+  }
+  const msg=$('opsDeliverText').value.trim()||opsDeliveryTextFromPlan(planId,{cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due});
   copyTextSafe(msg);
   closeDialog('dlgOpsDeliver');
-  toast('Cliente + recordatorio a 30 días creados','ok');
-  notifyWeb('Entrega registrada','Se creó recordatorio para '+name,true);
-  if($('opsDeliverOpenWa').checked){
+  toast('Entrega + recordatorio creados','ok');
+  notifyWeb('Entrega registrada','Se creó recordatorio para '+finalName,true);
+  if($('opsDeliverOpenWa')?.checked){
     const url=waLink(phone.e164,msg);
     if(url!=='#')window.open(url,'_blank','noopener,noreferrer');
   }
@@ -4512,7 +4946,7 @@ function renderTotp(){
       <div class="totp-kv"><span class="k">Cuentas vinculados</span><span class="v">${codes.filter(c=>c.account_id===a.id).length}</span></div>
       <div class="totp-kv"><span class="k">Creada</span><span class="v">${totpDate(a.created_at)}</span></div>
       ${a.notes?`<div class="help" style="white-space:pre-wrap;margin-top:8px">${esc(a.notes)}</div>`:''}
-      <div class="totp-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">✏️ Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">⚡ Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Desactivar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">🗑 Eliminar</button></div>
+      <div class="totp-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">⚡ Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Desactivar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">Elim.</button></div>
     </div>`).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';
     return;
   }
@@ -4535,7 +4969,7 @@ function renderTotp(){
     <div class="totp-kv"><span class="k">Vence</span><span class="v">${totpDate(c.expires_at)}</span></div>
     ${c.customer_name||c.customer_phone?`<div class="totp-sub">Cliente: ${esc(c.customer_name||'—')} · ${esc(c.customer_phone||'—')}</div>`:''}
     ${c.notes?`<div class="help" style="white-space:pre-wrap;margin-top:8px">${esc(c.notes)}</div>`:''}
-    <div class="totp-actions"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">✏️ Editar</button><button class="btn" onclick="copyTextSafe('${esc(c.access_code)}')">📋 Copiar</button><button class="btn btn-warning" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">🗑 Eliminar</button></div>
+    <div class="totp-actions"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">Editar</button><button class="btn" onclick="copyTextSafe('${esc(c.access_code)}')">📋 Copiar</button><button class="btn btn-warning" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">Elim.</button></div>
   </div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay cuentas de acceso. Crea uno desde “＋ Código acceso”.</p></div>';
 }
 function openTotpAccountDialog(id=''){
@@ -4815,7 +5249,7 @@ $('btnTheme').onclick=()=>{
 $('btnLoginHelp').onclick=()=>toast('Primero crea usuario en Supabase Authentication y agrégalo a admin_users.','info');
 
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
-['btnReload1','btnReload2','btnReload3','btnReload4','btnSyncAll'].forEach(id=>{const el=$(id);if(el)el.onclick=loadAll});
+['btnReload1','btnReload2','btnReload3','btnReload4','btnReloadClients','btnSyncAll'].forEach(id=>{const el=$(id);if(el)el.onclick=loadAll});
 
 $('btnNewProduct').onclick=blankProduct;
 $('btnNewPlan').onclick=()=>blankPlan();
@@ -4864,16 +5298,20 @@ $('btnNewReminder').onclick=()=>blankReminder();
 if($('btnNewReminderFromClients'))$('btnNewReminderFromClients').onclick=()=>blankReminder();
 $('reminderForm').onsubmit=saveReminder;
 $('btnDeleteReminder').onclick=deleteReminder;
-$('btnApplyTemplate').onclick=applySelectedTemplate;
-$('btnSaveReminderOpen').onclick=saveReminderAndOpen;
-$('rTemplate').onchange=applySelectedTemplate;
+if($('btnApplyTemplate'))$('btnApplyTemplate').onclick=applySelectedTemplate;
+if($('btnSaveReminderOpen'))$('btnSaveReminderOpen').onclick=saveReminderAndOpen;
+if($('rTemplate'))$('rTemplate').onchange=applySelectedTemplate;
 $('clientSearch').oninput=()=>{renderClients();renderReminders()};
 $('reminderSearch').oninput=renderReminders;
 $('btnReloadClients').onclick=loadAll;
 $('btnOnlyDue').onclick=()=>{state.onlyDue=!state.onlyDue;$('btnOnlyDue').setAttribute('aria-pressed',state.onlyDue);renderReminders()};
 $('btnOnlyPending').onclick=()=>{state.onlyPending=!state.onlyPending;$('btnOnlyPending').setAttribute('aria-pressed',state.onlyPending);renderReminders()};
-if($('btnOnlyDueClients'))$('btnOnlyDueClients').onclick=()=>{state.onlyDueClients=!state.onlyDueClients;$('btnOnlyDueClients').setAttribute('aria-pressed',state.onlyDueClients);renderReminders()};
-$('rPlan').onchange=()=>{const p=plan($('rPlan').value);if(p){$('rProduct').value=p.product_id;$('rService').value=planName(p.id);if(!$('rAmount').value)$('rAmount').value=p.price??'';applySelectedTemplate()}};
+if($('btnOnlyDueClients'))$('btnOnlyDueClients').onclick=()=>{state.onlyDueClients=!state.onlyDueClients;$('btnOnlyDueClients').setAttribute('aria-pressed',state.onlyDueClients);renderClients();renderReminders()};
+if($('rPlan'))$('rPlan').onchange=()=>{const p=plan($('rPlan').value);if(p){$('rProduct').value=p.product_id;if(!$('rService').value)$('rService').value=planName(p.id);if(!$('rAmount').value)$('rAmount').value=p.price??'';if($('rDue'))$('rDue').value=planRenewalDue(p.id);}applySelectedTemplate()};
+if($('rProduct'))$('rProduct').onchange=()=>{if($('rProduct').value===''){$('rPlan').value='';}applySelectedTemplate()};
+['rCustomerName','rCustomerPhone','rAmount','rDue'].forEach(id=>$(id)?.addEventListener('input',()=>{if($('rMsg'))applySelectedTemplate()}));
+$('rService')?.addEventListener('input',()=>{autoFillReminderFromService(false)});
+['opsDeliverName','opsDeliverPhone','opsDeliverAmount','opsDeliverStart','opsDeliverPayDate','opsDeliverDue','opsDeliverService'].forEach(id=>$(id)?.addEventListener('input',refreshOpsDeliverMessage));
 $('rCustomer').onchange=applySelectedTemplate;
 $('btnUploadQr').onclick=uploadQr;
 $('btnSavePayment').onclick=savePayment;
