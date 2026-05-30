@@ -1646,7 +1646,7 @@
     /* ================== Config ================== */
     const FX = 3.70;              // 1 USD = 3.70 S/
     const PAGE_SIZE = 16;         // cards pequeñas
-    const CATALOG_REFRESH_MS = 15000; // refresca cupos/productos sin parpadeo visual
+    // Sin polling: el catálogo se actualiza solo cuando Supabase emite cambios reales.
 
     // Conexión pública a Supabase (segura con RLS activado)
     const SUPABASE_URL = 'https://rfjvskrimsoqlyofhidj.supabase.co';
@@ -4687,6 +4687,53 @@
       }catch(e){}
     })();
 
+
+    /* ================== Realtime de catálogo sin polling ================== */
+    let catalogRealtimeChannel = null;
+    let catalogRealtimeTimer = null;
+    let catalogRealtimePending = false;
+
+    function scheduleCatalogRealtimeRefresh(reason = 'change'){
+      if(!supabaseClient) return;
+      if(document.hidden){ catalogRealtimePending = true; return; }
+      clearTimeout(catalogRealtimeTimer);
+      catalogRealtimeTimer = setTimeout(async ()=>{
+        if(document.hidden){ catalogRealtimePending = true; return; }
+        const changed = await loadSupabaseCatalog({silent:true});
+        if(changed){
+          resetPriceInputs();
+          render();
+        }
+      }, 650);
+    }
+
+    function initPublicCatalogRealtime(){
+      if(catalogRealtimeChannel || !supabaseClient || !supabaseClient.channel) return;
+      let ch = supabaseClient.channel('innov-public-catalog-' + Date.now());
+      ['products','product_plans','stock_items'].forEach(table=>{
+        ch = ch.on('postgres_changes', { event:'*', schema:'public', table }, () => {
+          scheduleCatalogRealtimeRefresh(table);
+        });
+      });
+      ch.subscribe(status=>{
+        if(status === 'SUBSCRIBED') updateCatalogStatus();
+      });
+      catalogRealtimeChannel = ch;
+
+      document.addEventListener('visibilitychange', ()=>{
+        if(!document.hidden && catalogRealtimePending){
+          catalogRealtimePending = false;
+          scheduleCatalogRealtimeRefresh('resume');
+        }
+      });
+      window.addEventListener('focus', ()=>{
+        if(catalogRealtimePending){
+          catalogRealtimePending = false;
+          scheduleCatalogRealtimeRefresh('focus');
+        }
+      });
+    }
+
     /* ================== INIT ================== */
     document.getElementById('sortSelect').value = state.sort;
     syncHeaderBadges();
@@ -4741,15 +4788,8 @@
       openFromHashIfPossible();
     });
 
-    // Auto-refresh de cupos/productos para que el cliente vea disponibilidad casi en vivo.
-    setInterval(async ()=>{
-      if(document.hidden) return;
-      const changed = await loadSupabaseCatalog({silent:true});
-      if(changed){
-        resetPriceInputs();
-        render();
-      }
-    }, CATALOG_REFRESH_MS);
+    // Realtime: cambios de productos/planes/cupos llegan por Supabase, sin consultar cada X segundos.
+    initPublicCatalogRealtime();
 
   })();
   </script>
@@ -4802,6 +4842,11 @@ window.addEventListener('message', function(event){
 
 </body>
 </html>
+
+
+
+
+
 
 
 
