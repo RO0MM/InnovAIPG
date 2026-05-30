@@ -420,6 +420,12 @@ tbody tr:hover td { background: var(--primary-alpha2); }
 .b-bad, .b-vencido { background: var(--danger-alpha); color: var(--danger); }
 .b-warn, .b-reof { background: var(--warning-alpha); color: var(--warning); }
 .b-pagado { background: var(--primary-alpha); color: var(--primary); }
+.b-nonew { background: rgba(15,23,42,.10); color: var(--text); }
+[data-theme="dark"] .b-nonew { background: rgba(226,232,245,.12); color: var(--text); }
+/* Estados de recordatorios más claros */
+.b-use { background: var(--success-alpha); color: var(--success); }
+.b-reof { background: var(--danger-alpha) !important; color: var(--danger) !important; }
+
 .b-purple { background: var(--purple-alpha); color: var(--purple); }
 
 /* Pill vencimiento */
@@ -1664,6 +1670,16 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   .help{font-size:.78rem!important;line-height:1.35!important;}
 }
 
+
+/* FIX plantillas entrega v11 */
+.delivery-apply-box{border:1px solid var(--border);border-radius:12px;background:var(--card2);padding:10px;display:grid;gap:10px;max-height:240px;overflow:auto}
+.delivery-apply-group{display:grid;gap:6px}
+.delivery-apply-group strong{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.delivery-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px}
+.delivery-check{display:flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:7px 9px;font-size:.82rem;cursor:pointer}
+.delivery-check input{accent-color:var(--primary)}
+.delivery-template-kind{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;background:var(--primary-alpha);color:var(--primary);font-size:.72rem;font-weight:800}
+
 </style>
 </head>
 <body>
@@ -1695,8 +1711,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   <button class="btn btn-ghost nav-btn-side" data-tab="inventory" type="button">📦 Cupos y entregas</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="orders" type="button">🧾 Pagos y pedidos</button>
   <div class="g-title">CRM</div>
-  <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">👥 Clientes + pagos</button>
-  <button class="btn btn-ghost nav-btn-side" data-tab="clients" type="button">🔔 Recordatorios / pagos</button>
+  <button class="btn btn-ghost nav-btn-side" data-tab="reminders" type="button">🔔 Recordatorios / pagos</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="chat" type="button">💬 Chat Clientes <span class="tab-badge" id="tbChatSide" style="display:none">0</span></button>
   <button class="btn btn-ghost nav-btn-side" data-tab="totp" type="button">🛡️ Accesos TOTP</button>
   <div class="g-title">Configuración</div>
@@ -1756,7 +1771,6 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
     <button class="btn nav-btn" data-tab="products">🧩 Productos</button>
     <button class="btn nav-btn" data-tab="inventory">📦 Cupos</button>
     <button class="btn nav-btn" data-tab="orders">🧾 Pagos <span class="tab-badge" id="tbOrders" style="display:none">0</span></button>
-    <button class="btn nav-btn" data-tab="clients">👥 Clientes + pagos</button>
     <button class="btn nav-btn" data-tab="reminders">🔔 Recordatorios <span class="tab-badge" id="tbReminders" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="chat">💬 Chat <span class="tab-badge" id="tbChat" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="totp">🛡️ Accesos TOTP</button>
@@ -1811,6 +1825,8 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
           <div class="input-wrap"><input class="input" id="planSearch" type="search" placeholder="🔍 Buscar plan, producto..."></div>
           <div class="actions">
             <button class="btn btn-primary" id="btnNewPlan" type="button">＋ Plan</button>
+            <button class="btn btn-success" id="btnOpsAddAccount" type="button">＋ Cuenta</button>
+            <button class="btn" id="btnOpsBulk" type="button">Lote</button>
             <button class="btn" id="btnReload3" type="button">↻</button>
             <button class="btn chip" id="btnOnlyEmpty" type="button" aria-pressed="false">Sin cupos</button>
           </div>
@@ -1837,7 +1853,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
       </section>
 
       <!-- Clientes + Recordatorios -->
-      <section id="tab-clients" class="admin-section">
+      <section id="tab-clients" class="admin-section hidden" aria-hidden="true">
         <div class="admin-toolbar">
           <div class="input-wrap"><input class="input" id="clientSearch" type="search" placeholder="🔍 Buscar cliente, WhatsApp, servicio o pago..."></div>
           <div class="actions">
@@ -1850,7 +1866,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
         </div>
         <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
           <strong>👥 Clientes y pagos en una sola vista</strong>
-          <p class="help" style="margin:6px 0 0">Aquí verás cliente, historial, cuenta entregada y recordatorios de pago. Los vencidos quedan arriba para abrir WhatsApp más rápido.</p>
+          <p class="help" style="margin:6px 0 0">Aquí verás cliente, historial, cuenta entregada y recordatorios de pago. Orden automático: vencidos primero, luego vence hoy, por vencer (mañana y pasado mañana) y después En uso. Desde el día 4 pasa a No renovó; a los 15 días se elimina solo el servicio.</p>
         </div>
         <div class="crm-split">
           <div>
@@ -1858,7 +1874,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
             <div class="line-list" id="clientsGrid"></div>
           </div>
           <div>
-            <div class="crm-section-title"><strong>🔔 Recordatorios de pago</strong><span class="help">Vencidos / pendientes / WhatsApp</span></div>
+            <div class="crm-section-title"><strong>🔔 Recordatorios de pago</strong><span class="help">Vencidos / reofrecer / por cobrar / WhatsApp</span></div>
             <div class="line-list" id="remindersMergedGrid"></div>
           </div>
         </div>
@@ -1871,12 +1887,12 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
           <div class="actions">
             <button class="btn btn-primary" id="btnNewReminder" type="button">＋ Recordatorio</button>
             <button class="btn chip" id="btnOnlyDue" type="button" aria-pressed="false">Vencidos</button>
-            <button class="btn chip" id="btnOnlyPending" type="button" aria-pressed="false">Pendientes</button>
+            <button class="btn chip" id="btnOnlyPending" type="button" aria-pressed="false">Para avisar</button>
           </div>
         </div>
         <div class="card" style="margin-bottom:12px;border-left:3px solid var(--success)">
           <strong>✅ Automático después de entrega</strong>
-          <p class="help" style="margin:6px 0 0">Cuando apruebas y entregas una cuenta/código, el sistema crea un cliente y un recordatorio a 30 días usando el WhatsApp del pedido.</p>
+          <p class="help" style="margin:6px 0 0">Orden automático: primero vencidos para reofrecer, luego vencido hoy, por vencer (mañana y pasado mañana) y En uso. Los vencimientos se consideran desde las 7:00 a. m. Si venció hoy, el botón dirá Enviar recordatorio de pago; desde el día siguiente pasa a Reofrecer. Desde el día 4 pasa a No renovó y a los 15 días se elimina solo el servicio. Cada fila muestra origen Checkout/Manual, total e Historial.</p>
         </div>
         <div class="line-list" id="remindersGrid"></div>
       </section>
@@ -2113,7 +2129,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
     <button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Prod.</span></button>
     <button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Stock</span></button>
     <button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pedidos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
-    <button class="btn" data-tab="clients" type="button"><span class="ico">👥</span><span>Clientes</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
+    <button class="btn" data-tab="reminders" type="button"><span class="ico">🔔</span><span>Record.</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
     <button class="btn" id="btnMobileMore" type="button" onclick="openSidenav()"><span class="ico">☰</span><span>Más</span></button>
   </div>
 </nav>
@@ -2188,7 +2204,14 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
       <div><label class="subtle">Nombre del plan *</label><input class="input" id="plName" required></div>
       <div><label class="subtle">Slug</label><input class="input" id="plSlug" placeholder="automático"></div>
       <div><label class="subtle">Precio S/</label><input class="input" id="plPrice" type="number" step="0.01"></div>
-      <div><label class="subtle">Periodo</label><input class="input" id="plPeriod" value="Mensual"></div>
+      <div><label class="subtle">Periodo</label>
+        <select class="input" id="plPeriod">
+          <option value="Mensual">Mensual</option>
+          <option value="Anual">Anual</option>
+          <option value="custom">Personalizado en meses</option>
+        </select>
+      </div>
+      <div id="plPeriodCustomBox" class="hidden"><label class="subtle">Meses personalizados</label><input class="input" id="plPeriodMonths" type="number" min="1" step="1" placeholder="Ej: 3"></div>
       <div><label class="subtle">Estado</label>
         <select class="input" id="plActive">
           <option value="true">Activo</option>
@@ -2200,7 +2223,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
         <label class="subtle">Video específico del plan</label>
         <input class="input" id="plVideo" placeholder="Opcional: YouTube, Vimeo o .mp4/.webm">
         <div class="grid grid-2" style="margin-top:8px">
-          <div><label class="subtle">Tipo</label><select class="input" id="plVideoType"><option value="auto">Auto detectar</option><option value="youtube">YouTube</option><option value="vimeo">Vimeo</option><option value="file">MP4/WebM directo</option></select></div>
+          <div class="hidden"><select class="input" id="plVideoType"><option value="auto">Auto detectar</option><option value="youtube">YouTube</option><option value="vimeo">Vimeo</option><option value="file">MP4/WebM directo</option><option value="drive">Google Drive</option><option value="facebook">Facebook</option><option value="tiktok">TikTok</option><option value="instagram">Instagram</option></select></div>
           <div><label class="subtle">Video activo</label><select class="input" id="plVideoEnabled"><option value="true">Sí, mostrar</option><option value="false">No, usar logo</option></select></div>
         </div>
         <p class="video-help">Si el plan tiene video, reemplaza al video general del producto.</p>
@@ -2221,14 +2244,14 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
           <option value="unavailable">No disponible</option>
         </select>
       </div>
-      <div id="manualBox" class="stock-box full">
+      <div id="manualBox" class="stock-box full hidden">
         <label class="subtle">Cupos manuales</label>
         <input class="input" id="plManualStock" type="number" min="0" placeholder="Ej: 20">
         <p class="help" style="margin-top:6px">Se muestran cupos, pero al aprobar pago se pedirá cuenta/código real si no existe stock cargado.</p>
       </div>
-      <div id="autoBox" class="stock-box full">
+      <div id="autoBox" class="stock-box full hidden">
         <label class="subtle">Importar cuentas/cuentas por lote</label>
-        <textarea class="input" id="bulkText" placeholder="correo@gmail.com|clave123|perfil|pin|1|nota opcional" style="min-height:100px"></textarea>
+        <textarea class="input" id="bulkText" placeholder="correo@gmail.com|clave123|perfil|pin|1|grupo o nota opcional" style="min-height:100px"></textarea>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center">
           <span class="badge b-ok" id="validCount">0 válidas</span>
           <span class="badge b-warn" id="doubtCount">0 dudosas</span>
@@ -2236,6 +2259,11 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
           <button class="btn btn-success btn-sm" type="button" id="btnSaveBulk">💾 Guardar lote</button>
         </div>
         <div id="bulkPreview" class="preview-list help" style="margin-top:8px"></div>
+      </div>
+      <div id="plTotpLinkBox" class="stock-box full hidden" style="display:none">
+        <label class="subtle">Access TOTP vinculado para ChatGPT</label>
+        <select class="input" id="plTotpAccount"></select>
+        <p class="help" style="margin-top:6px">Para planes ChatGPT, selecciona aquí la cuenta de Accesos TOTP. Al registrar una entrega se creará automáticamente un código de acceso y podrás usarlo en la plantilla con {codigo}, {codigo_acceso}, {access_code} o {totp_codigo}.</p>
       </div>
       <div><label class="subtle">Prioridad</label><input class="input" id="plPriority" type="number" value="100"></div>
     </div>
@@ -2256,7 +2284,9 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   <div class="dlg-body">
     <input type="hidden" id="manualOrderId">
     <input type="hidden" id="manualStockId">
-    <div style="margin-bottom:10px"><label class="subtle">Plan del pedido</label><select class="input" id="manualPlan"></select><div class="manual-stock-hint" id="manualStockHint">Selecciona un plan: si hay una cuenta libre, se cargará automáticamente.</div></div>
+    <input type="hidden" id="manualTotpAccountId">
+    <input type="hidden" id="manualTotpCode">
+    <div style="margin-bottom:10px"><label class="subtle">Plan del pedido</label><select class="input" id="manualPlan"></select><div class="manual-stock-hint" id="manualStockHint">Selecciona un plan: si hay una cuenta libre, se cargará automáticamente.</div><div class="sync-note hidden" id="manualTotpInfo" style="margin-top:8px"></div></div>
     <div class="grid grid-2">
       <div><label class="subtle">Plantilla de entrega</label><select class="input" id="manualTemplate"></select></div>
       <div><label class="subtle">Fecha de inicio</label><input class="input" id="manualStartDate" type="date"></div>
@@ -2349,20 +2379,27 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   <form id="deliveryTemplateForm">
     <input type="hidden" id="dtId">
     <div class="grid grid-2">
-      <div><label class="subtle">Nombre *</label><input class="input" id="dtName" required placeholder="Disney / Netflix con perfil"></div>
-      <div><label class="subtle">Clave *</label><input class="input" id="dtKey" required placeholder="streaming_profile"></div>
-      <div><label class="subtle">Estado</label>
-        <select class="input" id="dtActive">
-          <option value="true">Activa</option>
-          <option value="false">Oculta</option>
+      <div><label class="subtle">Nombre *</label><input class="input" id="dtName" required placeholder="Streaming / ChatGPT / Cuenta simple"></div>
+      <div><label class="subtle">Tipo de plantilla *</label>
+        <select class="input" id="dtKey" required>
+          <option value="streaming_profile">Streaming: correo + clave + perfil + PIN</option>
+          <option value="chatgpt_totp">ChatGPT compartida: correo + clave + código Access TOTP</option>
+          <option value="account_simple">Correo y contraseña</option>
+          <option value="activation_invite">Google One / Canva / Autodesk / invitación</option>
         </select>
       </div>
+      <input type="hidden" id="dtActive" value="true">
       <label class="help" style="display:flex;align-items:center;gap:8px;cursor:pointer;align-self:center">
-        <input id="dtDefault" type="checkbox"> Plantilla principal
+        <input id="dtDefault" type="checkbox"> Plantilla principal si no hay una asignada
       </label>
+      <div class="full">
+        <label class="subtle">Usar esta plantilla en estos productos / planes</label>
+        <div class="delivery-apply-box" id="dtApplyList"><div class="help">Guarda o carga productos para seleccionar dónde se usa esta plantilla.</div></div>
+        <p class="help" style="margin:6px 0 0">Puedes marcar varios. Si no marcas nada, se usará por tipo automáticamente.</p>
+      </div>
       <div class="full"><label class="subtle">Cuerpo de plantilla *</label><textarea class="input" id="dtBody" style="min-height:220px" required></textarea></div>
       <div class="full"><label class="subtle">Restricciones por defecto</label><textarea class="input" id="dtRestrictions" style="min-height:110px"></textarea></div>
-      <div class="full"><p class="help" style="line-height:1.8">Variables: <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{plan}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{nota}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{fecha_pago}</span> <span class="mono">{cliente}</span> <span class="mono">{telefono}</span> <span class="mono">{monto}</span> <span class="mono">{restricciones}</span> <span class="mono">{soporte}</span> <span class="mono">{tienda}</span></p></div>
+      <div class="full"><p class="help" style="line-height:1.8">Variables: <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{plan}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{codigo_acceso}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{cliente}</span> <span class="mono">{telefono}</span> <span class="mono">{monto}</span> <span class="mono">{restricciones}</span> <span class="mono">{soporte}</span> <span class="mono">{tienda}</span></p></div>
     </div>
   </form>
   <div class="modal-actions">
@@ -2411,19 +2448,19 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
 <!-- Ver cuentas por plan -->
 <dialog id="dlgPlanStockView" class="plan-stock-modal">
   <div class="modal-header">
-    <strong id="planStockTitle">Cuentas registradas</strong>
+    <strong id="planStockTitle">Entregas / historial</strong>
     <button class="btn btn-ghost btn-icon" data-close="dlgPlanStockView" type="button">✕</button>
   </div>
   <div class="dlg-body">
     <div class="card stock-help-card" style="margin-bottom:12px">
-      <strong>📦 Cuentas dentro de este plan</strong>
-      <p class="help" style="margin:6px 0 0">Aquí ves exactamente qué cuentas están registradas para entrega automática. Si no hay cuentas disponibles, la entrega automática no tendrá correo/contraseña reales.</p>
+      <strong>📦 Entregas e historial del plan</strong>
+      <p class="help" style="margin:6px 0 0">Aquí ves las cuentas, a quién se entregaron, cuántos usos tienen y puedes reponer una cuenta si la entrega se anuló.</p>
     </div>
     <input type="hidden" id="planStockPlanId">
     <div class="plan-stock-toolbar">
       <input class="input" id="planStockSearch" type="search" placeholder="Buscar correo, perfil, PIN o estado...">
-      <button class="btn btn-primary" id="btnPlanStockAdd" type="button">＋ Cargar cuentas</button>
-      <button class="btn" id="btnPlanStockOps" type="button">Abrir Operaciones</button>
+      <button class="btn btn-primary" id="btnPlanStockAdd" type="button">＋ Agregar</button>
+      <button class="btn hidden" id="btnPlanStockOps" type="button">Abrir Operaciones</button>
     </div>
     <div id="planStockList" class="plan-stock-list"></div>
   </div>
@@ -2432,26 +2469,29 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
 <!-- Operaciones PRO: Cuenta -->
 <dialog id="dlgOpsStock">
   <div class="modal-header">
-    <strong id="opsStockDlgTitle">Cuenta</strong>
+    <strong id="opsStockDlgTitle">Agregar cuenta / cupo</strong>
     <button class="btn btn-ghost btn-icon" data-close="dlgOpsStock" type="button">✕</button>
   </div>
   <form id="opsStockForm">
     <input type="hidden" id="opsStockId">
     <div class="grid grid-2">
-      <div><label class="subtle">Tipo</label>
+      <div class="hidden"><label class="subtle">Tipo</label>
         <select class="input" id="opsStockType"><option value="account">Cuenta</option></select>
       </div>
       <div><label class="subtle">Plan vinculado *</label><select class="input" id="opsStockPlan" required></select></div>
-      <div class="full"><label class="subtle">Título / referencia</label><input class="input" id="opsStockTitle" placeholder="Netflix perfil 1, Cuenta Canva, etc."></div>
-      <div class="ops-account-field"><label class="subtle">Correo / usuario</label><input class="input" id="opsStockUser" placeholder="correo@gmail.com"></div>
-      <div class="ops-account-field"><label class="subtle">Contraseña</label><input class="input" id="opsStockPass" placeholder="clave"></div>
+      <div class="full"><label class="subtle">Título / referencia interna</label><input class="input" id="opsStockTitle" placeholder="Opcional: Netflix perfil 1, Cuenta Canva, etc."></div>
+      <div class="ops-account-field"><label class="subtle">Correo / usuario *</label><input class="input" id="opsStockUser" required placeholder="correo@gmail.com"></div>
+      <div class="ops-account-field"><label class="subtle">Contraseña *</label><input class="input" id="opsStockPass" required placeholder="clave"></div>
       <div class="ops-account-field"><label class="subtle">Perfil</label><input class="input" id="opsStockProfile" placeholder="Perfil 1 / Rommel"></div>
       <div class="ops-account-field"><label class="subtle">PIN</label><input class="input" id="opsStockPin" placeholder="1234"></div>
+      <div class="ops-account-field full"><label class="subtle">Perfiles opcionales por lote</label><textarea class="input" id="opsStockProfilesBulk" placeholder="Perfil 1|1234
+Perfil 2|5678"></textarea><p class="help" style="margin-top:6px">Para streaming: escribe un perfil por línea. Se creará un cupo independiente por perfil usando el mismo correo y contraseña.</p></div>
       <div class="ops-account-field"><label class="subtle">Usos permitidos</label><input class="input" id="opsStockMaxUses" type="number" min="1" value="1" placeholder="1"></div>
-      <div class="ops-account-field"><label class="subtle">Usos actuales</label><input class="input" id="opsStockUsedCount" type="number" min="0" value="0" placeholder="0"></div>
+      <div class="ops-account-field hidden"><label class="subtle">Usos actuales</label><input class="input" id="opsStockUsedCount" type="number" min="0" value="0" placeholder="0"></div>
+      <div class="ops-account-field full hidden" id="opsStockTotpBox"><label class="subtle">Access TOTP para ChatGPT</label><select class="input" id="opsStockTotpAccount"></select><p class="help" style="margin-top:6px">Si pones 10 usos, se crearán 10 códigos distintos, cada uno de un solo uso.</p></div>
       <div class="ops-code-field full hidden" style="display:none"><input type="hidden" id="opsStockCode" value=""></div>
       <div><label class="subtle">Grupo WhatsApp / URL</label><input class="input" id="opsStockGroup" placeholder="https://..."></div>
-      <div><label class="subtle">Estado</label>
+      <div class="hidden"><label class="subtle">Estado</label>
         <select class="input" id="opsStockStatus">
           <option value="available">Disponible</option>
           <option value="reserved">Reservado</option>
@@ -2464,7 +2504,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   <div class="modal-actions">
     <button class="btn btn-danger" id="btnOpsDeleteStock" type="button">Eliminar</button>
     <button class="btn" data-close="dlgOpsStock" type="button">Cancelar</button>
-    <button class="btn btn-primary" type="submit" form="opsStockForm">Guardar</button>
+    <button class="btn btn-primary" type="submit" form="opsStockForm">Guardar cuenta</button>
   </div>
 </dialog>
 
@@ -2477,30 +2517,28 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   <div class="dlg-body">
     <input type="hidden" id="opsDeliverStockId">
     <input type="hidden" id="opsDeliverPlanId">
+    <input type="hidden" id="opsDeliverTotpAccountId">
+    <input type="hidden" id="opsDeliverTotpCode">
+    <input type="hidden" id="opsDeliverPedido">
+    <div class="sync-note hidden" id="opsDeliverTotpInfo" style="margin-bottom:10px"></div>
+    <div class="sync-note" style="margin-bottom:10px">La cuenta, contraseña, perfil, PIN, grupo y código Access TOTP se toman automáticamente de la cuenta seleccionada y de la plantilla de entrega.</div>
     <div class="grid grid-2">
       <div><label class="subtle">Nombre cliente *</label><input class="input" id="opsDeliverName" placeholder="Cliente"></div>
       <div><label class="subtle">WhatsApp *</label><input class="input" id="opsDeliverPhone" placeholder="991564053"></div>
-      <div><label class="subtle">Servicio</label><input class="input" id="opsDeliverService"></div>
-      <div><label class="subtle">Monto S/</label><input class="input" id="opsDeliverAmount" type="number" step="0.01"></div>
-      <div><label class="subtle">Fecha de inicio</label><input class="input" id="opsDeliverStart" type="date"></div>
-      <div><label class="subtle">Fecha de pago</label><input class="input" id="opsDeliverPayDate" type="date"></div>
-      <div><label class="subtle">Vence / renovación</label><input class="input" id="opsDeliverDue" type="date"></div>
-      <div><label class="subtle">Estado stock</label>
-        <select class="input" id="opsDeliverNewStatus">
-          <option value="used">Marcar usado</option>
-          <option value="reserved">Marcar reservado</option>
-          <option value="available">Mantener disponible</option>
-        </select>
-      </div>
-      <div class="full"><label class="subtle">Mensaje de entrega</label><textarea class="input" id="opsDeliverText" style="min-height:180px"></textarea></div>
+      <div class="hidden"><input class="input" id="opsDeliverService"></div>
+      <div class="hidden"><input class="input" id="opsDeliverAmount" type="number" step="0.01"></div>
+      <div class="hidden"><input class="input" id="opsDeliverStart" type="date"></div>
+      <div class="hidden"><input class="input" id="opsDeliverPayDate" type="date"></div>
+      <div class="hidden"><input class="input" id="opsDeliverDue" type="date"></div>
+      <div class="hidden"><select class="input" id="opsDeliverNewStatus"><option value="used">Marcar usado</option><option value="reserved">Marcar reservado</option><option value="available">Mantener disponible</option></select></div>
+      <div class="hidden full"><textarea class="input" id="opsDeliverText"></textarea></div>
       <label class="help full" style="display:flex;gap:8px;align-items:center;cursor:pointer">
         <input type="checkbox" id="opsDeliverOpenWa" checked> Abrir WhatsApp después de guardar
       </label>
     </div>
   </div>
   <div class="modal-actions">
-    <button class="btn" id="btnOpsCopyDeliver" type="button">📋 Copiar</button>
-    <button class="btn btn-primary" id="btnOpsSaveDeliver" type="button">✅ Registrar entrega</button>
+    <button class="btn btn-primary" id="btnOpsSaveDeliver" type="button">✅ Registrar entrega y abrir WhatsApp</button>
   </div>
 
 </dialog>
@@ -2540,9 +2578,10 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
       <div><label class="subtle">Modo</label>
         <select class="input" id="opsBulkMode"><option value="account">Todo cuentas</option></select>
       </div>
+      <div class="full hidden" id="opsBulkTotpBox"><label class="subtle">Access TOTP para ChatGPT</label><select class="input" id="opsBulkTotpAccount"></select><p class="help" style="margin-top:6px">Se crearán códigos de un solo uso según los usos indicados por cuenta.</p></div>
       <div class="full">
         <label class="subtle">Pega tus datos</label>
-        <textarea class="input" id="opsBulkText" style="min-height:190px" placeholder="correo@gmail.com|clave|perfil|pin|usos|nota opcional&#10;otrocorreo@gmail.com:clave123"></textarea>
+        <textarea class="input" id="opsBulkText" style="min-height:190px" placeholder="correo@gmail.com|clave|perfil opcional|pin opcional|usos|grupo o nota&#10;otrocorreo@gmail.com|clave123|| |1"></textarea>
       </div>
       <div class="full" style="display:flex;gap:8px;flex-wrap:wrap">
         <span class="badge b-ok" id="opsBulkValid">0 válidas</span>
@@ -2769,10 +2808,41 @@ function normalizePhone(raw){
   return{ok:false,e164:'+51'+digits,digits:'51'+digits,error:'Número incompleto'};
 }
 function whatsappDigits(e164){return String(e164||'').replace(/\D+/g,'')}
-function daysFromNow(days){const d=new Date();d.setDate(d.getDate()+Number(days||0));return d.toISOString().slice(0,10)}
-function todayISO(){return new Date().toISOString().slice(0,10)}
-function todayInput(){return new Date().toISOString().slice(0,10)}
-function isOverdue(date){return String(date||'')<todayISO()}
+const REMINDER_CUTOFF_HOUR = 7; // Los servicios vencen a las 7:00 a. m. hora local
+function localISO(date=new Date()){
+  const d=new Date(date);
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function localDateFromISO(v){
+  const [y,m,d]=String(v||'').slice(0,10).split('-').map(Number);
+  if(!y||!m||!d)return null;
+  return new Date(y,m-1,d,0,0,0,0);
+}
+function daysFromNow(days){const d=new Date();d.setDate(d.getDate()+Number(days||0));return localISO(d)}
+function todayISO(){return localISO(new Date())}
+function todayInput(){return todayISO()}
+function localCalendarDiffFromToday(due){
+  const dueDate=localDateFromISO(due), today=localDateFromISO(todayISO());
+  if(!dueDate||!today)return'';
+  return Math.round((dueDate-today)/86400000);
+}
+function reminderDueAt(due){
+  const d=localDateFromISO(due);
+  if(!d)return null;
+  d.setHours(REMINDER_CUTOFF_HOUR,0,0,0);
+  return d;
+}
+function reminderEffectiveDaysLeft(due){
+  const diff=localCalendarDiffFromToday(due);
+  if(diff==='')return'';
+  const dueAt=reminderDueAt(due);
+  if(diff===0&&dueAt&&new Date()>=dueAt)return -1;
+  return diff;
+}
+function isOverdue(date){const n=reminderEffectiveDaysLeft(date);return Number.isFinite(Number(n))&&Number(n)<0}
 function reminderMessage(customer,reminder){return buildTemplateMessage(getDefaultTemplate(),customer,reminder)}
 function waLink(phone,msg){const digits=whatsappDigits(phone);return digits?`https://wa.me/${digits}?text=${encodeURIComponent(msg||'')}`:'#'}
 function displayDateFromInput(v){if(!v)return'';const [y,m,d]=String(v).slice(0,10).split('-');return y&&m&&d?`${d}/${m}/${y}`:String(v)}
@@ -2847,10 +2917,22 @@ function getDefaultTemplate(){
   return state.templates.find(t=>t.is_default&&t.active!==false)||state.templates.find(t=>t.active!==false)||{name:'Plantilla base',body:DEFAULT_PAYMENT_TEMPLATE,active:true,is_default:true};
 }
 function calcDaysLeft(due){
-  if(!due)return'';
-  const a=new Date(new Date().toISOString().slice(0,10));
-  const b=new Date(String(due)+'T00:00:00');
-  return Math.ceil((b-a)/86400000);
+  return localCalendarDiffFromToday(due);
+}
+function reminderDayText(r){
+  if(!r?.due_date)return'';
+  const cal=localCalendarDiffFromToday(r.due_date);
+  if(cal==='')return'';
+  const effective=reminderEffectiveDaysLeft(r.due_date);
+  if(Number(effective)<0){
+    if(Number(cal)===0)return'venció hoy';
+    const n=Math.abs(Number(cal));
+    return `venció hace ${n}d`;
+  }
+  if(Number(cal)===0)return'vence hoy';
+  if(Number(cal)===1)return'vence mañana';
+  if(Number(cal)===2)return'vence pasado mañana';
+  return `faltan ${cal}d`;
 }
 function buildTemplateMessage(template,customer,reminder){
   const pay=getPaymentSettings(),store=getStoreSettings();
@@ -2911,24 +2993,40 @@ function renderDeliveryMessage(){
   const tpl=getDeliveryTemplate();
   const body=tpl?.body||DEFAULT_DELIVERY_BODY;
   const pay=getPaymentSettings(),store=getStoreSettings();
+  const pass=$('manualPass')?.value||'';
+  const user=$('manualUser')?.value||'';
+  const code=$('manualCode')?.value||'';
+  const group=$('manualGroup')?.value||'';
   const vars={
     pedido:$('manualOrderId')?.value||'',
     producto:planProductName($('manualPlan')?.value)||'',
     plan:planName($('manualPlan')?.value)||'',
-    correo:$('manualUser')?.value||'',
-    contraseña:$('manualPass')?.value||'',
+    correo:user,
+    email:user,
+    usuario:user,
+    clave:pass,
+    password:pass,
+    contrasena:pass,
+    contraseña:pass,
     perfil:$('manualProfile')?.value||'',
     pin:$('manualPin')?.value||'',
-    grupo:$('manualGroup')?.value||'',
-    url:$('manualUrl')?.value||'',
-    codigo:$('manualCode')?.value||'',
+    grupo:group,
+    url:$('manualUrl')?.value||group,
+    url_grupo:group,
+    codigo:code,
+    codigo_acceso:code,
+    access_code:code,
+    acceso:code,
+    totp_codigo:code,
     nota:$('manualNote')?.value||'',
     fecha_inicio:displayDateFromInput($('manualStartDate')?.value)||'',
+    fecha_pago:displayDateFromInput(todayISO()),
+    fecha_vencimiento:displayDateFromInput(planRenewalDue($('manualPlan')?.value||'')),
     restricciones:$('manualRestrictions')?.value||'',
     soporte:pay.yape_number||'',
     tienda:store.store_name||'Innov IA'
   };
-  const msg=body.replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m);
+  const msg=renderTemplateText(body,vars).replace(/\\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
   if($('manualMessage'))$('manualMessage').value=msg;
   if($('manualPreview'))$('manualPreview').textContent=msg;
 }
@@ -3189,6 +3287,7 @@ async function loadAll(){
   showLoading();
   try{
     await Promise.all([loadProducts(),loadPlans(),loadStock(),loadOrders(),loadCoupons(),loadSettings(),loadSummary(),loadCustomers(),loadReminders(),loadTemplates(),loadDeliveryTemplates(),loadTotpAccounts(),loadTotpCodes(),loadTotpEvents()]);
+    await cleanupExpiredReofferReminders();
     fillProductSelects();
     renderAll();
     if(!state.notifSeeded){seedNotificationMemory();state.notifSeeded=true;}
@@ -3262,7 +3361,7 @@ function renderKPIs(){
   $('kpiOrders').textContent=pendOrders;
   $('kpiDelivery').textContent=state.orders.filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
   if($('kpiClients'))$('kpiClients').textContent=state.customers.length;
-  const dueRem=state.reminders.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO()).length;
+  const dueRem=state.reminders.filter(reminderIsExpired).length;
   if($('kpiDue'))$('kpiDue').textContent=dueRem;
   // Update tab badges
   ['tbOrders','mbOrders'].forEach(id=>{const el=$(id);if(el){el.textContent=pendOrders;el.style.display=pendOrders>0?'':'none';}});
@@ -3311,7 +3410,48 @@ function renderProducts(){
 
 function isTotpFriendlyPlan(p){
   const txt=(prodName(p?.product_id)+' '+(p?.name||'')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  return /(chatgpt|gpt|openai|plus|totp|acceso|codigo)/.test(txt);
+  return /(chatgpt|gpt|openai)/.test(txt);
+}
+function planMetadata(p){
+  const m=p?.metadata;
+  return (m&&typeof m==='object'&&!Array.isArray(m))?m:{};
+}
+function planTotpAccountId(planId){
+  const p=typeof planId==='object'?planId:plan(planId);
+  return planMetadata(p).totp_account_id||'';
+}
+function planTotpAccountLabel(planId){
+  const id=planTotpAccountId(planId);
+  if(!id)return '';
+  const a=state.totpAccounts.find(x=>x.id===id);
+  return a?`${a.label||'Cuenta TOTP'}${a.issuer?' · '+a.issuer:''}`:'Cuenta TOTP vinculada';
+}
+function fillPlanTotpSelect(selected=''){
+  const el=$('plTotpAccount'); if(!el)return;
+  const opts=state.totpAccounts.filter(a=>a.active!==false).map(a=>`<option value="${a.id}">${esc(a.label)}${a.issuer?' · '+esc(a.issuer):''}</option>`).join('');
+  el.innerHTML='<option value="">Sin vincular</option>'+opts;
+  if(selected)el.value=selected;
+}
+function syncTotpLinkBox(){
+  const box=$('plTotpLinkBox'); if(!box)return;
+  // La vinculación TOTP ahora se hace al cargar cada cuenta ChatGPT, no al editar el plan.
+  box.classList.add('hidden');
+  box.style.display='none';
+}
+function generateUniqueTotpAccessCode(){
+  const existing=new Set((state.totpCodes||[]).map(c=>String(c.access_code||'').toUpperCase()));
+  let code='';
+  for(let i=0;i<80;i++){
+    code=makeTotpAccessCode();
+    if(!existing.has(code))return code;
+  }
+  return code||makeTotpAccessCode();
+}
+function makeManualDeliveryCode(){
+  const d=new Date();
+  const y=String(d.getFullYear()).slice(-2), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  const rnd=Math.random().toString(36).slice(2,6).toUpperCase();
+  return `ENT-${y}${m}${day}-${rnd}`;
 }
 function renderPlans(){
   const q=($('planSearch')?.value||'').toLowerCase();
@@ -3326,13 +3466,11 @@ function renderPlans(){
       <span class="badge ${visibleStock(p)>0?'b-ok':'b-bad'}">${visibleStock(p)} cupos</span>
       <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
       <span class="badge">${esc(p.availability_status||'available')}</span>
+      ${planTotpAccountId(p)?`<span class="badge b-purple">🛡 Access TOTP</span>`:''}
     </div>
     <div class="line-actions">
       <button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar</button>
-      <button class="btn btn-success" onclick="openPlanStockView('${p.id}')">👁 Ver</button>
-      <button class="btn btn-primary" onclick="openPlanManualDelivery('${p.id}')">Entregar</button>
-      <button class="btn" onclick="openAddStock('${p.id}')">Cargar</button>
-      ${isTotpFriendlyPlan(p)?`<button class="btn btn-primary" onclick="autoTotpCodesFromPlan('${p.id}')">🛡 TOTP</button>`:''}
+      <button class="btn btn-success" onclick="openPlanStockView('${p.id}')">Entregas</button>
       <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
       <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">Elim.</button>
     </div>
@@ -3344,7 +3482,7 @@ function openPlanStockView(planId){
   if(!$('dlgPlanStockView')){switchTab('ops');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps();},60);return;}
   $('planStockPlanId').value=planId||'';
   const p=plan(planId)||{};
-  $('planStockTitle').textContent='Cuentas registradas · '+opsPlanGroupTitle(planId);
+  $('planStockTitle').textContent='Entregas / historial · '+opsPlanGroupTitle(planId);
   if($('planStockSearch'))$('planStockSearch').value='';
   renderPlanStockView();
   showDialog('dlgPlanStockView');
@@ -3371,23 +3509,27 @@ function renderPlanStockView(){
   const res=state.stock.filter(x=>x.plan_id===planId&&opsAvailableStatus(x)==='reserved').length;
   const used=state.stock.filter(x=>x.plan_id===planId&&['used','delivered'].includes(opsAvailableStatus(x))).length;
   if(!rows.length){
-    list.innerHTML=`<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><button class="btn btn-primary" onclick="openAddStockFromPlanView()">＋ Cargar cuentas ahora</button></div>`;
+    list.innerHTML=`<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><p class="help">Puedes cargarlas desde los botones “＋ Cuenta” o “Lote” de la pestaña Cupos.</p></div>`;
     return;
   }
   list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${free} disponibles</span><span class="badge b-warn">${res} reservadas</span><span class="badge b-bad">${used} usadas</span><span class="badge">${rows.length} visibles</span></div>`+rows.map(x=>{
     const d=opsSecret(x), st=opsAvailableStatus(x);
     const pass=d.clave||d.pass||'';
+    const hist=Array.isArray(d.history)?d.history:[];
+    const last=hist[hist.length-1]||null;
     const reserve=d.reserved_for?` · reservado para ${esc(d.reserved_for)} ${d.reserved_phone?esc(d.reserved_phone):''}`:'';
+    const delivered=last?`<div class="plan-stock-sub">Última entrega: <b>${esc(last.customer_name||d.last_customer||'Cliente')}</b>${last.customer_phone||d.last_phone?' · '+esc(last.customer_phone||d.last_phone):''}${last.at?' · '+esc(new Date(last.at).toLocaleString('es-PE')):''}</div>`:(d.last_customer?`<div class="plan-stock-sub">Última entrega: <b>${esc(d.last_customer)}</b>${d.last_phone?' · '+esc(d.last_phone):''}</div>`:'');
     return `<div class="plan-stock-row">
       <div class="plan-stock-main">
         <div class="plan-stock-title">${esc(x.title||d.correo||'Cuenta')}</div>
-        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(Number(d.used_count||0))}/${esc(Number(d.max_uses||1))}</span>${reserve}</div>
+        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(Number(d.used_count||0))}/${esc(Number(d.max_uses||1))}</span>${reserve}${stockTotpAccountId(x)?` <span class="badge b-purple">🛡 TOTP</span>`:''}</div>
         <div class="plan-stock-secret"><span class="mono">📧 ${esc(d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${esc(pass)}</span>`:''}${d.perfil?`<span class="mono">👤 ${esc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${esc(d.pin)}</span>`:''}</div>
+        ${delivered}
       </div>
       <div class="plan-stock-actions">
-        <button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>
-        <button class="btn" onclick="copyTextSafe(opsDeliveryText(state.stock.find(s=>s.id==='${x.id}')))">Copiar</button>
-        <button class="btn" onclick="openStockViewEdit('${x.id}')">Modificar</button>
+        ${st==='available'||st==='reserved'?`<button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>`:''}
+        <button class="btn" onclick="viewStockHistory('${x.id}')">Historial</button>
+        ${st==='used'||st==='delivered'||st==='reserved'?`<button class="btn btn-warning" onclick="restoreStockAvailable('${x.id}')">Reponer</button>`:''}
         <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button>
       </div>
     </div>`;
@@ -3396,7 +3538,7 @@ function renderPlanStockView(){
 
 function openStockViewDeliver(id){closeDialog('dlgPlanStockView');setTimeout(()=>openOpsDeliver(id),80)}
 function openStockViewEdit(id){closeDialog('dlgPlanStockView');setTimeout(()=>openOpsStockDialog('account',id),80)}
-function openAddStockFromPlanView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');openAddStock(planId)}
+function openAddStockFromPlanView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');openOpsStockDialog('account');if($('opsStockPlan')){$('opsStockPlan').value=planId;syncOpsStockTotpBox();}}
 function openOpsFromPlanStockView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');switchTab('ops');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps()},60)}
 
 function renderOrders(){
@@ -3442,76 +3584,216 @@ function renderClients(){
   const q=($('clientSearch')?.value||'').toLowerCase();
   let data=state.customers.filter(c=>{
     const rem=state.reminders.filter(r=>r.customer_id===c.id);
-    const blob=`${c.name||''} ${c.phone_e164||''} ${c.email||''} ${c.notes||''} ${rem.map(r=>r.service_name+' '+r.status+' '+r.due_date).join(' ')}`.toLowerCase();
+    const blob=`${c.name||''} ${c.phone_e164||''} ${c.email||''} ${c.notes||''} ${rem.map(r=>r.service_name+' '+reminderStatusLabel(r)+' '+(r.status||'')+' '+r.due_date).join(' ')}`.toLowerCase();
     return blob.includes(q);
   });
   if(state.onlyDueClients){
-    data=data.filter(c=>state.reminders.some(r=>r.customer_id===c.id&&r.status==='pending'&&String(r.due_date||'')<=todayISO()));
+    data=data.filter(c=>state.reminders.some(r=>r.customer_id===c.id&&reminderIsExpired(r)));
   }
-  data=data.sort((a,b)=>clientSortScore(b)-clientSortScore(a));
+  data=data.sort(compareClientsByReminder);
   $('clientsGrid').innerHTML=data.map(c=>{
     const rem=state.reminders.filter(r=>r.customer_id===c.id);
-    const pend=rem.filter(r=>r.status==='pending').length;
-    const due=rem.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO()).length;
-    const next=rem.filter(r=>r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')))[0];
-    const cls=due?'overdue':(next&&String(next.due_date||'')===todayISO()?'due':'');
+    const open=rem.filter(reminderIsOpen);
+    const due=open.filter(reminderIsExpired).length;
+    const reoffer=open.filter(isReofferReminder).length;
+    const next=customerPrimaryReminder(c);
+    const cls=next?(reminderIsExpired(next)?'overdue':(reminderDaysNumber(next)===0?'due':'')):'';
     const source=String(c.source||'manual');
+    const statusTxt=next?reminderStatusLabel(next):(rem.length?'Sin cobro pendiente':'Sin deuda');
+    const statusCls=next?reminderStatusClass(next):'b-ok';
+    const waBadge=next&&reminderWasSent(next)?`<span class="badge b-pagado">${esc(reminderWhatsAppLabel(next))}</span>`:'';
+    const actionTxt=next?reminderWhatsAppButtonLabel(next):'WhatsApp';
     return `<div class="crm-row ${cls}">
       <div class="crm-main"><div class="crm-title">${due?'🚨 ':''}${esc(c.name||'Sin nombre')}</div><div class="crm-sub">${esc(c.phone_e164||'Sin WhatsApp')}${c.email?' · '+esc(c.email):''}</div></div>
-      <div class="crm-meta-line"><span class="badge ${due?'b-bad':pend?'b-warn':'b-ok'}">${due?due+' venc.':pend+' pend.'}</span><span class="badge">Total ${rem.length}</span><span class="badge">${esc(source)}</span></div>
-      <div class="crm-meta-line"><span class="pill ${next?calcDaysLeft(next.due_date)<0?'dueneg':calcDaysLeft(next.due_date)===0?'due0':'duepos':'duepos'}">📅 ${next?.due_date||'Sin deuda'}</span></div>
+      <div class="crm-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${reoffer?`<span class="badge b-reof">Reofrecer ${reoffer}</span>`:''}${waBadge}<span class="badge">Total ${rem.length}</span><span class="badge">${esc(source)}</span></div>
+      <div class="crm-meta-line"><span class="pill ${next?reminderPillClass(next):'duepos'}">📅 ${next?.due_date||'Sin deuda'}${next&&reminderDayText(next)?' · '+esc(reminderDayText(next)):''}</span></div>
       <div class="crm-actions">
         <button class="btn btn-primary" onclick="editClient('${c.id}')">Editar</button>
         <button class="btn" onclick="openClientPaymentOptions('${c.id}')">+ Pago</button>
-        <button class="btn btn-success" onclick="openClientReminderWhatsApp('${c.id}')">WhatsApp</button>
+        <button class="btn btn-success" onclick="openClientReminderWhatsApp('${c.id}')">${actionTxt}</button>
         <button class="btn" onclick="openClientMore('${c.id}')">Más</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">👥</span><p>Sin clientes todavía.</p></div>';
 }
 function clientSortScore(c){
-  const rem=state.reminders.filter(r=>r.customer_id===c.id);
-  const due=rem.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO()).length;
-  const pend=rem.filter(r=>r.status==='pending').length;
-  return due*1000+pend*100+new Date(c.created_at||0).getTime()/1e13;
+  const r=customerPrimaryReminder(c);
+  if(!r)return -new Date(c.created_at||0).getTime()/1e13;
+  const days=Number(calcDaysLeft(r.due_date));
+  const rank=reminderSortRank(r);
+  return -(rank*1000+(Number.isFinite(days)?days:999)+new Date(c.created_at||0).getTime()/1e13);
+}
+function reminderStatusValue(r){return String(r?.status||'pending').toLowerCase()}
+function reminderIsNoRenewal(r){return ['no_renovo','no-renovo','no renovó','no_renovó','no renovado','archived','archivado'].includes(reminderStatusValue(r))}
+function reminderIsOpen(r){return !['paid','pagado','renewed','renovado','cancelled','canceled','deleted','eliminado'].includes(reminderStatusValue(r))&&!reminderIsNoRenewal(r)}
+function reminderWasSent(r){return Boolean(r?.last_sent_at)||reminderStatusValue(r)==='sent'}
+function reminderDaysNumber(r){const n=Number(reminderEffectiveDaysLeft(r?.due_date));return Number.isFinite(n)?n:9999}
+function reminderCalendarDaysNumber(r){const n=Number(localCalendarDiffFromToday(r?.due_date));return Number.isFinite(n)?n:9999}
+function reminderIsExpiredToday(r){return reminderIsOpen(r)&&reminderCalendarDaysNumber(r)===0&&reminderDaysNumber(r)<0}
+function reminderIsExpired(r){return reminderIsOpen(r)&&reminderDaysNumber(r)<0}
+function reminderNeedsAction(r){const d=reminderDaysNumber(r);return reminderIsOpen(r)&&d<=2}
+function isReofferReminder(r){const d=reminderDaysNumber(r), cal=reminderCalendarDaysNumber(r);return reminderIsOpen(r)&&cal<0&&d<0&&d>=-3}
+function shouldMarkNoRenewalReminder(r){const cal=reminderCalendarDaysNumber(r);return reminderIsOpen(r)&&cal<-3&&cal>-15}
+function shouldAutoDeleteReminder(r){const cal=reminderCalendarDaysNumber(r);return !['paid','pagado','renewed','renovado','cancelled','canceled','deleted','eliminado'].includes(reminderStatusValue(r))&&cal<=-15}
+function reminderSourceLabel(r,c={}){return r?.order_id||String(c?.source||'').toLowerCase().includes('checkout')?'Checkout':'Manual'}
+function reminderStatusLabel(r){
+  const st=reminderStatusValue(r);
+  if(['paid','pagado'].includes(st))return'Pagado';
+  if(['renewed','renovado'].includes(st))return'Renovado';
+  if(reminderIsNoRenewal(r))return'No renovó';
+  if(reminderIsExpiredToday(r))return'Vencido hoy';
+  if(isReofferReminder(r))return'Reofrecer';
+  const d=reminderDaysNumber(r);
+  if(d<0)return'No renovó';
+  if(d===0)return'Vence hoy';
+  if(d>0&&d<=2)return'Por vencer';
+  return'En uso';
+}
+function reminderStatusClass(r){
+  const st=reminderStatusValue(r);
+  if(['paid','pagado','renewed','renovado'].includes(st))return'b-ok';
+  if(reminderIsNoRenewal(r))return'b-nonew';
+  if(reminderIsExpiredToday(r))return'b-bad';
+  if(isReofferReminder(r))return'b-reof';
+  const d=reminderDaysNumber(r);
+  if(d<0)return'b-nonew';
+  if(d===0)return'b-warn';
+  if(d>0&&d<=2)return'b-warn';
+  return'b-use';
+}
+function reminderPillClass(r){const d=reminderDaysNumber(r);return d<0?'dueneg':d===0?'due0':'duepos'}
+function reminderWhatsAppLabel(r){
+  if(!reminderWasSent(r))return'';
+  const d=String(r?.last_sent_at||'').slice(0,10);
+  if(d&&d===todayISO())return'Avisado hoy';
+  if(d)return'Volver a avisar';
+  return'Avisado por WhatsApp';
+}
+function reminderWhatsAppButtonLabel(r){
+  const sentToday=String(r?.last_sent_at||'').slice(0,10)===todayISO();
+  if(reminderIsExpiredToday(r))return reminderWasSent(r)?(sentToday?'Reenviar recordatorio':'Enviar recordatorio de pago'):'Enviar recordatorio de pago';
+  if(isReofferReminder(r))return reminderWasSent(r)?(sentToday?'Reenviar reoferta':'Reofrecer de nuevo'):'Reofrecer';
+  if(reminderWasSent(r)){
+    const d=String(r?.last_sent_at||'').slice(0,10);
+    return d===todayISO()?'Reenviar WhatsApp':'Volver a avisar';
+  }
+  return'Enviar WhatsApp';
+}
+function reminderSortRank(r){
+  if(!reminderIsOpen(r))return 9;
+  if(isReofferReminder(r))return 0;
+  if(reminderIsExpiredToday(r))return 1;
+  const d=reminderDaysNumber(r);
+  if(d<0)return 2;
+  if(d===0)return 3;
+  if(d<=2)return 4;
+  return 5;
+}
+function compareRemindersByPriority(a,b){
+  const ra=reminderSortRank(a), rb=reminderSortRank(b);
+  if(ra!==rb)return ra-rb;
+  const da=reminderDaysNumber(a), db=reminderDaysNumber(b);
+  if(da!==db)return da-db;
+  return String(a?.due_date||'').localeCompare(String(b?.due_date||''))||String(b?.created_at||'').localeCompare(String(a?.created_at||''));
+}
+function customerPrimaryReminder(c){
+  return state.reminders.filter(r=>r.customer_id===c.id&&reminderIsOpen(r)).sort(compareRemindersByPriority)[0]||null;
+}
+function compareClientsByReminder(a,b){
+  const ar=customerPrimaryReminder(a), br=customerPrimaryReminder(b);
+  if(ar&&br){const cmp=compareRemindersByPriority(ar,br);if(cmp)return cmp;}
+  if(ar&&!br)return-1;
+  if(!ar&&br)return 1;
+  return String(b.created_at||'').localeCompare(String(a.created_at||''));
+}
+async function cleanupExpiredReofferReminders(){
+  try{
+    const toNoRenew=state.reminders.filter(shouldMarkNoRenewalReminder).map(r=>r.id).filter(Boolean);
+    if(toNoRenew.length){
+      const up=await db.from('payment_reminders').update({status:'no_renovo'}).in('id',toNoRenew);
+      if(up.error)console.warn('mark no renovó reminders',up.error.message);
+      else state.reminders=state.reminders.map(r=>toNoRenew.includes(r.id)?{...r,status:'no_renovo'}:r);
+    }
+    const expired=state.reminders.filter(shouldAutoDeleteReminder);
+    const ids=expired.map(r=>r.id).filter(Boolean);
+    if(ids.length){
+      const del=await db.from('payment_reminders').delete().in('id',ids);
+      if(del.error){console.warn('cleanup reminders',del.error.message);return;}
+      state.reminders=state.reminders.filter(r=>!ids.includes(r.id));
+      toast(`Limpieza automática: ${ids.length} servicio(s) no renovados +15 días eliminados`,'ok');
+    }
+  }catch(e){console.warn('cleanupExpiredReofferReminders',e);}
 }
 function reminderRowsHtml(data,limit=0){
   const rows=limit?data.slice(0,limit):data;
   return rows.map(r=>{
     const c=state.customers.find(x=>x.id===r.customer_id)||{};
-    const overdue=r.status==='pending'&&isOverdue(r.due_date);
-    const dueToday=r.status==='pending'&&String(r.due_date||'')===todayISO();
+    const open=reminderIsOpen(r);
+    const dnum=reminderDaysNumber(r);
+    const overdue=open&&dnum<0;
+    const dueToday=open&&dnum===0;
     const cls=overdue?'overdue':(dueToday?'due':'');
-    const days=calcDaysLeft(r.due_date);
-    const pillCls=days<0?'dueneg':days===0?'due0':'duepos';
+    const days=reminderDayText(r);
+    const statusTxt=reminderStatusLabel(r);
+    const statusCls=reminderStatusClass(r);
+    const wa=reminderWasSent(r)?`<span class="badge b-pagado">${esc(reminderWhatsAppLabel(r))}</span>`:'';
+    const actionTxt=reminderWhatsAppButtonLabel(r);
+    const source=reminderSourceLabel(r,c);
+    const histBtn=c.id?`<button class="btn" onclick="showClientHistory('${c.id}')">Historial</button>`:'';
     return `<div class="reminder-row ${cls}">
       <div class="rem-main"><div class="rem-title">${overdue?'🚨 ':dueToday?'⏰ ':''}${esc(r.service_name||'Sin servicio')}</div><div class="rem-sub">${esc(c.name||'Sin cliente')} · ${esc(c.phone_e164||'Sin WhatsApp')}</div></div>
-      <div class="rem-meta-line"><span class="badge ${r.status==='paid'?'b-ok':r.status==='pending'&&overdue?'b-bad':r.status==='sent'?'b-pagado':'b-warn'}">${esc(r.status||'')}</span><span class="badge">${money(r.amount)}</span></div>
-      <div class="rem-meta-line"><span class="pill ${pillCls}">📅 ${r.due_date||'—'}${days!==''?' ('+days+'d)':''}</span></div>
+      <div class="rem-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${wa}<span class="badge b-purple">${esc(source)}</span><span class="badge">Total ${money(r.amount)}</span></div>
+      <div class="rem-meta-line"><span class="pill ${reminderPillClass(r)}">📅 ${r.due_date||'—'}${days?' · '+esc(days):''}</span></div>
       <div class="rem-actions">
         <button class="btn btn-primary" onclick="editReminder('${r.id}')">Editar</button>
-        <button class="btn btn-success" onclick="openReminderWhatsApp('${r.id}')">WhatsApp</button>
-        <button class="btn" onclick="markReminderPaid('${r.id}')">Pagado</button>
-        <button class="btn" onclick="renewReminder('${r.id}')">Renovar</button>
+        <button class="btn btn-success" onclick="openReminderWhatsApp('${r.id}')">${actionTxt}</button>
+        <button class="btn" onclick="markReminderPaid('${r.id}')">Marcar pagado</button>
+        ${histBtn}
         <button class="btn btn-danger" onclick="quickDeleteReminder('${r.id}')">Eliminar</button>
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">🔔</span><p>Sin recordatorios.</p></div>';
 }
+function deliveryDataObject(d){
+  const raw=d?.delivery_data;
+  if(!raw)return{};
+  if(typeof raw==='object')return raw;
+  try{return JSON.parse(raw)}catch(_){return{}}
+}
+function deliveryAccountInfoForReminder(r){
+  const ds=state.deliveries.filter(d=>d.order_id===r?.order_id||(r?.order_item_id&&d.order_item_id===r.order_item_id)||(r?.plan_id&&d.plan_id===r.plan_id&&d.order_id===r?.order_id)).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  const d=ds[0];
+  if(!d)return'';
+  const data=deliveryDataObject(d);
+  const get=(...keys)=>keys.map(k=>data?.[k]).find(v=>v!==undefined&&v!==null&&String(v).trim()!=='')||'';
+  const parts=[];
+  const cuenta=get('correo','email','usuario','user','cuenta','login');
+  const clave=get('clave','password','pass','contraseña','contrasena');
+  const perfil=get('perfil','profile');
+  const pin=get('pin');
+  const codigo=get('codigo','código','code');
+  const grupo=get('grupo','url_grupo');
+  if(cuenta)parts.push('Cuenta: '+cuenta);
+  if(clave)parts.push('Clave: '+clave);
+  if(perfil)parts.push('Perfil: '+perfil);
+  if(pin)parts.push('PIN: '+pin);
+  if(codigo)parts.push('Código: '+codigo);
+  if(grupo)parts.push('Grupo: '+grupo);
+  if(parts.length)return parts.join(' · ');
+  const msg=String(d.delivered_message||d.message||'').replace(/\s+/g,' ').trim();
+  return msg?msg.slice(0,180)+(msg.length>180?'…':''):'';
+}
+
 function renderReminders(){
   const searchVal=($('reminderSearch')?.value||$('clientSearch')?.value||'').toLowerCase();
   const q=searchVal;
   let data=state.reminders.filter(r=>{
     const c=state.customers.find(x=>x.id===r.customer_id)||{};
-    return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${r.status||''}`).toLowerCase().includes(q);
+    return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${r.status||''} ${reminderStatusLabel(r)} ${reminderWhatsAppLabel(r)}`).toLowerCase().includes(q);
   });
-  if(state.onlyDue||state.onlyDueClients)data=data.filter(r=>r.status==='pending'&&String(r.due_date||'')<=todayISO());
-  if(state.onlyPending)data=data.filter(r=>r.status==='pending');
-  data=data.sort((a,b)=>{
-    const ad=(a.status==='pending'&&String(a.due_date||'')<=todayISO())?0:1;
-    const bd=(b.status==='pending'&&String(b.due_date||'')<=todayISO())?0:1;
-    return ad-bd||String(a.due_date||'').localeCompare(String(b.due_date||''));
-  });
+  if(state.onlyDue||state.onlyDueClients)data=data.filter(reminderIsExpired);
+  if(state.onlyPending)data=data.filter(reminderNeedsAction);
+  data=data.sort(compareRemindersByPriority);
   if($('remindersGrid'))$('remindersGrid').innerHTML=reminderRowsHtml(data);
   if($('remindersMergedGrid'))$('remindersMergedGrid').innerHTML=reminderRowsHtml(data,120);
 }
@@ -3523,7 +3805,7 @@ function showClientHistory(id){
   const orders=state.orders.filter(o=>orderIds.has(o.id)||whatsappDigits(o.customer_whatsapp||'')===phoneDigits);
   const deliveries=state.deliveries.filter(d=>orderIds.has(d.order_id)||orders.some(o=>o.id===d.order_id)).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
   $('clientHistoryTitle').textContent='Historial · '+(c.name||'Cliente');
-  const remHtml=rem.map(r=>`<div class="history-item"><div class="top"><span>🔔 ${esc(r.service_name||'Servicio')}</span><span>${esc(r.status||'')}</span></div><div class="help">Vence: ${esc(r.due_date||'—')} · ${money(r.amount)}</div>${r.whatsapp_message?`<pre>${esc(r.whatsapp_message)}</pre>`:''}</div>`).join('');
+  const remHtml=rem.map(r=>{const acc=deliveryAccountInfoForReminder(r);return `<div class="history-item"><div class="top"><span>🔔 ${esc(r.service_name||'Servicio')}</span><span>${esc(reminderStatusLabel(r))}</span></div><div class="help">Vence: ${esc(r.due_date||'—')} · ${money(r.amount)}</div>${acc?`<div class="help">👤 Cuenta entregada: ${esc(acc)}</div>`:''}${r.whatsapp_message?`<pre>${esc(r.whatsapp_message)}</pre>`:''}</div>`}).join('');
   const delHtml=deliveries.map(d=>`<div class="history-item"><div class="top"><span>📦 Cuenta entregada</span><span>${d.created_at?esc(new Date(d.created_at).toLocaleString('es-PE')):'—'}</span></div><pre>${esc(d.delivered_message||d.message||JSON.stringify(d.delivery_data||{},null,2))}</pre></div>`).join('');
   $('clientHistoryBody').innerHTML=(delHtml?'<strong>📦 Entregas</strong>'+delHtml:'')+(remHtml?'<strong>🔔 Recordatorios</strong>'+remHtml:'')||'<div class="empty-state"><span class="icon">📭</span><p>Sin historial aún.</p></div>';
   showDialog('dlgClientHistory');
@@ -3670,31 +3952,58 @@ async function toggleProduct(id){const p=prod(id);const r=await db.from('product
 async function deleteProduct(){const id=$('pId').value;if(!id)return;if(!confirm('¿Eliminar producto y sus planes?'))return;const r=await db.from('products').delete().eq('id',id);if(r.error)return toast(r.error.message,'bad');closeDialog('dlgProduct');await loadAll()}
 
 /* ---- Plans CRUD ---- */
+/* ---- Periodo de planes ---- */
+function setPlanPeriodUi(value='Mensual'){
+  const v=String(value||'Mensual');
+  if(!$('plPeriod'))return;
+  const n=v.match(/(\d+)\s*(mes|meses)/i);
+  if(/anual|annual|año|ano|12\s*mes/i.test(v)){$('plPeriod').value='Anual'; if($('plPeriodMonths'))$('plPeriodMonths').value='';}
+  else if(/mensual|month|1\s*mes/i.test(v) && !(n&&Number(n[1])!==1)){$('plPeriod').value='Mensual'; if($('plPeriodMonths'))$('plPeriodMonths').value='';}
+  else {$('plPeriod').value='custom'; if($('plPeriodMonths'))$('plPeriodMonths').value=n?Number(n[1]):'';}
+  syncPlanPeriodCustom();
+}
+function syncPlanPeriodCustom(){
+  const box=$('plPeriodCustomBox'); if(box)box.classList.toggle('hidden',$('plPeriod')?.value!=='custom');
+}
+function getPlanPeriodValue(){
+  const v=$('plPeriod')?.value||'Mensual';
+  if(v==='custom'){
+    const n=Math.max(1,Number($('plPeriodMonths')?.value||1));
+    return n===1?'Mensual':`${n} meses`;
+  }
+  return v;
+}
 function blankPlan(pid=''){
   fillProductSelects();$('plId').value='';$('plProduct').value=pid||state.products[0]?.id||'';
-  ['plName','plSlug','plPrice','plImage','plVideo','plDesc','plBenefits','plChips','plManualStock','bulkText'].forEach(id=>$(id).value='');
-  $('plPeriod').value='Mensual';$('plDeliveryType').value='automatic';$('plAvailability').value='available';$('plPriority').value=100;$('plActive').value='true';$('plVideoType').value='auto';$('plVideoEnabled').value='true';
+  ['plName','plSlug','plPrice','plImage','plVideo','plDesc','plBenefits','plChips','plManualStock','bulkText'].forEach(id=>{if($(id))$(id).value=''});
+  if($('plTotpAccount'))$('plTotpAccount').value='';
+  setPlanPeriodUi('Mensual');$('plDeliveryType').value='automatic';$('plAvailability').value='available';$('plPriority').value=100;$('plActive').value='true';$('plVideoType').value='auto';$('plVideoEnabled').value='true';
   if($('btnDeletePlan'))$('btnDeletePlan').style.display='none';syncDeliveryBoxes();$('planDlgTitle').textContent='Nuevo plan';showDialog('dlgPlan');
 }
 function newPlanFor(pid){blankPlan(pid)}
 function editPlan(id){
   const p=plan(id);if(!p)return;
-  fillProductSelects();$('plId').value=p.id;$('plProduct').value=p.product_id;$('plName').value=p.name||'';$('plSlug').value=p.slug||'';$('plPrice').value=p.price??'';$('plPeriod').value=p.period||'Mensual';$('plImage').value=p.image_url||'';$('plVideo').value=p.video_url||'';$('plVideoType').value=p.video_type||'auto';$('plVideoEnabled').value=String(p.video_enabled!==false);$('plDesc').value=p.description||'';$('plBenefits').value=Array.isArray(p.benefits)?p.benefits.join('\n'):'';$('plChips').value=Array.isArray(p.chips)?p.chips.join(', '):'';$('plDeliveryType').value=p.stock_mode==='controlled'?'automatic':'manual';$('plManualStock').value=p.manual_stock_count??'';$('plAvailability').value=p.availability_status||'available';$('plPriority').value=p.priority||100;$('plActive').value=String(p.active!==false);
-  if($('btnDeletePlan'))$('btnDeletePlan').style.display='inline-flex';syncDeliveryBoxes();$('planDlgTitle').textContent='Editar plan / cupos';showDialog('dlgPlan');
+  fillProductSelects();$('plId').value=p.id;$('plProduct').value=p.product_id;$('plName').value=p.name||'';$('plSlug').value=p.slug||'';$('plPrice').value=p.price??'';setPlanPeriodUi(p.period||'Mensual');$('plImage').value=p.image_url||'';$('plVideo').value=p.video_url||'';$('plVideoType').value=p.video_type||'auto';$('plVideoEnabled').value=String(p.video_enabled!==false);$('plDesc').value=p.description||'';$('plBenefits').value=Array.isArray(p.benefits)?p.benefits.join('\n'):'';$('plChips').value=Array.isArray(p.chips)?p.chips.join(', '):'';$('plDeliveryType').value=p.stock_mode==='controlled'?'automatic':'manual';$('plManualStock').value=p.manual_stock_count??'';$('plAvailability').value=p.availability_status||'available';$('plPriority').value=p.priority||100;$('plActive').value=String(p.active!==false);
+  if($('plTotpAccount'))fillPlanTotpSelect(planTotpAccountId(p));
+  if($('btnDeletePlan'))$('btnDeletePlan').style.display='inline-flex';syncDeliveryBoxes();if($('plTotpAccount'))$('plTotpAccount').value=planTotpAccountId(p);$('planDlgTitle').textContent='Editar plan / cupos';showDialog('dlgPlan');
 }
 function openAddStock(id){editPlan(id);setTimeout(()=>$('bulkText').focus(),300)}
 function syncDeliveryBoxes(){
-  const auto=$('plDeliveryType').value==='automatic';
-  $('autoBox').classList.toggle('hidden',!auto);
-  $('manualBox').classList.toggle('hidden',auto);
+  // En editar plan ya no se cargan cuentas; solo se guarda la configuración del plan.
+  if($('autoBox'))$('autoBox').classList.add('hidden');
+  if($('manualBox'))$('manualBox').classList.add('hidden');
+  syncTotpLinkBox();
 }
 async function savePlan(ev){
   ev.preventDefault();
   const id=$('plId').value;const isAuto=$('plDeliveryType').value==='automatic';const name=$('plName').value.trim();if(!name)return toast('Falta nombre del plan','bad');
-  const currentPlan=id?plan(id):{};const parentProduct=prod($('plProduct').value)||{};const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:$('plPeriod').value||'Mensual',image_url:$('plImage').value.trim()||null,video_url:$('plVideo').value.trim()||null,video_type:$('plVideoType').value||'auto',video_enabled:$('plVideoEnabled').value==='true',description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true',metadata:buildCheckoutMetadata(currentPlan?.metadata||{},parentProduct?.name||'',name)};
+  const currentPlan=id?plan(id):{};const parentProduct=prod($('plProduct').value)||{};
+  const metadata=buildCheckoutMetadata(currentPlan?.metadata||{},parentProduct?.name||'',name);
+  if($('plTotpAccount')?.value)metadata.totp_account_id=$('plTotpAccount').value; else delete metadata.totp_account_id;
+  const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:getPlanPeriodValue(),image_url:$('plImage').value.trim()||null,video_url:$('plVideo').value.trim()||null,video_type:$('plVideoType').value||'auto',video_enabled:$('plVideoEnabled').value==='true',description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true',metadata};
   let r=id?await db.from('product_plans').update(payload).eq('id',id).select().single():await db.from('product_plans').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
-  $('plId').value=r.data.id;await saveBulkIfAny(r.data.id);closeDialog('dlgPlan');toast('Plan/cupos guardado','ok');await loadAll();switchTab('inventory');
+  $('plId').value=r.data.id;closeDialog('dlgPlan');toast('Plan guardado','ok');await loadAll();switchTab('inventory');
 }
 async function togglePlan(id){const p=plan(id);const r=await db.from('product_plans').update({active:!p.active}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}
 async function deletePlan(){const id=$('plId').value;if(!id)return;if(!confirm('¿Eliminar plan y stock relacionado?'))return;const r=await db.from('product_plans').delete().eq('id',id);if(r.error)return toast(r.error.message,'bad');closeDialog('dlgPlan');await loadAll()}
@@ -3711,15 +4020,19 @@ function parseBulk(){
     const clave=parts[1]||'';
     if(parts.length>=2&&/^[^\s@]+@[^\s@]+\.[^\s@]+/.test(correo)&&clave){
       let maxUses=1;
-      let nota='';
+      let nota='', grupo='';
       if(parts[4]){
         const n=Number(parts[4]);
-        if(Number.isFinite(n)&&n>0){maxUses=n;nota=parts.slice(5).join(' | ')}
+        if(Number.isFinite(n)&&n>0){
+          maxUses=n;
+          if(parts[5]&&/^(https?:\/\/|chat\.whatsapp|wa\.me|grupo|group)/i.test(parts[5])){grupo=parts[5];nota=parts.slice(6).join(' | ')}
+          else nota=parts.slice(5).join(' | ');
+        }else if(/^(https?:\/\/|chat\.whatsapp|wa\.me|grupo|group)/i.test(parts[4])){grupo=parts[4];nota=parts.slice(5).join(' | ')}
         else nota=parts.slice(4).join(' | ');
       }
       const perfil=parts[2]||'';
       const pin=parts[3]||'';
-      const secret_data={correo,email:correo,usuario:correo,clave,password:clave,pass:clave,contraseña:clave,perfil,pin,max_uses:maxUses,used_count:0,nota};
+      const secret_data={correo,email:correo,usuario:correo,clave,password:clave,pass:clave,contraseña:clave,perfil,pin,grupo,url:grupo,max_uses:maxUses,used_count:0,nota};
       valid.push({stock_type:'account',title:correo,secret_data,notes:nota||null});
     }else{
       doubt.push(raw);
@@ -3783,7 +4096,7 @@ async function autoTotpCodesFromPlan(planId){
   if(!qty||qty<1)return;
   const existing=new Set(state.totpCodes.map(c=>String(c.access_code||'').toUpperCase()));
   const codes=[]; while(codes.length<Math.min(qty,200)){const c=makeTotpAccessCode(); if(!existing.has(c)){existing.add(c);codes.push(c)}}
-  const payload=codes.map(code=>({account_id:account.id,access_code:code,customer_name:null,customer_phone:null,max_uses:2,valid_days:30,active:true,notes:'Auto desde cupos: '+planName(planId),updated_at:new Date().toISOString()}));
+  const payload=codes.map(code=>({account_id:account.id,access_code:code,customer_name:null,customer_phone:null,max_uses:1,valid_days:30,active:true,notes:'Auto desde cupos: '+planName(planId),updated_at:new Date().toISOString()}));
   const r=await db.from('totp_access_codes').insert(payload);
   if(r.error)return toast(r.error.message,'bad');
   toast(codes.length+' códigos TOTP creados para '+planName(planId),'ok');
@@ -3846,6 +4159,32 @@ async function confirmActivation(id){
 }
 function viewDelivery(id){const ds=state.deliveries.filter(d=>d.order_id===id);alert(ds.length?ds.map(d=>d.delivered_message).join('\n\n---\n\n'):'Sin entrega todavía')}
 
+function setupManualTotpForPlan(planId){
+  const accountId=planTotpAccountId(planId);
+  if($('manualTotpAccountId'))$('manualTotpAccountId').value=accountId||'';
+  if($('manualTotpCode'))$('manualTotpCode').value=accountId?generateUniqueTotpAccessCode():'';
+  if($('manualCode'))$('manualCode').value=accountId?($('manualTotpCode')?.value||''):($('manualCode')?.value||'');
+  if($('manualTotpInfo')){
+    $('manualTotpInfo').classList.toggle('hidden',!accountId);
+    $('manualTotpInfo').textContent=accountId?('🛡 Access TOTP vinculado: '+planTotpAccountLabel(planId)+' · código '+$('manualTotpCode').value+' listo para {codigo}.'):'';
+  }
+}
+async function createTotpCodeForManualDelivery(){
+  const accountId=$('manualTotpAccountId')?.value||'';
+  const code=$('manualTotpCode')?.value||$('manualCode')?.value||'';
+  if(!accountId||!code)return {ok:true,skipped:true};
+  const orderId=$('manualOrderId')?.value||'';
+  const o=state.orders.find(x=>x.id===orderId)||{};
+  const phone=normalizePhone(o.customer_whatsapp||'');
+  const customerName=o.customer_name||'';
+  const service=planName($('manualPlan')?.value)||'ChatGPT';
+  const made=await createTotpCodeForDelivery(accountId,code,customerName,phone.ok?phone.e164:(o.customer_whatsapp||''),service);
+  if(!made.ok)return made;
+  if($('manualTotpCode'))$('manualTotpCode').value=made.code;
+  if($('manualCode'))$('manualCode').value=made.code;
+  return made;
+}
+
 function openManualDelivery(id){
   $('manualOrderId').value=id;
   if($('manualStockId'))$('manualStockId').value='';
@@ -3862,6 +4201,7 @@ function openManualDelivery(id){
   if(match)$('manualTemplate').value=match.id;
   $('manualRestrictions').value=(match?.restrictions)||`🚫 RESTRICCIONES:\n❌ Respetar el horario de soporte\n❌ No modificar nada sin autorización\n❌ No compartir la cuenta\n✅ Uso permitido en un solo dispositivo`;
   autoFillManualFromStock();
+  setupManualTotpForPlan($('manualPlan').value);
   renderDeliveryMessage();showDialog('dlgManual');
 }
 function generateManualMsg(){renderDeliveryMessage()}
@@ -3881,6 +4221,9 @@ async function saveManualDelivery(){
   if($('manualRestrictions').value.trim())data.restricciones=$('manualRestrictions').value.trim();
   const tpl=getDeliveryTemplate();if(tpl?.template_key)data.template_key=tpl.template_key;
   if(!Object.keys(data).some(k=>!['restricciones','fecha_inicio','template_key'].includes(k)))return toast('Ingresa datos reales para entregar','bad');
+  const madeTotp=await createTotpCodeForManualDelivery();
+  if(!madeTotp.ok)return toast('No se pudo crear el código Access TOTP: '+madeTotp.error,'bad');
+  if(madeTotp.code){data.codigo=madeTotp.code;renderDeliveryMessage();}
   const r=await db.rpc('admin_manual_deliver_order',{p_order_id:$('manualOrderId').value,p_plan_id:$('manualPlan').value,p_delivery_data:data,p_delivery_message:$('manualMessage').value});
   if(r.error)return toast(r.error.message,'bad');
   await markManualStockUsed($('manualOrderId').value);
@@ -4056,7 +4399,7 @@ async function saveClient(ev){
   const id=$('cId').value;
   const r=id?await db.from('crm_customers').update(payload).eq('id',id):await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'});
   if(r.error)return toast(r.error.message,'bad');
-  closeDialog('dlgClient');toast('Cliente guardado','ok');await loadAll();switchTab('clients');
+  closeDialog('dlgClient');toast('Cliente guardado','ok');await loadAll();switchTab('reminders');
 }
 async function deleteClient(){
   const id=$('cId').value;if(!id)return;
@@ -4205,16 +4548,16 @@ async function deleteReminder(){
   if(r.error)return toast(r.error.message,'bad');
   closeDialog('dlgReminder');await loadAll();
 }
-async function markReminderSent(id){try{await db.from('payment_reminders').update({status:'sent',last_sent_at:new Date().toISOString()}).eq('id',id)}catch(_){}}
-async function markReminderPaid(id){const r=await db.from('payment_reminders').update({status:'paid'}).eq('id',id);if(r.error)return toast(r.error.message,'bad');toast('Recordatorio marcado como pagado','ok');await loadAll()}
-async function renewReminder(id){
-  const old=state.reminders.find(x=>x.id===id);if(!old)return;
-  const r=await db.from('payment_reminders').update({status:'paid'}).eq('id',id);if(r.error)return toast(r.error.message,'bad');
-  const next={customer_id:old.customer_id,product_id:old.product_id,plan_id:old.plan_id,service_name:old.service_name,amount:old.amount,currency:'PEN',due_date:daysFromNow(30),status:'pending',whatsapp_message:old.whatsapp_message};
-  const n=await db.from('payment_reminders').insert(next);
-  if(n.error)return toast(n.error.message,'bad');
-  toast('Renovado: nuevo recordatorio a 30 días','ok');await loadAll();
+async function markReminderSent(id){try{await db.from('payment_reminders').update({last_sent_at:new Date().toISOString()}).eq('id',id)}catch(_){}}
+async function markReminderPaid(id){
+  const nextDue=daysFromNow(30);
+  const payload={status:'pending',due_date:nextDue,last_sent_at:null,fecha_inicio:todayISO(),fecha_pago:todayISO()};
+  const r=await db.from('payment_reminders').update(payload).eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Pago registrado. Servicio renovado por 30 días desde hoy.','ok');
+  await loadAll();
 }
+async function renewReminder(id){return markReminderPaid(id)}
 async function openReminderWhatsApp(id){
   const r=state.reminders.find(x=>x.id===id);if(!r)return;
   const c=state.customers.find(x=>x.id===r.customer_id)||{};
@@ -4222,15 +4565,16 @@ async function openReminderWhatsApp(id){
   const url=waLink(c.phone_e164,msg);
   if(url==='#')return toast('El cliente no tiene WhatsApp válido','bad');
   window.open(url,'_blank','noopener,noreferrer');
-  await markReminderSent(id);toast('WhatsApp abierto y recordatorio marcado como enviado','ok');await loadAll();
+  await markReminderSent(id);toast('WhatsApp abierto. El servicio seguirá visible hasta que presiones Marcar pagado.','ok');await loadAll();
 }
 function renderReminderChoiceCard(r,c){
-  const days=calcDaysLeft(r.due_date);
-  const pillCls=days<0?'dueneg':days===0?'due0':'duepos';
+  const days=reminderDayText(r);
+  const actionTxt=reminderWhatsAppButtonLabel(r);
+  const wa=reminderWasSent(r)?` · ${esc(reminderWhatsAppLabel(r))}`:'';
   return `<div class="choice-card">
-    <div class="top"><b>${esc(r.service_name||'Recordatorio')}</b><span class="badge ${days<0?'b-bad':'b-warn'}">${esc(r.status||'pending')}</span></div>
-    <div class="help">${esc(c.name||'Cliente')} · ${money(r.amount)} · <span class="pill ${pillCls}">📅 ${esc(r.due_date||'—')}${days!==''?' ('+days+'d)':''}</span></div>
-    <div class="actions"><button class="btn btn-success" onclick="sendChosenClientReminder('${r.id}')">Enviar WhatsApp</button><button class="btn" onclick="editReminder('${r.id}');closeDialog('dlgClientReminderChoice')">Editar</button></div>
+    <div class="top"><b>${esc(r.service_name||'Recordatorio')}</b><span class="badge ${reminderStatusClass(r)}">${esc(reminderStatusLabel(r))}</span></div>
+    <div class="help">${esc(c.name||'Cliente')} · ${money(r.amount)} · <span class="pill ${reminderPillClass(r)}">📅 ${esc(r.due_date||'—')}${days?' · '+esc(days):''}</span>${wa}</div>
+    <div class="actions"><button class="btn btn-success" onclick="sendChosenClientReminder('${r.id}')">${actionTxt}</button><button class="btn" onclick="editReminder('${r.id}');closeDialog('dlgClientReminderChoice')">Editar</button></div>
   </div>`;
 }
 async function sendChosenClientReminder(reminderId){
@@ -4241,7 +4585,7 @@ async function openClientReminderWhatsApp(customerId){
   const c=state.customers.find(x=>x.id===customerId)||{};
   if(!c.id)return toast('Cliente no encontrado','bad');
   const rems=state.reminders.filter(r=>r.customer_id===customerId);
-  const pending=rems.filter(r=>r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')));
+  const pending=rems.filter(reminderIsOpen).sort(compareRemindersByPriority);
   const list=pending.length?pending:rems.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
   if(!list.length)return toast('Este cliente no tiene recordatorios para enviar','bad');
   if(list.length===1){await openReminderWhatsApp(list[0].id);return;}
@@ -4256,13 +4600,13 @@ function openClientPaymentOptions(customerId){
   if(!$('dlgClientQuickActions')){newReminderFor(customerId);return;}
   $('clientQuickId').value=customerId;
   $('clientQuickTitle').textContent='Pago · '+(c.name||'Cliente');
-  const pending=state.reminders.filter(r=>r.customer_id===customerId&&r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')));
+  const pending=state.reminders.filter(r=>r.customer_id===customerId&&reminderIsOpen(r)).sort(compareRemindersByPriority);
   $('clientQuickBody').innerHTML=`<div class="choice-card"><b>¿Qué deseas hacer?</b><div class="actions"><button class="btn btn-primary" onclick="closeDialog('dlgClientQuickActions');newReminderFor('${customerId}')">Nuevo recordatorio</button><button class="btn btn-success" onclick="markNearestClientReminderPaid('${customerId}')">Marcar pagado</button></div></div>`+
-    (pending.length?pending.slice(0,6).map(r=>renderReminderChoiceCard(r,c).replace('Enviar WhatsApp','Enviar')).join(''):'<p class="help">No tiene recordatorios pendientes.</p>');
+    (pending.length?pending.slice(0,6).map(r=>renderReminderChoiceCard(r,c).replace('Enviar WhatsApp','Enviar').replace('Reofrecer','Reofrecer')).join(''):'<p class="help">No tiene recordatorios pendientes.</p>');
   showDialog('dlgClientQuickActions');
 }
 async function markNearestClientReminderPaid(customerId){
-  const pending=state.reminders.filter(r=>r.customer_id===customerId&&r.status==='pending').sort((a,b)=>String(a.due_date||'').localeCompare(String(b.due_date||'')));
+  const pending=state.reminders.filter(r=>r.customer_id===customerId&&reminderIsOpen(r)).sort(compareRemindersByPriority);
   if(!pending.length)return toast('No hay recordatorios pendientes para marcar como pagado','bad');
   closeDialog('dlgClientQuickActions');
   await markReminderPaid(pending[0].id);
@@ -4326,7 +4670,7 @@ async function quickDeleteClient(id){
   if(!confirm('¿Eliminar cliente "'+(c.name||'')+'"?'))return;
   const r=await db.from('crm_customers').delete().eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
-  toast('Cliente eliminado','ok');await loadAll();switchTab('clients');
+  toast('Cliente eliminado','ok');await loadAll();switchTab('reminders');
 }
 async function quickDeleteReminder(id){
   const r0=state.reminders.find(x=>x.id===id)||{};
@@ -4424,23 +4768,104 @@ function opsSecret(x){
   let d={};
   if(!raw)d={};
   else if(typeof raw==='string'){
-    try{d=JSON.parse(raw)||{}}catch(_){d={raw}}
+    try{d=JSON.parse(raw)||{}}catch(_){
+      const parts=String(raw).split('|').map(v=>v.trim());
+      d=parts.length>=2?{correo:parts[0],clave:parts[1],perfil:parts[2]||'',pin:parts[3]||'',max_uses:Number(parts[4]||1)||1,nota:parts.slice(5).join(' | ')}:{raw};
+    }
   }else d={...raw};
+  // Compatibilidad con nombres de columnas o formatos antiguos.
+  ['email','mail','correo_electronico','username','usuario','user','login'].forEach(k=>{if(!d.correo && (d[k]||x?.[k]))d.correo=d[k]||x?.[k];});
+  ['password','pass','clave','contraseña','contrasena','pwd','key'].forEach(k=>{if(!d.clave && (d[k]||x?.[k]))d.clave=d[k]||x?.[k];});
+  if(!d.perfil)d.perfil=d.profile||d.perfil_nombre||x?.profile||'';
+  if(!d.pin)d.pin=d.profile_pin||d.pin_perfil||x?.pin||'';
+  if(!d.grupo)d.grupo=d.group||d.url_grupo||d.whatsapp_group||x?.group||'';
+  if(!d.url)d.url=d.link||d.enlace||d.grupo||x?.url||'';
+  if(!d.nota)d.nota=d.note||d.notes||x?.notes||'';
   const correo=d.correo||d.email||d.usuario||d.user||'';
   const clave=d.clave||d.password||d.pass||d['contraseña']||d.contrasena||'';
   if(correo){d.correo=correo;d.email=d.email||correo;d.usuario=d.usuario||correo;}
-  if(clave){d.clave=clave;d.password=d.password||clave;d.pass=d.pass||clave;d['contraseña']=d['contraseña']||clave;}
-  if(d.profile&&!d.perfil)d.perfil=d.profile;
-  if(d.profile_pin&&!d.pin)d.pin=d.profile_pin;
-  if(d.group&&!d.grupo)d.grupo=d.group;
-  if(d.note&&!d.nota)d.nota=d.note;
+  if(clave){d.clave=clave;d.password=d.password||clave;d.pass=d.pass||clave;d['contraseña']=d['contraseña']||clave;d.contrasena=d.contrasena||clave;}
   if(!d.max_uses)d.max_uses=1;
   if(!d.used_count)d.used_count=0;
+  if(d.totp_account_id===undefined && x?.totp_account_id)d.totp_account_id=x.totp_account_id;
   return d;
 }
+
 function opsKeyFromItem(x){
   const d=opsSecret(x);
   return String(d.correo||d.usuario||d.codigo||x.title||'').trim().toLowerCase();
+}
+function isChatGPTPlanId(planId){
+  const p=plan(planId)||{};
+  return /chatgpt|gpt|openai/.test(normalizeServiceText(prodName(p.product_id)+' '+(p.name||'')));
+}
+function fillTotpSelectElement(el,selected=''){
+  if(!el)return;
+  const opts=(state.totpAccounts||[]).filter(a=>a.active!==false).map(a=>`<option value="${a.id}">${esc(a.label)}${a.issuer?' · '+esc(a.issuer):''}</option>`).join('');
+  el.innerHTML='<option value="">Sin Access TOTP</option>'+opts;
+  if(selected)el.value=selected;
+}
+function stockTotpAccountId(itemOrId,planId=''){
+  const item=typeof itemOrId==='string'?state.stock.find(s=>s.id===itemOrId):itemOrId;
+  const d=opsSecret(item);
+  return d.totp_account_id || planTotpAccountId(planId||item?.plan_id)||'';
+}
+function nextStockTotpCode(item){
+  const d=opsSecret(item);
+  const codes=Array.isArray(d.totp_codes)?d.totp_codes:[];
+  const used=new Set(Array.isArray(d.used_totp_codes)?d.used_totp_codes:[]);
+  return codes.find(c=>c&&!used.has(c))||'';
+}
+function syncOpsStockTotpBox(){
+  const box=$('opsStockTotpBox'); if(!box)return;
+  const planId=$('opsStockPlan')?.value||'';
+  fillTotpSelectElement($('opsStockTotpAccount'), $('opsStockTotpAccount')?.value||'');
+  box.classList.toggle('hidden',!isChatGPTPlanId(planId));
+}
+function syncOpsBulkTotpBox(){
+  const box=$('opsBulkTotpBox'); if(!box)return;
+  const planId=$('opsBulkPlan')?.value||'';
+  fillTotpSelectElement($('opsBulkTotpAccount'), $('opsBulkTotpAccount')?.value||'');
+  box.classList.toggle('hidden',!isChatGPTPlanId(planId));
+}
+async function createStockTotpCodesForItem(item,qty){
+  const accountId=stockTotpAccountId(item);
+  if(!accountId||!item?.id)return {ok:true,skipped:true};
+  const d={...opsSecret(item)};
+  const existing=Array.isArray(d.totp_codes)?[...d.totp_codes]:[];
+  const need=Math.max(0,Number(qty||d.max_uses||1)-existing.length);
+  if(!need)return {ok:true,codes:existing};
+  const existingGlobal=new Set((state.totpCodes||[]).map(c=>String(c.access_code||'').toUpperCase()).concat(existing));
+  const codes=[];
+  while(codes.length<need){const c=makeTotpAccessCode();if(!existingGlobal.has(c)){existingGlobal.add(c);codes.push(c)}}
+  const payload=codes.map(code=>({account_id:accountId,access_code:code,customer_name:null,customer_phone:null,max_uses:1,valid_days:30,active:true,notes:'Auto stock: '+(item.title||planName(item.plan_id)||'ChatGPT'),updated_at:new Date().toISOString()}));
+  const ins=await db.from('totp_access_codes').insert(payload).select();
+  if(ins.error)return {ok:false,error:ins.error.message};
+  d.totp_codes=existing.concat(codes);
+  d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];
+  const upd=await db.from('stock_items').update({secret_data:d}).eq('id',item.id).select().single();
+  if(upd.error)return {ok:false,error:upd.error.message};
+  item.secret_data=d;
+  state.totpCodes.unshift(...(ins.data||payload));
+  return {ok:true,codes:d.totp_codes};
+}
+async function restoreStockAvailable(id){
+  const x=state.stock.find(s=>s.id===id); if(!x)return;
+  if(!confirm('¿Reponer esta cuenta como disponible? Úsalo si la entrega se anuló o el cliente no pagó.'))return;
+  const d={...opsSecret(x)};
+  d.used_count=Math.max(0,Number(d.used_count||0)-1);
+  delete d.reserved_for; delete d.reserved_phone; delete d.reserved_due; delete d.reserved_note; delete d.reserved_at;
+  d.restored_at=new Date().toISOString();
+  const r=await db.from('stock_items').update({status:'available',secret_data:d}).eq('id',id);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Cuenta repuesta como disponible','ok');await loadAll();if($('dlgPlanStockView')?.open)renderPlanStockView();else renderOps();
+}
+function viewStockHistory(id){
+  const x=state.stock.find(s=>s.id===id); if(!x)return;
+  const d=opsSecret(x);
+  const hist=Array.isArray(d.history)?d.history:[];
+  const lines=hist.length?hist.map((h,i)=>`${i+1}. ${h.customer_name||'Cliente'} · ${h.customer_phone||''}\n   ${h.service||planName(x.plan_id)} · ${h.amount?money(h.amount):''} · vence ${h.due_date||'—'}\n   ${h.at?new Date(h.at).toLocaleString('es-PE'):''}${h.totp_code?' · código '+h.totp_code:''}`).join('\n\n'):'Sin historial detallado todavía.';
+  alert(`Historial de cuenta\n${x.title||d.correo||''}\n\n${lines}`);
 }
 function opsStatusBadge(st){
   st=String(st||'available').toLowerCase();
@@ -4484,9 +4909,13 @@ function opsDeliveryTemplateForItem(item){
 }
 function renderTemplateText(body,vars){
   const data=vars||{};
+  const get=(k,m)=>{
+    const key=String(k||'').trim();
+    return Object.prototype.hasOwnProperty.call(data,key) ? (data[key] ?? '') : m;
+  };
   return String(body||'')
-    .replace(/\{\{\s*([\w_]+)\s*\}\}/g,(m,k)=>data[k]??m)
-    .replace(/\{([\w_]+)\}/g,(m,k)=>data[k]??m);
+    .replace(/\{\{\s*([^{}]+?)\s*\}\}/g,(m,k)=>get(k,m))
+    .replace(/\{\s*([^{}]+?)\s*\}/g,(m,k)=>get(k,m));
 }
 function opsDeliveryText(item){
   const d=opsSecret(item);
@@ -4494,8 +4923,8 @@ function opsDeliveryText(item){
   const pay=getPaymentSettings(),store=getStoreSettings();
   const vars={
     pedido:'', producto:prodName(plan(item.plan_id)?.product_id)||planName(item.plan_id), plan:planName(item.plan_id),
-    correo:d.correo||d.usuario||'', contraseña:d.clave||d.pass||'', perfil:d.perfil||'', pin:d.pin||'',
-    grupo:d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url:d.url||d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url_grupo:d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', codigo:d.codigo||'', nota:d.nota||item.notes||'',
+    correo:d.correo||d.usuario||'', email:d.correo||d.usuario||'', usuario:d.correo||d.usuario||'', clave:d.clave||d.pass||'', password:d.clave||d.pass||'', contrasena:d.clave||d.pass||'', contraseña:d.clave||d.pass||'', perfil:d.perfil||'', pin:d.pin||'',
+    grupo:d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url:d.url||d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url_grupo:d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', codigo:d.codigo||'', codigo_acceso:d.codigo||'', access_code:d.codigo||'', acceso:d.codigo||'', totp_codigo:d.codigo||'', nota:d.nota||item.notes||'',
     fecha_inicio:displayDateFromInput(todayInput()), fecha_pago:displayDateFromInput(todayISO()), fecha_vencimiento:displayDateFromInput(planRenewalDue(item.plan_id)), cliente:d.reserved_for||'', telefono:d.reserved_phone||'', monto:'', restricciones:tpl?.restrictions||d.reglas||'🚫 No compartir la cuenta\n✅ Uso personal\n🛟 Soporte por WhatsApp',
     soporte:pay.yape_number||'991564053', tienda:store.store_name||'Innov IA'
   };
@@ -4602,6 +5031,7 @@ function syncOpsStockType(){
 function openOpsStockDialog(type='account',id=''){
   fillOpsSelects();
   ['opsStockId','opsStockTitle','opsStockUser','opsStockPass','opsStockProfile','opsStockPin','opsStockCode','opsStockGroup','opsStockNotes','opsStockMaxUses','opsStockUsedCount'].forEach(k=>{if($(k))$(k).value=''});
+  fillTotpSelectElement($('opsStockTotpAccount'));
   if($('opsStockMaxUses'))$('opsStockMaxUses').value=1;
   if($('opsStockUsedCount'))$('opsStockUsedCount').value=0;
   $('opsStockStatus').value='available';
@@ -4625,9 +5055,10 @@ function openOpsStockDialog(type='account',id=''){
     $('opsStockStatus').value=opsAvailableStatus(x);
     if($('opsStockMaxUses'))$('opsStockMaxUses').value=Number(d.max_uses||1);
     if($('opsStockUsedCount'))$('opsStockUsedCount').value=Number(d.used_count||0);
+    if($('opsStockTotpAccount')){$('opsStockTotpAccount').value=d.totp_account_id||'';}
   }
   $('opsStockDlgTitle').textContent=id?'Modificar cuenta':'Nueva cuenta';
-  syncOpsStockType();showDialog('dlgOpsStock');
+  syncOpsStockType();syncOpsStockTotpBox();showDialog('dlgOpsStock');
 }
 async function saveOpsStock(ev){
   ev.preventDefault();
@@ -4646,6 +5077,8 @@ async function saveOpsStock(ev){
   d.pin=$('opsStockPin').value.trim();
   d.max_uses=Math.max(1,Number($('opsStockMaxUses')?.value||1));
   d.used_count=Math.max(0,Number($('opsStockUsedCount')?.value||0));
+  if(isChatGPTPlanId(planId) && $('opsStockTotpAccount')?.value)d.totp_account_id=$('opsStockTotpAccount').value;
+  else delete d.totp_account_id;
   if(!d.correo&&!d.clave)return toast('Ingresa usuario/correo y contraseña','bad');
   const group=$('opsStockGroup').value.trim();
   if(group)d.grupo=group; else delete d.grupo;
@@ -4659,8 +5092,12 @@ async function saveOpsStock(ev){
     notes:note||null,
     status:$('opsStockStatus').value||'available'
   };
-  const r=id?await db.from('stock_items').update(payload).eq('id',id):await db.from('stock_items').insert(payload);
+  const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
+  if(d.totp_account_id){
+    const made=await createStockTotpCodesForItem(r.data, d.max_uses);
+    if(!made.ok)return toast('Cuenta guardada, pero no se pudieron crear códigos TOTP: '+made.error,'bad');
+  }
   closeDialog('dlgOpsStock');toast('Guardado en inventario','ok');await loadAll();switchTab('ops');
 }
 async function deleteOpsStock(){
@@ -4719,6 +5156,7 @@ function defaultDeliveryTemplateForPlan(planId){
   const active=state.deliveryTemplates.filter(t=>t.active!==false);
   const p=plan(planId)||{};
   const text=normalizeServiceText(prodName(p.product_id)+' '+(p.name||''));
+  if(/chatgpt|gpt|openai/.test(text))return active.find(t=>/chatgpt|gpt|totp|access|acceso|codigo/.test(normalizeServiceText(t.template_key+' '+t.name)))||active.find(t=>/cuenta|simple|entrega|manual/.test(normalizeServiceText(t.template_key+' '+t.name)))||active.find(t=>t.is_default)||active[0]||null;
   if(/netflix|disney|prime|crunchy|max|hbo|vix|paramount|iptv/.test(text))return active.find(t=>/streaming|perfil|profile/.test(normalizeServiceText(t.template_key+' '+t.name)))||active.find(t=>t.is_default)||active[0]||null;
   return active.find(t=>/entrega|activacion|invite|manual|simple|cuenta/.test(normalizeServiceText(t.template_key+' '+t.name)))||active.find(t=>t.is_default)||active[0]||null;
 }
@@ -4726,10 +5164,10 @@ function opsDeliveryTextFromPlan(planId,extra={}){
   const p=plan(planId)||{}, pay=getPaymentSettings(), store=getStoreSettings();
   const tpl=defaultDeliveryTemplateForPlan(planId);
   const vars={
-    pedido:'', producto:prodName(p.product_id)||planName(planId)||extra.servicio||'', plan:p.name||'',
+    pedido:extra.pedido||makeManualDeliveryCode(), producto:prodName(p.product_id)||planName(planId)||extra.servicio||'', plan:p.name||'',
     cliente:extra.cliente||'', telefono:extra.telefono||'', monto:extra.monto?money(extra.monto):'',
-    correo:extra.correo||'', contraseña:extra.contraseña||'', perfil:extra.perfil||'', pin:extra.pin||'',
-    grupo:extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url:extra.url||extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url_grupo:extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', codigo:extra.codigo||'', nota:extra.nota||'',
+    correo:extra.correo||'', email:extra.correo||'', usuario:extra.correo||'', clave:extra.contraseña||extra.clave||'', password:extra.contraseña||extra.clave||'', contrasena:extra.contraseña||extra.clave||'', contraseña:extra.contraseña||extra.clave||'', perfil:extra.perfil||'', pin:extra.pin||'',
+    grupo:extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url:extra.url||extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url_grupo:extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', codigo:extra.codigo||'', codigo_acceso:extra.codigo||'', access_code:extra.codigo||'', acceso:extra.codigo||'', totp_codigo:extra.codigo||'', cuenta_totp:extra.cuenta_totp||planTotpAccountLabel(planId)||'', nota:extra.nota||'',
     fecha_inicio:displayDateFromInput(extra.fecha_inicio||todayInput()), fecha_pago:displayDateFromInput(extra.fecha_pago||todayISO()), fecha_vencimiento:displayDateFromInput(extra.fecha_vencimiento||extra.due||planRenewalDue(planId)),
     restricciones:tpl?.restrictions||'🚫 No compartir la cuenta\n✅ Uso personal\n🛟 Soporte por WhatsApp',
     soporte:pay.yape_number||'991564053', tienda:store.store_name||'Innov IA'
@@ -4754,7 +5192,8 @@ function refreshOpsDeliverMessage(){
   const planId=$('opsDeliverPlanId')?.value || (stockId?(state.stock.find(s=>s.id===stockId)||{}).plan_id:'');
   const item=stockId?state.stock.find(s=>s.id===stockId):null;
   const secret=item?opsSecret(item):{};
-  $('opsDeliverText').value=opsDeliveryTextFromPlan(planId,{cliente:$('opsDeliverName')?.value||'',telefono:$('opsDeliverPhone')?.value||'',monto:$('opsDeliverAmount')?.value||'',fecha_inicio:$('opsDeliverStart')?.value||todayISO(),fecha_pago:$('opsDeliverPayDate')?.value||todayISO(),fecha_vencimiento:$('opsDeliverDue')?.value||planRenewalDue(planId),correo:secret.correo||secret.usuario||'',contraseña:secret.clave||secret.pass||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',url:secret.url||secret.grupo||'',codigo:secret.codigo||'',nota:secret.nota||item?.notes||''});
+  const code=$('opsDeliverTotpCode')?.value||secret.codigo||'';
+  $('opsDeliverText').value=opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:$('opsDeliverName')?.value||'',telefono:$('opsDeliverPhone')?.value||'',monto:$('opsDeliverAmount')?.value||'',fecha_inicio:$('opsDeliverStart')?.value||todayISO(),fecha_pago:$('opsDeliverPayDate')?.value||todayISO(),fecha_vencimiento:$('opsDeliverDue')?.value||planRenewalDue(planId),correo:secret.correo||secret.usuario||'',contraseña:secret.clave||secret.pass||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',url:secret.url||secret.grupo||'',codigo:code,cuenta_totp:planTotpAccountLabel(planId),nota:secret.nota||item?.notes||''});
 }
 
 function openOpsDeliver(id,forcedPlanId=''){
@@ -4764,6 +5203,7 @@ function openOpsDeliver(id,forcedPlanId=''){
   const d=x?opsSecret(x):{};
   $('opsDeliverStockId').value=x?.id||'';
   if($('opsDeliverPlanId'))$('opsDeliverPlanId').value=planId;
+  if($('opsDeliverPedido'))$('opsDeliverPedido').value=makeManualDeliveryCode();
   $('opsDeliverName').value=d.reserved_for||'';
   $('opsDeliverPhone').value=d.reserved_phone||'';
   $('opsDeliverService').value=planName(planId);
@@ -4773,9 +5213,40 @@ function openOpsDeliver(id,forcedPlanId=''){
   if($('opsDeliverPayDate'))$('opsDeliverPayDate').value=todayISO();
   $('opsDeliverDue').value=planRenewalDue(planId);
   $('opsDeliverNewStatus').value=x?'used':'available';
+  const totpAccount=stockTotpAccountId(x,planId);
+  const preCode=x?nextStockTotpCode(x):'';
+  if($('opsDeliverTotpAccountId'))$('opsDeliverTotpAccountId').value=totpAccount||'';
+  if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=totpAccount?(preCode||generateUniqueTotpAccessCode()):'';
+  if($('opsDeliverTotpInfo')){
+    $('opsDeliverTotpInfo').classList.toggle('hidden',!totpAccount);
+    const label=totpAccountName(totpAccount)||planTotpAccountLabel(planId)||'Access TOTP';
+    $('opsDeliverTotpInfo').textContent=totpAccount?('🛡 '+label+' · código '+$('opsDeliverTotpCode').value+' de un solo uso listo para la entrega.'):'';
+  }
   refreshOpsDeliverMessage();
   showDialog('dlgOpsDeliver');
 }
+async function createTotpCodeForDelivery(accountId,code,customerName,customerPhone,service){
+  if(!accountId||!code)return {ok:true,skipped:true,code};
+  let finalCode=String(code||'').trim().toUpperCase();
+  const payloadBase={customer_name:customerName||null,customer_phone:customerPhone||null,max_uses:1,valid_days:30,active:true,notes:'Auto entrega: '+(service||'ChatGPT'),updated_at:new Date().toISOString()};
+  // Si el código ya fue pre-creado para una cuenta de stock, solo se actualiza con el cliente.
+  const existing=(state.totpCodes||[]).find(c=>String(c.access_code||'').toUpperCase()===finalCode && c.account_id===accountId);
+  if(existing?.id){
+    const r=await db.from('totp_access_codes').update(payloadBase).eq('id',existing.id).select().single();
+    if(!r.error){Object.assign(existing,r.data||payloadBase);return {ok:true,code:finalCode,data:r.data||existing,updated:true};}
+    return {ok:false,error:r.error.message,code:finalCode};
+  }
+  for(let attempt=0;attempt<2;attempt++){
+    const payload={account_id:accountId,access_code:finalCode,...payloadBase};
+    const r=await db.from('totp_access_codes').insert(payload).select().single();
+    if(!r.error){state.totpCodes.unshift(r.data||payload);return {ok:true,code:finalCode,data:r.data};}
+    if(/duplicate|unique|access_code/i.test(r.error.message||'')&&attempt===0){finalCode=generateUniqueTotpAccessCode();continue;}
+    return {ok:false,error:r.error.message,code:finalCode};
+  }
+  return {ok:false,error:'No se pudo generar un código único',code:finalCode};
+}
+
+
 async function saveOpsDeliver(){
   const id=$('opsDeliverStockId').value;
   const x=id?state.stock.find(s=>s.id===id):null;
@@ -4789,6 +5260,14 @@ async function saveOpsDeliver(){
   const c=existingByPhone?.id?await db.from('crm_customers').update(payload).eq('id',existingByPhone.id).select().single():await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
   if(c.error)return toast('Cliente no guardado: '+c.error.message,'bad');
   const service=$('opsDeliverService').value.trim()||planName(planId)||'Servicio';
+  const totpAccount=$('opsDeliverTotpAccountId')?.value||stockTotpAccountId(x,planId)||'';
+  const initialTotpCode=$('opsDeliverTotpCode')?.value||'';
+  if(totpAccount&&initialTotpCode){
+    const made=await createTotpCodeForDelivery(totpAccount,initialTotpCode,finalName,phone.e164,service);
+    if(!made.ok)return toast('No se pudo crear el código Access TOTP: '+made.error,'bad');
+    if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=made.code;
+    if(made.code!==initialTotpCode&&$('opsDeliverText'))$('opsDeliverText').value=String($('opsDeliverText').value||'').replaceAll(initialTotpCode,made.code);
+  }
   const amount=$('opsDeliverAmount').value===''?null:Number($('opsDeliverAmount').value||0);
   const startDate=$('opsDeliverStart')?.value||todayISO();
   const payDate=$('opsDeliverPayDate')?.value||todayISO();
@@ -4806,17 +5285,22 @@ async function saveOpsDeliver(){
     d.last_customer=finalName;
     d.last_phone=phone.e164;
     d.last_used_at=new Date().toISOString();
+    if(initialTotpCode){
+      d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];
+      if(!d.used_totp_codes.includes(initialTotpCode))d.used_totp_codes.push(initialTotpCode);
+    }
+    d.history=Array.isArray(d.history)?d.history:[];
+    d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,service,amount,due_date:due,at:new Date().toISOString(),totp_code:initialTotpCode||''});
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const max=Number(d.max_uses||1);
-    const chosen=$('opsDeliverNewStatus').value;
-    const finalStatus=(d.used_count>=max)?'used':(chosen==='used'?'used':chosen||'available');
+    const finalStatus=(d.used_count>=max)?'used':'available';
     const st=await db.from('stock_items').update({status:finalStatus,secret_data:d}).eq('id',id);
     if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
     if(!used.ok)toast('Entrega registrada, pero no se pudo descontar cupo: '+used.error,'bad');
   }
-  const msg=$('opsDeliverText').value.trim()||opsDeliveryTextFromPlan(planId,{cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due});
+  const msg=$('opsDeliverText').value.trim()||opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due});
   copyTextSafe(msg);
   closeDialog('dlgOpsDeliver');
   toast('Entrega + recordatorio creados','ok');
@@ -4829,6 +5313,8 @@ async function saveOpsDeliver(){
 }
 function parseOpsBulk(){
   const planId=$('opsBulkPlan')?.value||'';
+  syncOpsBulkTotpBox();
+  const bulkTotpId=(isChatGPTPlanId(planId)&&$('opsBulkTotpAccount')?.value)?$('opsBulkTotpAccount').value:'';
   const lines=arrLines($('opsBulkText')?.value||'');
   const valid=[],doubt=[],dup=[];
   const existing=new Set(state.stock.filter(x=>!planId||x.plan_id===planId).map(opsKeyFromItem).filter(Boolean));
@@ -4841,13 +5327,19 @@ function parseOpsBulk(){
     const clave=parts[1]||'';
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+/.test(correo) || !clave){doubt.push(raw);continue;}
     let maxUses=1;
-    let nota='';
+    let nota='', grupo='';
     if(parts[4]){
       const n=Number(parts[4]);
-      if(Number.isFinite(n)&&n>0){maxUses=n; nota=parts.slice(5).join(' | ');}
+      if(Number.isFinite(n)&&n>0){
+        maxUses=n;
+        if(parts[5]&&/^(https?:\/\/|chat\.whatsapp|wa\.me|grupo|group)/i.test(parts[5])){grupo=parts[5]; nota=parts.slice(6).join(' | ');}
+        else nota=parts.slice(5).join(' | ');
+      }
+      else if(/^(https?:\/\/|chat\.whatsapp|wa\.me|grupo|group)/i.test(parts[4])){grupo=parts[4]; nota=parts.slice(5).join(' | ');}
       else {nota=parts.slice(4).join(' | ');}
     }
-    const item={stock_type:'account',title:correo,secret_data:{correo,email:correo,usuario:correo,clave,password:clave,pass:clave,contraseña:clave,perfil:parts[2]||'',pin:parts[3]||'',max_uses:maxUses,used_count:0,nota},notes:nota||null};
+    const item={stock_type:'account',title:correo,secret_data:{correo,email:correo,usuario:correo,clave,password:clave,pass:clave,contraseña:clave,perfil:parts[2]||'',pin:parts[3]||'',grupo,url:grupo,max_uses:maxUses,used_count:0,nota},notes:nota||null};
+    if(bulkTotpId)item.secret_data.totp_account_id=bulkTotpId;
     const key=correo.toLowerCase();
     if(existing.has(key)){dup.push(raw);continue;}
     existing.add(key);valid.push(item);
@@ -4865,7 +5357,9 @@ function openOpsBulk(){
   fillOpsSelects();
   $('opsBulkPlan').value=$('opsPlanFilter')?.value||state.plans[0]?.id||'';
   $('opsBulkMode').value='account';
+  fillTotpSelectElement($('opsBulkTotpAccount'));
   $('opsBulkText').value='';
+  syncOpsBulkTotpBox();
   parseOpsBulk();
   showDialog('dlgOpsBulk');
 }
@@ -4875,8 +5369,16 @@ async function saveOpsBulk(){
   const {valid}=parseOpsBulk();
   if(!valid.length)return toast('No hay válidas para guardar','bad');
   const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));
-  const r=await db.from('stock_items').insert(rows);
+  const r=await db.from('stock_items').insert(rows).select();
   if(r.error)return toast(r.error.message,'bad');
+  const inserted=r.data||[];
+  for(const item of inserted){
+    const d=opsSecret(item);
+    if(d.totp_account_id){
+      const made=await createStockTotpCodesForItem(item, Number(d.max_uses||1));
+      if(!made.ok)return toast('Cuentas guardadas, pero falló TOTP: '+made.error,'bad');
+    }
+  }
   closeDialog('dlgOpsBulk');toast(valid.length+' cuentas guardadas en el producto/plan','ok');await loadAll();switchTab('ops');
 }
 function exportUnifiedBackup(){
@@ -5257,6 +5759,9 @@ $('productForm').onsubmit=saveProduct;
 $('btnDeleteProduct').onclick=deleteProduct;
 $('planForm').onsubmit=savePlan;
 $('plDeliveryType').onchange=syncDeliveryBoxes;
+$('plPeriod')?.addEventListener('change',syncPlanPeriodCustom);
+$('plProduct')?.addEventListener('change',syncDeliveryBoxes);
+$('plName')?.addEventListener('input',syncDeliveryBoxes);
 $('btnDeletePlan').onclick=deletePlan;
 $('btnPreviewBulk').onclick=parseBulk;
 $('bulkText').oninput=parseBulk;
@@ -5274,7 +5779,7 @@ $('btnGenerateManualMsg').onclick=generateManualMsg;
 $('btnCopyManualMsg').onclick=()=>copyTextSafe($('manualMessage').value);
 $('manualTemplate')?.addEventListener('change',()=>{const tpl=getDeliveryTemplate();$('manualRestrictions').value=tpl?.restrictions||$('manualRestrictions').value;renderDeliveryMessage()});
 ['manualUser','manualPass','manualProfile','manualPin','manualGroup','manualUrl','manualCode','manualNote','manualStartDate','manualRestrictions'].forEach(id=>$(id)?.addEventListener('input',renderDeliveryMessage));
-$('manualPlan')?.addEventListener('change',autoFillManualFromStock);
+$('manualPlan')?.addEventListener('change',()=>{autoFillManualFromStock();setupManualTotpForPlan($('manualPlan').value);renderDeliveryMessage();});
 $('btnSaveManualDelivery').onclick=saveManualDelivery;
 $('btnSaveCoupon').onclick=saveCoupon;
 if($('btnNewCoupon'))$('btnNewCoupon').onclick=blankCoupon;
@@ -5338,6 +5843,7 @@ document.querySelectorAll('[data-ops-view]').forEach(b=>b.onclick=()=>{
   renderOps();
 });
 if($('opsStockType'))$('opsStockType').onchange=syncOpsStockType;
+if($('opsStockPlan'))$('opsStockPlan').addEventListener('change',syncOpsStockTotpBox);
 if($('opsStockForm'))$('opsStockForm').onsubmit=saveOpsStock;
 if($('btnOpsDeleteStock'))$('btnOpsDeleteStock').onclick=deleteOpsStock;
 if($('btnOpsCopyDeliver'))$('btnOpsCopyDeliver').onclick=()=>copyTextSafe($('opsDeliverText').value);
@@ -5348,7 +5854,8 @@ if($('btnOpsPreviewBulk'))$('btnOpsPreviewBulk').onclick=parseOpsBulk;
 if($('btnOpsSaveBulk'))$('btnOpsSaveBulk').onclick=saveOpsBulk;
 if($('opsBulkText'))$('opsBulkText').oninput=parseOpsBulk;
 if($('opsBulkMode'))$('opsBulkMode').onchange=parseOpsBulk;
-if($('opsBulkPlan'))$('opsBulkPlan').onchange=parseOpsBulk;
+if($('opsBulkPlan'))$('opsBulkPlan').onchange=()=>{syncOpsBulkTotpBox();parseOpsBulk();};
+if($('opsBulkTotpAccount'))$('opsBulkTotpAccount').onchange=parseOpsBulk;
 
 
 /* ---- TOTP bindings ---- */
@@ -5374,7 +5881,685 @@ if($('btnTotpDeleteCode'))$('btnTotpDeleteCode').onclick=()=>deleteTotpCode();
 /* ---- Init ---- */
 init();
 setInterval(adminAutoRefresh,2000);
+
+/* ================================================================
+   PATCH v11 — Plantillas de entrega por tipo/asignación + ChatGPT TOTP
+   ================================================================ */
+const DELIVERY_STREAMING_BODY=`✨ *INNOV IA* ✨
+
+✅ Pedido: *{pedido}*
+📦 Producto: *{producto}* {plan}
+
+🔑 *DATOS DE ACCESO*
+📧 Correo: {correo}
+🔒 Contraseña: {contraseña}
+👤 Perfil: {perfil}
+🔢 PIN: {pin}
+📱 Grupo: {grupo}
+📅 Fecha de inicio: {fecha_inicio}
+
+{restricciones}
+
+🛟 Soporte: {soporte}`;
+const DELIVERY_CHATGPT_TOTP_BODY=`✨ *INNOV IA* ✨
+
+✅ Pedido: *{pedido}*
+🤖 Producto: *{producto}* {plan}
+
+🔑 *DATOS DE ACCESO*
+📧 Correo: {correo}
+🔒 Contraseña: {contraseña}
+🛡 Código de acceso: {codigo}
+📱 Grupo / soporte: {grupo}
+📅 Fecha de inicio: {fecha_inicio}
+
+{restricciones}
+
+🛟 Soporte: {soporte}`;
+const DELIVERY_ACCOUNT_SIMPLE_BODY=`✨ *INNOV IA* ✨
+
+✅ Pedido: *{pedido}*
+📦 Producto: *{producto}* {plan}
+
+📧 Correo: {correo}
+🔒 Contraseña: {contraseña}
+📅 Fecha de inicio: {fecha_inicio}
+
+{restricciones}
+
+🛟 Soporte: {soporte}`;
+const DELIVERY_ACTIVATION_BODY=`✨ *INNOV IA* ✨
+
+✅ Pedido: *{pedido}*
+📦 Producto: *{producto}* {plan}
+
+📧 Correo / usuario: {correo}
+🔗 Link / invitación: {url}
+📅 Fecha de inicio: {fecha_inicio}
+
+{restricciones}
+
+🛟 Soporte: {soporte}`;
+
+function dtBaseKey(key){return String(key||'').split('|')[0].trim()||'account_simple'}
+function dtParseAssignments(key){
+  const out={products:[],plans:[]};
+  String(key||'').split('|').slice(1).forEach(part=>{
+    const [k,v]=part.split('=');
+    if(!v)return;
+    const arr=v.split(',').map(x=>x.trim()).filter(Boolean);
+    if(k==='products')out.products=arr;
+    if(k==='plans')out.plans=arr;
+  });
+  return out;
+}
+function dtEncodeKey(base,assign={}){
+  const b=dtBaseKey(base);
+  const products=[...(assign.products||[])].filter(Boolean);
+  const plans=[...(assign.plans||[])].filter(Boolean);
+  return b+(products.length?'|products='+products.join(','):'')+(plans.length?'|plans='+plans.join(','):'');
+}
+function dtKindLabel(t){
+  const k=dtBaseKey(t?.template_key||t||'');
+  if(k==='streaming_profile')return 'Streaming';
+  if(k==='chatgpt_totp')return 'ChatGPT + TOTP';
+  if(k==='account_simple')return 'Correo + contraseña';
+  if(k==='activation_invite')return 'Invitación / activación';
+  return k;
+}
+function planFullLabel(p){return (prodName(p.product_id)||'Producto')+' — '+(p.name||'Plan')}
+function renderDeliveryTemplateApplyList(selected={products:[],plans:[]}){
+  const box=$('dtApplyList'); if(!box)return;
+  const sp=new Set(selected.products||[]), sl=new Set(selected.plans||[]);
+  const products=(state.products||[]).filter(p=>p.active!==false);
+  const plans=(state.plans||[]).filter(p=>p.active!==false);
+  const productHtml=products.map(p=>`<label class="delivery-check"><input type="checkbox" data-dt-product="${esc(p.id)}" ${sp.has(p.id)?'checked':''}> <span>${esc(p.name||'Producto')}</span></label>`).join('')||'<div class="help">Sin productos.</div>';
+  const planHtml=plans.map(p=>`<label class="delivery-check"><input type="checkbox" data-dt-plan="${esc(p.id)}" ${sl.has(p.id)?'checked':''}> <span>${esc(planFullLabel(p))}</span></label>`).join('')||'<div class="help">Sin planes.</div>';
+  box.innerHTML=`<div class="delivery-apply-group"><strong>Productos completos</strong><div class="delivery-check-grid">${productHtml}</div></div><div class="delivery-apply-group"><strong>Planes específicos</strong><div class="delivery-check-grid">${planHtml}</div></div>`;
+}
+function getDeliveryTemplateApplySelection(){
+  return {
+    products:Array.from(document.querySelectorAll('[data-dt-product]:checked')).map(x=>x.getAttribute('data-dt-product')).filter(Boolean),
+    plans:Array.from(document.querySelectorAll('[data-dt-plan]:checked')).map(x=>x.getAttribute('data-dt-plan')).filter(Boolean)
+  };
+}
+function deliveryTemplateAppliesToPlan(t,planId){
+  if(!t||!planId)return false;
+  const p=plan(planId)||{};
+  const a=dtParseAssignments(t.template_key||'');
+  if(a.plans.includes(planId))return true;
+  if(p.product_id&&a.products.includes(p.product_id))return true;
+  return false;
+}
+function deliveryTemplateHasExplicitAssign(t){
+  const a=dtParseAssignments(t?.template_key||'');
+  return a.products.length||a.plans.length;
+}
+function inferDeliveryTemplateBaseForPlan(planId){
+  const p=plan(planId)||{};
+  const text=normalizeServiceText((prodName(p.product_id)||'')+' '+(p.name||''));
+  if(/chatgpt|gpt|openai/.test(text))return 'chatgpt_totp';
+  if(/netflix|disney|prime|amazon|crunchy|max|hbo|vix|paramount|iptv|spotify|youtube|stream/.test(text))return 'streaming_profile';
+  if(/google one|canva|autodesk|drive|workspace|invit|activacion|activation/.test(text))return 'activation_invite';
+  return 'account_simple';
+}
+function deliveryTemplateScoreForPlan(t,planId){
+  if(!t||t.active===false)return -999;
+  let score=0;
+  const p=plan(planId)||{};
+  const a=dtParseAssignments(t.template_key||'');
+  if(a.plans.includes(planId))score+=100;
+  if(p.product_id&&a.products.includes(p.product_id))score+=80;
+  const want=inferDeliveryTemplateBaseForPlan(planId);
+  const key=dtBaseKey(t.template_key||'');
+  if(key===want)score+=35;
+  if(t.is_default)score+=5;
+  if(deliveryTemplateHasExplicitAssign(t)&&score<80)return -999;
+  return score;
+}
+function defaultDeliveryTemplateForPlan(planId){
+  const active=(state.deliveryTemplates||[]).filter(t=>t.active!==false);
+  if(!active.length)return null;
+  const ranked=active.map(t=>({t,score:deliveryTemplateScoreForPlan(t,planId)})).filter(x=>x.score>-999).sort((a,b)=>b.score-a.score);
+  if(ranked.length)return ranked[0].t;
+  const want=inferDeliveryTemplateBaseForPlan(planId);
+  return active.find(t=>dtBaseKey(t.template_key)===want)||active.find(t=>t.is_default)||active[0]||null;
+}
+function deliveryTemplateOptions(){
+  if(!$('manualTemplate'))return;
+  const planId=$('manualPlan')?.value||'';
+  const active=(state.deliveryTemplates||[]).filter(t=>t.active!==false);
+  const usable=active.filter(t=>!planId || deliveryTemplateScoreForPlan(t,planId)>-999);
+  $('manualTemplate').innerHTML=(usable.length?usable:active).map(t=>`<option value="${t.id}">${esc(t.name)} · ${esc(dtKindLabel(t))}${t.is_default?' · principal':''}</option>`).join('')||'<option value="">Sin plantillas</option>';
+  const best=defaultDeliveryTemplateForPlan(planId);
+  if(best)$('manualTemplate').value=best.id;
+}
+function getDeliveryTemplate(){
+  const id=$('manualTemplate')?.value;
+  const planId=$('manualPlan')?.value||'';
+  return (state.deliveryTemplates||[]).find(t=>t.id===id)||defaultDeliveryTemplateForPlan(planId)||state.deliveryTemplates?.[0]||null;
+}
+function renderDeliveryTemplates(){
+  if(!$('deliveryTemplatesGrid'))return;
+  const q=($('templateSearch')?.value||'').toLowerCase();
+  const data=(state.deliveryTemplates||[]).filter(t=>(`${t.name||''} ${t.body||''} ${t.template_key||''}`).toLowerCase().includes(q));
+  $('deliveryTemplatesGrid').innerHTML=data.map(t=>{
+    const a=dtParseAssignments(t.template_key||'');
+    const productNames=a.products.map(id=>prodName(id)).filter(Boolean).join(', ');
+    const planNames=a.plans.map(id=>planName(id)).filter(Boolean).join(', ');
+    const assign=(productNames||planNames)?`<div class="help">Usa en: ${esc([productNames,planNames].filter(Boolean).join(' · '))}</div>`:'<div class="help">Sin selección: automático por tipo</div>';
+    return `<div class="mini-card crm-card delivery-template-card">
+      <div class="mini-head">
+        <div><b>${esc(t.name||'Plantilla entrega')}</b><div class="help"><span class="delivery-template-kind">${esc(dtKindLabel(t))}</span> ${t.is_default?' · ⭐ principal':''}</div>${assign}</div>
+        <span class="badge b-ok">Activa</span>
+      </div>
+      <p class="help" style="white-space:pre-wrap;max-height:140px;overflow:auto">${esc(t.body||'').slice(0,400)}</p>
+      <div class="line-actions">
+        <button class="btn btn-primary" onclick="editDeliveryTemplate('${t.id}')">Editar</button>
+        <button class="btn" onclick="duplicateDeliveryTemplate('${t.id}')">Duplicar</button>
+        <button class="btn ${t.is_default?'btn-warning':'btn-success'}" onclick="setDefaultDeliveryTemplate('${t.id}')">${t.is_default?'Principal':'Hacer principal'}</button>
+        <button class="btn btn-danger" onclick="quickDeleteDeliveryTemplate('${t.id}')">Elim.</button>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin plantillas de entrega.</p></div>';
+}
+function fillDeliveryTemplateDefaultsByKey(force=false){
+  const key=dtBaseKey($('dtKey')?.value||'streaming_profile');
+  if(!$('dtBody'))return;
+  if(force||!$('dtBody').value.trim()){
+    $('dtBody').value=key==='chatgpt_totp'?DELIVERY_CHATGPT_TOTP_BODY:key==='account_simple'?DELIVERY_ACCOUNT_SIMPLE_BODY:key==='activation_invite'?DELIVERY_ACTIVATION_BODY:DELIVERY_STREAMING_BODY;
+  }
+  if(force||!$('dtName').value.trim()){
+    $('dtName').value=key==='chatgpt_totp'?'ChatGPT compartida + Access TOTP':key==='account_simple'?'Cuenta simple — correo y contraseña':key==='activation_invite'?'Activación / invitación':'Streaming con perfil y PIN';
+  }
+}
+function blankDeliveryTemplate(){
+  $('dtId').value='';
+  $('dtName').value='Streaming con perfil y PIN';
+  $('dtKey').value='streaming_profile';
+  if($('dtActive'))$('dtActive').value='true';
+  $('dtDefault').checked=(state.deliveryTemplates||[]).length===0;
+  $('dtBody').value=DELIVERY_STREAMING_BODY;
+  $('dtRestrictions').value=`🚫 RESTRICCIONES:\n❌ No cambiar correo, contraseña, perfil ni PIN\n❌ No compartir la cuenta\n✅ Uso personal / según plan comprado\n🛟 Soporte por WhatsApp`;
+  renderDeliveryTemplateApplyList({products:[],plans:[]});
+  $('deliveryTemplateDlgTitle').textContent='Nueva plantilla de entrega';showDialog('dlgDeliveryTemplate');
+}
+function editDeliveryTemplate(id){
+  const t=(state.deliveryTemplates||[]).find(x=>x.id===id);if(!t)return;
+  const assign=dtParseAssignments(t.template_key||'');
+  $('dtId').value=t.id;$('dtName').value=t.name||'';$('dtKey').value=dtBaseKey(t.template_key||'streaming_profile');if($('dtActive'))$('dtActive').value='true';$('dtDefault').checked=!!t.is_default;$('dtBody').value=t.body||DELIVERY_STREAMING_BODY;$('dtRestrictions').value=t.restrictions||'';
+  renderDeliveryTemplateApplyList(assign);
+  $('deliveryTemplateDlgTitle').textContent='Editar plantilla de entrega';showDialog('dlgDeliveryTemplate');
+}
+function duplicateDeliveryTemplate(id){
+  const t=(state.deliveryTemplates||[]).find(x=>x.id===id);if(!t)return;
+  const assign=dtParseAssignments(t.template_key||'');
+  $('dtId').value='';$('dtName').value=(t.name||'Plantilla entrega')+' copia';$('dtKey').value=dtBaseKey(t.template_key||'account_simple');if($('dtActive'))$('dtActive').value='true';$('dtDefault').checked=false;$('dtBody').value=t.body||DELIVERY_STREAMING_BODY;$('dtRestrictions').value=t.restrictions||'';
+  renderDeliveryTemplateApplyList(assign);
+  $('deliveryTemplateDlgTitle').textContent='Duplicar plantilla de entrega';showDialog('dlgDeliveryTemplate');
+}
+async function saveDeliveryTemplate(ev){
+  ev.preventDefault();
+  const id=$('dtId').value;
+  const assign=getDeliveryTemplateApplySelection();
+  const payload={name:$('dtName').value.trim()||'Plantilla entrega',template_key:dtEncodeKey($('dtKey').value||'account_simple',assign),body:$('dtBody').value.trim()||DELIVERY_ACCOUNT_SIMPLE_BODY,restrictions:$('dtRestrictions').value.trim()||'',active:true,is_default:$('dtDefault').checked};
+  if(payload.is_default)await db.from('delivery_message_templates').update({is_default:false}).neq('id',id||'00000000-0000-0000-0000-000000000000');
+  const r=id?await db.from('delivery_message_templates').update(payload).eq('id',id):await db.from('delivery_message_templates').insert(payload);
+  if(r.error)return toast(r.error.message,'bad');
+  closeDialog('dlgDeliveryTemplate');toast('Plantilla de entrega guardada','ok');await loadAll();switchTab('templates');
+}
+async function createBaseDeliveryTemplates(){
+  const baseRestrictions='🚫 RESTRICCIONES:\n❌ No compartir la cuenta\n✅ Uso personal / según plan comprado\n🛟 Soporte por WhatsApp';
+  const rows=[];
+  const hasBase=k=>(state.deliveryTemplates||[]).some(t=>dtBaseKey(t.template_key||'').toLowerCase()===k);
+  if(!hasBase('streaming_profile'))rows.push({name:'Streaming con perfil y PIN',template_key:'streaming_profile',body:DELIVERY_STREAMING_BODY,restrictions:baseRestrictions,active:true,is_default:(state.deliveryTemplates||[]).length===0});
+  if(!hasBase('chatgpt_totp'))rows.push({name:'ChatGPT compartida + Access TOTP',template_key:'chatgpt_totp',body:DELIVERY_CHATGPT_TOTP_BODY,restrictions:'⚠️ No cambies la contraseña ni compartas el código.\n✅ El código de acceso es personal y de un solo uso.\n🛟 Soporte por WhatsApp',active:true,is_default:false});
+  if(!hasBase('account_simple'))rows.push({name:'Cuenta simple — correo y contraseña',template_key:'account_simple',body:DELIVERY_ACCOUNT_SIMPLE_BODY,restrictions:baseRestrictions,active:true,is_default:false});
+  if(!hasBase('activation_invite'))rows.push({name:'Google One / Canva / Autodesk — activación',template_key:'activation_invite',body:DELIVERY_ACTIVATION_BODY,restrictions:'✅ Revisa tu correo o link de invitación.\n❌ No cambies datos sin autorización.\n🛟 Soporte por WhatsApp',active:true,is_default:false});
+  if(!rows.length){toast('Las plantillas de entrega base ya existen','ok');return;}
+  const r=await db.from('delivery_message_templates').insert(rows);
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Plantillas de entrega base creadas','ok');await loadAll();switchTab('templates');
+}
+
+function firstAvailableStockForPlan(planId){
+  const candidates=(state.stock||[]).filter(x=>x.plan_id===planId && opsIsAccount(x));
+  return candidates.find(x=>['available','activo','active','disponible'].includes(opsAvailableStatus(x))) || candidates.find(x=>{
+    const d=opsSecret(x); return opsAvailableStatus(x)!=='used' && Number(d.used_count||0)<Number(d.max_uses||1);
+  }) || null;
+}
+function setupManualTotpForPlan(planId){
+  const itemId=$('manualStockId')?.value||'';
+  const item=itemId?(state.stock||[]).find(s=>s.id===itemId):null;
+  const accountId=stockTotpAccountId(item,planId)||planTotpAccountId(planId)||'';
+  const preCode=item?nextStockTotpCode(item):'';
+  if($('manualTotpAccountId'))$('manualTotpAccountId').value=accountId||'';
+  if($('manualTotpCode'))$('manualTotpCode').value=accountId?(preCode||generateUniqueTotpAccessCode()):'';
+  if($('manualCode'))$('manualCode').value=accountId?($('manualTotpCode')?.value||''):($('manualCode')?.value||'');
+  if($('manualTotpInfo')){
+    $('manualTotpInfo').classList.toggle('hidden',!accountId);
+    $('manualTotpInfo').textContent=accountId?('🛡 Access TOTP vinculado: '+(totpAccountName(accountId)||planTotpAccountLabel(planId)||'Access TOTP')+' · código '+$('manualTotpCode').value+' listo para {codigo}.'):'';
+  }
+}
+function autoFillManualFromStock(){
+  const planId=$('manualPlan')?.value||'';
+  const item=firstAvailableStockForPlan(planId);
+  if($('manualStockId'))$('manualStockId').value=item?.id||'';
+  const hint=$('manualStockHint');
+  if(!item){
+    if(hint)hint.textContent='No hay cuenta libre cargada para este plan. Puedes escribir la entrega manualmente.';
+    deliveryTemplateOptions();renderDeliveryMessage();return;
+  }
+  const d=opsSecret(item);
+  if($('manualUser'))$('manualUser').value=d.correo||d.usuario||d.email||'';
+  if($('manualPass'))$('manualPass').value=d.clave||d.pass||d.password||d.contraseña||d.contrasena||'';
+  if($('manualProfile'))$('manualProfile').value=d.perfil||'';
+  if($('manualPin'))$('manualPin').value=d.pin||'';
+  if($('manualGroup'))$('manualGroup').value=d.grupo||d.url_grupo||d.group||'';
+  if($('manualUrl'))$('manualUrl').value=d.url||d.link||d.enlace||d.grupo||'';
+  if($('manualNote'))$('manualNote').value=d.nota||item.notes||'';
+  if(hint)hint.textContent='✅ Se cargó automáticamente una cuenta libre: '+(item.title||d.correo||'cuenta');
+  deliveryTemplateOptions();setupManualTotpForPlan(planId);renderDeliveryMessage();
+}
+function openManualDelivery(id){
+  $('manualOrderId').value=id;
+  if($('manualStockId'))$('manualStockId').value='';
+  const its=(state.items||[]).filter(i=>i.order_id===id);
+  $('manualPlan').innerHTML=its.map(i=>`<option value="${i.plan_id}">${esc(planName(i.plan_id))} x${i.quantity}</option>`).join('');
+  $('manualUser').value='';$('manualPass').value='';$('manualProfile').value='';$('manualPin').value='';$('manualGroup').value='';$('manualUrl').value='';$('manualCode').value='';$('manualNote').value='';
+  $('manualStartDate').value=todayInput();
+  autoFillManualFromStock();
+  const tpl=getDeliveryTemplate();
+  if($('manualRestrictions'))$('manualRestrictions').value=(tpl?.restrictions)||`🚫 RESTRICCIONES:\n❌ No compartir la cuenta\n✅ Uso personal / según plan comprado\n🛟 Soporte por WhatsApp`;
+  renderDeliveryMessage();showDialog('dlgManual');
+}
+function openOpsDeliver(id,forcedPlanId=''){
+  let x=id?(state.stock||[]).find(s=>s.id===id):null;
+  let planId=x?.plan_id||forcedPlanId||$('opsDeliverPlanId')?.value||'';
+  if(!x&&planId){x=firstAvailableStockForPlan(planId);}
+  if(x)planId=x.plan_id;
+  if(!planId){toast('Selecciona un plan para entregar','bad');return;}
+  const d=x?opsSecret(x):{};
+  $('opsDeliverStockId').value=x?.id||'';
+  if($('opsDeliverPlanId'))$('opsDeliverPlanId').value=planId;
+  if($('opsDeliverPedido'))$('opsDeliverPedido').value=makeManualDeliveryCode();
+  $('opsDeliverName').value=d.reserved_for||'';
+  $('opsDeliverPhone').value=d.reserved_phone||'';
+  $('opsDeliverService').value=planName(planId);
+  const p=plan(planId);
+  $('opsDeliverAmount').value=p?.price??'';
+  if($('opsDeliverStart'))$('opsDeliverStart').value=todayISO();
+  if($('opsDeliverPayDate'))$('opsDeliverPayDate').value=todayISO();
+  $('opsDeliverDue').value=planRenewalDue(planId);
+  $('opsDeliverNewStatus').value=x?'used':'available';
+  const totpAccount=stockTotpAccountId(x,planId);
+  const preCode=x?nextStockTotpCode(x):'';
+  if($('opsDeliverTotpAccountId'))$('opsDeliverTotpAccountId').value=totpAccount||'';
+  if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=totpAccount?(preCode||generateUniqueTotpAccessCode()):'';
+  if($('opsDeliverTotpInfo')){
+    $('opsDeliverTotpInfo').classList.toggle('hidden',!totpAccount);
+    const label=totpAccountName(totpAccount)||planTotpAccountLabel(planId)||'Access TOTP';
+    $('opsDeliverTotpInfo').textContent=totpAccount?('🛡 '+label+' · código '+$('opsDeliverTotpCode').value+' de un solo uso listo para la entrega.') : '';
+  }
+  refreshOpsDeliverMessage();
+  showDialog('dlgOpsDeliver');
+}
+async function saveOpsDeliver(){
+  const id=$('opsDeliverStockId').value;
+  const x=id?state.stock.find(s=>s.id===id):null;
+  const planId=(x?.plan_id)||$('opsDeliverPlanId')?.value||'';
+  const name=$('opsDeliverName').value.trim()||'Cliente';
+  const phone=normalizePhone($('opsDeliverPhone').value);
+  if(!phone.ok)return toast(phone.error||'WhatsApp inválido','bad');
+  const existingByPhone=state.customers.find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
+  const finalName=(existingByPhone?.name||name).trim();
+  const payload={name:finalName,phone_raw:$('opsDeliverPhone').value.trim()||phone.e164,phone_e164:phone.e164,email:existingByPhone?.email||null,source:existingByPhone?.source||'entrega_manual_stock',notes:existingByPhone?.notes||'Creado desde entrega manual de stock'};
+  const c=existingByPhone?.id?await db.from('crm_customers').update(payload).eq('id',existingByPhone.id).select().single():await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
+  if(c.error)return toast('Cliente no guardado: '+c.error.message,'bad');
+  const service=$('opsDeliverService').value.trim()||planName(planId)||'Servicio';
+  const totpAccount=$('opsDeliverTotpAccountId')?.value||stockTotpAccountId(x,planId)||'';
+  const initialTotpCode=$('opsDeliverTotpCode')?.value||'';
+  if(totpAccount&&initialTotpCode){
+    const made=await createTotpCodeForDelivery(totpAccount,initialTotpCode,finalName,phone.e164,service);
+    if(!made.ok)return toast('No se pudo crear el código Access TOTP: '+made.error,'bad');
+    if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=made.code;
+  }
+  refreshOpsDeliverMessage();
+  const amount=$('opsDeliverAmount').value===''?null:Number($('opsDeliverAmount').value||0);
+  const startDate=$('opsDeliverStart')?.value||todayISO();
+  const payDate=$('opsDeliverPayDate')?.value||todayISO();
+  const due=$('opsDeliverDue').value||planRenewalDue(planId);
+  const reminderDraft={customer_id:c.data.id,product_id:plan(planId)?.product_id||null,plan_id:planId||null,service_name:service,amount,currency:'PEN',due_date:due,status:'pending',fecha_inicio:startDate,fecha_pago:payDate};
+  reminderDraft.whatsapp_message=buildTemplateMessage(getDefaultTemplate(),c.data,reminderDraft);
+  const reminderDbPayload={customer_id:reminderDraft.customer_id,product_id:reminderDraft.product_id,plan_id:reminderDraft.plan_id,service_name:reminderDraft.service_name,amount:reminderDraft.amount,currency:reminderDraft.currency,due_date:reminderDraft.due_date,status:reminderDraft.status,whatsapp_message:reminderDraft.whatsapp_message};
+  const r=await db.from('payment_reminders').insert(reminderDbPayload);
+  if(r.error)return toast('Recordatorio no creado: '+r.error.message,'bad');
+  const deliveredCode=$('opsDeliverTotpCode')?.value||'';
+  if(x){
+    const d={...opsSecret(x)};
+    d.used_count=Number(d.used_count||0)+1;
+    d.last_customer=finalName;d.last_phone=phone.e164;d.last_used_at=new Date().toISOString();
+    if(deliveredCode){d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];if(!d.used_totp_codes.includes(deliveredCode))d.used_totp_codes.push(deliveredCode);}
+    d.history=Array.isArray(d.history)?d.history:[];
+    d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,service,amount,due_date:due,at:new Date().toISOString(),totp_code:deliveredCode||''});
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+    const max=Number(d.max_uses||1);const finalStatus=(d.used_count>=max)?'used':'available';
+    const st=await db.from('stock_items').update({status:finalStatus,secret_data:d}).eq('id',id);
+    if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
+  }else if(planId){
+    const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
+    if(!used.ok)toast('Entrega registrada, pero no se pudo descontar cupo: '+used.error,'bad');
+  }
+  const msg=$('opsDeliverText').value.trim()||opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due});
+  copyTextSafe(msg);
+  closeDialog('dlgOpsDeliver');toast('Entrega + recordatorio creados','ok');
+  notifyWeb('Entrega registrada','Se creó recordatorio para '+finalName,true);
+  if($('opsDeliverOpenWa')?.checked){const url=waLink(phone.e164,msg);if(url!=='#')window.open(url,'_blank','noopener,noreferrer');}
+  await loadAll();switchTab('ops');
+}
+
+/* ==============================================================
+   PATCH FINAL CUPOS: entrega automática + descuento real + agregar cuentas
+   - Entregar desde plan pide solo cliente/WhatsApp.
+   - La cuenta se selecciona sola entre las disponibles.
+   - Descuenta usos reales: usados / usos permitidos.
+   - Agregar crea cuenta simple o varios perfiles de streaming.
+   - Flecha/Cuentas muestra todas las cuentas e historial compacto.
+   ============================================================== */
+function stockUsedCount(x){const d=opsSecret(x);return Math.max(0,Number(d.used_count||0)||0)}
+function stockMaxUses(x){const d=opsSecret(x);return Math.max(1,Number(d.max_uses||1)||1)}
+function stockRemainingUses(x){return Math.max(0,stockMaxUses(x)-stockUsedCount(x))}
+function stockIsDeliverable(x){
+  const st=opsAvailableStatus(x);
+  return x && x.plan_id && st==='available' && stockRemainingUses(x)>0 && opsIsAccount(x);
+}
+function visibleStock(pl){
+  const planId=typeof pl==='string'?pl:pl?.id;
+  if(!planId)return 0;
+  const stockLeft=(state.stock||[]).filter(x=>x.plan_id===planId && opsAvailableStatus(x)==='available' && opsIsAccount(x)).reduce((a,x)=>a+stockRemainingUses(x),0);
+  if(stockLeft>0)return stockLeft;
+  const p=typeof pl==='string'?plan(planId):pl;
+  const s=(state.summary||[]).find(x=>x.plan_id===planId);
+  const rpcVal=Number(s?.available_stock||0);
+  if(rpcVal>0)return rpcVal;
+  if((p?.stock_mode||'')==='manual')return Number(p.manual_stock_count||0);
+  return 0;
+}
+function firstAvailableStockForPlan(planId){
+  return (state.stock||[])
+    .filter(x=>x.plan_id===planId && stockIsDeliverable(x))
+    .sort((a,b)=>{
+      const da=opsSecret(a), db=opsSecret(b);
+      const ra=stockRemainingUses(a), rb=stockRemainingUses(b);
+      // Primero cuentas ya parcialmente usadas para completar sus cupos, luego las más antiguas.
+      if(stockUsedCount(a)!==stockUsedCount(b))return stockUsedCount(b)-stockUsedCount(a);
+      if(ra!==rb)return rb-ra;
+      return String(a.created_at||'').localeCompare(String(b.created_at||''));
+    })[0]||null;
+}
+function addStockForPlan(planId){
+  openOpsStockDialog('account','');
+  if($('opsStockPlan'))$('opsStockPlan').value=planId||$('opsPlanFilter')?.value||state.plans[0]?.id||'';
+  if($('opsStockProfilesBulk'))$('opsStockProfilesBulk').value='';
+  if($('opsStockUser'))$('opsStockUser').focus();
+  syncOpsStockTotpBox();
+}
+function openPlanAccounts(planId){openPlanStockView(planId)}
+function openPlanManualDelivery(planId){openOpsDeliver('',planId)}
+function renderPlans(){
+  const q=($('planSearch')?.value||'').toLowerCase();
+  let arr=(state.plans||[]).filter(p=>(p.name+' '+prodName(p.product_id)).toLowerCase().includes(q));
+  if(state.onlyEmpty)arr=arr.filter(p=>visibleStock(p)<=0);
+  $('plansGrid').innerHTML=arr.map(p=>`<div class="mini-card">
+    <div class="mini-head">
+      <div><b>${esc(prodName(p.product_id))}</b><div>${esc(p.name)}</div><div class="help">${money(p.price)} · ${esc(p.period||'')}</div></div>
+      <span class="badge ${typeBadge(p)}">${typeLabel(p)}</span>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <span class="badge ${visibleStock(p)>0?'b-ok':'b-bad'}">${visibleStock(p)} cupos</span>
+      <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
+      <span class="badge">${esc(p.availability_status||'available')}</span>
+      ${planTotpAccountId(p)?`<span class="badge b-purple">🛡 Access TOTP</span>`:''}
+    </div>
+    <div class="line-actions">
+      <button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar</button>
+      <button class="btn btn-success" onclick="openPlanManualDelivery('${p.id}')">Entregar</button>
+      <button class="btn" onclick="addStockForPlan('${p.id}')">＋ Agregar</button>
+      <button class="btn" onclick="openPlanAccounts('${p.id}')">▾ Cuentas</button>
+      <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
+      <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">Elim.</button>
+    </div>
+  </div>`).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
+}
+function planStockFilteredRows(){
+  const planId=$('planStockPlanId')?.value||'';
+  const q=($('planStockSearch')?.value||'').toLowerCase().trim();
+  let rows=(state.stock||[]).filter(x=>x.plan_id===planId && opsIsAccount(x));
+  if(q)rows=rows.filter(x=>{
+    const d=opsSecret(x);
+    const hist=Array.isArray(d.history)?d.history.map(h=>`${h.customer_name||''} ${h.customer_phone||''}`).join(' '):'';
+    return (`${x.title||''} ${x.notes||''} ${opsAvailableStatus(x)} ${d.correo||''} ${d.usuario||''} ${d.clave||''} ${d.perfil||''} ${d.pin||''} ${d.reserved_for||''} ${d.reserved_phone||''} ${hist}`).toLowerCase().includes(q);
+  });
+  rows.sort((a,b)=>{
+    const order={available:0,reserved:1,used:2,delivered:2};
+    return (order[opsAvailableStatus(a)]??3)-(order[opsAvailableStatus(b)]??3)||String(a.created_at||'').localeCompare(String(b.created_at||''));
+  });
+  return rows;
+}
+function compactHistoryHtml(d,planId){
+  const hist=Array.isArray(d.history)?d.history:[];
+  if(!hist.length)return '<div class="plan-stock-sub">Sin entregas registradas todavía.</div>';
+  return `<div class="plan-stock-sub"><b>Historial:</b> ${hist.slice(-4).reverse().map(h=>`${esc(h.customer_name||'Cliente')}${h.customer_phone?' · '+esc(h.customer_phone):''}${h.perfil?' · '+esc(h.perfil):''}${h.at?' · '+esc(new Date(h.at).toLocaleDateString('es-PE')):''}`).join('<br>')}</div>`;
+}
+function renderPlanStockView(){
+  const list=$('planStockList');if(!list)return;
+  const planId=$('planStockPlanId')?.value||'';
+  const rows=planStockFilteredRows();
+  const freeUses=(state.stock||[]).filter(x=>x.plan_id===planId&&opsAvailableStatus(x)==='available'&&opsIsAccount(x)).reduce((a,x)=>a+stockRemainingUses(x),0);
+  const usedUses=(state.stock||[]).filter(x=>x.plan_id===planId&&opsIsAccount(x)).reduce((a,x)=>a+stockUsedCount(x),0);
+  const totalUses=(state.stock||[]).filter(x=>x.plan_id===planId&&opsIsAccount(x)).reduce((a,x)=>a+stockMaxUses(x),0);
+  if(!rows.length){
+    list.innerHTML=`<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><p class="help">Usa “＋ Agregar” para cargar correo, contraseña y perfiles.</p></div>`;
+    return;
+  }
+  list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${freeUses} cupos libres</span><span class="badge b-bad">${usedUses} usados</span><span class="badge">${totalUses} cupos totales</span><button class="btn btn-primary btn-sm" type="button" onclick="addStockForPlan('${planId}')">＋ Agregar</button></div>`+rows.map(x=>{
+    const d=opsSecret(x), st=opsAvailableStatus(x);
+    const pass=d.clave||d.pass||'';
+    const remaining=stockRemainingUses(x);
+    return `<div class="plan-stock-row">
+      <div class="plan-stock-main">
+        <div class="plan-stock-title">${esc(x.title||d.correo||'Cuenta')}</div>
+        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(stockUsedCount(x))}/${esc(stockMaxUses(x))}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span>${stockTotpAccountId(x)?` <span class="badge b-purple">🛡 TOTP</span>`:''}</div>
+        <div class="plan-stock-secret"><span class="mono">📧 ${esc(d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${esc(pass)}</span>`:''}${d.perfil?`<span class="mono">👤 ${esc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${esc(d.pin)}</span>`:''}</div>
+        ${compactHistoryHtml(d,planId)}
+      </div>
+      <div class="plan-stock-actions">
+        <button class="btn" onclick="viewStockHistory('${x.id}')">Historial</button>
+        ${stockUsedCount(x)>0||st==='reserved'||st==='used'||st==='delivered'?`<button class="btn btn-warning" onclick="restoreStockAvailable('${x.id}')">Reponer</button>`:''}
+        <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openPlanStockView(planId){
+  if(!$('dlgPlanStockView'))return;
+  $('planStockPlanId').value=planId||'';
+  $('planStockTitle').textContent='Cuentas e historial · '+opsPlanGroupTitle(planId);
+  if($('planStockSearch'))$('planStockSearch').value='';
+  if($('btnPlanStockAdd')){$('btnPlanStockAdd').classList.remove('hidden');$('btnPlanStockAdd').onclick=()=>addStockForPlan(planId);}
+  renderPlanStockView();
+  showDialog('dlgPlanStockView');
+}
+async function saveOpsStock(ev){
+  ev.preventDefault();
+  const id=$('opsStockId')?.value||'';
+  const planId=$('opsStockPlan')?.value||'';
+  if(!planId)return toast('Selecciona un plan destino','bad');
+  const correo=($('opsStockUser')?.value||'').trim();
+  const clave=($('opsStockPass')?.value||'').trim();
+  if(!correo)return toast('El correo / usuario es obligatorio','bad');
+  if(!clave)return toast('La contraseña es obligatoria','bad');
+  const current=id?(state.stock||[]).find(s=>s.id===id):null;
+  const baseSecret={...opsSecret(current)};
+  baseSecret.correo=correo;baseSecret.email=correo;baseSecret.usuario=correo;
+  baseSecret.clave=clave;baseSecret.password=clave;baseSecret.pass=clave;baseSecret['contraseña']=clave;baseSecret.contrasena=clave;
+  baseSecret.perfil=($('opsStockProfile')?.value||'').trim();
+  baseSecret.pin=($('opsStockPin')?.value||'').trim();
+  baseSecret.max_uses=Math.max(1,Number($('opsStockMaxUses')?.value||1));
+  baseSecret.used_count=id?Math.max(0,Number($('opsStockUsedCount')?.value||0)):0;
+  const group=($('opsStockGroup')?.value||'').trim(); if(group){baseSecret.grupo=group;baseSecret.url=group;} else {delete baseSecret.grupo;delete baseSecret.url;}
+  const note=($('opsStockNotes')?.value||'').trim(); if(note)baseSecret.nota=note; else delete baseSecret.nota;
+  if(isChatGPTPlanId(planId) && $('opsStockTotpAccount')?.value)baseSecret.totp_account_id=$('opsStockTotpAccount').value; else delete baseSecret.totp_account_id;
+  const titleBase=($('opsStockTitle')?.value||'').trim();
+  const bulkProfiles=arrLines($('opsStockProfilesBulk')?.value||'').map(line=>{
+    const parts=line.split('|').map(x=>x.trim());
+    return {perfil:parts[0]||'',pin:parts[1]||''};
+  }).filter(x=>x.perfil||x.pin);
+  if(!id && bulkProfiles.length){
+    const rows=bulkProfiles.map((pf,idx)=>{
+      const d={...baseSecret,perfil:pf.perfil,pin:pf.pin,max_uses:1,used_count:0};
+      return {plan_id:planId,stock_type:'account',title:titleBase||`${correo} · ${pf.perfil||('Perfil '+(idx+1))}`,secret_data:d,notes:note||null,status:'available'};
+    });
+    const r=await db.from('stock_items').insert(rows).select();
+    if(r.error)return toast(r.error.message,'bad');
+    for(const item of (r.data||[])){
+      const d=opsSecret(item);
+      if(d.totp_account_id){const made=await createStockTotpCodesForItem(item,Number(d.max_uses||1));if(!made.ok)return toast('Cuentas guardadas, pero falló TOTP: '+made.error,'bad');}
+    }
+    closeDialog('dlgOpsStock');toast(rows.length+' perfiles/cupos guardados','ok');await loadAll();switchTab('inventory');return;
+  }
+  const payload={plan_id:planId,stock_type:'account',title:titleBase||correo,secret_data:baseSecret,notes:note||null,status:($('opsStockStatus')?.value||'available')};
+  const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
+  if(r.error)return toast(r.error.message,'bad');
+  if(baseSecret.totp_account_id){const made=await createStockTotpCodesForItem(r.data,baseSecret.max_uses);if(!made.ok)return toast('Cuenta guardada, pero no se pudieron crear códigos TOTP: '+made.error,'bad');}
+  closeDialog('dlgOpsStock');toast('Cuenta guardada','ok');await loadAll();switchTab('inventory');
+}
+function openOpsStockDialog(type='account',id=''){
+  fillOpsSelects();
+  ['opsStockId','opsStockTitle','opsStockUser','opsStockPass','opsStockProfile','opsStockPin','opsStockCode','opsStockGroup','opsStockNotes','opsStockMaxUses','opsStockUsedCount','opsStockProfilesBulk'].forEach(k=>{if($(k))$(k).value=''});
+  fillTotpSelectElement($('opsStockTotpAccount'));
+  if($('opsStockMaxUses'))$('opsStockMaxUses').value=1;
+  if($('opsStockUsedCount'))$('opsStockUsedCount').value=0;
+  if($('opsStockStatus'))$('opsStockStatus').value='available';
+  if($('opsStockType'))$('opsStockType').value='account';
+  if($('opsStockPlan'))$('opsStockPlan').value=$('opsPlanFilter')?.value||state.plans[0]?.id||'';
+  if($('btnOpsDeleteStock'))$('btnOpsDeleteStock').style.display=id?'':'none';
+  if(id){
+    const x=(state.stock||[]).find(s=>s.id===id);if(!x)return;
+    const d=opsSecret(x);
+    $('opsStockId').value=x.id;$('opsStockPlan').value=x.plan_id||'';$('opsStockTitle').value=x.title||'';
+    $('opsStockUser').value=d.correo||d.usuario||'';$('opsStockPass').value=d.clave||d.pass||'';
+    $('opsStockProfile').value=d.perfil||'';$('opsStockPin').value=d.pin||'';$('opsStockGroup').value=d.grupo||d.url||'';
+    $('opsStockNotes').value=x.notes||d.nota||'';if($('opsStockStatus'))$('opsStockStatus').value=opsAvailableStatus(x);
+    if($('opsStockMaxUses'))$('opsStockMaxUses').value=Number(d.max_uses||1);if($('opsStockUsedCount'))$('opsStockUsedCount').value=Number(d.used_count||0);
+    if($('opsStockTotpAccount'))$('opsStockTotpAccount').value=d.totp_account_id||'';
+  }
+  if($('opsStockDlgTitle'))$('opsStockDlgTitle').textContent=id?'Modificar cuenta':'Agregar cuenta / cupo';
+  syncOpsStockType();syncOpsStockTotpBox();showDialog('dlgOpsStock');
+}
+function refreshOpsDeliverMessage(){
+  if(!$('opsDeliverText'))return;
+  const stockId=$('opsDeliverStockId')?.value||'';
+  const planId=$('opsDeliverPlanId')?.value || (stockId?((state.stock||[]).find(s=>s.id===stockId)||{}).plan_id:'');
+  const item=stockId?(state.stock||[]).find(s=>s.id===stockId):firstAvailableStockForPlan(planId);
+  const secret=item?opsSecret(item):{};
+  const code=$('opsDeliverTotpCode')?.value||secret.codigo||nextStockTotpCode(item)||'';
+  $('opsDeliverText').value=opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:$('opsDeliverName')?.value||'',telefono:$('opsDeliverPhone')?.value||'',monto:$('opsDeliverAmount')?.value||'',fecha_inicio:$('opsDeliverStart')?.value||todayISO(),fecha_pago:$('opsDeliverPayDate')?.value||todayISO(),fecha_vencimiento:$('opsDeliverDue')?.value||planRenewalDue(planId),correo:secret.correo||secret.usuario||'',contraseña:secret.clave||secret.pass||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',url:secret.url||secret.grupo||'',codigo:code,cuenta_totp:planTotpAccountLabel(planId),nota:secret.nota||item?.notes||''});
+}
+function openOpsDeliver(id='',forcedPlanId=''){
+  let x=id?(state.stock||[]).find(s=>s.id===id):null;
+  let planId=x?.plan_id||forcedPlanId||$('opsDeliverPlanId')?.value||'';
+  if(!x&&planId)x=firstAvailableStockForPlan(planId);
+  if(x)planId=x.plan_id;
+  if(!planId){toast('Selecciona un plan para entregar','bad');return;}
+  if(!x && (plan(planId)?.stock_mode||'')!=='manual' && visibleStock(planId)<=0){toast('No hay cupos disponibles para este plan. Agrega una cuenta primero.','bad');return;}
+  const d=x?opsSecret(x):{};
+  $('opsDeliverStockId').value=x?.id||'';
+  if($('opsDeliverPlanId'))$('opsDeliverPlanId').value=planId;
+  if($('opsDeliverPedido'))$('opsDeliverPedido').value=makeManualDeliveryCode();
+  $('opsDeliverName').value=d.reserved_for||'';$('opsDeliverPhone').value=d.reserved_phone||'';
+  $('opsDeliverService').value=planName(planId);
+  const p=plan(planId);$('opsDeliverAmount').value=p?.price??'';
+  if($('opsDeliverStart'))$('opsDeliverStart').value=todayISO();if($('opsDeliverPayDate'))$('opsDeliverPayDate').value=todayISO();$('opsDeliverDue').value=planRenewalDue(planId);
+  if($('opsDeliverNewStatus'))$('opsDeliverNewStatus').value='used';
+  const totpAccount=stockTotpAccountId(x,planId);const preCode=x?nextStockTotpCode(x):'';
+  if($('opsDeliverTotpAccountId'))$('opsDeliverTotpAccountId').value=totpAccount||'';
+  if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=totpAccount?(preCode||generateUniqueTotpAccessCode()):'';
+  if($('opsDeliverTotpInfo')){$('opsDeliverTotpInfo').classList.toggle('hidden',!totpAccount);const label=totpAccountName(totpAccount)||planTotpAccountLabel(planId)||'Access TOTP';$('opsDeliverTotpInfo').textContent=totpAccount?('🛡 '+label+' · código '+$('opsDeliverTotpCode').value+' de un solo uso listo para la entrega.'):'';}
+  refreshOpsDeliverMessage();showDialog('dlgOpsDeliver');
+}
+async function saveOpsDeliver(){
+  let id=$('opsDeliverStockId')?.value||'';
+  let x=id?(state.stock||[]).find(s=>s.id===id):null;
+  let planId=(x?.plan_id)||$('opsDeliverPlanId')?.value||'';
+  if(!x&&planId){x=firstAvailableStockForPlan(planId);id=x?.id||'';if(x)$('opsDeliverStockId').value=id;}
+  const name=($('opsDeliverName')?.value||'').trim();
+  if(!name)return toast('Ingresa nombre del cliente','bad');
+  const phone=normalizePhone($('opsDeliverPhone')?.value||'');
+  if(!phone.ok)return toast(phone.error||'WhatsApp inválido','bad');
+  const existingByPhone=(state.customers||[]).find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
+  const finalName=(existingByPhone?.name||name).trim();
+  const customerPayload={name:finalName,phone_raw:($('opsDeliverPhone')?.value||'').trim()||phone.e164,phone_e164:phone.e164,email:existingByPhone?.email||null,source:existingByPhone?.source||'entrega_manual_stock',notes:existingByPhone?.notes||'Creado desde entrega manual de stock'};
+  const c=existingByPhone?.id?await db.from('crm_customers').update(customerPayload).eq('id',existingByPhone.id).select().single():await db.from('crm_customers').upsert(customerPayload,{onConflict:'phone_e164'}).select().single();
+  if(c.error)return toast('Cliente no guardado: '+c.error.message,'bad');
+  const service=($('opsDeliverService')?.value||'').trim()||planName(planId)||'Servicio';
+  const amount=$('opsDeliverAmount')?.value===''?null:Number($('opsDeliverAmount')?.value||0);
+  const startDate=$('opsDeliverStart')?.value||todayISO();
+  const payDate=$('opsDeliverPayDate')?.value||todayISO();
+  const due=$('opsDeliverDue')?.value||planRenewalDue(planId);
+  const secret=x?opsSecret(x):{};
+  const totpAccount=$('opsDeliverTotpAccountId')?.value||stockTotpAccountId(x,planId)||'';
+  let deliveredCode=$('opsDeliverTotpCode')?.value||nextStockTotpCode(x)||'';
+  if(totpAccount&&deliveredCode){
+    const made=await createTotpCodeForDelivery(totpAccount,deliveredCode,finalName,phone.e164,service);
+    if(!made.ok)return toast('No se pudo crear el código Access TOTP: '+made.error,'bad');
+    deliveredCode=made.code;if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=deliveredCode;
+  }
+  refreshOpsDeliverMessage();
+  const reminderDraft={customer_id:c.data.id,product_id:plan(planId)?.product_id||null,plan_id:planId||null,service_name:service,amount,currency:'PEN',due_date:due,status:'pending',fecha_inicio:startDate,fecha_pago:payDate};
+  reminderDraft.whatsapp_message=buildTemplateMessage(getDefaultTemplate(),c.data,reminderDraft);
+  const reminderDbPayload={customer_id:reminderDraft.customer_id,product_id:reminderDraft.product_id,plan_id:reminderDraft.plan_id,service_name:reminderDraft.service_name,amount:reminderDraft.amount,currency:reminderDraft.currency,due_date:reminderDraft.due_date,status:reminderDraft.status,whatsapp_message:reminderDraft.whatsapp_message};
+  const r=await db.from('payment_reminders').insert(reminderDbPayload);
+  if(r.error)return toast('Recordatorio no creado: '+r.error.message,'bad');
+  if(x){
+    const d={...opsSecret(x)};
+    d.used_count=stockUsedCount(x)+1;
+    d.last_customer=finalName;d.last_phone=phone.e164;d.last_used_at=new Date().toISOString();
+    if(deliveredCode){d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];if(!d.used_totp_codes.includes(deliveredCode))d.used_totp_codes.push(deliveredCode);}
+    d.history=Array.isArray(d.history)?d.history:[];
+    d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,service,amount,due_date:due,at:new Date().toISOString(),correo:d.correo||'',perfil:d.perfil||'',pin:d.pin||'',totp_code:deliveredCode||''});
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+    const finalStatus=(d.used_count>=stockMaxUses(x))?'used':'available';
+    const st=await db.from('stock_items').update({status:finalStatus,secret_data:d}).eq('id',id);
+    if(st.error)return toast('Recordatorio creado, pero no se pudo descontar stock: '+st.error.message,'bad');
+  }else if(planId){
+    const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
+    if(!used.ok)return toast('Recordatorio creado, pero no se pudo descontar cupo: '+used.error,'bad');
+  }
+  const msg=$('opsDeliverText')?.value?.trim()||opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due,correo:secret.correo||'',contraseña:secret.clave||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',codigo:deliveredCode});
+  copyTextSafe(msg);
+  closeDialog('dlgOpsDeliver');toast('Entrega creada y cupo descontado','ok');notifyWeb('Entrega registrada','Se creó recordatorio para '+finalName,true);
+  if($('opsDeliverOpenWa')?.checked){const url=waLink(phone.e164,msg);if(url!=='#')window.open(url,'_blank','noopener,noreferrer');}
+  await loadAll();switchTab('inventory');
+}
+function enhanceCuposEntregaUi(){
+  if($('opsStockUser'))$('opsStockUser').required=true;
+  if($('opsStockPass'))$('opsStockPass').required=true;
+  if($('opsStockStatus'))$('opsStockStatus').value='available';
+  if($('btnPlanStockAdd'))$('btnPlanStockAdd').classList.remove('hidden');
+}
+setTimeout(enhanceCuposEntregaUi,0);
+
+(function bindDeliveryTemplatePatch(){
+  setTimeout(()=>{
+    $('dtKey')?.addEventListener('change',()=>fillDeliveryTemplateDefaultsByKey(true));
+    $('manualPlan')?.addEventListener('change',()=>{deliveryTemplateOptions();const tpl=getDeliveryTemplate();if($('manualRestrictions'))$('manualRestrictions').value=tpl?.restrictions||$('manualRestrictions').value;renderDeliveryMessage();});
+  },0);
+})();
+
 </script>
 </body>
 </html>
+
+
 
