@@ -21,6 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=DM+Mono:wght@400;500&display=swap">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
 
 
@@ -996,6 +997,23 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
 #dlgAccHist .histlist { max-height: 45vh; overflow: auto; padding-right: 4px; }
 #accSort { min-width: 180px; }
 
+
+/* ---------- Recordatorios: backup Excel + selección por lote ---------- */
+#tab-reminders .admin-toolbar{grid-template-columns:minmax(220px,.75fr) auto;align-items:center}
+#tab-reminders .admin-toolbar .input-wrap{max-width:520px}
+#tab-reminders .admin-toolbar .actions{align-items:center}
+.btn-mini-square{padding:8px 10px!important;min-width:40px}
+.reminder-row{position:relative;cursor:default}
+.reminder-row.selection-mode{cursor:pointer}
+.reminder-row.rem-selected{outline:2px solid var(--primary);background:var(--primary-alpha)!important}
+.reminder-check{display:none;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);font-weight:900;color:var(--primary);margin-right:6px;flex-shrink:0}
+.selection-mode .reminder-check{display:inline-flex}
+.reminder-row.rem-selected .reminder-check{background:var(--primary);color:#fff;border-color:var(--primary)}
+#reminderBulkBar{display:none;align-items:center;gap:8px;margin-bottom:10px;border-left:3px solid var(--danger)}
+#reminderBulkBar.show{display:flex}
+#reminderBackupFile{display:none}
+@media(max-width:800px){#tab-reminders .admin-toolbar{grid-template-columns:1fr}#tab-reminders .admin-toolbar .input-wrap{max-width:none}.reminder-check{width:24px;height:24px}}
+
 /* Admin section */
 .admin-section { display: none; animation: fadeIn .18s ease; }
 .admin-section.active { display: block; }
@@ -1528,13 +1546,20 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
 .crm-section-title{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
 .crm-section-title strong{font-size:.98rem;color:var(--card-ink)}
 .line-list{display:grid;gap:8px}
-.crm-row,.reminder-row,.totp-row{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-xs);padding:10px 12px;display:grid;grid-template-columns:minmax(160px,1.05fr) minmax(150px,.9fr) minmax(120px,.75fr) minmax(210px,auto);gap:10px;align-items:center;color:var(--card-ink)}
-.crm-row:hover,.reminder-row:hover,.totp-row:hover{background:var(--primary-alpha2);box-shadow:var(--shadow-md)}
-.crm-main,.rem-main,.totp-main{min-width:0}.crm-title,.rem-title,.totp-title-line{font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crm-sub,.rem-sub,.totp-sub-line{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.crm-meta-line,.rem-meta-line,.totp-meta-line{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.crm-actions,.rem-actions,.totp-actions-line{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.crm-actions .btn,.rem-actions .btn,.totp-actions-line .btn{padding:6px 9px;font-size:.76rem;border-radius:9px}.crm-row.overdue,.reminder-row.overdue{border-color:rgba(185,28,28,.35);background:var(--danger-alpha)}.crm-row.due,.reminder-row.due{border-color:rgba(180,83,9,.35);background:var(--warning-alpha)}
+.crm-row,.reminder-row,.totp-row,.order-row{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-xs);padding:10px 12px;display:grid;grid-template-columns:minmax(160px,1.05fr) minmax(150px,.9fr) minmax(120px,.75fr) minmax(210px,auto);gap:10px;align-items:center;color:var(--card-ink)}
+.crm-row:hover,.reminder-row:hover,.totp-row:hover,.order-row:hover{background:var(--primary-alpha2);box-shadow:var(--shadow-md)}
+.crm-main,.rem-main,.totp-main,.order-main{min-width:0}.crm-title,.rem-title,.totp-title-line,.order-title{font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crm-sub,.rem-sub,.totp-sub-line,.order-sub{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.crm-meta-line,.rem-meta-line,.totp-meta-line,.order-meta-line{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.crm-actions,.rem-actions,.totp-actions-line,.order-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.crm-actions .btn,.rem-actions .btn,.totp-actions-line .btn,.order-actions .btn{padding:6px 9px;font-size:.76rem;border-radius:9px}.crm-row.overdue,.reminder-row.overdue,.order-row.pending-row{border-color:rgba(185,28,28,.35);background:var(--danger-alpha)}.crm-row.due,.reminder-row.due,.order-row.review-row{border-color:rgba(180,83,9,.35);background:var(--warning-alpha)}
 .history-box{display:grid;gap:8px}.history-item{border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--card2)}.history-item .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:800}.history-item pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;font-family:var(--mono);font-size:.78rem;color:var(--card-ink);background:var(--card);border:1px dashed var(--border);border-radius:10px;padding:8px;max-height:180px;overflow:auto}.notif-card{border-left:4px solid var(--primary)}.settings-check{display:flex;align-items:flex-start;gap:8px;cursor:pointer;margin:9px 0;color:var(--card-ink)}.settings-check input{margin-top:4px}.manual-stock-hint{font-size:.78rem;color:var(--muted);margin-top:6px;border-left:3px solid var(--success);padding:7px 9px;background:var(--success-alpha);border-radius:10px}
 .totp-grid.compact{display:grid;grid-template-columns:1fr;gap:8px}.totp-row .mono{font-family:var(--mono);font-size:.78rem}.totp-card{border-radius:14px}
-@media(max-width:850px){.crm-row,.reminder-row,.totp-row{grid-template-columns:1fr;gap:7px}.crm-actions,.rem-actions,.totp-actions-line{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}.crm-actions .btn,.rem-actions .btn,.totp-actions-line .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crm-section-title{align-items:flex-start}.manual-stock-hint{font-size:.76rem}}
-@media(max-width:430px){.crm-actions,.rem-actions,.totp-actions-line{grid-template-columns:1fr 1fr}.header-actions .badge{display:none}.app-title{font-size:.92rem}}
+
+.order-section-title{display:flex;align-items:center;gap:8px;margin:10px 2px 4px;font-weight:900;color:var(--card-ink)}
+.order-section-title .badge{font-weight:800}
+.orders-line-list{display:grid;gap:8px}
+.order-row.pending-row{border-color:rgba(180,83,9,.35)!important;background:var(--warning-alpha)!important}
+.order-row.released-row{border-color:rgba(21,128,61,.25);background:var(--card)}
+.order-row.cancelled-row{opacity:.78;border-color:rgba(185,28,28,.28)}
+@media(max-width:850px){.crm-row,.reminder-row,.totp-row,.order-row{grid-template-columns:1fr;gap:7px}.crm-actions,.rem-actions,.totp-actions-line,.order-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}.crm-actions .btn,.rem-actions .btn,.totp-actions-line .btn,.order-actions .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.crm-section-title{align-items:flex-start}.manual-stock-hint{font-size:.76rem}}
+@media(max-width:430px){.crm-actions,.rem-actions,.totp-actions-line,.order-actions{grid-template-columns:1fr 1fr}.header-actions .badge{display:none}.app-title{font-size:.92rem}}
 
 
 
@@ -1585,7 +1610,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
   .crm-section-title{margin:6px 0 6px!important;gap:6px!important;}
   .crm-section-title .help{font-size:.72rem!important;}
   .line-list{gap:7px!important;}
-  .crm-row,.reminder-row,.totp-row{
+  .crm-row,.reminder-row,.totp-row,.order-row{
     padding:9px 10px!important;
     border-radius:13px!important;
     gap:6px!important;
@@ -1593,12 +1618,12 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
     grid-template-columns:1fr!important;
     box-shadow:0 1px 5px rgba(0,0,0,.06)!important;
   }
-  .crm-title,.rem-title,.totp-title-line{font-size:.92rem!important;line-height:1.12!important;letter-spacing:.01em!important;}
-  .crm-sub,.rem-sub,.totp-sub-line{font-size:.74rem!important;line-height:1.15!important;margin-top:1px!important;}
-  .crm-meta-line,.rem-meta-line,.totp-meta-line{gap:5px!important;margin-top:1px!important;}
+  .crm-title,.rem-title,.totp-title-line,.order-title{font-size:.92rem!important;line-height:1.12!important;letter-spacing:.01em!important;}
+  .crm-sub,.rem-sub,.totp-sub-line,.order-sub{font-size:.74rem!important;line-height:1.15!important;margin-top:1px!important;}
+  .crm-meta-line,.rem-meta-line,.totp-meta-line,.order-meta-line{gap:5px!important;margin-top:1px!important;}
   .badge{font-size:.68rem!important;padding:2px 7px!important;line-height:1.25!important;}
   .pill{font-size:.67rem!important;padding:2px 7px!important;}
-  .crm-actions,.rem-actions,.totp-actions-line{
+  .crm-actions,.rem-actions,.totp-actions-line,.order-actions{
     display:grid!important;
     grid-template-columns:repeat(3,minmax(0,1fr))!important;
     gap:5px!important;
@@ -1680,6 +1705,9 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
 .delivery-check input{accent-color:var(--primary)}
 .delivery-template-kind{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;background:var(--primary-alpha);color:var(--primary);font-size:.72rem;font-weight:800}
 
+
+/* Realtime sin polling: no se muestra botón manual de actualización global */
+#btnReload1,#btnReload2,#btnReload3,#btnReload4,#btnReloadClients,#btnSyncAll,#btnTotpRefresh{display:none!important}
 </style>
 </head>
 <body>
@@ -1845,11 +1873,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
             <button class="btn chip" id="btnOnlySupport" type="button" aria-pressed="false">Soporte / chat</button>
           </div>
         </div>
-        <div class="card" style="margin-bottom:12px;border-left:3px solid var(--warning)">
-          <strong>⚡ Activaciones manuales</strong>
-          <p class="help" style="margin:6px 0 0">Para ChatGPT cuenta propia, Gemini, Canva y Autodesk: primero aprueba el pago, luego usa <b>Confirmar activación</b>. No uses “Entregar cuenta” si solo debes confirmar una activación por correo/texto.</p><p class="help" style="margin:8px 0 0">💬 Los pedidos que lleguen desde el botón rojo de soporte del checkout aparecerán aquí en el mismo chat del pedido. Usa el filtro <b>Soporte / chat</b> para verlos rápido.</p>
-        </div>
-        <div class="mini-grid" id="ordersGrid"></div>
+        <div class="line-list orders-line-list" id="ordersGrid"></div>
       </section>
 
       <!-- Clientes + Recordatorios -->
@@ -1882,17 +1906,19 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
 
       <!-- Recordatorios -->
       <section id="tab-reminders" class="admin-section">
-        <div class="admin-toolbar">
-          <div class="input-wrap"><input class="input" id="reminderSearch" type="search" placeholder="🔍 Buscar recordatorio, cliente, producto..."></div>
+        <div class="admin-toolbar reminder-toolbar">
+          <div class="input-wrap"><input class="input" id="reminderSearch" type="search" placeholder="🔍 Buscar cliente o servicio..."></div>
           <div class="actions">
-            <button class="btn btn-primary" id="btnNewReminder" type="button">＋ Recordatorio</button>
+            <button class="btn btn-primary" id="btnNewReminder" type="button">＋</button>
             <button class="btn chip" id="btnOnlyDue" type="button" aria-pressed="false">Vencidos</button>
             <button class="btn chip" id="btnOnlyPending" type="button" aria-pressed="false">Para avisar</button>
           </div>
         </div>
-        <div class="card" style="margin-bottom:12px;border-left:3px solid var(--success)">
-          <strong>✅ Automático después de entrega</strong>
-          <p class="help" style="margin:6px 0 0">Orden automático: primero vencidos para reofrecer, luego vencido hoy, por vencer (mañana y pasado mañana) y En uso. Los vencimientos se consideran desde las 7:00 a. m. Si venció hoy, el botón dirá Enviar recordatorio de pago; desde el día siguiente pasa a Reofrecer. Desde el día 4 pasa a No renovó y a los 15 días se elimina solo el servicio. Cada fila muestra origen Checkout/Manual, total e Historial.</p>
+        <div class="card" id="reminderBulkBar">
+          <strong id="reminderBulkCount">0 seleccionados</strong>
+          <button class="btn btn-danger" id="btnDeleteSelectedReminders" type="button">Eliminar seleccionados</button>
+          <button class="btn" id="btnCancelReminderSelection" type="button">Cancelar</button>
+          <span class="help">Doble clic en una fila para seleccionar; luego toca otras filas para agregarlas.</span>
         </div>
         <div class="line-list" id="remindersGrid"></div>
       </section>
@@ -2096,12 +2122,14 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
           </div>
           <div class="card">
             <strong style="display:block;margin-bottom:14px">💾 Respaldo y sincronización</strong>
-            <p class="help">Exporta productos, planes, stock, pedidos, entregas y cupones en formato JSON.</p>
+            <p class="help">Exporta/importa productos, planes, stock, clientes, recordatorios, entregas y cupones en Excel segmentado por hojas.</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0">
-              <button class="btn btn-success" id="btnExportBackup" type="button">⬇ Descargar JSON</button>
+              <button class="btn btn-success" id="btnExportBackup" type="button">⬇ Descargar Excel</button>
+              <button class="btn" id="btnImportBackup" type="button">⬆ Subir Excel</button>
+              <input id="backupImportFile" type="file" accept=".xlsx,.xls,.json" style="display:none">
               <button class="btn" id="btnSyncAll" type="button">↻ Sincronizar ahora</button>
             </div>
-            <div id="syncStatus" class="sync-note">—</div>
+            <div id="syncStatus" class="sync-note">El Excel se descarga por hojas: productos, planes, stock, clientes, recordatorios, entregas, cupones y plantillas.</div>
           </div>
           <div class="card notif-card">
             <strong style="display:block;margin-bottom:14px">🔔 Notificaciones y WhatsApp automático</strong>
@@ -2747,7 +2775,7 @@ let state={
   totpAccounts:[],totpCodes:[],totpEvents:[],totpView:'codes',totpDbError:null,
   liveChatConversations:[],liveChatMessages:[],liveChatActive:null,liveChatFile:null,liveChatFilter:'open',
   liveChatListChannel:null,liveChatMsgChannel:null,liveChatUserId:null,liveChatInit:false,liveChatCleanupTimer:null,
-  tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyDueClients:false,onlyPending:false
+  tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyDueClients:false,onlyPending:false,reminderSelectionMode:false,selectedReminderIds:new Set(),reminderLongPressTimer:null
 };
 
 /* ---- Utilities ---- */
@@ -2911,7 +2939,16 @@ Hola {cliente} 👋
 Soporte: {soporte}
 — {tienda}`;
 
-function getPaymentSettings(){return state.settings.find(s=>s.key==='payment_public')?.value||{}}
+function getLocalPaymentSettings(){
+  try{return JSON.parse(localStorage.getItem('innov_payment_public_local')||'{}')||{};}catch(_){return{};}
+}
+function setLocalPaymentSettings(value){
+  try{localStorage.setItem('innov_payment_public_local',JSON.stringify(value||{}));}catch(_){ }
+}
+function getPaymentSettings(){
+  const dbPay=state.settings.find(s=>s.key==='payment_public')?.value||{};
+  return {...dbPay,...getLocalPaymentSettings()};
+}
 function getStoreSettings(){return state.settings.find(s=>s.key==='store_public')?.value||{}}
 function getDefaultTemplate(){
   return state.templates.find(t=>t.is_default&&t.active!==false)||state.templates.find(t=>t.active!==false)||{name:'Plantilla base',body:DEFAULT_PAYMENT_TEMPLATE,active:true,is_default:true};
@@ -2927,12 +2964,11 @@ function reminderDayText(r){
   if(Number(effective)<0){
     if(Number(cal)===0)return'venció hoy';
     const n=Math.abs(Number(cal));
-    return `venció hace ${n}d`;
+    return `hace ${n} día${n===1?'':'s'}`;
   }
   if(Number(cal)===0)return'vence hoy';
-  if(Number(cal)===1)return'vence mañana';
-  if(Number(cal)===2)return'vence pasado mañana';
-  return `faltan ${cal}d`;
+  const n=Number(cal);
+  return `en ${n} día${n===1?'':'s'}`;
 }
 function buildTemplateMessage(template,customer,reminder){
   const pay=getPaymentSettings(),store=getStoreSettings();
@@ -3541,42 +3577,81 @@ function openStockViewEdit(id){closeDialog('dlgPlanStockView');setTimeout(()=>op
 function openAddStockFromPlanView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');openOpsStockDialog('account');if($('opsStockPlan')){$('opsStockPlan').value=planId;syncOpsStockTotpBox();}}
 function openOpsFromPlanStockView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');switchTab('ops');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps()},60)}
 
+function orderStatusValue(o){return String(o?.status||'').toLowerCase().trim()}
+function orderDeliveryValue(o){return String(o?.delivery_status||'').toLowerCase().trim()}
+function orderGroupKey(o){
+  const st=orderStatusValue(o), ds=orderDeliveryValue(o);
+  if(['cancelled','canceled','cancelado','rejected','rechazado','void','anulado','failed'].includes(st)||['cancelled','canceled','cancelado','rejected','rechazado','anulado'].includes(ds))return 'cancelled';
+  if(['pending_payment','payment_review','pending','pendiente','review','por_revisar','awaiting_payment'].includes(st))return 'pending';
+  if(['waiting_manual_delivery','partial','pending','reserved'].includes(ds))return 'pending';
+  return 'released';
+}
+function orderGroupRank(o){return {pending:0,released:1,cancelled:2}[orderGroupKey(o)]??3}
+function orderStatusLabel(o){
+  const group=orderGroupKey(o), st=orderStatusValue(o), ds=orderDeliveryValue(o);
+  if(group==='cancelled')return 'Cancelado';
+  if(group==='released')return 'Liberado';
+  if(st==='payment_review')return 'Por revisar';
+  if(st==='pending_payment')return 'Pendiente de pago';
+  if(ds==='waiting_manual_delivery')return 'Pendiente de entrega';
+  return 'Pendiente';
+}
+function orderStatusClass(o){
+  const group=orderGroupKey(o);
+  if(group==='released')return 'b-ok';
+  if(group==='cancelled')return 'b-bad';
+  return 'b-warn';
+}
+function orderSectionTitle(key,count){
+  const map={pending:'⏳ Pendientes',released:'✅ Liberados',cancelled:'✕ Cancelados'};
+  return `<div class="order-section-title"><span>${map[key]||key}</span><span class="badge">${count}</span></div>`;
+}
 function renderOrders(){
   const q=($('orderSearch')?.value||'').toLowerCase();
   let arr=state.orders.filter(o=>(`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''}`).toLowerCase().includes(q));
-  if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(o.status));
-  if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status));
+  if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(orderStatusValue(o))||orderGroupKey(o)==='pending');
+  if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(orderDeliveryValue(o)));
   if(state.onlySupport)arr=arr.filter(o=>state.orderChats.some(m=>m.order_id===o.id));
-  arr=arr.sort((a,b)=>{ const ac=state.orderChats.filter(m=>m.order_id===a.id).length; const bc=state.orderChats.filter(m=>m.order_id===b.id).length; return bc-ac || new Date(b.created_at)-new Date(a.created_at); });
-  $('ordersGrid').innerHTML=arr.map(o=>{
-    const pr=state.proofs.find(p=>p.order_id===o.id);
-    const items=state.items.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join('<br>');
-    const del=state.deliveries.filter(d=>d.order_id===o.id).length;
-    const inp=state.orderInputs.find(x=>x.order_id===o.id);
-    const chats=state.orderChats.filter(m=>m.order_id===o.id);
-    const lastChat=chats[chats.length-1];
-    return `<div class="mini-card">
-      <div class="mini-head">
-        <div><b>${esc(o.order_code)}</b><div class="help">${new Date(o.created_at).toLocaleString()}</div></div>
-        <span class="badge ${o.delivery_status==='delivered'?'b-ok':o.delivery_status==='waiting_manual_delivery'?'b-warn':'b-bad'}">${esc(o.delivery_status||'pending')}</span>${chats.length?`<span class="badge b-warn">💬 ${chats.length}</span>`:''}
-      </div>
-      <p style="margin:6px 0"><b>${esc(o.customer_name||'')}</b><br><span class="help">${esc(o.customer_whatsapp||'')}</span></p>
-      <p class="help">${items||'Sin items'}</p>
-      ${inp?.requirement_summary?`<div class="order-extra"><b>📌 Datos especiales:</b>\n${esc(inp.requirement_summary)}</div>`:''}
-      <p><b>${money(o.total)}</b> · Op: <span class="mono">${esc(pr?.operation_code||'pendiente')}</span> · Entregas: ${del} · Chat: ${chats.length}</p>
-      ${lastChat?`<div class="order-chat-preview"><b>Soporte / último mensaje:</b> ${esc(lastChat.sender_role)} — ${esc(lastChat.message)}</div>`:''}
-      <div class="line-actions">
-        <button class="btn btn-success" onclick="approveOrder('${o.id}')">✅ Aprobar</button>
-        <button class="btn btn-warning" onclick="confirmActivation('${o.id}')">⚡ Confirmar activación</button>
-        <button class="btn" onclick="openManualDelivery('${o.id}')">📦 Entregar cuenta</button>
-        <button class="btn" onclick="openOrderChat('${o.id}')">💬 Chat${chats.length?` (${chats.length})`:''}</button>
-        <button class="btn" onclick="copyOrderSummary('${o.id}')">📋 Copiar</button>
-        <button class="btn" onclick="viewDelivery('${o.id}')">👁 Ver entrega</button>
-        <button class="btn btn-danger" onclick="rejectOrder('${o.id}')">✕ Rechazar</button>
-        <button class="btn btn-danger" onclick="deleteOrder('${o.id}')">Elim.</button>
-      </div>
-    </div>`;
-  }).join('')||'<div class="empty-state"><span class="icon">🧾</span><p>Sin pedidos.</p></div>';
+  arr=arr.sort((a,b)=>{
+    const ga=orderGroupRank(a), gb=orderGroupRank(b);
+    if(ga!==gb)return ga-gb;
+    const ac=state.orderChats.filter(m=>m.order_id===a.id).length;
+    const bc=state.orderChats.filter(m=>m.order_id===b.id).length;
+    return bc-ac || new Date(b.created_at||0)-new Date(a.created_at||0);
+  });
+  const groups=['pending','released','cancelled'];
+  const html=groups.map(group=>{
+    const rows=arr.filter(o=>orderGroupKey(o)===group);
+    if(!rows.length)return '';
+    return orderSectionTitle(group,rows.length)+rows.map(o=>{
+      const pr=state.proofs.find(p=>p.order_id===o.id);
+      const items=state.items.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join(' · ');
+      const del=state.deliveries.filter(d=>d.order_id===o.id).length;
+      const inp=state.orderInputs.find(x=>x.order_id===o.id);
+      const chats=state.orderChats.filter(m=>m.order_id===o.id);
+      const lastChat=chats[chats.length-1];
+      const g=orderGroupKey(o);
+      const rowCls=g==='pending'?'pending-row':g==='cancelled'?'cancelled-row':'released-row';
+      const extra=inp?.requirement_summary?`<div class="order-extra"><b>📌 Datos:</b> ${esc(inp.requirement_summary)}</div>`:'';
+      const chatPreview=lastChat?`<div class="order-chat-preview"><b>💬 Último:</b> ${esc(lastChat.sender_role)} — ${esc(lastChat.message)}</div>`:'';
+      return `<div class="order-row ${rowCls}">
+        <div class="order-main"><div class="order-title">${esc(o.order_code||'Pedido')}</div><div class="order-sub">${esc(o.customer_name||'Sin cliente')} · ${esc(o.customer_whatsapp||'Sin WhatsApp')}</div></div>
+        <div class="order-meta-line"><span class="badge ${orderStatusClass(o)}">${esc(orderStatusLabel(o))}</span><span class="badge">${money(o.total)}</span>${chats.length?`<span class="badge b-warn">💬 ${chats.length}</span>`:''}<span class="badge b-purple">${esc(o.delivery_status||'sin entrega')}</span></div>
+        <div class="order-meta-line"><span class="pill due0">${o.created_at?esc(new Date(o.created_at).toLocaleString('es-PE')):'—'}</span><span class="help">${items||'Sin items'} · Op: <span class="mono">${esc(pr?.operation_code||'pendiente')}</span> · Entregas: ${del}</span>${extra}${chatPreview}</div>
+        <div class="order-actions">
+          <button class="btn btn-success" onclick="approveOrder('${o.id}')">Aprobar</button>
+          <button class="btn btn-warning" onclick="confirmActivation('${o.id}')">Activación</button>
+          <button class="btn" onclick="openManualDelivery('${o.id}')">Entregar</button>
+          <button class="btn" onclick="openOrderChat('${o.id}')">Chat${chats.length?` (${chats.length})`:''}</button>
+          <button class="btn" onclick="copyOrderSummary('${o.id}')">Copiar</button>
+          <button class="btn" onclick="viewDelivery('${o.id}')">Ver</button>
+          <button class="btn btn-danger" onclick="rejectOrder('${o.id}')">Cancelar</button>
+          <button class="btn btn-danger" onclick="deleteOrder('${o.id}')">Elim.</button>
+        </div>
+      </div>`;
+    }).join('');
+  }).join('');
+  $('ordersGrid').innerHTML=html||'<div class="empty-state"><span class="icon">🧾</span><p>Sin pedidos.</p></div>';
 }
 
 function renderClients(){
@@ -3724,6 +3799,12 @@ async function cleanupExpiredReofferReminders(){
     }
   }catch(e){console.warn('cleanupExpiredReofferReminders',e);}
 }
+function reminderCode(r){
+  const raw=String(r?.order_id||r?.order_code||r?.code||'').trim();
+  if(raw)return raw;
+  const id=String(r?.id||'').trim();
+  return id?('REM-'+id.slice(0,8).toUpperCase()):'';
+}
 function reminderRowsHtml(data,limit=0){
   const rows=limit?data.slice(0,limit):data;
   return rows.map(r=>{
@@ -3739,10 +3820,13 @@ function reminderRowsHtml(data,limit=0){
     const wa=reminderWasSent(r)?`<span class="badge b-pagado">${esc(reminderWhatsAppLabel(r))}</span>`:'';
     const actionTxt=reminderWhatsAppButtonLabel(r);
     const source=reminderSourceLabel(r,c);
+    const code=reminderCode(r);
     const histBtn=c.id?`<button class="btn" onclick="showClientHistory('${c.id}')">Historial</button>`:'';
-    return `<div class="reminder-row ${cls}">
-      <div class="rem-main"><div class="rem-title">${overdue?'🚨 ':dueToday?'⏰ ':''}${esc(r.service_name||'Sin servicio')}</div><div class="rem-sub">${esc(c.name||'Sin cliente')} · ${esc(c.phone_e164||'Sin WhatsApp')}</div></div>
-      <div class="rem-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${wa}<span class="badge b-purple">${esc(source)}</span><span class="badge">Total ${money(r.amount)}</span></div>
+    const selected=state.selectedReminderIds?.has(r.id);
+    const selCls=(state.reminderSelectionMode?' selection-mode':'')+(selected?' rem-selected':'');
+    return `<div class="reminder-row ${cls}${selCls}" data-reminder-id="${esc(r.id)}" onclick="handleReminderRowClick(event,'${r.id}')" ondblclick="startReminderSelection('${r.id}')" onpointerdown="reminderPressStart(event,'${r.id}')" onpointerup="reminderPressEnd()" onpointerleave="reminderPressEnd()">
+      <div class="rem-main"><div class="rem-title"><span class="reminder-check">${selected?'✓':''}</span>${overdue?'🚨 ':dueToday?'⏰ ':''}${esc(r.service_name||'Sin servicio')}</div><div class="rem-sub">${esc(c.name||'Sin cliente')} · ${esc(c.phone_e164||'Sin WhatsApp')}</div></div>
+      <div class="rem-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${wa}<span class="badge b-purple">${esc(source)}</span><span class="badge">${money(r.amount)}</span></div>
       <div class="rem-meta-line"><span class="pill ${reminderPillClass(r)}">📅 ${r.due_date||'—'}${days?' · '+esc(days):''}</span></div>
       <div class="rem-actions">
         <button class="btn btn-primary" onclick="editReminder('${r.id}')">Editar</button>
@@ -3784,18 +3868,148 @@ function deliveryAccountInfoForReminder(r){
   return msg?msg.slice(0,180)+(msg.length>180?'…':''):'';
 }
 
+function updateReminderBulkBar(){
+  const n=state.selectedReminderIds?.size||0;
+  const bar=$('reminderBulkBar'); if(bar)bar.classList.toggle('show',state.reminderSelectionMode&&n>0);
+  if($('reminderBulkCount'))$('reminderBulkCount').textContent=n+' seleccionado'+(n===1?'':'s');
+}
+function startReminderSelection(id){
+  if(!id)return;
+  state.reminderSelectionMode=true;
+  state.selectedReminderIds=state.selectedReminderIds||new Set();
+  if(state.selectedReminderIds.has(id))state.selectedReminderIds.delete(id); else state.selectedReminderIds.add(id);
+  renderReminders();updateReminderBulkBar();
+}
+function handleReminderRowClick(ev,id){
+  if(ev.target.closest('button,a,input,select,textarea,label'))return;
+  if(state.reminderSelectionMode){
+    state.selectedReminderIds=state.selectedReminderIds||new Set();
+    if(state.selectedReminderIds.has(id))state.selectedReminderIds.delete(id); else state.selectedReminderIds.add(id);
+    if(state.selectedReminderIds.size===0)state.reminderSelectionMode=false;
+    renderReminders();updateReminderBulkBar();
+  }
+}
+function reminderPressStart(ev,id){
+  if(ev.target.closest('button,a,input,select,textarea,label'))return;
+  reminderPressEnd();
+  state.reminderLongPressTimer=setTimeout(()=>startReminderSelection(id),520);
+}
+function reminderPressEnd(){
+  if(state.reminderLongPressTimer){clearTimeout(state.reminderLongPressTimer);state.reminderLongPressTimer=null;}
+}
+function cancelReminderSelection(){state.reminderSelectionMode=false;state.selectedReminderIds=new Set();renderReminders();updateReminderBulkBar();}
+async function deleteSelectedReminders(){
+  const ids=Array.from(state.selectedReminderIds||[]).filter(Boolean);
+  if(!ids.length)return toast('No hay recordatorios seleccionados','bad');
+  if(!confirm('¿Eliminar '+ids.length+' recordatorio(s) seleccionado(s)?'))return;
+  const r=await db.from('payment_reminders').delete().in('id',ids);
+  if(r.error)return toast(r.error.message,'bad');
+  state.reminders=state.reminders.filter(x=>!ids.includes(x.id));
+  cancelReminderSelection();toast('Recordatorios eliminados','ok');await loadAll();
+}
+function backupSheetRows(rows){return (rows||[]).map(row=>{
+  const out={};
+  Object.entries(row||{}).forEach(([k,v])=>{
+    if(v&&typeof v==='object')out[k]=JSON.stringify(v);
+    else out[k]=v;
+  });
+  return out;
+});}
+function jsonMaybe(v){
+  if(typeof v!=='string')return v;
+  const s=v.trim();
+  if(!s)return v;
+  if((s.startsWith('{')&&s.endsWith('}'))||(s.startsWith('[')&&s.endsWith(']'))){try{return JSON.parse(s)}catch(_){return v}}
+  return v;
+}
+function cleanBackupRows(rows){
+  return (rows||[]).map(row=>{
+    const obj={};
+    Object.entries(row||{}).forEach(([k,v])=>{
+      if(v===''||v===undefined) obj[k]=null;
+      else obj[k]=jsonMaybe(v);
+    });
+    return obj;
+  });
+}
+function backupWorkbookData(){
+  return {
+    productos:backupSheetRows(state.products),
+    planes:backupSheetRows(state.plans),
+    stock_items:backupSheetRows(state.stock),
+    clientes:backupSheetRows(state.customers),
+    recordatorios:backupSheetRows(state.reminders.map(r=>({...r,codigo:reminderCode(r)}))),
+    pedidos:backupSheetRows(state.orders),
+    pedido_items:backupSheetRows(state.items),
+    comprobantes:backupSheetRows(state.proofs),
+    entregas:backupSheetRows(state.deliveries),
+    cupones:backupSheetRows(state.coupons),
+    plantillas_pago:backupSheetRows(state.templates),
+    plantillas_entrega:backupSheetRows(state.deliveryTemplates),
+    ajustes:backupSheetRows(state.settings),
+    totp_cuentas:backupSheetRows(state.totpAccounts),
+    totp_codigos:backupSheetRows(state.totpCodes)
+  };
+}
+function exportAdminExcelBackup(){
+  if(!window.XLSX){toast('No se pudo cargar el motor Excel. Revisa internet/CDN.','bad');return;}
+  const wb=XLSX.utils.book_new();
+  const data=backupWorkbookData();
+  Object.entries(data).forEach(([name,rows])=>{
+    const ws=XLSX.utils.json_to_sheet(rows.length?rows:[{nota:'Sin datos'}]);
+    XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31));
+  });
+  const stamp=new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
+  XLSX.writeFile(wb,'backup-innov-ia-admin-'+stamp+'.xlsx');
+  toast('Backup Excel descargado','ok');
+}
+async function importAdminExcelBackup(file){
+  if(!file)return;
+  try{
+    if(file.name.toLowerCase().endsWith('.json')){
+      const txt=await file.text(); const json=JSON.parse(txt); console.log('Backup JSON cargado',json); toast('JSON leído. Para restaurar usa Excel segmentado por hojas.','info'); return;
+    }
+    if(!window.XLSX){toast('No se pudo cargar el lector Excel. Revisa internet/CDN.','bad');return;}
+    if(!confirm('Esto intentará restaurar/actualizar datos desde el Excel. Recomendado solo con backups generados por este sistema. ¿Continuar?'))return;
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array'});
+    const sheet=(name)=>wb.Sheets[name]?cleanBackupRows(XLSX.utils.sheet_to_json(wb.Sheets[name],{defval:''})):[];
+    const jobs=[
+      ['products',sheet('productos')],
+      ['product_plans',sheet('planes')],
+      ['stock_items',sheet('stock_items')],
+      ['crm_customers',sheet('clientes')],
+      ['payment_reminders',sheet('recordatorios').map(({codigo,...r})=>r)],
+      ['coupons',sheet('cupones')],
+      ['payment_message_templates',sheet('plantillas_pago')],
+      ['delivery_message_templates',sheet('plantillas_entrega')]
+    ];
+    let total=0;
+    for(const [table,rows] of jobs){
+      const valid=rows.filter(r=>r&&Object.keys(r).some(k=>k!=='nota'&&r[k]!==null&&r[k]!==''));
+      if(!valid.length)continue;
+      const hasId=valid.every(r=>r.id);
+      const res=hasId?await db.from(table).upsert(valid,{onConflict:'id'}):await db.from(table).insert(valid);
+      if(res.error){toast('Error importando '+table+': '+res.error.message,'bad');return;}
+      total+=valid.length;
+    }
+    toast('Backup importado: '+total+' filas procesadas','ok');await loadAll();
+  }catch(e){toast('No se pudo importar: '+e.message,'bad');}
+}
+
 function renderReminders(){
   const searchVal=($('reminderSearch')?.value||$('clientSearch')?.value||'').toLowerCase();
   const q=searchVal;
   let data=state.reminders.filter(r=>{
     const c=state.customers.find(x=>x.id===r.customer_id)||{};
-    return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${r.status||''} ${reminderStatusLabel(r)} ${reminderWhatsAppLabel(r)}`).toLowerCase().includes(q);
+    return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${r.status||''} ${r.order_id||''} ${reminderCode(r)} ${reminderStatusLabel(r)} ${reminderWhatsAppLabel(r)}`).toLowerCase().includes(q);
   });
   if(state.onlyDue||state.onlyDueClients)data=data.filter(reminderIsExpired);
   if(state.onlyPending)data=data.filter(reminderNeedsAction);
   data=data.sort(compareRemindersByPriority);
   if($('remindersGrid'))$('remindersGrid').innerHTML=reminderRowsHtml(data);
   if($('remindersMergedGrid'))$('remindersMergedGrid').innerHTML=reminderRowsHtml(data,120);
+  updateReminderBulkBar();
 }
 function showClientHistory(id){
   const c=state.customers.find(x=>x.id===id);if(!c)return;
@@ -3870,7 +4084,7 @@ function saveAdminLocalSettings(){
   toast('Ajustes de notificaciones guardados','ok');
 }
 function renderSettings(){
-  const pay=state.settings.find(s=>s.key==='payment_public')?.value||{};
+  const pay=getPaymentSettings();
   $('setYape').value=pay.yape_number||'991564053';
   $('setQr').value=pay.yape_qr_url||'img/yape-qr.png';
   if($('setWaGroup'))$('setWaGroup').value=pay.whatsapp_group_url||pay.grupo_whatsapp||'';
@@ -4083,7 +4297,7 @@ async function markManualStockUsed(orderId){
   d.used_count=Math.min(Number(d.max_uses||1),Number(d.used_count||0)+1);
   d.delivered_order_id=orderId;
   d.delivered_at=new Date().toISOString();
-  const r=await db.from('stock_items').update({status:'used',secret_data:d}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus('used'),secret_data:d}).eq('id',id);
   if(r.error)toast('Entrega registrada, pero no se pudo marcar stock usado: '+r.error.message,'bad');
 }
 async function autoTotpCodesFromPlan(planId){
@@ -4451,7 +4665,7 @@ async function consumePlanStock(planId,context={}){
     d.last_used_at=new Date().toISOString();
     const max=Number(d.max_uses||1);
     const finalStatus=d.used_count>=max?'used':'available';
-    const r=await db.from('stock_items').update({status:finalStatus,secret_data:d}).eq('id',available.id);
+    const r=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',available.id);
     if(r.error)return {ok:false,error:r.error.message};
     return {ok:true,stock_id:available.id,status:finalStatus};
   }
@@ -4745,8 +4959,14 @@ async function savePayment(){
   const current=getPaymentSettings();
   const value={...current,yape_number:$('setYape').value.trim()||'991564053',yape_qr_url:$('setQr').value.trim()||'img/yape-qr.png',whatsapp_group_url:$('setWaGroup')?.value.trim()||''};
   value.grupo_whatsapp=value.whatsapp_group_url;
+  setLocalPaymentSettings(value);
   const r=await db.from('app_settings').upsert({key:'payment_public',value});
-  if(r.error)return toast(r.error.message,'bad');toast('Pago y grupo WhatsApp guardados','ok');await loadAll();
+  if(r.error){
+    toast('Guardado localmente en este navegador. Supabase no aceptó el cambio: '+r.error.message,'ok');
+    renderSettings();
+    return;
+  }
+  toast('Pago y grupo WhatsApp guardados','ok');await loadAll();
 }
 function exportBackup(){
   const data={...state,exported_at:new Date().toISOString()};
@@ -4760,7 +4980,22 @@ function exportBackup(){
 /* ---- Operaciones PRO fusionadas ---- */
 state.opsView='accounts';
 
-function opsAvailableStatus(x){return String(x?.status||'available').toLowerCase();}
+function stockDbStatus(status){
+  // Supabase tiene un CHECK en stock_items.status. Para no romper esa regla,
+  // guardamos siempre un estado permitido en DB y calculamos si está usado
+  // con secret_data.used_count / secret_data.max_uses.
+  return 'available';
+}
+function opsAvailableStatus(x){
+  const raw=String(x?.status||'available').toLowerCase();
+  const d=opsSecret(x);
+  const used=Number(d.used_count||0);
+  const max=Math.max(1,Number(d.max_uses||1));
+  if(used>=max)return 'used';
+  if(d.reserved_at||d.reserved_for||raw==='reserved')return 'reserved';
+  if(['used','delivered','usado','agotado'].includes(raw))return 'used';
+  return 'available';
+}
 function opsIsAccount(x){return String(x?.stock_type||'').toLowerCase()==='account' || !!opsSecret(x).correo || !!opsSecret(x).clave;}
 function opsIsCode(x){return String(x?.stock_type||'').toLowerCase()==='code' || !!opsSecret(x).codigo;}
 function opsSecret(x){
@@ -4856,7 +5091,7 @@ async function restoreStockAvailable(id){
   d.used_count=Math.max(0,Number(d.used_count||0)-1);
   delete d.reserved_for; delete d.reserved_phone; delete d.reserved_due; delete d.reserved_note; delete d.reserved_at;
   d.restored_at=new Date().toISOString();
-  const r=await db.from('stock_items').update({status:'available',secret_data:d}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   toast('Cuenta repuesta como disponible','ok');await loadAll();if($('dlgPlanStockView')?.open)renderPlanStockView();else renderOps();
 }
@@ -5090,7 +5325,7 @@ async function saveOpsStock(ev){
     title:$('opsStockTitle').value.trim()||d.correo||planName(planId),
     secret_data:d,
     notes:note||null,
-    status:$('opsStockStatus').value||'available'
+    status:stockDbStatus($('opsStockStatus').value||'available')
   };
   const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
@@ -5117,7 +5352,7 @@ async function cycleOpsStatus(id){
   }else if(next==='reserved'&&!d.reserved_at){
     d.reserved_at=new Date().toISOString();
   }
-  const r=await db.from('stock_items').update({status:next,secret_data:d}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus(next),secret_data:d}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   toast('Estado: '+next,'ok');await loadAll();switchTab('ops');
 }
@@ -5147,7 +5382,7 @@ async function saveOpsReserve(){
   }else{
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
   }
-  const r=await db.from('stock_items').update({status,secret_data:d}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus(status),secret_data:d}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   closeDialog('dlgOpsReserve');toast(status==='reserved'?'Cuenta reservada':'Estado actualizado','ok');await loadAll();switchTab('ops');
 }
@@ -5294,7 +5529,7 @@ async function saveOpsDeliver(){
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const max=Number(d.max_uses||1);
     const finalStatus=(d.used_count>=max)?'used':'available';
-    const st=await db.from('stock_items').update({status:finalStatus,secret_data:d}).eq('id',id);
+    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
     if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
@@ -5402,7 +5637,7 @@ function exportUnifiedBackup(){
   setTimeout(()=>URL.revokeObjectURL(a.href),3000);
   toast('Backup fusionado descargado','ok');
 }
-function exportBackup(){exportUnifiedBackup()}
+function exportBackup(){exportAdminExcelBackup()}
 
 
 /* ---- TOTP Access Manager ---- */
@@ -5718,24 +5953,88 @@ function detectNewActivity(prevOrders=[],prevChats=[]){
   }
   seedNotificationMemory();
 }
-/* ---- Auto refresh ---- */
+/* ---- Realtime inteligente sin refresco por tiempo ---- */
+
+function adminRefreshPaused(){
+  const a=document.activeElement;
+  const editing=a && ['INPUT','TEXTAREA','SELECT'].includes(a.tagName);
+  const hasOpenDialog=!!document.querySelector('dialog[open]');
+  return !!(editing||hasOpenDialog);
+}
+let adminRefreshTimer=null;
+let adminRefreshReasons=new Set();
+function scheduleAdminRefresh(reason='change'){
+  if($('app')?.classList.contains('hidden'))return;
+  adminRefreshReasons.add(reason||'change');
+  clearTimeout(adminRefreshTimer);
+  adminRefreshTimer=setTimeout(()=>adminAutoRefresh(),700);
+}
+function initAdminRealtime(){
+  if(state.adminRealtimeStarted||!db?.channel)return;
+  state.adminRealtimeStarted=true;
+  // Solo escucha cambios reales de Supabase. No hay setInterval ni respaldo automático.
+  const tables=['orders','order_items','payment_proofs','deliveries','order_customer_inputs','order_chat_messages','crm_customers','payment_reminders','stock_items','product_plans','products','coupons','payment_message_templates','delivery_message_templates','totp_accounts','totp_access_codes','totp_access_events','app_settings'];
+  let ch=db.channel('innov-admin-realtime-'+Date.now());
+  tables.forEach(table=>{
+    ch=ch.on('postgres_changes',{event:'*',schema:'public',table},payload=>{
+      if(document.hidden){state.adminRefreshPending=true;adminRefreshReasons.add(table);return;}
+      scheduleAdminRefresh(table);
+    });
+  });
+  ch.subscribe(status=>{
+    state.adminRealtimeStatus=status;
+    if(status==='SUBSCRIBED'&&$('connText'))$('connText').textContent='Supabase activo';
+  });
+  state.adminRealtimeChannel=ch;
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden&&state.adminRefreshPending){state.adminRefreshPending=false;scheduleAdminRefresh('resume');}
+  });
+  window.addEventListener('focus',()=>{
+    if(state.adminRefreshPending){state.adminRefreshPending=false;scheduleAdminRefresh('focus');}
+  });
+}
 let adminAutoRefreshBusy=false;
 async function adminAutoRefresh(){
   if($('app')?.classList.contains('hidden'))return;
+  if(adminRefreshPaused()){state.adminRefreshPending=true;return;}
   if(adminAutoRefreshBusy)return;
   adminAutoRefreshBusy=true;
+  const reasons=[...adminRefreshReasons];
+  adminRefreshReasons.clear();
   try{
     const prevOrders=state.orders||[], prevChats=state.orderChats||[];
-    await Promise.all([loadOrders(),loadReminders(),loadStock(),loadSummary(),loadTotpCodes().catch(()=>{})]);
+    const has=(...names)=>reasons.length===0||reasons.includes('change')||reasons.includes('resume')||reasons.includes('focus')||names.some(n=>reasons.includes(n));
+    const jobs=[];
+
+    if(has('orders','order_items','payment_proofs','deliveries','order_customer_inputs','order_chat_messages'))jobs.push(loadOrders());
+    if(has('crm_customers'))jobs.push(loadCustomers());
+    if(has('payment_reminders'))jobs.push(loadReminders());
+    if(has('stock_items'))jobs.push(loadStock(),loadSummary().catch(()=>{}));
+    if(has('product_plans','products'))jobs.push(loadProducts(),loadPlans(),loadSummary().catch(()=>{}));
+    if(has('coupons'))jobs.push(loadCoupons());
+    if(has('payment_message_templates'))jobs.push(loadTemplates());
+    if(has('delivery_message_templates'))jobs.push(loadDeliveryTemplates());
+    if(has('totp_accounts'))jobs.push(loadTotpAccounts().catch(()=>{}));
+    if(has('totp_access_codes'))jobs.push(loadTotpCodes().catch(()=>{}));
+    if(has('totp_access_events'))jobs.push(loadTotpEvents().catch(()=>{}));
+    if(has('app_settings'))jobs.push(loadSettings());
+
+    if(!jobs.length)jobs.push(loadOrders(),loadReminders(),loadStock(),loadSummary().catch(()=>{}));
+    await Promise.allSettled(jobs);
+
     renderKPIs();
     detectNewActivity(prevOrders,prevChats);
+    if(state.tab==='products')renderProducts();
     if(state.tab==='orders')renderOrders();
     if(state.tab==='clients'){renderClients();renderReminders();}
     if(state.tab==='reminders')renderReminders();
     if(state.tab==='inventory')renderPlans();
+    if(state.tab==='ops')renderOps();
+    if(state.tab==='coupons')renderCoupons();
+    if(state.tab==='templates'){renderTemplates();renderDeliveryTemplates();}
     if(state.tab==='totp')renderTotp();
     if($('dlgOrderChat')?.open&&$('chatOrderId').value)renderOrderChatThread($('chatOrderId').value);
-  }catch(e){console.warn('Auto refresh',e);}
+  }catch(e){console.warn('Realtime refresh',e);}
   finally{adminAutoRefreshBusy=false;}
 }
 
@@ -5808,6 +6107,11 @@ if($('btnSaveReminderOpen'))$('btnSaveReminderOpen').onclick=saveReminderAndOpen
 if($('rTemplate'))$('rTemplate').onchange=applySelectedTemplate;
 $('clientSearch').oninput=()=>{renderClients();renderReminders()};
 $('reminderSearch').oninput=renderReminders;
+if($('btnReminderBackupExcel'))$('btnReminderBackupExcel').onclick=exportAdminExcelBackup;
+if($('btnReminderImportExcel'))$('btnReminderImportExcel').onclick=()=>$('reminderBackupFile')?.click();
+if($('reminderBackupFile'))$('reminderBackupFile').onchange=e=>importAdminExcelBackup(e.target.files?.[0]);
+if($('btnDeleteSelectedReminders'))$('btnDeleteSelectedReminders').onclick=deleteSelectedReminders;
+if($('btnCancelReminderSelection'))$('btnCancelReminderSelection').onclick=cancelReminderSelection;
 $('btnReloadClients').onclick=loadAll;
 $('btnOnlyDue').onclick=()=>{state.onlyDue=!state.onlyDue;$('btnOnlyDue').setAttribute('aria-pressed',state.onlyDue);renderReminders()};
 $('btnOnlyPending').onclick=()=>{state.onlyPending=!state.onlyPending;$('btnOnlyPending').setAttribute('aria-pressed',state.onlyPending);renderReminders()};
@@ -5823,6 +6127,8 @@ $('btnSavePayment').onclick=savePayment;
 if($('btnSaveAdminLocalSettings'))$('btnSaveAdminLocalSettings').onclick=saveAdminLocalSettings;
 if($('btnTestNotification'))$('btnTestNotification').onclick=()=>{enableWebNotifications();notifyWeb('Prueba Innov IA','Notificación, sonido y alerta funcionando.',true)};
 $('btnExportBackup').onclick=exportBackup;
+if($('btnImportBackup'))$('btnImportBackup').onclick=()=>$('backupImportFile')?.click();
+if($('backupImportFile'))$('backupImportFile').onchange=e=>importAdminExcelBackup(e.target.files?.[0]);
 $('btnExportProducts').onclick=exportBackup;
 $('btnSendAdminChat').onclick=sendAdminChat;
 $('chatAdminInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendAdminChat()}});
@@ -5880,7 +6186,7 @@ if($('btnTotpDeleteCode'))$('btnTotpDeleteCode').onclick=()=>deleteTotpCode();
 
 /* ---- Init ---- */
 init();
-setInterval(adminAutoRefresh,2000);
+initAdminRealtime();
 
 /* ================================================================
    PATCH v11 — Plantillas de entrega por tipo/asignación + ChatGPT TOTP
@@ -6244,7 +6550,7 @@ async function saveOpsDeliver(){
     d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,service,amount,due_date:due,at:new Date().toISOString(),totp_code:deliveredCode||''});
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const max=Number(d.max_uses||1);const finalStatus=(d.used_count>=max)?'used':'available';
-    const st=await db.from('stock_items').update({status:finalStatus,secret_data:d}).eq('id',id);
+    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
     if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
@@ -6428,7 +6734,7 @@ async function saveOpsStock(ev){
     }
     closeDialog('dlgOpsStock');toast(rows.length+' perfiles/cupos guardados','ok');await loadAll();switchTab('inventory');return;
   }
-  const payload={plan_id:planId,stock_type:'account',title:titleBase||correo,secret_data:baseSecret,notes:note||null,status:($('opsStockStatus')?.value||'available')};
+  const payload={plan_id:planId,stock_type:'account',title:titleBase||correo,secret_data:baseSecret,notes:note||null,status:stockDbStatus($('opsStockStatus')?.value||'available')};
   const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
   if(baseSecret.totp_account_id){const made=await createStockTotpCodesForItem(r.data,baseSecret.max_uses);if(!made.ok)return toast('Cuenta guardada, pero no se pudieron crear códigos TOTP: '+made.error,'bad');}
@@ -6530,7 +6836,7 @@ async function saveOpsDeliver(){
     d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,service,amount,due_date:due,at:new Date().toISOString(),correo:d.correo||'',perfil:d.perfil||'',pin:d.pin||'',totp_code:deliveredCode||''});
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const finalStatus=(d.used_count>=stockMaxUses(x))?'used':'available';
-    const st=await db.from('stock_items').update({status:finalStatus,secret_data:d}).eq('id',id);
+    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
     if(st.error)return toast('Recordatorio creado, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
@@ -6560,6 +6866,7 @@ setTimeout(enhanceCuposEntregaUi,0);
 </script>
 </body>
 </html>
+
 
 
 
