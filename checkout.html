@@ -218,6 +218,45 @@
     const SUPABASE_KEY = "sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    /* Realtime sin polling: Broadcast entre checkout/admin cuando alguna página escribe en Supabase. */
+    const REALTIME_BUS_CHANNEL = 'innov-ia-data-events-v1';
+    const REALTIME_CLIENT_ID = (()=>{ try{ let id=sessionStorage.getItem('innov_rt_client_id'); if(!id){ id='chk-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2); sessionStorage.setItem('innov_rt_client_id',id); } return id; }catch(e){ return 'chk-'+Date.now().toString(36); }})();
+    let checkoutDataEventChannel = null;
+    let checkoutDataEventReady = false;
+    let checkoutBroadcastQueue = [];
+    function checkoutTableFromUrl(url){
+      const u=String(url||'');
+      const m=u.match(/\/rest\/v1\/([^?]+)/);
+      if(!m)return u.includes('/rpc/')?'rpc':'supabase';
+      return decodeURIComponent(m[1]||'').replace(/^rpc\//,'rpc:')||'supabase';
+    }
+    function flushCheckoutBroadcastQueue(){
+      if(!checkoutDataEventChannel||!checkoutDataEventReady||!checkoutBroadcastQueue.length)return;
+      checkoutBroadcastQueue.splice(0,8).forEach(payload=>{try{checkoutDataEventChannel.send({type:'broadcast',event:'data_changed',payload})}catch(e){}});
+    }
+    function broadcastCheckoutDataChanged(table='change',method='WRITE'){
+      checkoutBroadcastQueue.push({source:REALTIME_CLIENT_ID,origin:'checkout',table,method,at:Date.now()});
+      setTimeout(flushCheckoutBroadcastQueue,120);
+    }
+    function installCheckoutWriteBroadcast(){
+      if(window.__innovCheckoutFetchPatched)return;
+      window.__innovCheckoutFetchPatched=true;
+      const originalFetch=window.fetch.bind(window);
+      window.fetch=async function(input,init){
+        const req=input instanceof Request?input:null;
+        const url=typeof input==='string'?input:(input&&input.url)||'';
+        const method=String((init&&init.method)||req?.method||'GET').toUpperCase();
+        const res=await originalFetch(input,init);
+        try{
+          const isWrite=!['GET','HEAD','OPTIONS'].includes(method);
+          const isSupabase=SUPABASE_URL&&String(url).includes(SUPABASE_URL)&&!String(url).includes('/auth/v1/');
+          if(res&&res.ok&&isWrite&&isSupabase)broadcastCheckoutDataChanged(checkoutTableFromUrl(url),method);
+        }catch(e){}
+        return res;
+      };
+    }
+    installCheckoutWriteBroadcast();
+
     const CART_KEY = 'innov_cart_v1';
     const CURRENT_ORDER_KEY = 'innov_current_checkout_order_v5';
     const APPLIED_COUPON_KEY = 'innov_applied_coupon_v1';
@@ -810,6 +849,24 @@ async function sendPaymentReview(){
         if(code && phone) checkStatus({ orderCode:code, phone, target:'statusBox', silent:true });
       }, 650);
     }
+    function initCheckoutRealtimeBus(){
+      if(checkoutDataEventChannel || !db?.channel) return;
+      let ch = db.channel(REALTIME_BUS_CHANNEL);
+      ch = ch.on('broadcast', { event:'data_changed' }, msg => {
+        const p = msg?.payload || {};
+        const table = String(p.table || '');
+        if(/orders|payment_proofs|deliveries|order_customer_inputs|order_chat_messages|rpc|supabase|change/.test(table)){
+          scheduleOrderRealtimeCheck('broadcast');
+        }
+      });
+      ch.subscribe(status=>{
+        checkoutDataEventReady = status === 'SUBSCRIBED';
+        checkoutDataEventChannel = ch;
+        if(checkoutDataEventReady) flushCheckoutBroadcastQueue();
+      });
+      checkoutDataEventChannel = ch;
+    }
+
     function startOrderRealtime(){
       const code = getActiveOrderCode();
       if(!code || !db?.channel) return;
@@ -973,6 +1030,7 @@ async function sendPaymentReview(){
       const savedCoupon = safeParse(sessionStorage.getItem(APPLIED_COUPON_KEY), null);
       if(savedCoupon?.code){ currentCoupon = savedCoupon.code; $('couponInput').value = currentCoupon; }
       await loadSettings();
+      initCheckoutRealtimeBus();
       renderCart();
       await detectDeliveryMode();
       await loadSpecialRequirements();
@@ -983,11 +1041,3 @@ async function sendPaymentReview(){
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
