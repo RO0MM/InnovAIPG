@@ -1706,8 +1706,24 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
 .delivery-template-kind{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;background:var(--primary-alpha);color:var(--primary);font-size:.72rem;font-weight:800}
 
 
-/* Realtime sin polling: no se muestra botón manual de actualización global */
-#btnReload1,#btnReload2,#btnReload3,#btnReload4,#btnReloadClients,#btnSyncAll,#btnTotpRefresh{display:none!important}
+
+/* PATCH UI móvil: toolbar de Recordatorios visible y sin quedar debajo del header */
+@media (max-width:800px){
+  #tab-reminders .admin-toolbar.reminder-toolbar{
+    position:static!important;
+    top:auto!important;
+    margin-top:8px!important;
+    margin-bottom:10px!important;
+    padding:10px!important;
+    border-radius:14px!important;
+    z-index:1!important;
+  }
+  #tab-reminders #reminderSearch{
+    min-height:40px!important;
+    padding:9px 11px!important;
+    font-size:.86rem!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -2766,6 +2782,49 @@ const SUPABASE_URL='https://rfjvskrimsoqlyofhidj.supabase.co';
 const SUPABASE_KEY='sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
+
+
+/* ---- Realtime sin polling: bus de eventos entre admin/web ---- */
+const REALTIME_BUS_CHANNEL='innov-ia-data-events-v1';
+const REALTIME_CLIENT_ID=(()=>{try{let id=sessionStorage.getItem('innov_rt_client_id');if(!id){id='adm-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);sessionStorage.setItem('innov_rt_client_id',id)}return id}catch(_){return 'adm-'+Date.now().toString(36)}})();
+let adminDataEventChannel=null;
+let adminDataEventReady=false;
+let adminBroadcastQueue=[];
+function supabaseWriteTableFromUrl(url){
+  const u=String(url||'');
+  const m=u.match(/\/rest\/v1\/([^?]+)/);
+  if(!m)return u.includes('/rpc/')?'rpc':'supabase';
+  const name=decodeURIComponent(m[1]||'').replace(/^rpc\//,'rpc:');
+  return name||'supabase';
+}
+function flushAdminBroadcastQueue(){
+  if(!adminDataEventChannel||!adminDataEventReady||!adminBroadcastQueue.length)return;
+  const q=adminBroadcastQueue.splice(0,8);
+  q.forEach(payload=>{try{adminDataEventChannel.send({type:'broadcast',event:'data_changed',payload})}catch(_){}});
+}
+function broadcastAdminDataChanged(table='change',method='WRITE'){
+  const payload={source:REALTIME_CLIENT_ID,origin:'admin',table,method,at:Date.now()};
+  adminBroadcastQueue.push(payload);
+  setTimeout(flushAdminBroadcastQueue,120);
+}
+function installAdminWriteBroadcast(){
+  if(window.__innovAdminFetchPatched)return;
+  window.__innovAdminFetchPatched=true;
+  const originalFetch=window.fetch.bind(window);
+  window.fetch=async function(input,init){
+    const req=input instanceof Request?input:null;
+    const url=typeof input==='string'?input:(input&&input.url)||'';
+    const method=String((init&&init.method)||req?.method||'GET').toUpperCase();
+    const res=await originalFetch(input,init);
+    try{
+      const isWrite=!['GET','HEAD','OPTIONS'].includes(method);
+      const isSupabase=SUPABASE_URL&&String(url).includes(SUPABASE_URL)&&!String(url).includes('/auth/v1/');
+      if(res&&res.ok&&isWrite&&isSupabase)broadcastAdminDataChanged(supabaseWriteTableFromUrl(url),method);
+    }catch(_){ }
+    return res;
+  };
+}
+installAdminWriteBroadcast();
 
 /* ---- State ---- */
 let state={
@@ -4764,12 +4823,22 @@ async function deleteReminder(){
 }
 async function markReminderSent(id){try{await db.from('payment_reminders').update({last_sent_at:new Date().toISOString()}).eq('id',id)}catch(_){}}
 async function markReminderPaid(id){
-  const nextDue=daysFromNow(30);
+  const current=state.reminders.find(x=>x.id===id)||{};
+  const nextDue=current.plan_id?planRenewalDue(current.plan_id,todayISO()):daysFromNow(30);
   const payload={status:'pending',due_date:nextDue,last_sent_at:null,fecha_inicio:todayISO(),fecha_pago:todayISO()};
-  const r=await db.from('payment_reminders').update(payload).eq('id',id);
-  if(r.error)return toast(r.error.message,'bad');
-  toast('Pago registrado. Servicio renovado por 30 días desde hoy.','ok');
-  await loadAll();
+  let r=await db.from('payment_reminders').update(payload).eq('id',id).select().single();
+  if(r.error){
+    // Si la tabla no tiene fecha_inicio/fecha_pago, renovamos con campos mínimos para no fallar.
+    const minimal={status:'pending',due_date:nextDue,last_sent_at:null};
+    r=await db.from('payment_reminders').update(minimal).eq('id',id).select().single();
+    if(r.error)return toast('No se pudo renovar: '+r.error.message,'bad');
+  }
+  state.reminders=state.reminders.map(x=>x.id===id?{...x,...(r.data||payload),due_date:nextDue,status:'pending',last_sent_at:null}:x);
+  renderKPIs();renderClients();renderReminders();
+  toast('Pago registrado. Servicio renovado desde hoy.','ok');
+  broadcastAdminDataChanged('payment_reminders','PATCH');
+  await loadReminders().catch(()=>{});
+  renderKPIs();renderClients();renderReminders();
 }
 async function renewReminder(id){return markReminderPaid(id)}
 async function openReminderWhatsApp(id){
@@ -5972,9 +6041,15 @@ function scheduleAdminRefresh(reason='change'){
 function initAdminRealtime(){
   if(state.adminRealtimeStarted||!db?.channel)return;
   state.adminRealtimeStarted=true;
-  // Solo escucha cambios reales de Supabase. No hay setInterval ni respaldo automático.
+  // Escucha cambios reales de Supabase y además un bus Broadcast entre admin/checkout/shop. No hay polling.
   const tables=['orders','order_items','payment_proofs','deliveries','order_customer_inputs','order_chat_messages','crm_customers','payment_reminders','stock_items','product_plans','products','coupons','payment_message_templates','delivery_message_templates','totp_accounts','totp_access_codes','totp_access_events','app_settings'];
-  let ch=db.channel('innov-admin-realtime-'+Date.now());
+  let ch=db.channel(REALTIME_BUS_CHANNEL);
+  ch=ch.on('broadcast',{event:'data_changed'},msg=>{
+    const p=msg?.payload||{};
+    const table=p.table||'broadcast';
+    if(document.hidden){state.adminRefreshPending=true;adminRefreshReasons.add(table);return;}
+    scheduleAdminRefresh(table);
+  });
   tables.forEach(table=>{
     ch=ch.on('postgres_changes',{event:'*',schema:'public',table},payload=>{
       if(document.hidden){state.adminRefreshPending=true;adminRefreshReasons.add(table);return;}
@@ -5983,8 +6058,14 @@ function initAdminRealtime(){
   });
   ch.subscribe(status=>{
     state.adminRealtimeStatus=status;
-    if(status==='SUBSCRIBED'&&$('connText'))$('connText').textContent='Supabase activo';
+    adminDataEventReady=status==='SUBSCRIBED';
+    adminDataEventChannel=ch;
+    if(status==='SUBSCRIBED'){
+      if($('connText'))$('connText').textContent='Supabase activo';
+      flushAdminBroadcastQueue();
+    }
   });
+  adminDataEventChannel=ch;
   state.adminRealtimeChannel=ch;
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden&&state.adminRefreshPending){state.adminRefreshPending=false;scheduleAdminRefresh('resume');}
@@ -6866,7 +6947,4 @@ setTimeout(enhanceCuposEntregaUi,0);
 </script>
 </body>
 </html>
-
-
-
 
