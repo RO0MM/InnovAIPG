@@ -1834,6 +1834,86 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
   }
 }
+
+
+/* ================================================================
+   PATCH V19 — SCROLL MÓVIL SUAVE SIN TRABAS
+   Deja un solo scroll real del documento y quita el bloqueo de rebote.
+   ================================================================ */
+@media (max-width: 800px){
+  html{
+    height:auto!important;
+    min-height:100%!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    scroll-behavior:auto!important;
+    overscroll-behavior-y:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  body{
+    height:auto!important;
+    min-height:100dvh!important;
+    overflow-x:hidden!important;
+    overflow-y:visible!important;
+    overscroll-behavior-y:auto!important;
+    touch-action:pan-y!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  main#main{
+    display:block!important;
+    min-height:calc(100dvh - 56px)!important;
+    overflow:visible!important;
+    touch-action:pan-y!important;
+  }
+  .container{
+    overflow:visible!important;
+    touch-action:pan-y!important;
+    will-change:auto!important;
+    transform:none!important;
+    padding-bottom:calc(88px + env(safe-area-inset-bottom))!important;
+  }
+  .admin-section,
+  .admin-section.active,
+  .mini-grid,
+  .line-list,
+  .crm-split,
+  .ops-grid,
+  .totp-grid{
+    overflow:visible!important;
+    touch-action:pan-y!important;
+    transform:none!important;
+  }
+  .admin-toolbar,
+  .toolbar,
+  .gmail-toolbar,
+  .cuentas-toolbar,
+  .cuenta-toolbar{
+    position:relative!important;
+    overflow:visible!important;
+    touch-action:pan-y!important;
+  }
+  header.app,
+  .bottom-bar{
+    -webkit-transform:translateZ(0);
+    transform:translateZ(0);
+    backface-visibility:hidden;
+  }
+  dialog[open],
+  dialog[open] .dlg-body,
+  dialog[open] form,
+  .chat-thread,
+  .live-chat-list,
+  .live-chat-messages,
+  .quick-list,
+  .cuenta-list-wrap,
+  .accx-table,
+  .totp-events,
+  .plan-stock-modal .dlg-body{
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4278,7 +4358,7 @@ function switchTab(tab){
   // Scroll tabs into view on desktop
   const activeTab=document.querySelector('.admin-tabs .nav-btn[aria-pressed="true"]');
   if(activeTab)activeTab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
-  if(window.innerWidth<=800)window.scrollTo({top:0,behavior:'smooth'});
+  if(window.innerWidth<=800)window.scrollTo({top:0,behavior:'auto'});
   if(tab==='chat')initLiveChatAdmin();
 }
 
@@ -7057,3 +7137,5 @@ setTimeout(enhanceCuposEntregaUi,0);
 </script>
 </body>
 </html>
+
+
