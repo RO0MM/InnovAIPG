@@ -1702,6 +1702,10 @@
       supabaseClient = null;
     }
 
+    /* Realtime sin polling: recibe avisos Broadcast enviados por admin/checkout cuando hacen cambios. */
+    const REALTIME_BUS_CHANNEL = 'innov-ia-data-events-v1';
+    const REALTIME_CLIENT_ID = (()=>{ try{ let id=sessionStorage.getItem('innov_rt_client_id'); if(!id){ id='shop-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2); sessionStorage.setItem('innov_rt_client_id',id); } return id; }catch(e){ return 'shop-'+Date.now().toString(36); }})();
+
 
     /* ================== Utils ================== */
     function esc(s){
@@ -4709,7 +4713,11 @@
 
     function initPublicCatalogRealtime(){
       if(catalogRealtimeChannel || !supabaseClient || !supabaseClient.channel) return;
-      let ch = supabaseClient.channel('innov-public-catalog-' + Date.now());
+      let ch = supabaseClient.channel(REALTIME_BUS_CHANNEL);
+      ch = ch.on('broadcast', { event:'data_changed' }, msg => {
+        const table = String(msg?.payload?.table || '');
+        if(!table || /products|product_plans|stock_items|rpc|supabase|change/.test(table)) scheduleCatalogRealtimeRefresh('broadcast');
+      });
       ['products','product_plans','stock_items'].forEach(table=>{
         ch = ch.on('postgres_changes', { event:'*', schema:'public', table }, () => {
           scheduleCatalogRealtimeRefresh(table);
@@ -4842,12 +4850,3 @@ window.addEventListener('message', function(event){
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
