@@ -2562,8 +2562,9 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
     <div class="grid grid-2">
       <div><label class="subtle">Nombre *</label><input class="input" id="cName" required placeholder="Nombre completo"></div>
       <div><label class="subtle">WhatsApp / celular *</label><input class="input" id="cPhone" placeholder="991564053 o +51991564053" required></div>
-      <div><label class="subtle">Correo opcional</label><input class="input" id="cEmail" type="email" placeholder="cliente@correo.com"></div>
+      <div><label class="subtle">Correo Gmail / correo opcional</label><input class="input" id="cEmail" type="email" placeholder="cliente@gmail.com"></div>
       <div><label class="subtle">Origen</label><input class="input" id="cSource" placeholder="checkout, manual, entrega..."></div>
+      <div class="full"><label class="subtle">Grupo familiar vinculado</label><input class="input" id="cFamilyAdmin" type="email" placeholder="correo administrador del grupo familiar"><p class="help" style="margin-top:6px">Ejemplo: el Gmail del cliente quedó agregado al grupo de este administrador.</p></div>
       <div class="full"><label class="subtle">Notas</label><textarea class="input" id="cNotes"></textarea></div>
     </div>
   </form>
@@ -2633,7 +2634,7 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
       </div>
       <div class="full"><label class="subtle">Cuerpo de plantilla *</label><textarea class="input" id="dtBody" style="min-height:220px" required></textarea></div>
       <div class="full"><label class="subtle">Restricciones por defecto</label><textarea class="input" id="dtRestrictions" style="min-height:110px"></textarea></div>
-      <div class="full"><p class="help" style="line-height:1.8">Variables: <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{plan}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{codigo_acceso}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{cliente}</span> <span class="mono">{telefono}</span> <span class="mono">{monto}</span> <span class="mono">{restricciones}</span> <span class="mono">{soporte}</span> <span class="mono">{tienda}</span></p></div>
+      <div class="full"><p class="help" style="line-height:1.8">Variables: <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{plan}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{codigo_acceso}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{cliente}</span> <span class="mono">{telefono}</span> <span class="mono">{monto}</span> <span class="mono">{cliente_gmail}</span> <span class="mono">{correo_admin}</span> <span class="mono">{grupo_familiar}</span> <span class="mono">{codigo_2fa}</span> <span class="mono">{restricciones}</span> <span class="mono">{soporte}</span> <span class="mono">{tienda}</span></p></div>
     </div>
   </form>
   <div class="modal-actions">
@@ -2714,10 +2715,18 @@ button.btn-primary, a.btn-primary { color:#fff !important; }
       </div>
       <div><label class="subtle">Plan vinculado *</label><select class="input" id="opsStockPlan" required></select></div>
       <div class="full"><label class="subtle">Título / referencia interna</label><input class="input" id="opsStockTitle" placeholder="Opcional: Netflix perfil 1, Cuenta Canva, etc."></div>
-      <div class="ops-account-field"><label class="subtle">Correo / usuario *</label><input class="input" id="opsStockUser" required placeholder="correo@gmail.com"></div>
-      <div class="ops-account-field"><label class="subtle">Contraseña *</label><input class="input" id="opsStockPass" required placeholder="clave"></div>
-      <div class="ops-account-field"><label class="subtle">Perfil</label><input class="input" id="opsStockProfile" placeholder="Perfil 1 / Rommel"></div>
-      <div class="ops-account-field"><label class="subtle">PIN</label><input class="input" id="opsStockPin" placeholder="1234"></div>
+      <div class="ops-account-field"><label class="subtle" id="opsStockUserLabel">Correo / usuario *</label><input class="input" id="opsStockUser" required placeholder="correo@gmail.com"></div>
+      <div class="ops-account-field"><label class="subtle" id="opsStockPassLabel">Contraseña *</label><input class="input" id="opsStockPass" required placeholder="clave"></div>
+      <div class="ops-account-field"><label class="subtle" id="opsStockProfileLabel">Perfil</label><input class="input" id="opsStockProfile" placeholder="Perfil 1 / Rommel"></div>
+      <div class="ops-account-field"><label class="subtle" id="opsStockPinLabel">PIN</label><input class="input" id="opsStockPin" placeholder="1234"></div>
+      <div class="ops-account-field full hidden" id="opsStockFamilyBox">
+        <div class="sync-note" style="margin-bottom:10px"><b>👨‍👩‍👧 Modo grupo familiar / invitación.</b> Usa el correo y contraseña del administrador familiar. Cada entrega vinculará el Gmail del cliente a este administrador.</div>
+        <div class="grid grid-2">
+          <div class="full"><label class="subtle">Código 2FA / respaldo interno</label><textarea class="input" id="opsStock2FA" style="min-height:70px" placeholder="affm ymvh ljrm d5uu lfvh nsdb skra qrk6"></textarea><p class="help" style="margin-top:6px">Este dato queda guardado para administración interna; no se envía al cliente salvo que lo pongas manualmente en una plantilla.</p></div>
+          <div><label class="subtle">Cupos del grupo</label><input class="input" id="opsStockFamilySlots" type="number" min="1" max="5" value="5" placeholder="5"></div>
+          <div><label class="subtle">Tipo de activación</label><input class="input" id="opsStockInviteMethod" placeholder="Invitación familiar / licencia / admin"></div>
+        </div>
+      </div>
       <div class="ops-account-field full"><label class="subtle">Perfiles opcionales por lote</label><textarea class="input" id="opsStockProfilesBulk" placeholder="Perfil 1|1234
 Perfil 2|5678"></textarea><p class="help" style="margin-top:6px">Para streaming: escribe un perfil por línea. Se creará un cupo independiente por perfil usando el mismo correo y contraseña.</p></div>
       <div class="ops-account-field"><label class="subtle">Usos permitidos</label><input class="input" id="opsStockMaxUses" type="number" min="1" value="1" placeholder="1"></div>
@@ -2759,6 +2768,7 @@ Perfil 2|5678"></textarea><p class="help" style="margin-top:6px">Para streaming:
     <div class="grid grid-2">
       <div><label class="subtle">Nombre cliente *</label><input class="input" id="opsDeliverName" placeholder="Cliente"></div>
       <div><label class="subtle">WhatsApp *</label><input class="input" id="opsDeliverPhone" placeholder="991564053"></div>
+      <div class="full hidden" id="opsDeliverFamilyBox"><label class="subtle">Correo Gmail del cliente para invitación</label><input class="input" id="opsDeliverClientEmail" type="email" placeholder="correo.gmail.del.cliente@gmail.com"><p class="help" style="margin-top:6px">Quedará guardado en el cliente y vinculado al correo administrador del grupo familiar.</p></div>
       <div class="hidden"><input class="input" id="opsDeliverService"></div>
       <div class="hidden"><input class="input" id="opsDeliverAmount" type="number" step="0.01"></div>
       <div class="hidden"><input class="input" id="opsDeliverStart" type="date"></div>
@@ -3170,17 +3180,14 @@ const DEFAULT_DELIVERY_SIMPLE_BODY=`✅ *Cuenta de {producto}*\n\n📧 Correo: {
 const DEFAULT_DELIVERY_INVITE_BODY=`✨ *INNOV IA* ✨
 Hola {cliente} 👋
 
-✅ Tu cuenta de *{producto}* ya fue activada.
+✅ Tu servicio de *{producto}* ya fue activado por invitación.
 📦 Plan: {plan}
 📅 Inicio: {fecha_inicio}
 📆 Próximo pago: {fecha_pago}
 💰 Monto: {monto}
 
-🔑 Datos de acceso:
-📧 Correo: {correo}
-🔒 Contraseña: {contraseña}
-👤 Perfil: {perfil}
-🔢 PIN: {pin}
+👨‍👩‍👧 Grupo familiar / administrador: {grupo_familiar}
+📩 Correo Gmail vinculado: {cliente_gmail}
 🔗 Link/Grupo: {url}
 
 {restricciones}
@@ -3908,7 +3915,7 @@ function renderClients(){
   const q=($('clientSearch')?.value||'').toLowerCase();
   let data=state.customers.filter(c=>{
     const rem=state.reminders.filter(r=>r.customer_id===c.id);
-    const blob=`${c.name||''} ${c.phone_e164||''} ${c.email||''} ${c.notes||''} ${rem.map(r=>r.service_name+' '+reminderStatusLabel(r)+' '+(r.status||'')+' '+r.due_date).join(' ')}`.toLowerCase();
+    const blob=`${c.name||''} ${c.phone_e164||''} ${c.email||''} ${stripCustomerMetaNotes(c.notes||'')} ${customerFamilyAdmin(c)} ${customerGmail(c)} ${rem.map(r=>r.service_name+' '+reminderStatusLabel(r)+' '+(r.status||'')+' '+r.due_date).join(' ')}`.toLowerCase();
     return blob.includes(q);
   });
   if(state.onlyDueClients){
@@ -3926,10 +3933,12 @@ function renderClients(){
     const statusTxt=next?reminderStatusLabel(next):(rem.length?'Sin cobro pendiente':'Sin deuda');
     const statusCls=next?reminderStatusClass(next):'b-ok';
     const waBadge=next&&reminderWasSent(next)?`<span class="badge b-pagado">${esc(reminderWhatsAppLabel(next))}</span>`:'';
+    const familyAdmin=customerFamilyAdmin(c);
+    const familyBadge=familyAdmin?`<span class="badge b-purple">👨‍👩‍👧 ${esc(familyAdmin)}</span>`:'';
     const actionTxt=next?reminderWhatsAppButtonLabel(next):'WhatsApp';
     return `<div class="crm-row ${cls}">
-      <div class="crm-main"><div class="crm-title">${due?'🚨 ':''}${esc(c.name||'Sin nombre')}</div><div class="crm-sub">${esc(c.phone_e164||'Sin WhatsApp')}${c.email?' · '+esc(c.email):''}</div></div>
-      <div class="crm-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${reoffer?`<span class="badge b-reof">Reofrecer ${reoffer}</span>`:''}${waBadge}<span class="badge">Total ${rem.length}</span><span class="badge">${esc(source)}</span></div>
+      <div class="crm-main"><div class="crm-title">${due?'🚨 ':''}${esc(c.name||'Sin nombre')}</div><div class="crm-sub">${esc(c.phone_e164||'Sin WhatsApp')}${c.email?' · '+esc(c.email):''}${familyAdmin?' · Grupo: '+esc(familyAdmin):''}</div></div>
+      <div class="crm-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${reoffer?`<span class="badge b-reof">Reofrecer ${reoffer}</span>`:''}${waBadge}${familyBadge}<span class="badge">Total ${rem.length}</span><span class="badge">${esc(source)}</span></div>
       <div class="crm-meta-line"><span class="pill ${next?reminderPillClass(next):'duepos'}">📅 ${next?.due_date||'Sin deuda'}${next&&reminderDayText(next)?' · '+esc(reminderDayText(next)):''}</span></div>
       <div class="crm-actions">
         <button class="btn btn-primary" onclick="editClient('${c.id}')">Editar</button>
@@ -4067,6 +4076,8 @@ function reminderRowsHtml(data,limit=0){
     const statusTxt=reminderStatusLabel(r);
     const statusCls=reminderStatusClass(r);
     const wa=reminderWasSent(r)?`<span class="badge b-pagado">${esc(reminderWhatsAppLabel(r))}</span>`:'';
+    const fam=customerFamilyAdmin(c);
+    const famBadge=fam?`<span class="badge b-purple">👨‍👩‍👧 ${esc(fam)}</span>`:'';
     const actionTxt=reminderWhatsAppButtonLabel(r);
     const source=reminderSourceLabel(r,c);
     const code=reminderCode(r);
@@ -4075,7 +4086,7 @@ function reminderRowsHtml(data,limit=0){
     const selCls=(state.reminderSelectionMode?' selection-mode':'')+(selected?' rem-selected':'');
     return `<div class="reminder-row ${cls}${selCls}" data-reminder-id="${esc(r.id)}" onclick="handleReminderRowClick(event,'${r.id}')" ondblclick="startReminderSelection('${r.id}')" onpointerdown="reminderPressStart(event,'${r.id}')" onpointerup="reminderPressEnd()" onpointerleave="reminderPressEnd()">
       <div class="rem-main"><div class="rem-title"><span class="reminder-check">${selected?'✓':''}</span>${overdue?'🚨 ':dueToday?'⏰ ':''}${esc(r.service_name||'Sin servicio')}</div><div class="rem-sub">${esc(c.name||'Sin cliente')} · ${esc(c.phone_e164||'Sin WhatsApp')}</div></div>
-      <div class="rem-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${wa}<span class="badge b-purple">${esc(source)}</span><span class="badge">${money(r.amount)}</span></div>
+      <div class="rem-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${wa}${famBadge}<span class="badge b-purple">${esc(source)}</span><span class="badge">${money(r.amount)}</span></div>
       <div class="rem-meta-line"><span class="pill ${reminderPillClass(r)}">📅 ${r.due_date||'—'}${days?' · '+esc(days):''}</span></div>
       <div class="rem-actions">
         <button class="btn btn-primary" onclick="editReminder('${r.id}')">Editar</button>
@@ -4251,7 +4262,7 @@ function renderReminders(){
   const q=searchVal;
   let data=state.reminders.filter(r=>{
     const c=state.customers.find(x=>x.id===r.customer_id)||{};
-    return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${r.status||''} ${r.order_id||''} ${reminderCode(r)} ${reminderStatusLabel(r)} ${reminderWhatsAppLabel(r)}`).toLowerCase().includes(q);
+    return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${c.email||''} ${customerFamilyAdmin(c)} ${customerGmail(c)} ${r.status||''} ${r.order_id||''} ${reminderCode(r)} ${reminderStatusLabel(r)} ${reminderWhatsAppLabel(r)}`).toLowerCase().includes(q);
   });
   if(state.onlyDue||state.onlyDueClients)data=data.filter(reminderIsExpired);
   if(state.onlyPending)data=data.filter(reminderNeedsAction);
@@ -4270,7 +4281,9 @@ function showClientHistory(id){
   $('clientHistoryTitle').textContent='Historial · '+(c.name||'Cliente');
   const remHtml=rem.map(r=>{const acc=deliveryAccountInfoForReminder(r);return `<div class="history-item"><div class="top"><span>🔔 ${esc(r.service_name||'Servicio')}</span><span>${esc(reminderStatusLabel(r))}</span></div><div class="help">Vence: ${esc(r.due_date||'—')} · ${money(r.amount)}</div>${acc?`<div class="help">👤 Cuenta entregada: ${esc(acc)}</div>`:''}${r.whatsapp_message?`<pre>${esc(r.whatsapp_message)}</pre>`:''}</div>`}).join('');
   const delHtml=deliveries.map(d=>`<div class="history-item"><div class="top"><span>📦 Cuenta entregada</span><span>${d.created_at?esc(new Date(d.created_at).toLocaleString('es-PE')):'—'}</span></div><pre>${esc(d.delivered_message||d.message||JSON.stringify(d.delivery_data||{},null,2))}</pre></div>`).join('');
-  $('clientHistoryBody').innerHTML=(delHtml?'<strong>📦 Entregas</strong>'+delHtml:'')+(remHtml?'<strong>🔔 Recordatorios</strong>'+remHtml:'')||'<div class="empty-state"><span class="icon">📭</span><p>Sin historial aún.</p></div>';
+  const fam=customerFamilyAdmin(c);
+  const famHtml=fam?`<div class="history-item"><div class="top"><span>👨‍👩‍👧 Grupo familiar vinculado</span><span>${esc(fam)}</span></div><div class="help">Gmail cliente: ${esc(customerGmail(c)||'—')}</div></div>`:'';
+  $('clientHistoryBody').innerHTML=famHtml+((delHtml?'<strong>📦 Entregas</strong>'+delHtml:'')+(remHtml?'<strong>🔔 Recordatorios</strong>'+remHtml:'')||'<div class="empty-state"><span class="icon">📭</span><p>Sin historial aún.</p></div>');
   showDialog('dlgClientHistory');
 }
 
@@ -4846,23 +4859,29 @@ async function createBaseDeliveryTemplates(){
 
 /* ---- Clients ---- */
 function blankClient(){
-  ['cId','cName','cPhone','cEmail','cSource','cNotes'].forEach(id=>$(id).value='');
+  ['cId','cName','cPhone','cEmail','cSource','cNotes','cFamilyAdmin'].forEach(id=>{if($(id))$(id).value=''});
   $('cSource').value='manual';if($('btnDeleteClient'))$('btnDeleteClient').style.display='none';$('clientDlgTitle').textContent='Nuevo cliente';showDialog('dlgClient');
 }
 function editClient(id){
   const c=state.customers.find(x=>x.id===id);if(!c)return;
-  $('cId').value=c.id;$('cName').value=c.name||'';$('cPhone').value=c.phone_e164||c.phone_raw||'';$('cEmail').value=c.email||'';$('cSource').value=c.source||'manual';$('cNotes').value=c.notes||'';
+  $('cId').value=c.id;$('cName').value=c.name||'';$('cPhone').value=c.phone_e164||c.phone_raw||'';$('cEmail').value=c.email||'';$('cSource').value=c.source||'manual';$('cNotes').value=stripCustomerMetaNotes(c.notes||'');
+  if($('cFamilyAdmin'))$('cFamilyAdmin').value=customerFamilyAdmin(c)||'';
   if($('btnDeleteClient'))$('btnDeleteClient').style.display='inline-flex';$('clientDlgTitle').textContent='Editar cliente';showDialog('dlgClient');
 }
 async function saveClient(ev){
   ev.preventDefault();
   const phone=normalizePhone($('cPhone').value);
   if(!phone.ok)return toast(phone.error,'bad');
-  const payload={name:$('cName').value.trim()||'Cliente',phone_raw:$('cPhone').value.trim(),phone_e164:phone.e164,email:$('cEmail').value.trim()||null,source:$('cSource').value.trim()||'manual',notes:$('cNotes').value.trim()||null};
   const id=$('cId').value;
-  const r=id?await db.from('crm_customers').update(payload).eq('id',id):await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'});
+  const existingByPhone=(state.customers||[]).find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
+  const existing=id?(state.customers||[]).find(c=>c.id===id):existingByPhone;
+  const meta={...customerMeta(existing),family_admin_email:($('cFamilyAdmin')?.value||'').trim()};
+  if($('cEmail')?.value?.trim())meta.family_client_email=$('cEmail').value.trim();
+  const payload={name:$('cName').value.trim()||existing?.name||'Cliente',phone_raw:$('cPhone').value.trim(),phone_e164:phone.e164,email:$('cEmail').value.trim()||existing?.email||null,source:$('cSource').value.trim()||existing?.source||'manual',notes:notesWithCustomerMeta($('cNotes').value.trim(),meta)};
+  const targetId=id||existingByPhone?.id||'';
+  const r=targetId?await db.from('crm_customers').update(payload).eq('id',targetId):await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'});
   if(r.error)return toast(r.error.message,'bad');
-  closeDialog('dlgClient');toast('Cliente guardado','ok');await loadAll();switchTab('reminders');
+  closeDialog('dlgClient');toast(targetId?'Cliente modificado':'Cliente guardado','ok');await loadAll();switchTab('reminders');
 }
 async function deleteClient(){
   const id=$('cId').value;if(!id)return;
@@ -4911,12 +4930,17 @@ async function consumePlanStock(planId,context={}){
     d.used_count=Number(d.used_count||0)+1;
     d.last_customer=context.customer_name||'';
     d.last_phone=context.customer_phone||'';
+    d.last_email=context.customer_email||'';
     d.last_used_at=new Date().toISOString();
+    if(stockIsFamilyInvite(available)){
+      d.history=Array.isArray(d.history)?d.history:[];
+      d.history.push({customer_name:context.customer_name||'',customer_phone:context.customer_phone||'',client_email:context.customer_email||'',service:planName(planId),at:new Date().toISOString(),family_admin:d.family_admin_email||d.correo_admin||d.correo||'',source:context.source||'recordatorio'});
+    }
     const max=Number(d.max_uses||1);
     const finalStatus=d.used_count>=max?'used':'available';
     const r=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',available.id);
     if(r.error)return {ok:false,error:r.error.message};
-    return {ok:true,stock_id:available.id,status:finalStatus};
+    return {ok:true,stock_id:available.id,status:finalStatus,family_admin:stockIsFamilyInvite(available)?(d.family_admin_email||d.correo_admin||d.correo||''):'',stock_secret:d};
   }
   if(p.stock_mode==='manual' && Number(p.manual_stock_count||0)>0){
     const next=Math.max(0,Number(p.manual_stock_count||0)-1);
@@ -4956,8 +4980,10 @@ async function upsertReminderCustomerFromFields(){
   if(!data.name)return {error:'Escribe el nombre del cliente'};
   if(!phone.ok)return {error:phone.error||'WhatsApp inválido'};
   const existingByPhone=state.customers.find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
-  const finalName=(existingByPhone?.name||data.name||'Cliente').trim();
-  const payload={name:finalName,phone_raw:data.phone_raw||phone.e164,phone_e164:phone.e164,email:data.email||existingByPhone?.email||null,source:existingByPhone?.source||'recordatorio_manual',notes:existingByPhone?.notes||'Creado desde recordatorio'};
+  const finalName=(data.name||existingByPhone?.name||'Cliente').trim();
+  const meta={...customerMeta(existingByPhone)};
+  if(data.email)meta.family_client_email=data.email;
+  const payload={name:finalName,phone_raw:data.phone_raw||phone.e164,phone_e164:phone.e164,email:data.email||existingByPhone?.email||null,source:existingByPhone?.source||'recordatorio_manual',notes:notesWithCustomerMeta(stripCustomerMetaNotes(existingByPhone?.notes||'Creado desde recordatorio'),meta)};
   const existingId=data.id||existingByPhone?.id||'';
   const res=existingId?await db.from('crm_customers').update(payload).eq('id',existingId).select().single():await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
   if(res.error)return {error:res.error.message};
@@ -4997,8 +5023,12 @@ async function saveReminder(ev,silent=false){
   const r=id?await db.from('payment_reminders').update(draft).eq('id',id).select().single():await db.from('payment_reminders').insert(draft).select().single();
   if(r.error){toast(r.error.message,'bad');return null}
   if(!id && selectedPlanId){
-    const used=await consumePlanStock(selectedPlanId,{customer_name:c.name,customer_phone:c.phone_e164,source:'recordatorio'});
+    const used=await consumePlanStock(selectedPlanId,{customer_name:c.name,customer_phone:c.phone_e164,customer_email:c.email,source:'recordatorio'});
     if(!used.ok)toast('Recordatorio creado, pero no se pudo descontar cupo: '+used.error,'bad');
+    else if(used.family_admin){
+      const meta={...customerMeta(c),family_admin_email:used.family_admin, family_client_email:c.email||''};
+      await db.from('crm_customers').update({notes:notesWithCustomerMeta(stripCustomerMetaNotes(c.notes||'Creado desde recordatorio'),meta)}).eq('id',c.id);
+    }
   }
   if(!silent){closeDialog('dlgReminder');toast('Cliente + recordatorio guardados','ok');await loadAll();switchTab('reminders')}
   else{await loadAll()}
@@ -5282,7 +5312,90 @@ function opsSecret(x){
   if(!d.max_uses)d.max_uses=1;
   if(!d.used_count)d.used_count=0;
   if(d.totp_account_id===undefined && x?.totp_account_id)d.totp_account_id=x.totp_account_id;
+  d=normalizeFamilySecret(d,x?.plan_id||'');
   return d;
+}
+
+
+function isFamilyInvitePlanId(planId){
+  const p=plan(planId)||{};
+  const text=normalizeServiceText(`${prodName(p.product_id)||''} ${p.name||''} ${p.period||''}`);
+  return /gemini|google one|googleone|google ai|drive|canva|canvas|autodesk|office\s*365|office365|microsoft\s*365|microsoft365|workspace|familiar|familia|family|invitacion|invitación|invite|activation|activacion|activación/.test(text);
+}
+function stockIsFamilyInvite(itemOrPlan){
+  if(typeof itemOrPlan==='string')return isFamilyInvitePlanId(itemOrPlan);
+  const d=opsSecret(itemOrPlan);
+  return !!(d.family_mode||d.family_admin_email||d.correo_admin||d.codigo_2fa||isFamilyInvitePlanId(itemOrPlan?.plan_id));
+}
+function normalizeFamilySecret(d,planId){
+  d=d||{};
+  const family=!!(d.family_mode||d.family_admin_email||d.correo_admin||d.codigo_2fa||isFamilyInvitePlanId(planId));
+  if(!family)return d;
+  d.family_mode=true;
+  d.family_admin_email=d.family_admin_email||d.correo_admin||d.admin_email||d.admin||d.correo||d.email||'';
+  d.family_admin_pass=d.family_admin_pass||d.clave_admin||d.admin_pass||d.admin_password||d.clave||d.password||d.pass||'';
+  d.twofa_code=d.twofa_code||d.codigo_2fa||d['2fa']||d.backup_2fa||d.totp_backup||'';
+  d.codigo_2fa=d.codigo_2fa||d.twofa_code||'';
+  d.correo_admin=d.correo_admin||d.family_admin_email||'';
+  d.clave_admin=d.clave_admin||d.family_admin_pass||'';
+  if(d.family_admin_email){d.correo=d.correo||d.family_admin_email;d.email=d.email||d.family_admin_email;d.usuario=d.usuario||d.family_admin_email;}
+  if(d.family_admin_pass){d.clave=d.clave||d.family_admin_pass;d.password=d.password||d.family_admin_pass;d.pass=d.pass||d.family_admin_pass;d['contraseña']=d['contraseña']||d.family_admin_pass;d.contrasena=d.contrasena||d.family_admin_pass;}
+  d.max_uses=Math.max(1,Number(d.family_slots||d.max_uses||5)||5);
+  d.family_slots=d.max_uses;
+  return d;
+}
+const CUSTOMER_META_OPEN='[INNOV_META]';
+const CUSTOMER_META_CLOSE='[/INNOV_META]';
+function stripCustomerMetaNotes(notes){
+  return String(notes||'').replace(/\n?\[INNOV_META\][\s\S]*?\[\/INNOV_META\]/g,'').trim();
+}
+function customerMeta(c){
+  const notes=String(c?.notes||'');
+  const m=notes.match(/\[INNOV_META\]([\s\S]*?)\[\/INNOV_META\]/);
+  if(!m)return {};
+  try{return JSON.parse(m[1])||{};}catch(_){return {};}
+}
+function notesWithCustomerMeta(notes,meta={}){
+  const clean=stripCustomerMetaNotes(notes);
+  const compact=Object.fromEntries(Object.entries(meta||{}).filter(([_,v])=>v!==undefined&&v!==null&&String(v).trim()!==''));
+  if(!Object.keys(compact).length)return clean||null;
+  return (clean?clean+'\n\n':'')+CUSTOMER_META_OPEN+JSON.stringify(compact)+CUSTOMER_META_CLOSE;
+}
+function customerFamilyAdmin(c){
+  const meta=customerMeta(c);
+  return meta.family_admin_email||meta.grupo_familiar||meta.correo_admin||'';
+}
+function customerGmail(c){
+  const meta=customerMeta(c);
+  return meta.family_client_email||c?.email||'';
+}
+function familyCustomerMetaFromStock(secret={},clientEmail=''){
+  return {
+    family_admin_email:secret.family_admin_email||secret.correo_admin||secret.correo||'',
+    family_client_email:clientEmail||'',
+    family_plan:true,
+    linked_at:new Date().toISOString()
+  };
+}
+function syncOpsStockFamilyBox(){
+  const planId=$('opsStockPlan')?.value||'';
+  const family=isFamilyInvitePlanId(planId);
+  const box=$('opsStockFamilyBox');
+  if(box)box.classList.toggle('hidden',!family);
+  if($('opsStockUserLabel'))$('opsStockUserLabel').textContent=family?'Correo administrador familiar *':'Correo / usuario *';
+  if($('opsStockPassLabel'))$('opsStockPassLabel').textContent=family?'Contraseña administrador *':'Contraseña *';
+  if($('opsStockProfileLabel'))$('opsStockProfileLabel').textContent=family?'Etiqueta interna / perfil opcional':'Perfil';
+  if($('opsStockPinLabel'))$('opsStockPinLabel').textContent=family?'PIN interno opcional':'PIN';
+  if(family){
+    const slots=$('opsStockFamilySlots')?.value||($('opsStockMaxUses')?.value&&$('opsStockMaxUses').value!=='1' ? $('opsStockMaxUses').value : 5);
+    if($('opsStockFamilySlots'))$('opsStockFamilySlots').value=slots;
+    if($('opsStockMaxUses'))$('opsStockMaxUses').value=slots;
+  }
+}
+function syncOpsFamilyUi(){syncOpsStockTotpBox();syncOpsStockFamilyBox();}
+function syncOpsDeliverFamilyBox(planId){
+  const family=isFamilyInvitePlanId(planId||$('opsDeliverPlanId')?.value||'');
+  $('opsDeliverFamilyBox')?.classList.toggle('hidden',!family);
 }
 
 function opsKeyFromItem(x){
@@ -5396,6 +5509,7 @@ function opsDeliveryTemplateForItem(item){
   const service=(planName(item.plan_id)||'').toLowerCase();
   const hasProfile=!!(d.perfil||d.pin)||/netflix|disney|prime|crunchy|max|hbo|vix|paramount|iptv/.test(service);
   const active=state.deliveryTemplates.filter(t=>t.active!==false);
+  if(stockIsFamilyInvite(item))return active.find(t=>/activation|activacion|invit|invite|manual_activation|familiar|family/.test(String(t.template_key||t.name||'').toLowerCase()))||active.find(t=>t.is_default)||active[0]||null;
   if(hasProfile){
     return active.find(t=>/streaming_profile|perfil|profile/.test(String(t.template_key||t.name||'').toLowerCase()))||active.find(t=>t.is_default)||active[0]||null;
   }
@@ -5418,6 +5532,7 @@ function opsDeliveryText(item){
   const vars={
     pedido:'', producto:prodName(plan(item.plan_id)?.product_id)||planName(item.plan_id), plan:planName(item.plan_id),
     correo:d.correo||d.usuario||'', email:d.correo||d.usuario||'', usuario:d.correo||d.usuario||'', clave:d.clave||d.pass||'', password:d.clave||d.pass||'', contrasena:d.clave||d.pass||'', contraseña:d.clave||d.pass||'', perfil:d.perfil||'', pin:d.pin||'',
+    correo_admin:d.family_admin_email||d.correo_admin||d.correo||'', contraseña_admin:d.family_admin_pass||d.clave_admin||d.clave||'', grupo_familiar:d.family_admin_email||d.correo_admin||d.correo||'', cliente_gmail:d.reserved_email||'', codigo_2fa:d.twofa_code||d.codigo_2fa||'',
     grupo:d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url:d.url||d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url_grupo:d.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', codigo:d.codigo||'', codigo_acceso:d.codigo||'', access_code:d.codigo||'', acceso:d.codigo||'', totp_codigo:d.codigo||'', nota:d.nota||item.notes||'',
     fecha_inicio:displayDateFromInput(todayInput()), fecha_pago:displayDateFromInput(todayISO()), fecha_vencimiento:displayDateFromInput(planRenewalDue(item.plan_id)), cliente:d.reserved_for||'', telefono:d.reserved_phone||'', monto:'', restricciones:tpl?.restrictions||d.reglas||'🚫 No compartir la cuenta\n✅ Uso personal\n🛟 Soporte por WhatsApp',
     soporte:pay.yape_number||'991564053', tienda:store.store_name||'Innov IA'
@@ -5443,8 +5558,8 @@ function opsGroupData(data){
 function opsRenderRow(x){
   const d=opsSecret(x), st=opsAvailableStatus(x);
   const title=x.title||d.correo||d.usuario||d.codigo||'Cuenta';
-  const user=d.correo||d.usuario||d.codigo||'—';
-  const pass=d.clave||d.pass||'';
+  const user=d.family_admin_email||d.correo_admin||d.correo||d.usuario||d.codigo||'—';
+  const pass=d.clave||d.pass||d.family_admin_pass||'';
   const uses=`${Number(d.used_count||0)} / ${Number(d.max_uses||1)}`;
   const reserveInfo=d.reserved_for?`Reservada para ${d.reserved_for}${d.reserved_phone?' · '+d.reserved_phone:''}`:'';
   return `<div class="ops-list-row ${st==='used'||st==='delivered'?'used':''}">
@@ -5455,6 +5570,8 @@ function opsRenderRow(x){
     <div class="ops-row-secret">
       <span class="mono">${esc(user)}</span>
       ${pass?`<span class="ops-muted-pass">••••</span>`:''}
+      ${stockIsFamilyInvite(x)?`<span class="ops-mini-chip">👨‍👩‍👧 Familiar</span>`:''}
+      ${d.twofa_code?`<span class="ops-mini-chip">2FA guardado</span>`:''}
       ${d.perfil?`<span class="ops-mini-chip">P: ${esc(d.perfil)}</span>`:''}
       ${d.pin?`<span class="ops-mini-chip">PIN ${esc(d.pin)}</span>`:''}
     </div>
@@ -5485,7 +5602,7 @@ function renderOps(){
   if(statusFilter)data=data.filter(x=>opsAvailableStatus(x)===statusFilter);
   if(q)data=data.filter(x=>{
     const d=opsSecret(x);
-    return (`${x.title||''} ${x.notes||''} ${planName(x.plan_id)} ${d.correo||''} ${d.usuario||''} ${d.codigo||''} ${d.perfil||''} ${d.pin||''} ${d.reserved_for||''} ${d.reserved_phone||''}`).toLowerCase().includes(q);
+    return (`${x.title||''} ${x.notes||''} ${planName(x.plan_id)} ${d.correo||''} ${d.usuario||''} ${d.codigo||''} ${d.family_admin_email||''} ${d.correo_admin||''} ${d.twofa_code||''} ${d.codigo_2fa||''} ${d.perfil||''} ${d.pin||''} ${d.reserved_for||''} ${d.reserved_phone||''}`).toLowerCase().includes(q);
   });
   data.sort((a,b)=>{
     const order={available:0,reserved:1,used:2,delivered:2};
@@ -5527,6 +5644,7 @@ function openOpsStockDialog(type='account',id=''){
   ['opsStockId','opsStockTitle','opsStockUser','opsStockPass','opsStockProfile','opsStockPin','opsStockCode','opsStockGroup','opsStockNotes','opsStockMaxUses','opsStockUsedCount'].forEach(k=>{if($(k))$(k).value=''});
   fillTotpSelectElement($('opsStockTotpAccount'));
   if($('opsStockMaxUses'))$('opsStockMaxUses').value=1;
+  if($('opsStockFamilySlots'))$('opsStockFamilySlots').value=5;
   if($('opsStockUsedCount'))$('opsStockUsedCount').value=0;
   $('opsStockStatus').value='available';
   $('opsStockType').value='account';
@@ -5552,7 +5670,7 @@ function openOpsStockDialog(type='account',id=''){
     if($('opsStockTotpAccount')){$('opsStockTotpAccount').value=d.totp_account_id||'';}
   }
   $('opsStockDlgTitle').textContent=id?'Modificar cuenta':'Nueva cuenta';
-  syncOpsStockType();syncOpsStockTotpBox();showDialog('dlgOpsStock');
+  syncOpsStockType();syncOpsFamilyUi();showDialog('dlgOpsStock');
 }
 async function saveOpsStock(ev){
   ev.preventDefault();
@@ -5661,6 +5779,7 @@ function opsDeliveryTextFromPlan(planId,extra={}){
     pedido:extra.pedido||makeManualDeliveryCode(), producto:prodName(p.product_id)||planName(planId)||extra.servicio||'', plan:p.name||'',
     cliente:extra.cliente||'', telefono:extra.telefono||'', monto:extra.monto?money(extra.monto):'',
     correo:extra.correo||'', email:extra.correo||'', usuario:extra.correo||'', clave:extra.contraseña||extra.clave||'', password:extra.contraseña||extra.clave||'', contrasena:extra.contraseña||extra.clave||'', contraseña:extra.contraseña||extra.clave||'', perfil:extra.perfil||'', pin:extra.pin||'',
+    correo_admin:extra.correo_admin||extra.admin_email||extra.grupo_familiar||extra.correo||'', contraseña_admin:extra.contraseña_admin||extra.clave_admin||extra.contraseña||extra.clave||'', grupo_familiar:extra.grupo_familiar||extra.correo_admin||extra.correo||'', cliente_gmail:extra.cliente_gmail||extra.email_cliente||'', codigo_2fa:extra.codigo_2fa||extra.twofa_code||'',
     grupo:extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url:extra.url||extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', url_grupo:extra.grupo||pay.whatsapp_group_url||pay.grupo_whatsapp||'', codigo:extra.codigo||'', codigo_acceso:extra.codigo||'', access_code:extra.codigo||'', acceso:extra.codigo||'', totp_codigo:extra.codigo||'', cuenta_totp:extra.cuenta_totp||planTotpAccountLabel(planId)||'', nota:extra.nota||'',
     fecha_inicio:displayDateFromInput(extra.fecha_inicio||todayInput()), fecha_pago:displayDateFromInput(extra.fecha_pago||todayISO()), fecha_vencimiento:displayDateFromInput(extra.fecha_vencimiento||extra.due||planRenewalDue(planId)),
     restricciones:tpl?.restrictions||'🚫 No compartir la cuenta\n✅ Uso personal\n🛟 Soporte por WhatsApp',
@@ -5791,7 +5910,7 @@ async function saveOpsDeliver(){
     const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
     if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
-    const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
+    const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,source:'entrega_manual'});
     if(!used.ok)toast('Entrega registrada, pero no se pudo descontar cupo: '+used.error,'bad');
   }
   const msg=$('opsDeliverText').value.trim()||opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due});
@@ -6391,7 +6510,7 @@ if($('rPlan'))$('rPlan').onchange=()=>{const p=plan($('rPlan').value);if(p){$('r
 if($('rProduct'))$('rProduct').onchange=()=>{if($('rProduct').value===''){$('rPlan').value='';}applySelectedTemplate()};
 ['rCustomerName','rCustomerPhone','rAmount','rDue'].forEach(id=>$(id)?.addEventListener('input',()=>{if($('rMsg'))applySelectedTemplate()}));
 $('rService')?.addEventListener('input',()=>{autoFillReminderFromService(false)});
-['opsDeliverName','opsDeliverPhone','opsDeliverAmount','opsDeliverStart','opsDeliverPayDate','opsDeliverDue','opsDeliverService'].forEach(id=>$(id)?.addEventListener('input',refreshOpsDeliverMessage));
+['opsDeliverName','opsDeliverPhone','opsDeliverClientEmail','opsDeliverAmount','opsDeliverStart','opsDeliverPayDate','opsDeliverDue','opsDeliverService'].forEach(id=>$(id)?.addEventListener('input',refreshOpsDeliverMessage));
 $('rCustomer').onchange=applySelectedTemplate;
 $('btnUploadQr').onclick=uploadQr;
 $('btnSavePayment').onclick=savePayment;
@@ -6420,7 +6539,8 @@ document.querySelectorAll('[data-ops-view]').forEach(b=>b.onclick=()=>{
   renderOps();
 });
 if($('opsStockType'))$('opsStockType').onchange=syncOpsStockType;
-if($('opsStockPlan'))$('opsStockPlan').addEventListener('change',syncOpsStockTotpBox);
+if($('opsStockPlan'))$('opsStockPlan').addEventListener('change',syncOpsFamilyUi);
+if($('opsStockFamilySlots'))$('opsStockFamilySlots').addEventListener('input',()=>{if(isFamilyInvitePlanId($('opsStockPlan')?.value||'')&&$('opsStockMaxUses'))$('opsStockMaxUses').value=$('opsStockFamilySlots').value||5;});
 if($('opsStockForm'))$('opsStockForm').onsubmit=saveOpsStock;
 if($('btnOpsDeleteStock'))$('btnOpsDeleteStock').onclick=deleteOpsStock;
 if($('btnOpsCopyDeliver'))$('btnOpsCopyDeliver').onclick=()=>copyTextSafe($('opsDeliverText').value);
@@ -6510,7 +6630,9 @@ const DELIVERY_ACTIVATION_BODY=`✨ *INNOV IA* ✨
 ✅ Pedido: *{pedido}*
 📦 Producto: *{producto}* {plan}
 
-📧 Correo / usuario: {correo}
+✅ Activación mediante invitación familiar / licencia
+👨‍👩‍👧 Grupo familiar / administrador: {grupo_familiar}
+📩 Correo Gmail vinculado: {cliente_gmail}
 🔗 Link / invitación: {url}
 📅 Fecha de inicio: {fecha_inicio}
 
@@ -6577,7 +6699,7 @@ function inferDeliveryTemplateBaseForPlan(planId){
   const text=normalizeServiceText((prodName(p.product_id)||'')+' '+(p.name||''));
   if(/chatgpt|gpt|openai/.test(text))return 'chatgpt_totp';
   if(/netflix|disney|prime|amazon|crunchy|max|hbo|vix|paramount|iptv|spotify|youtube|stream/.test(text))return 'streaming_profile';
-  if(/google one|canva|autodesk|drive|workspace|invit|activacion|activation/.test(text))return 'activation_invite';
+  if(/gemini|google one|googleone|google ai|canva|canvas|autodesk|office\s*365|office365|microsoft\s*365|microsoft365|drive|workspace|familiar|family|invit|activacion|activation/.test(text))return 'activation_invite';
   return 'account_simple';
 }
 function deliveryTemplateScoreForPlan(t,planId){
@@ -6824,7 +6946,7 @@ async function saveOpsDeliver(){
     const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
     if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
-    const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
+    const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,source:'entrega_manual'});
     if(!used.ok)toast('Entrega registrada, pero no se pudo descontar cupo: '+used.error,'bad');
   }
   const msg=$('opsDeliverText').value.trim()||opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due});
@@ -6879,7 +7001,7 @@ function addStockForPlan(planId){
   if($('opsStockPlan'))$('opsStockPlan').value=planId||$('opsPlanFilter')?.value||state.plans[0]?.id||'';
   if($('opsStockProfilesBulk'))$('opsStockProfilesBulk').value='';
   if($('opsStockUser'))$('opsStockUser').focus();
-  syncOpsStockTotpBox();
+  syncOpsFamilyUi();
 }
 function openPlanAccounts(planId){openPlanStockView(planId)}
 function openPlanManualDelivery(planId){openOpsDeliver('',planId)}
@@ -6914,8 +7036,8 @@ function planStockFilteredRows(){
   let rows=(state.stock||[]).filter(x=>x.plan_id===planId && opsIsAccount(x));
   if(q)rows=rows.filter(x=>{
     const d=opsSecret(x);
-    const hist=Array.isArray(d.history)?d.history.map(h=>`${h.customer_name||''} ${h.customer_phone||''}`).join(' '):'';
-    return (`${x.title||''} ${x.notes||''} ${opsAvailableStatus(x)} ${d.correo||''} ${d.usuario||''} ${d.clave||''} ${d.perfil||''} ${d.pin||''} ${d.reserved_for||''} ${d.reserved_phone||''} ${hist}`).toLowerCase().includes(q);
+    const hist=Array.isArray(d.history)?d.history.map(h=>`${h.customer_name||''} ${h.customer_phone||''} ${h.client_email||''} ${h.family_admin||''}`).join(' '):'';
+    return (`${x.title||''} ${x.notes||''} ${opsAvailableStatus(x)} ${d.correo||''} ${d.usuario||''} ${d.clave||''} ${d.perfil||''} ${d.pin||''} ${d.family_admin_email||''} ${d.correo_admin||''} ${d.twofa_code||''} ${d.codigo_2fa||''} ${d.reserved_for||''} ${d.reserved_phone||''} ${hist}`).toLowerCase().includes(q);
   });
   rows.sort((a,b)=>{
     const order={available:0,reserved:1,used:2,delivered:2};
@@ -6926,7 +7048,7 @@ function planStockFilteredRows(){
 function compactHistoryHtml(d,planId){
   const hist=Array.isArray(d.history)?d.history:[];
   if(!hist.length)return '<div class="plan-stock-sub">Sin entregas registradas todavía.</div>';
-  return `<div class="plan-stock-sub"><b>Historial:</b> ${hist.slice(-4).reverse().map(h=>`${esc(h.customer_name||'Cliente')}${h.customer_phone?' · '+esc(h.customer_phone):''}${h.perfil?' · '+esc(h.perfil):''}${h.at?' · '+esc(new Date(h.at).toLocaleDateString('es-PE')):''}`).join('<br>')}</div>`;
+  return `<div class="plan-stock-sub"><b>Historial:</b> ${hist.slice(-4).reverse().map(h=>`${esc(h.customer_name||'Cliente')}${h.customer_phone?' · '+esc(h.customer_phone):''}${h.client_email?' · Gmail '+esc(h.client_email):''}${h.family_admin?' · Grupo '+esc(h.family_admin):''}${h.perfil?' · '+esc(h.perfil):''}${h.at?' · '+esc(new Date(h.at).toLocaleDateString('es-PE')):''}`).join('<br>')}</div>`;
 }
 function renderPlanStockView(){
   const list=$('planStockList');if(!list)return;
@@ -6946,8 +7068,8 @@ function renderPlanStockView(){
     return `<div class="plan-stock-row">
       <div class="plan-stock-main">
         <div class="plan-stock-title">${esc(x.title||d.correo||'Cuenta')}</div>
-        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(stockUsedCount(x))}/${esc(stockMaxUses(x))}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span>${stockTotpAccountId(x)?` <span class="badge b-purple">🛡 TOTP</span>`:''}</div>
-        <div class="plan-stock-secret"><span class="mono">📧 ${esc(d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${esc(pass)}</span>`:''}${d.perfil?`<span class="mono">👤 ${esc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${esc(d.pin)}</span>`:''}</div>
+        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(stockUsedCount(x))}/${esc(stockMaxUses(x))}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span>${stockTotpAccountId(x)?` <span class="badge b-purple">🛡 TOTP</span>`:''}${stockIsFamilyInvite(x)?` <span class="badge b-purple">👨‍👩‍👧 Familiar</span>`:''}</div>
+        <div class="plan-stock-secret"><span class="mono">📧 ${esc(d.family_admin_email||d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${esc(pass)}</span>`:''}${d.twofa_code?`<span class="mono">2FA ${esc(d.twofa_code)}</span>`:''}${d.perfil?`<span class="mono">👤 ${esc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${esc(d.pin)}</span>`:''}</div>
         ${compactHistoryHtml(d,planId)}
       </div>
       <div class="plan-stock-actions">
@@ -6984,6 +7106,20 @@ async function saveOpsStock(ev){
   baseSecret.pin=($('opsStockPin')?.value||'').trim();
   baseSecret.max_uses=Math.max(1,Number($('opsStockMaxUses')?.value||1));
   baseSecret.used_count=id?Math.max(0,Number($('opsStockUsedCount')?.value||0)):0;
+  if(isFamilyInvitePlanId(planId)){
+    baseSecret.family_mode=true;
+    baseSecret.family_admin_email=correo;
+    baseSecret.family_admin_pass=clave;
+    baseSecret.correo_admin=correo;
+    baseSecret.clave_admin=clave;
+    baseSecret.twofa_code=($('opsStock2FA')?.value||'').trim();
+    baseSecret.codigo_2fa=baseSecret.twofa_code;
+    baseSecret.family_slots=Math.max(1,Math.min(5,Number($('opsStockFamilySlots')?.value||baseSecret.max_uses||5)));
+    baseSecret.max_uses=baseSecret.family_slots;
+    baseSecret.invite_method=($('opsStockInviteMethod')?.value||'Invitación familiar').trim();
+  }else{
+    delete baseSecret.family_mode;delete baseSecret.family_admin_email;delete baseSecret.family_admin_pass;delete baseSecret.correo_admin;delete baseSecret.clave_admin;delete baseSecret.twofa_code;delete baseSecret.codigo_2fa;delete baseSecret.family_slots;delete baseSecret.invite_method;
+  }
   const group=($('opsStockGroup')?.value||'').trim(); if(group){baseSecret.grupo=group;baseSecret.url=group;} else {delete baseSecret.grupo;delete baseSecret.url;}
   const note=($('opsStockNotes')?.value||'').trim(); if(note)baseSecret.nota=note; else delete baseSecret.nota;
   if(isChatGPTPlanId(planId) && $('opsStockTotpAccount')?.value)baseSecret.totp_account_id=$('opsStockTotpAccount').value; else delete baseSecret.totp_account_id;
@@ -7013,9 +7149,10 @@ async function saveOpsStock(ev){
 }
 function openOpsStockDialog(type='account',id=''){
   fillOpsSelects();
-  ['opsStockId','opsStockTitle','opsStockUser','opsStockPass','opsStockProfile','opsStockPin','opsStockCode','opsStockGroup','opsStockNotes','opsStockMaxUses','opsStockUsedCount','opsStockProfilesBulk'].forEach(k=>{if($(k))$(k).value=''});
+  ['opsStockId','opsStockTitle','opsStockUser','opsStockPass','opsStockProfile','opsStockPin','opsStockCode','opsStockGroup','opsStockNotes','opsStockMaxUses','opsStockUsedCount','opsStockProfilesBulk','opsStock2FA','opsStockFamilySlots','opsStockInviteMethod'].forEach(k=>{if($(k))$(k).value=''});
   fillTotpSelectElement($('opsStockTotpAccount'));
   if($('opsStockMaxUses'))$('opsStockMaxUses').value=1;
+  if($('opsStockFamilySlots'))$('opsStockFamilySlots').value=5;
   if($('opsStockUsedCount'))$('opsStockUsedCount').value=0;
   if($('opsStockStatus'))$('opsStockStatus').value='available';
   if($('opsStockType'))$('opsStockType').value='account';
@@ -7027,12 +7164,15 @@ function openOpsStockDialog(type='account',id=''){
     $('opsStockId').value=x.id;$('opsStockPlan').value=x.plan_id||'';$('opsStockTitle').value=x.title||'';
     $('opsStockUser').value=d.correo||d.usuario||'';$('opsStockPass').value=d.clave||d.pass||'';
     $('opsStockProfile').value=d.perfil||'';$('opsStockPin').value=d.pin||'';$('opsStockGroup').value=d.grupo||d.url||'';
+    if($('opsStock2FA'))$('opsStock2FA').value=d.twofa_code||d.codigo_2fa||'';
+    if($('opsStockFamilySlots'))$('opsStockFamilySlots').value=Number(d.family_slots||d.max_uses||5);
+    if($('opsStockInviteMethod'))$('opsStockInviteMethod').value=d.invite_method||'';
     $('opsStockNotes').value=x.notes||d.nota||'';if($('opsStockStatus'))$('opsStockStatus').value=opsAvailableStatus(x);
     if($('opsStockMaxUses'))$('opsStockMaxUses').value=Number(d.max_uses||1);if($('opsStockUsedCount'))$('opsStockUsedCount').value=Number(d.used_count||0);
     if($('opsStockTotpAccount'))$('opsStockTotpAccount').value=d.totp_account_id||'';
   }
   if($('opsStockDlgTitle'))$('opsStockDlgTitle').textContent=id?'Modificar cuenta':'Agregar cuenta / cupo';
-  syncOpsStockType();syncOpsStockTotpBox();showDialog('dlgOpsStock');
+  syncOpsStockType();syncOpsFamilyUi();showDialog('dlgOpsStock');
 }
 function refreshOpsDeliverMessage(){
   if(!$('opsDeliverText'))return;
@@ -7041,8 +7181,10 @@ function refreshOpsDeliverMessage(){
   const item=stockId?(state.stock||[]).find(s=>s.id===stockId):firstAvailableStockForPlan(planId);
   const secret=item?opsSecret(item):{};
   const code=$('opsDeliverTotpCode')?.value||secret.codigo||nextStockTotpCode(item)||'';
-  $('opsDeliverText').value=opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:$('opsDeliverName')?.value||'',telefono:$('opsDeliverPhone')?.value||'',monto:$('opsDeliverAmount')?.value||'',fecha_inicio:$('opsDeliverStart')?.value||todayISO(),fecha_pago:$('opsDeliverPayDate')?.value||todayISO(),fecha_vencimiento:$('opsDeliverDue')?.value||planRenewalDue(planId),correo:secret.correo||secret.usuario||'',contraseña:secret.clave||secret.pass||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',url:secret.url||secret.grupo||'',codigo:code,cuenta_totp:planTotpAccountLabel(planId),nota:secret.nota||item?.notes||''});
+  const clientEmail=($('opsDeliverClientEmail')?.value||secret.reserved_email||'').trim();
+  $('opsDeliverText').value=opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:$('opsDeliverName')?.value||'',telefono:$('opsDeliverPhone')?.value||'',monto:$('opsDeliverAmount')?.value||'',fecha_inicio:$('opsDeliverStart')?.value||todayISO(),fecha_pago:$('opsDeliverPayDate')?.value||todayISO(),fecha_vencimiento:$('opsDeliverDue')?.value||planRenewalDue(planId),correo:secret.correo||secret.usuario||'',contraseña:secret.clave||secret.pass||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',url:secret.url||secret.grupo||'',codigo:code,cuenta_totp:planTotpAccountLabel(planId),nota:secret.nota||item?.notes||'',correo_admin:secret.family_admin_email||secret.correo_admin||secret.correo||'',contraseña_admin:secret.family_admin_pass||secret.clave_admin||secret.clave||'',grupo_familiar:secret.family_admin_email||secret.correo_admin||secret.correo||'',cliente_gmail:clientEmail,codigo_2fa:secret.twofa_code||secret.codigo_2fa||''});
 }
+
 function openOpsDeliver(id='',forcedPlanId=''){
   let x=id?(state.stock||[]).find(s=>s.id===id):null;
   let planId=x?.plan_id||forcedPlanId||$('opsDeliverPlanId')?.value||'';
@@ -7054,7 +7196,9 @@ function openOpsDeliver(id='',forcedPlanId=''){
   $('opsDeliverStockId').value=x?.id||'';
   if($('opsDeliverPlanId'))$('opsDeliverPlanId').value=planId;
   if($('opsDeliverPedido'))$('opsDeliverPedido').value=makeManualDeliveryCode();
-  $('opsDeliverName').value=d.reserved_for||'';$('opsDeliverPhone').value=d.reserved_phone||'';
+  $('opsDeliverName').value=d.reserved_for||'';
+  $('opsDeliverPhone').value=d.reserved_phone||'';
+  if($('opsDeliverClientEmail'))$('opsDeliverClientEmail').value=d.reserved_email||'';
   $('opsDeliverService').value=planName(planId);
   const p=plan(planId);$('opsDeliverAmount').value=p?.price??'';
   if($('opsDeliverStart'))$('opsDeliverStart').value=todayISO();if($('opsDeliverPayDate'))$('opsDeliverPayDate').value=todayISO();$('opsDeliverDue').value=planRenewalDue(planId);
@@ -7063,8 +7207,10 @@ function openOpsDeliver(id='',forcedPlanId=''){
   if($('opsDeliverTotpAccountId'))$('opsDeliverTotpAccountId').value=totpAccount||'';
   if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=totpAccount?(preCode||generateUniqueTotpAccessCode()):'';
   if($('opsDeliverTotpInfo')){$('opsDeliverTotpInfo').classList.toggle('hidden',!totpAccount);const label=totpAccountName(totpAccount)||planTotpAccountLabel(planId)||'Access TOTP';$('opsDeliverTotpInfo').textContent=totpAccount?('🛡 '+label+' · código '+$('opsDeliverTotpCode').value+' de un solo uso listo para la entrega.'):'';}
+  syncOpsDeliverFamilyBox(planId);
   refreshOpsDeliverMessage();showDialog('dlgOpsDeliver');
 }
+
 async function saveOpsDeliver(){
   let id=$('opsDeliverStockId')?.value||'';
   let x=id?(state.stock||[]).find(s=>s.id===id):null;
@@ -7074,9 +7220,17 @@ async function saveOpsDeliver(){
   if(!name)return toast('Ingresa nombre del cliente','bad');
   const phone=normalizePhone($('opsDeliverPhone')?.value||'');
   if(!phone.ok)return toast(phone.error||'WhatsApp inválido','bad');
+  const secret=x?opsSecret(x):{};
+  const isFamily=isFamilyInvitePlanId(planId)||stockIsFamilyInvite(x);
+  const clientEmail=($('opsDeliverClientEmail')?.value||'').trim();
+  if(isFamily&&!clientEmail)return toast('Ingresa el correo Gmail del cliente para vincularlo al grupo familiar','bad');
   const existingByPhone=(state.customers||[]).find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
-  const finalName=(existingByPhone?.name||name).trim();
-  const customerPayload={name:finalName,phone_raw:($('opsDeliverPhone')?.value||'').trim()||phone.e164,phone_e164:phone.e164,email:existingByPhone?.email||null,source:existingByPhone?.source||'entrega_manual_stock',notes:existingByPhone?.notes||'Creado desde entrega manual de stock'};
+  const finalName=(name||existingByPhone?.name||'Cliente').trim();
+  const meta={...customerMeta(existingByPhone)};
+  if(isFamily){Object.assign(meta,familyCustomerMetaFromStock(secret,clientEmail));}
+  else if(clientEmail){meta.family_client_email=clientEmail;}
+  const cleanNotes=stripCustomerMetaNotes(existingByPhone?.notes||'Creado desde entrega manual de stock');
+  const customerPayload={name:finalName,phone_raw:($('opsDeliverPhone')?.value||'').trim()||phone.e164,phone_e164:phone.e164,email:clientEmail||existingByPhone?.email||null,source:existingByPhone?.source||'entrega_manual_stock',notes:notesWithCustomerMeta(cleanNotes,meta)};
   const c=existingByPhone?.id?await db.from('crm_customers').update(customerPayload).eq('id',existingByPhone.id).select().single():await db.from('crm_customers').upsert(customerPayload,{onConflict:'phone_e164'}).select().single();
   if(c.error)return toast('Cliente no guardado: '+c.error.message,'bad');
   const service=($('opsDeliverService')?.value||'').trim()||planName(planId)||'Servicio';
@@ -7084,7 +7238,6 @@ async function saveOpsDeliver(){
   const startDate=$('opsDeliverStart')?.value||todayISO();
   const payDate=$('opsDeliverPayDate')?.value||todayISO();
   const due=$('opsDeliverDue')?.value||planRenewalDue(planId);
-  const secret=x?opsSecret(x):{};
   const totpAccount=$('opsDeliverTotpAccountId')?.value||stockTotpAccountId(x,planId)||'';
   let deliveredCode=$('opsDeliverTotpCode')?.value||nextStockTotpCode(x)||'';
   if(totpAccount&&deliveredCode){
@@ -7101,24 +7254,25 @@ async function saveOpsDeliver(){
   if(x){
     const d={...opsSecret(x)};
     d.used_count=stockUsedCount(x)+1;
-    d.last_customer=finalName;d.last_phone=phone.e164;d.last_used_at=new Date().toISOString();
+    d.last_customer=finalName;d.last_phone=phone.e164;d.last_email=clientEmail;d.last_used_at=new Date().toISOString();
     if(deliveredCode){d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];if(!d.used_totp_codes.includes(deliveredCode))d.used_totp_codes.push(deliveredCode);}
     d.history=Array.isArray(d.history)?d.history:[];
-    d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,service,amount,due_date:due,at:new Date().toISOString(),correo:d.correo||'',perfil:d.perfil||'',pin:d.pin||'',totp_code:deliveredCode||''});
-    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+    d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,client_email:clientEmail,service,amount,due_date:due,at:new Date().toISOString(),correo:d.correo||'',perfil:d.perfil||'',pin:d.pin||'',totp_code:deliveredCode||'',family_admin:d.family_admin_email||d.correo_admin||d.correo||'',family_2fa:d.twofa_code||d.codigo_2fa||''});
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const finalStatus=(d.used_count>=stockMaxUses(x))?'used':'available';
     const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
     if(st.error)return toast('Recordatorio creado, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
-    const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,source:'entrega_manual'});
+    const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,source:'entrega_manual'});
     if(!used.ok)return toast('Recordatorio creado, pero no se pudo descontar cupo: '+used.error,'bad');
   }
-  const msg=$('opsDeliverText')?.value?.trim()||opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due,correo:secret.correo||'',contraseña:secret.clave||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',codigo:deliveredCode});
+  const msg=$('opsDeliverText')?.value?.trim()||opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due,correo:secret.correo||'',contraseña:secret.clave||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',codigo:deliveredCode,correo_admin:secret.family_admin_email||secret.correo_admin||secret.correo||'',contraseña_admin:secret.family_admin_pass||secret.clave_admin||secret.clave||'',grupo_familiar:secret.family_admin_email||secret.correo_admin||secret.correo||'',cliente_gmail:clientEmail,codigo_2fa:secret.twofa_code||secret.codigo_2fa||''});
   copyTextSafe(msg);
   closeDialog('dlgOpsDeliver');toast('Entrega creada y cupo descontado','ok');notifyWeb('Entrega registrada','Se creó recordatorio para '+finalName,true);
   if($('opsDeliverOpenWa')?.checked){const url=waLink(phone.e164,msg);if(url!=='#')window.open(url,'_blank','noopener,noreferrer');}
   await loadAll();switchTab('inventory');
 }
+
 function enhanceCuposEntregaUi(){
   if($('opsStockUser'))$('opsStockUser').required=true;
   if($('opsStockPass'))$('opsStockPass').required=true;
@@ -7137,5 +7291,6 @@ setTimeout(enhanceCuposEntregaUi,0);
 </script>
 </body>
 </html>
+
 
 
