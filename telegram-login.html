@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vincular Telegram — Innov IA</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #eef2ff, #f8fafc);
+      color: #0f172a;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: 0 16px 44px rgba(15, 23, 42, .16);
+      border: 1px solid #e2e8f0;
+    }
+
+    .logo {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: #1e40af;
+      color: #fff;
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    p {
+      margin: 0 0 18px;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-top: 13px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    input {
+      width: 100%;
+      margin-top: 6px;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 11px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #1e40af;
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, .18);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 12px;
+      border: 0;
+      border-radius: 11px;
+      background: #1e40af;
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      margin-top: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .ok {
+      color: #15803d;
+    }
+
+    .bad {
+      color: #b91c1c;
+    }
+
+    .note {
+      margin-top: 16px;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="logo">IA</div>
+
+    <h1>Vincular Telegram</h1>
+
+    <p>
+      Ingresa con el mismo correo y contraseña que usas en el panel administrador.
+    </p>
+
+    <label for="email">Correo administrador</label>
+    <input
+      id="email"
+      type="email"
+      autocomplete="email"
+      placeholder="sotorommel33@gmail.com"
+    />
+
+    <label for="password">Contraseña</label>
+    <input
+      id="password"
+      type="password"
+      autocomplete="current-password"
+      placeholder="••••••••"
+    />
+
+    <button id="btnLogin">Iniciar sesión y vincular</button>
+
+    <div id="msg" class="msg"></div>
+
+    <div class="note">
+      No escribas tu contraseña dentro del chat de Telegram.
+      El login se valida aquí con Supabase.
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://rfjvskrimsoqlyofhidj.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh";
+
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    });
+
+    const params = new URLSearchParams(location.search);
+    const requestToken = params.get("token");
+
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("btnLogin");
+
+    function show(text, type = "") {
+      msg.textContent = text;
+      msg.className = "msg " + type;
+    }
+
+    if (!requestToken) {
+      show("Esta página debe abrirse desde el botón /login del bot de Telegram. Por ahora falta el token.", "bad");
+    }
+
+    btn.addEventListener("click", async () => {
+      try {
+        if (!requestToken) {
+          show("Falta el token de Telegram. Vuelve al bot y escribe /login otra vez.", "bad");
+          return;
+        }
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        if (!email || !password) {
+          show("Completa correo y contraseña.", "bad");
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Validando...";
+        show("Iniciando sesión con Supabase...");
+
+        const { data, error } = await sb.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) {
+          show("Correo o contraseña incorrectos.", "bad");
+          return;
+        }
+
+        const accessToken = data.session && data.session.access_token;
+
+        if (!accessToken) {
+          show("No se obtuvo una sesión válida. Intenta nuevamente.", "bad");
+          return;
+        }
+
+        show("Sesión correcta. Vinculando Telegram...");
+
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/telegram-auth-link`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_PUBLISHABLE_KEY,
+            "Authorization": `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({
+            request_token: requestToken,
+            device_label: navigator.userAgent
+          })
+        });
+
+        const linkData = await res.json();
+
+        if (!linkData.ok) {
+          show(linkData.error || "No se pudo vincular Telegram.", "bad");
+          return;
+        }
+
+        show(
+          `Telegram vinculado correctamente.\nCorreo: ${linkData.email}\n\nAhora vuelve al bot y escribe /estado.`,
+          "ok"
+        );
+
+      } catch (e) {
+        show("Error: " + e.message, "bad");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Iniciar sesión y vincular";
+      }
+    });
+  </script>
+</body>
+</html>
