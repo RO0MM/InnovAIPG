@@ -7288,9 +7288,539 @@ setTimeout(enhanceCuposEntregaUi,0);
   },0);
 })();
 
+/* ==============================================================
+   PATCH v11 — selección de cuentas vinculadas + liberación automática
+   - Entregas permiten elegir cuenta subida y ocultan cuentas llenas.
+   - Recordatorios especiales permiten admin/clave/2FA y selección de cuenta.
+   - Si el cliente no renueva o se elimina, el cupo se libera automáticamente.
+   - Historial muestra la cuenta vinculada para cualquier producto.
+   ============================================================== */
+(function(){
+  if(window.__innovLinkedAccountPatchV11)return;
+  window.__innovLinkedAccountPatchV11=true;
+
+  const familyRe=/gemini|google\s*one|googleone|google\s*ai|drive|canva|canvas|autodesk|office\s*365|office365|microsoft\s*365|microsoft365|workspace|familiar|familia|family|invitaci[oó]n|invite|activaci[oó]n|activation/i;
+  function normTxt(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();}
+  function familyTextForPlan(planId){const p=plan(planId)||{};return `${prodName(p.product_id)||''} ${p.name||''} ${p.period||''}`;}
+  const _isFamilyInvitePlanId=window.isFamilyInvitePlanId||isFamilyInvitePlanId;
+  window.isFamilyInvitePlanId=isFamilyInvitePlanId=function(planId){return !!planId && (familyRe.test(normTxt(familyTextForPlan(planId))) || _isFamilyInvitePlanId?.(planId));};
+  function isFamilyServiceDraft(){return familyRe.test(normTxt(`${$('rService')?.value||''} ${planName($('rPlan')?.value||'')||''}`));}
+  function safeStockUsed(x){try{return typeof stockUsedCount==='function'?stockUsedCount(x):Math.max(0,Number(opsSecret(x).used_count||0)||0)}catch(_){return 0;}}
+  function safeStockMax(x){try{return typeof stockMaxUses==='function'?stockMaxUses(x):Math.max(1,Number(opsSecret(x).max_uses||1)||1)}catch(_){return 1;}}
+  function safeStockRemaining(x){return Math.max(0,safeStockMax(x)-safeStockUsed(x));}
+  function isDeliverableStock(x){
+    if(!x||!x.plan_id)return false;
+    const st=opsAvailableStatus(x);
+    return st==='available' && safeStockRemaining(x)>0 && opsIsAccount(x);
+  }
+  window.availableStockForPlan=availableStockForPlan;
+  function availableStockForPlan(planId){
+    return (state.stock||[]).filter(x=>x.plan_id===planId && isDeliverableStock(x)).sort((a,b)=>{
+      const au=safeStockUsed(a), bu=safeStockUsed(b);
+      if(au!==bu)return bu-au; // completar primero cuentas parcialmente usadas
+      return String(a.created_at||'').localeCompare(String(b.created_at||''));
+    });
+  }
+  window.firstAvailableStockForPlan=firstAvailableStockForPlan=function(planId){return availableStockForPlan(planId)[0]||null;};
+  window.visibleStock=visibleStock=function(pl){
+    const planId=typeof pl==='string'?pl:pl?.id;
+    if(!planId)return 0;
+    const byItems=availableStockForPlan(planId).reduce((a,x)=>a+safeStockRemaining(x),0);
+    if(byItems>0)return byItems;
+    const p=typeof pl==='string'?plan(planId):pl;
+    if((p?.stock_mode||'')==='manual')return Number(p.manual_stock_count||0);
+    const s=(state.summary||[]).find(x=>x.plan_id===planId);
+    const rpcVal=Number(s?.available_stock||0);
+    return Number.isFinite(rpcVal)?rpcVal:0;
+  };
+  function stockOptionLabel(x){
+    const d=opsSecret(x);
+    const user=d.family_admin_email||d.correo_admin||d.correo||d.usuario||x.title||'Cuenta';
+    const extra=[];
+    extra.push(`${safeStockUsed(x)}/${safeStockMax(x)} usados`);
+    if(d.perfil)extra.push('Perfil '+d.perfil);
+    if(d.pin)extra.push('PIN '+d.pin);
+    if(stockIsFamilyInvite(x))extra.push('Familiar');
+    return `${user} — ${extra.join(' · ')}`;
+  }
+  function fillStockPicker(selectEl,planId,selectedId='',allowEmpty=true){
+    if(!selectEl)return null;
+    const rows=availableStockForPlan(planId);
+    const keep=selectedId&&rows.some(x=>x.id===selectedId)?selectedId:(rows[0]?.id||'');
+    selectEl.innerHTML=(allowEmpty?'<option value="">Sin cuenta vinculada / crear por campos</option>':'')+rows.map(x=>`<option value="${esc(x.id)}" ${x.id===keep?'selected':''}>${esc(stockOptionLabel(x))}</option>`).join('');
+    if(keep)selectEl.value=keep;
+    selectEl.disabled=!rows.length && !allowEmpty;
+    return rows.find(x=>x.id===selectEl.value)||null;
+  }
+  function linkedSecretFromForm(prefix){
+    if(prefix==='r')return {family_admin_email:($('rFamilyAdminEmail')?.value||'').trim(),family_admin_pass:($('rFamilyAdminPass')?.value||'').trim(),twofa_code:($('rFamily2FA')?.value||'').trim(),codigo_2fa:($('rFamily2FA')?.value||'').trim(),correo:($('rFamilyAdminEmail')?.value||'').trim(),clave:($('rFamilyAdminPass')?.value||'').trim()};
+    return {};
+  }
+  function ensureLinkedAccountUi(){
+    if(window.__innovEnsuringLinkedAccountUi)return;
+    window.__innovEnsuringLinkedAccountUi=true;
+    try{
+      if($('opsDeliverFamilyBox') && !$('opsDeliverStockSelect')){
+        $('opsDeliverFamilyBox').insertAdjacentHTML('beforebegin',`<div class="full" id="opsDeliverStockPickBox"><label class="subtle">Cuenta subida a entregar</label><select class="input" id="opsDeliverStockSelect"></select><p class="help" id="opsDeliverStockHint" style="margin-top:6px">Solo aparecerán cuentas con cupos libres. Si una cuenta llegó a su límite, no se podrá seleccionar.</p></div>`);
+      }
+      if($('manualStockHint') && !$('manualStockSelect')){
+        $('manualStockHint').insertAdjacentHTML('afterend',`<div id="manualStockPickBox" style="margin-top:8px"><label class="subtle">Cuenta subida a entregar</label><select class="input" id="manualStockSelect"></select><p class="help" id="manualStockPickHint" style="margin-top:6px">Selecciona la cuenta exacta. Las cuentas llenas no se muestran.</p></div>`);
+      }
+      if($('rPlan') && !$('rLinkedStockBox')){
+        const host=$('rPlan').closest('div')||$('rPlan');
+        host.insertAdjacentHTML('afterend',`<div class="full hidden" id="rLinkedStockBox"><div class="sync-note" style="margin-bottom:10px"><b>Cuenta vinculada / grupo familiar.</b> Para Gemini, Google One, Canva, Autodesk u Office365 puedes seleccionar una cuenta subida o crear el administrador aquí.</div><div class="grid grid-2"><div class="full"><label class="subtle">Cuenta subida disponible</label><select class="input" id="rStockSelect"></select><p class="help" id="rStockHint" style="margin-top:6px">Solo se muestran cuentas con cupos libres. Al guardar, quedará vinculada al recordatorio.</p></div><div id="rFamilyAdminEmailWrap"><label class="subtle">Correo administrador</label><input class="input" id="rFamilyAdminEmail" type="email" placeholder="admin@gmail.com"></div><div id="rFamilyAdminPassWrap"><label class="subtle">Contraseña administrador</label><input class="input" id="rFamilyAdminPass" placeholder="contraseña"></div><div class="full" id="rFamily2FAWrap"><label class="subtle">Código 2FA / respaldo opcional</label><textarea class="input" id="rFamily2FA" style="min-height:70px" placeholder="affm ymvh ljrm d5uu lfvh nsdb skra qrk6"></textarea></div></div></div>`);
+      }
+      bindLinkedAccountUiEvents();
+    }finally{
+      window.__innovEnsuringLinkedAccountUi=false;
+    }
+  }
+  function bindLinkedAccountUiEvents(){
+    if(window.__innovLinkedAccountPatchEvents)return;
+    window.__innovLinkedAccountPatchEvents=true;
+    document.addEventListener('change',e=>{
+      const id=e.target?.id||'';
+      if(id==='opsDeliverStockSelect'){
+        const x=(state.stock||[]).find(s=>s.id===e.target.value)||null;
+        if($('opsDeliverStockId'))$('opsDeliverStockId').value=x?.id||'';
+        if(x&&$('opsDeliverPlanId'))$('opsDeliverPlanId').value=x.plan_id||$('opsDeliverPlanId').value;
+        syncOpsDeliverFamilyBox($('opsDeliverPlanId')?.value||x?.plan_id||'');
+        refreshOpsDeliverMessage();
+      }
+      if(id==='manualStockSelect'){
+        const x=(state.stock||[]).find(s=>s.id===e.target.value)||null;
+        if($('manualStockId'))$('manualStockId').value=x?.id||'';
+        fillManualFieldsFromStock(x);
+      }
+      if(['rPlan','rProduct'].includes(id)){syncReminderLinkedAccountUi();applySelectedTemplate();}
+      if(id==='rStockSelect'){fillReminderFamilyFieldsFromStock();applySelectedTemplate();}
+    });
+    document.addEventListener('input',e=>{
+      const id=e.target?.id||'';
+      if(['rService','rCustomerEmail','rFamilyAdminEmail','rFamilyAdminPass','rFamily2FA'].includes(id)){syncReminderLinkedAccountUi(false);applySelectedTemplate();}
+      if(['opsDeliverName','opsDeliverPhone','opsDeliverClientEmail'].includes(id))refreshOpsDeliverMessage();
+    });
+  }
+  function syncOpsDeliverStockPicker(planId,selectedId=''){
+    ensureLinkedAccountUi();
+    const el=$('opsDeliverStockSelect');
+    const item=fillStockPicker(el,planId,selectedId,false);
+    if($('opsDeliverStockId'))$('opsDeliverStockId').value=item?.id||'';
+    const count=availableStockForPlan(planId).length;
+    if($('opsDeliverStockHint'))$('opsDeliverStockHint').textContent=count?`Puedes elegir entre ${count} cuenta(s) con cupos libres. Las cuentas llenas no aparecen.`:'No hay cuentas con cupos libres para este plan.';
+    return item;
+  }
+  function syncReminderLinkedAccountUi(resetSelect=true){
+    ensureLinkedAccountUi();
+    const planId=$('rPlan')?.value||'';
+    const family=!!(planId&&isFamilyInvitePlanId(planId)) || isFamilyServiceDraft();
+    const rows=planId?availableStockForPlan(planId):[];
+    const box=$('rLinkedStockBox');
+    if(!box)return;
+    box.classList.toggle('hidden',!(family||rows.length));
+    const selected=resetSelect?'':($('rStockSelect')?.value||'');
+    fillStockPicker($('rStockSelect'),planId,selected,true);
+    if($('rStockHint'))$('rStockHint').textContent=rows.length?`Hay ${rows.length} cuenta(s) con cupo libre para este plan.`:(planId?'No hay cuentas libres; puedes registrar el administrador en los campos de abajo.':'Selecciona un plan para ver cuentas subidas.');
+    ['rFamilyAdminEmailWrap','rFamilyAdminPassWrap','rFamily2FAWrap'].forEach(id=>$(id)?.classList.toggle('hidden',!family));
+    if(resetSelect)fillReminderFamilyFieldsFromStock();
+  }
+  function fillReminderFamilyFieldsFromStock(){
+    const x=(state.stock||[]).find(s=>s.id===$('rStockSelect')?.value);
+    if(!x)return;
+    const d=opsSecret(x);
+    if($('rFamilyAdminEmail'))$('rFamilyAdminEmail').value=d.family_admin_email||d.correo_admin||d.correo||'';
+    if($('rFamilyAdminPass'))$('rFamilyAdminPass').value=d.family_admin_pass||d.clave_admin||d.clave||'';
+    if($('rFamily2FA'))$('rFamily2FA').value=d.twofa_code||d.codigo_2fa||'';
+  }
+  function fillManualFieldsFromStock(item){
+    const hint=$('manualStockHint');
+    if(!item){
+      if($('manualStockId'))$('manualStockId').value='';
+      if(hint)hint.textContent='No hay cuenta libre cargada para este plan. Puedes escribir la entrega manualmente.';
+      renderDeliveryMessage();return;
+    }
+    const d=opsSecret(item);
+    if($('manualStockId'))$('manualStockId').value=item.id;
+    if($('manualUser'))$('manualUser').value=d.correo||d.usuario||'';
+    if($('manualPass'))$('manualPass').value=d.clave||d.pass||'';
+    if($('manualProfile'))$('manualProfile').value=d.perfil||'';
+    if($('manualPin'))$('manualPin').value=d.pin||'';
+    if($('manualGroup'))$('manualGroup').value=d.grupo||d.url||'';
+    if($('manualUrl'))$('manualUrl').value=d.url||d.grupo||'';
+    if($('manualNote'))$('manualNote').value=d.nota||item.notes||'';
+    if(hint)hint.textContent='✅ Cuenta seleccionada: '+stockOptionLabel(item);
+    renderDeliveryMessage();
+  }
+
+  const _blankReminder=window.blankReminder||blankReminder;
+  window.blankReminder=blankReminder=function(cid=''){
+    _blankReminder(cid);
+    ensureLinkedAccountUi();
+    if($('rFamilyAdminEmail'))$('rFamilyAdminEmail').value='';
+    if($('rFamilyAdminPass'))$('rFamilyAdminPass').value='';
+    if($('rFamily2FA'))$('rFamily2FA').value='';
+    syncReminderLinkedAccountUi();
+  };
+  const _editReminder=window.editReminder||editReminder;
+  window.editReminder=editReminder=function(id){
+    _editReminder(id);
+    ensureLinkedAccountUi();
+    const r=(state.reminders||[]).find(x=>x.id===id)||{};
+    const link=findLinkedStockForReminder(r);
+    syncReminderLinkedAccountUi();
+    if(link?.item?.id && $('rStockSelect')){$('rStockSelect').value=link.item.id;fillReminderFamilyFieldsFromStock();}
+  };
+
+  async function consumeStockItem(stockId,context={}){
+    const x=(state.stock||[]).find(s=>s.id===stockId);
+    if(!x)return {ok:false,error:'Cuenta no encontrada'};
+    if(!isDeliverableStock(x))return {ok:false,error:'La cuenta ya no tiene cupos libres'};
+    const d={...opsSecret(x)};
+    const used=safeStockUsed(x)+1;
+    d.used_count=used;
+    d.last_customer=context.customer_name||'';
+    d.last_phone=context.customer_phone||'';
+    d.last_email=context.customer_email||'';
+    d.last_used_at=new Date().toISOString();
+    if(context.totp_code){d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];if(!d.used_totp_codes.includes(context.totp_code))d.used_totp_codes.push(context.totp_code);}
+    d.history=Array.isArray(d.history)?d.history:[];
+    d.history.push({
+      reminder_id:context.reminder_id||'', order_id:context.order_id||'', order_item_id:context.order_item_id||'', pedido:context.pedido||'',
+      customer_name:context.customer_name||'', customer_phone:context.customer_phone||'', client_email:context.customer_email||'',
+      service:context.service||planName(x.plan_id), amount:context.amount??'', due_date:context.due_date||'', at:new Date().toISOString(),
+      correo:d.correo||'', clave:d.clave||'', perfil:d.perfil||'', pin:d.pin||'', grupo:d.grupo||d.url||'', totp_code:context.totp_code||'',
+      family_admin:d.family_admin_email||d.correo_admin||d.correo||'', family_2fa:d.twofa_code||d.codigo_2fa||'', source:context.source||'recordatorio'
+    });
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+    const finalStatus=used>=safeStockMax(x)?'used':'available';
+    const res=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',x.id).select().single();
+    if(res.error)return {ok:false,error:res.error.message};
+    Object.assign(x,res.data||{secret_data:d,status:stockDbStatus(finalStatus)});
+    return {ok:true,stock_id:x.id,status:finalStatus,family_admin:d.family_admin_email||d.correo_admin||d.correo||'',stock_secret:d};
+  }
+  window.consumePlanStock=consumePlanStock=async function(planId,context={}){
+    if(!planId)return {ok:true,skipped:true};
+    const selected=context.stock_id||'';
+    const x=selected?(state.stock||[]).find(s=>s.id===selected):firstAvailableStockForPlan(planId);
+    if(x)return consumeStockItem(x.id,{...context,plan_id:planId});
+    const p=plan(planId)||{};
+    if(p.stock_mode==='manual' && Number(p.manual_stock_count||0)>0){
+      const next=Math.max(0,Number(p.manual_stock_count||0)-1);
+      const r=await db.from('product_plans').update({manual_stock_count:next}).eq('id',planId);
+      if(r.error)return {ok:false,error:r.error.message};
+      return {ok:true,manual:true,next};
+    }
+    return {ok:true,skipped:true,no_stock:true};
+  };
+  async function createStockFromReminderFields(planId){
+    if(!planId)return {ok:false,error:'Selecciona un plan para crear la cuenta administradora'};
+    const sec=linkedSecretFromForm('r');
+    if(!sec.family_admin_email&&!sec.family_admin_pass)return {ok:true,skipped:true};
+    if(!sec.family_admin_email||!sec.family_admin_pass)return {ok:false,error:'Completa correo y contraseña del administrador'};
+    const secret=normalizeFamilySecret({
+      correo:sec.family_admin_email,email:sec.family_admin_email,usuario:sec.family_admin_email,clave:sec.family_admin_pass,password:sec.family_admin_pass,pass:sec.family_admin_pass,
+      family_mode:true,family_admin_email:sec.family_admin_email,family_admin_pass:sec.family_admin_pass,correo_admin:sec.family_admin_email,clave_admin:sec.family_admin_pass,twofa_code:sec.twofa_code,codigo_2fa:sec.twofa_code,family_slots:5,max_uses:5,used_count:0,invite_method:'Invitación familiar'
+    },planId);
+    const r=await db.from('stock_items').insert({plan_id:planId,stock_type:'account',title:sec.family_admin_email,secret_data:secret,notes:'Creado desde recordatorio',status:'available'}).select().single();
+    if(r.error)return {ok:false,error:r.error.message};
+    state.stock.unshift(r.data);
+    return {ok:true,stock:r.data};
+  }
+
+  window.saveReminder=saveReminder=async function(ev,silent=false){
+    if(ev)ev.preventDefault();
+    autoFillReminderFromService(false);
+    ensureLinkedAccountUi();
+    const up=await upsertReminderCustomerFromFields();
+    if(up.error){toast(up.error,'bad');return null;}
+    let c=up.customer;
+    const id=$('rId')?.value||'';
+    const selectedPlanId=$('rPlan')?.value||null;
+    const family=!!(selectedPlanId&&isFamilyInvitePlanId(selectedPlanId)) || isFamilyServiceDraft();
+    const clientEmail=($('rCustomerEmail')?.value||c.email||'').trim();
+    const selectedStockId=$('rStockSelect')?.value||'';
+    let stockId=selectedStockId;
+    if(!id && family && !stockId && selectedPlanId){
+      const made=await createStockFromReminderFields(selectedPlanId);
+      if(!made.ok){toast(made.error,'bad');return null;}
+      if(made.stock)stockId=made.stock.id;
+    }
+    const stock=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+    const meta={...customerMeta(c)};
+    if(family){Object.assign(meta,familyCustomerMetaFromStock(stock?opsSecret(stock):linkedSecretFromForm('r'),clientEmail));}
+    else if(clientEmail){meta.family_client_email=clientEmail;}
+    if(Object.keys(meta).length){
+      const upd=await db.from('crm_customers').update({email:clientEmail||c.email||null,notes:notesWithCustomerMeta(stripCustomerMetaNotes(c.notes||'Creado desde recordatorio'),meta)}).eq('id',c.id).select().single();
+      if(!upd.error)c=upd.data;
+    }
+    const draft={customer_id:c.id,product_id:$('rProduct')?.value||null,plan_id:selectedPlanId,service_name:($('rService')?.value||'').trim()||'Servicio',amount:$('rAmount')?.value===''?null:Number($('rAmount')?.value),currency:'PEN',due_date:$('rDue')?.value||planRenewalDue(selectedPlanId||''),status:$('rStatus')?.value||'pending',whatsapp_message:($('rMsg')?.value||'').trim()||null};
+    if(!draft.whatsapp_message)draft.whatsapp_message=buildTemplateMessage(getDefaultTemplate(),c,draft);
+    const r=id?await db.from('payment_reminders').update(draft).eq('id',id).select().single():await db.from('payment_reminders').insert(draft).select().single();
+    if(r.error){toast(r.error.message,'bad');return null;}
+    if(!id && selectedPlanId){
+      const used=await consumePlanStock(selectedPlanId,{stock_id:stockId,reminder_id:r.data.id,customer_name:c.name,customer_phone:c.phone_e164,customer_email:clientEmail||c.email||'',service:draft.service_name,amount:draft.amount,due_date:draft.due_date,source:'recordatorio'});
+      if(!used.ok)toast('Recordatorio creado, pero no se pudo descontar cupo: '+used.error,'bad');
+    }
+    if(!silent){closeDialog('dlgReminder');toast('Cliente + recordatorio guardados','ok');await loadAll();switchTab('reminders');}
+    else{await loadAll();}
+    return r.data;
+  };
+
+  function accountPartsFromStock(item,history={}){
+    if(!item)return [];
+    const d=opsSecret(item);
+    const family=stockIsFamilyInvite(item);
+    const parts=[];
+    const correo=family?(d.family_admin_email||d.correo_admin||d.correo):(d.correo||d.usuario||history.correo);
+    const clave=family?(d.family_admin_pass||d.clave_admin||d.clave):(d.clave||d.pass||history.clave);
+    if(family&&correo)parts.push('Administrador: '+correo); else if(correo)parts.push('Correo: '+correo);
+    if(clave)parts.push('Contraseña: '+clave);
+    if(history.client_email||d.last_email)parts.push('Gmail cliente: '+(history.client_email||d.last_email));
+    if(d.perfil||history.perfil)parts.push('Perfil: '+(d.perfil||history.perfil));
+    if(d.pin||history.pin)parts.push('PIN: '+(d.pin||history.pin));
+    if(d.grupo||d.url||history.grupo)parts.push('Grupo/URL: '+(d.grupo||d.url||history.grupo));
+    if(d.codigo||history.totp_code)parts.push('Código: '+(d.codigo||history.totp_code));
+    if(family&&(d.twofa_code||d.codigo_2fa||history.family_2fa))parts.push('2FA: '+(d.twofa_code||d.codigo_2fa||history.family_2fa));
+    return parts;
+  }
+  window.findLinkedStockForReminder=findLinkedStockForReminder;
+  function findLinkedStockForReminder(r){
+    if(!r)return null;
+    const c=(state.customers||[]).find(x=>x.id===r.customer_id)||{};
+    const phone=whatsappDigits(c.phone_e164||c.phone_raw||'');
+    let best=null;
+    (state.stock||[]).forEach(item=>{
+      if(r.plan_id && item.plan_id!==r.plan_id)return;
+      const d=opsSecret(item);
+      const hist=Array.isArray(d.history)?d.history:[];
+      if(!hist.length && !r.plan_id)return;
+      const candidates=hist.length?hist:[{}];
+      candidates.forEach(h=>{
+        let score=0;
+        if(r.id && h.reminder_id===r.id)score+=1000;
+        if(r.order_id && h.order_id===r.order_id)score+=500;
+        if(r.order_item_id && h.order_item_id===r.order_item_id)score+=350;
+        if(phone && whatsappDigits(h.customer_phone||'')===phone)score+=120;
+        if(r.due_date && h.due_date===r.due_date)score+=60;
+        if(r.service_name && h.service && normTxt(h.service)===normTxt(r.service_name))score+=40;
+        if(r.plan_id && item.plan_id===r.plan_id)score+=25;
+        if(score>(best?.score||0))best={score,item,secret:d,history:h};
+      });
+    });
+    return best&&best.score>=120?best:null;
+  }
+  window.deliveryAccountInfoForReminder=deliveryAccountInfoForReminder=function(r){
+    const link=findLinkedStockForReminder(r);
+    if(!link)return '';
+    return accountPartsFromStock(link.item,link.history).join(' · ');
+  };
+  function linkedAccountHtmlForReminder(r){
+    const link=findLinkedStockForReminder(r);
+    if(!link)return '';
+    const parts=accountPartsFromStock(link.item,link.history);
+    if(!parts.length)return '';
+    return `<div class="history-account"><b>🔐 Cuenta vinculada</b><br>${parts.map(esc).join('<br>')}</div>`;
+  }
+  async function releaseStockForReminder(r,reason='liberado'){
+    if(!r)return {ok:true,skipped:true};
+    const link=findLinkedStockForReminder(r);
+    if(!link?.item)return {ok:true,skipped:true,no_link:true};
+    const x=link.item;
+    const d={...opsSecret(x)};
+    const key=String(r.id||`${r.customer_id}|${r.plan_id}|${r.due_date}`);
+    d.released_reminder_ids=Array.isArray(d.released_reminder_ids)?d.released_reminder_ids:[];
+    if(d.released_reminder_ids.includes(key))return {ok:true,skipped:true,already:true};
+    d.used_count=Math.max(0,safeStockUsed(x)-1);
+    d.released_reminder_ids.push(key);
+    d.history=Array.isArray(d.history)?d.history:[];
+    const h=d.history.find(h=>h.reminder_id===r.id)||(link.history&&d.history.find(h=>h===link.history));
+    if(h){h.released_at=new Date().toISOString();h.release_reason=reason;}
+    d.last_released_at=new Date().toISOString();
+    const res=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d}).eq('id',x.id).select().single();
+    if(res.error)return {ok:false,error:res.error.message};
+    Object.assign(x,res.data||{secret_data:d,status:stockDbStatus('available')});
+    return {ok:true,stock_id:x.id};
+  }
+  async function releaseRemindersList(list,reason){
+    for(const r of (list||[])){const rel=await releaseStockForReminder(r,reason);if(rel&&!rel.ok)console.warn('releaseStockForReminder',rel.error);}
+  }
+  window.deleteReminder=deleteReminder=async function(){
+    const id=$('rId')?.value||'';if(!id)return;
+    const rem=(state.reminders||[]).find(x=>x.id===id)||{};
+    if(!confirm('¿Eliminar recordatorio? Se liberará el cupo de la cuenta vinculada.'))return;
+    await releaseStockForReminder(rem,'eliminado_manual');
+    const r=await db.from('payment_reminders').delete().eq('id',id);
+    if(r.error)return toast(r.error.message,'bad');
+    closeDialog('dlgReminder');toast('Recordatorio eliminado y cupo liberado','ok');await loadAll();
+  };
+  window.quickDeleteReminder=quickDeleteReminder=async function(id){
+    const rem=(state.reminders||[]).find(x=>x.id===id)||{};
+    if(!confirm('¿Eliminar recordatorio "'+(rem.service_name||'')+'"? Se liberará el cupo vinculado.'))return;
+    await releaseStockForReminder(rem,'eliminado_manual');
+    const r=await db.from('payment_reminders').delete().eq('id',id);
+    if(r.error)return toast(r.error.message,'bad');
+    toast('Recordatorio eliminado y cupo liberado','ok');await loadAll();switchTab('reminders');
+  };
+  const _quickDeleteClient=window.quickDeleteClient||quickDeleteClient;
+  window.quickDeleteClient=quickDeleteClient=async function(id){
+    const c=(state.customers||[]).find(x=>x.id===id)||{};
+    if(!confirm('¿Eliminar cliente "'+(c.name||'')+'"? Se liberarán sus cupos vinculados.'))return;
+    await releaseRemindersList((state.reminders||[]).filter(r=>r.customer_id===id),'cliente_eliminado');
+    const r=await db.from('crm_customers').delete().eq('id',id);
+    if(r.error)return toast(r.error.message,'bad');
+    toast('Cliente eliminado y cupos liberados','ok');await loadAll();switchTab('reminders');
+  };
+  window.deleteClient=deleteClient=async function(){
+    const id=$('cId')?.value||'';if(!id)return;
+    const c=(state.customers||[]).find(x=>x.id===id)||{};
+    if(!confirm('¿Eliminar cliente "'+(c.name||'')+'"? Se liberarán sus cupos vinculados.'))return;
+    await releaseRemindersList((state.reminders||[]).filter(r=>r.customer_id===id),'cliente_eliminado');
+    const r=await db.from('crm_customers').delete().eq('id',id);
+    if(r.error)return toast(r.error.message,'bad');
+    closeDialog('dlgClient');toast('Cliente eliminado y cupos liberados','ok');await loadAll();switchTab('reminders');
+  };
+  window.cleanupExpiredReofferReminders=cleanupExpiredReofferReminders=async function(){
+    try{
+      const toNoRenew=(state.reminders||[]).filter(shouldMarkNoRenewalReminder);
+      if(toNoRenew.length){
+        await releaseRemindersList(toNoRenew,'no_renovo');
+        const ids=toNoRenew.map(r=>r.id).filter(Boolean);
+        const up=await db.from('payment_reminders').update({status:'no_renovo'}).in('id',ids);
+        if(up.error)console.warn('mark no renovó reminders',up.error.message); else state.reminders=state.reminders.map(r=>ids.includes(r.id)?{...r,status:'no_renovo'}:r);
+      }
+      const expired=(state.reminders||[]).filter(shouldAutoDeleteReminder);
+      const ids=expired.map(r=>r.id).filter(Boolean);
+      if(ids.length){
+        await releaseRemindersList(expired,'auto_eliminado_15_dias');
+        const del=await db.from('payment_reminders').delete().in('id',ids);
+        if(del.error){console.warn('cleanup reminders',del.error.message);return;}
+        state.reminders=state.reminders.filter(r=>!ids.includes(r.id));
+        toast(`Limpieza automática: ${ids.length} servicio(s) no renovados +15 días eliminados y cupos liberados`,'ok');
+      }
+    }catch(e){console.warn('cleanupExpiredReofferReminders',e);}
+  };
+
+  window.autoFillManualFromStock=autoFillManualFromStock=function(){
+    ensureLinkedAccountUi();
+    const planId=$('manualPlan')?.value||'';
+    const selected=$('manualStockSelect')?.value||$('manualStockId')?.value||'';
+    const item=fillStockPicker($('manualStockSelect'),planId,selected,false);
+    fillManualFieldsFromStock(item);
+    setupManualTotpForPlan?.(planId);
+  };
+  window.markManualStockUsed=markManualStockUsed=async function(orderId){
+    const id=$('manualStockSelect')?.value||$('manualStockId')?.value||'';if(!id)return;
+    const o=(state.orders||[]).find(x=>x.id===orderId)||{};
+    const phone=normalizePhone(o.customer_whatsapp||'');
+    const context={order_id:orderId,plan_id:$('manualPlan')?.value||'',customer_name:o.customer_name||'',customer_phone:phone.ok?phone.e164:(o.customer_whatsapp||''),customer_email:o.customer_email||'',service:planName($('manualPlan')?.value||''),source:'entrega_manual_pedido'};
+    const res=await consumeStockItem(id,context);
+    if(!res.ok)toast('Entrega registrada, pero no se pudo marcar stock usado: '+res.error,'bad');
+  };
+
+  window.openOpsDeliver=openOpsDeliver=function(id='',forcedPlanId=''){
+    ensureLinkedAccountUi();
+    let x=id?(state.stock||[]).find(s=>s.id===id):null;
+    let planId=x?.plan_id||forcedPlanId||$('opsDeliverPlanId')?.value||'';
+    if(!planId){toast('Selecciona un plan para entregar','bad');return;}
+    x=syncOpsDeliverStockPicker(planId,x?.id||'')||x;
+    const d=x?opsSecret(x):{};
+    if($('opsDeliverStockId'))$('opsDeliverStockId').value=x?.id||'';
+    if($('opsDeliverPlanId'))$('opsDeliverPlanId').value=planId;
+    if($('opsDeliverPedido'))$('opsDeliverPedido').value=makeManualDeliveryCode();
+    $('opsDeliverName').value=d.reserved_for||'';
+    $('opsDeliverPhone').value=d.reserved_phone||'';
+    if($('opsDeliverClientEmail'))$('opsDeliverClientEmail').value=d.reserved_email||'';
+    $('opsDeliverService').value=planName(planId);
+    const p=plan(planId);$('opsDeliverAmount').value=p?.price??'';
+    if($('opsDeliverStart'))$('opsDeliverStart').value=todayISO();
+    if($('opsDeliverPayDate'))$('opsDeliverPayDate').value=todayISO();
+    $('opsDeliverDue').value=planRenewalDue(planId);
+    if($('opsDeliverNewStatus'))$('opsDeliverNewStatus').value='used';
+    const totpAccount=stockTotpAccountId(x,planId), preCode=x?nextStockTotpCode(x):'';
+    if($('opsDeliverTotpAccountId'))$('opsDeliverTotpAccountId').value=totpAccount||'';
+    if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=totpAccount?(preCode||generateUniqueTotpAccessCode()):'';
+    if($('opsDeliverTotpInfo')){$('opsDeliverTotpInfo').classList.toggle('hidden',!totpAccount);const label=totpAccountName(totpAccount)||planTotpAccountLabel(planId)||'Access TOTP';$('opsDeliverTotpInfo').textContent=totpAccount?('🛡 '+label+' · código '+$('opsDeliverTotpCode').value+' de un solo uso listo para la entrega.'):'';}
+    syncOpsDeliverFamilyBox(planId);
+    refreshOpsDeliverMessage();showDialog('dlgOpsDeliver');
+  };
+  window.saveOpsDeliver=saveOpsDeliver=async function(){
+    ensureLinkedAccountUi();
+    let id=$('opsDeliverStockSelect')?.value||$('opsDeliverStockId')?.value||'';
+    let x=id?(state.stock||[]).find(s=>s.id===id):null;
+    let planId=x?.plan_id||$('opsDeliverPlanId')?.value||'';
+    if(!x&&planId){x=firstAvailableStockForPlan(planId);id=x?.id||'';if($('opsDeliverStockId'))$('opsDeliverStockId').value=id;}
+    const name=($('opsDeliverName')?.value||'').trim();if(!name)return toast('Ingresa nombre del cliente','bad');
+    const phone=normalizePhone($('opsDeliverPhone')?.value||'');if(!phone.ok)return toast(phone.error||'WhatsApp inválido','bad');
+    const secret=x?opsSecret(x):{};
+    const isFamily=isFamilyInvitePlanId(planId)||stockIsFamilyInvite(x);
+    const clientEmail=($('opsDeliverClientEmail')?.value||'').trim();
+    if(isFamily&&!clientEmail)return toast('Ingresa el correo Gmail del cliente para vincularlo al grupo familiar','bad');
+    if(x&&!isDeliverableStock(x))return toast('La cuenta seleccionada ya está llena o no disponible','bad');
+    const existingByPhone=(state.customers||[]).find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
+    const finalName=(name||existingByPhone?.name||'Cliente').trim();
+    const meta={...customerMeta(existingByPhone)};
+    if(isFamily)Object.assign(meta,familyCustomerMetaFromStock(secret,clientEmail)); else if(clientEmail)meta.family_client_email=clientEmail;
+    const customerPayload={name:finalName,phone_raw:($('opsDeliverPhone')?.value||'').trim()||phone.e164,phone_e164:phone.e164,email:clientEmail||existingByPhone?.email||null,source:existingByPhone?.source||'entrega_manual_stock',notes:notesWithCustomerMeta(stripCustomerMetaNotes(existingByPhone?.notes||'Creado desde entrega manual de stock'),meta)};
+    const c=existingByPhone?.id?await db.from('crm_customers').update(customerPayload).eq('id',existingByPhone.id).select().single():await db.from('crm_customers').upsert(customerPayload,{onConflict:'phone_e164'}).select().single();
+    if(c.error)return toast('Cliente no guardado: '+c.error.message,'bad');
+    const service=($('opsDeliverService')?.value||'').trim()||planName(planId)||'Servicio';
+    const amount=$('opsDeliverAmount')?.value===''?null:Number($('opsDeliverAmount')?.value||0);
+    const startDate=$('opsDeliverStart')?.value||todayISO(), payDate=$('opsDeliverPayDate')?.value||todayISO(), due=$('opsDeliverDue')?.value||planRenewalDue(planId);
+    const totpAccount=$('opsDeliverTotpAccountId')?.value||stockTotpAccountId(x,planId)||'';
+    let deliveredCode=$('opsDeliverTotpCode')?.value||nextStockTotpCode(x)||'';
+    if(totpAccount&&deliveredCode){const made=await createTotpCodeForDelivery(totpAccount,deliveredCode,finalName,phone.e164,service);if(!made.ok)return toast('No se pudo crear el código Access TOTP: '+made.error,'bad');deliveredCode=made.code;if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=deliveredCode;}
+    refreshOpsDeliverMessage();
+    const reminderDraft={customer_id:c.data.id,product_id:plan(planId)?.product_id||null,plan_id:planId||null,service_name:service,amount,currency:'PEN',due_date:due,status:'pending',fecha_inicio:startDate,fecha_pago:payDate};
+    reminderDraft.whatsapp_message=buildTemplateMessage(getDefaultTemplate(),c.data,reminderDraft);
+    const reminderDbPayload={customer_id:reminderDraft.customer_id,product_id:reminderDraft.product_id,plan_id:reminderDraft.plan_id,service_name:reminderDraft.service_name,amount:reminderDraft.amount,currency:reminderDraft.currency,due_date:reminderDraft.due_date,status:reminderDraft.status,whatsapp_message:reminderDraft.whatsapp_message};
+    const r=await db.from('payment_reminders').insert(reminderDbPayload).select().single();
+    if(r.error)return toast('Recordatorio no creado: '+r.error.message,'bad');
+    if(x){const used=await consumeStockItem(x.id,{reminder_id:r.data.id,pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,service,amount,due_date:due,totp_code:deliveredCode,source:'entrega_manual'});if(!used.ok)return toast('Recordatorio creado, pero no se pudo descontar stock: '+used.error,'bad');}
+    else if(planId){const used=await consumePlanStock(planId,{reminder_id:r.data.id,customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,service,amount,due_date:due,source:'entrega_manual'});if(!used.ok)return toast('Recordatorio creado, pero no se pudo descontar cupo: '+used.error,'bad');}
+    const msg=$('opsDeliverText')?.value?.trim()||opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due,correo:secret.correo||'',contraseña:secret.clave||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',codigo:deliveredCode,correo_admin:secret.family_admin_email||secret.correo_admin||secret.correo||'',contraseña_admin:secret.family_admin_pass||secret.clave_admin||secret.clave||'',grupo_familiar:secret.family_admin_email||secret.correo_admin||secret.correo||'',cliente_gmail:clientEmail,codigo_2fa:secret.twofa_code||secret.codigo_2fa||''});
+    copyTextSafe(msg);closeDialog('dlgOpsDeliver');toast('Entrega creada y cupo descontado','ok');notifyWeb('Entrega registrada','Se creó recordatorio para '+finalName,true);
+    if($('opsDeliverOpenWa')?.checked){const url=waLink(phone.e164,msg);if(url!=='#')window.open(url,'_blank','noopener,noreferrer');}
+    await loadAll();switchTab('inventory');
+  };
+
+  const _buildTemplateMessage=window.buildTemplateMessage||buildTemplateMessage;
+  window.buildTemplateMessage=buildTemplateMessage=function(template,customer,reminder){
+    const pay=getPaymentSettings(),store=getStoreSettings();
+    const days=calcDaysLeft(reminder?.due_date);
+    const productName=reminder?.product_id?prodName(reminder.product_id):(reminder?.plan_id?prodName(plan(reminder.plan_id)?.product_id):'');
+    const planLabel=reminder?.plan_id?(plan(reminder.plan_id)?.name||planName(reminder.plan_id)):'';
+    const due=reminder?.due_date||'';
+    const meta=customerMeta(customer);
+    const link=findLinkedStockForReminder(reminder)||{};
+    const d=link.item?opsSecret(link.item):linkedSecretFromForm('r');
+    const vars={saludo:saludoSegunHora(),nombre:customer?.name||'cliente',cliente:customer?.name||'cliente',producto:productName||reminder?.service_name||'tu servicio',servicio:reminder?.service_name||productName||'tu servicio',plan:planLabel,monto:reminder?.amount!=null?money(reminder.amount):'monto pendiente',fecha_vencimiento:displayDateFromInput(due)||due||'fecha pendiente',vence:displayDateFromInput(due)||due||'fecha pendiente',fecha_inicio:displayDateFromInput(reminder?.fecha_inicio||todayISO()),fecha_pago:displayDateFromInput(reminder?.fecha_pago||todayISO()),periodo:plan(reminder?.plan_id)?.period||'mensual',link_pago:pay.payment_link||pay.link_pago||'',correo_activado:customer?.email||reminder?.correo_activado||'',dias:days===''?'':String(days),pedido:reminder?.order_id||'',telefono:customer?.phone_e164||customer?.phone_raw||'',yape:pay.yape_number||'991564053',grupo:pay.whatsapp_group_url||pay.grupo_whatsapp||'',url_grupo:pay.whatsapp_group_url||pay.grupo_whatsapp||'',soporte:pay.yape_number||'991564053',tienda:store.store_name||'Innov IA',cliente_gmail:meta.family_client_email||customer?.email||$('rCustomerEmail')?.value||'',correo_admin:d.family_admin_email||d.correo_admin||meta.family_admin_email||'',contraseña_admin:d.family_admin_pass||d.clave_admin||'',grupo_familiar:d.family_admin_email||d.correo_admin||meta.family_admin_email||'',codigo_2fa:d.twofa_code||d.codigo_2fa||$('rFamily2FA')?.value||''};
+    return renderTemplateText(String(template?.body||DEFAULT_PAYMENT_TEMPLATE),vars).replace(/\n{3,}/g,'\n\n').trim();
+  };
+
+  window.showClientHistory=showClientHistory=function(id){
+    const c=(state.customers||[]).find(x=>x.id===id);if(!c)return;
+    const phoneDigits=whatsappDigits(c.phone_e164||c.phone_raw||'');
+    const rem=(state.reminders||[]).filter(r=>r.customer_id===id).sort((a,b)=>String(b.due_date||'').localeCompare(String(a.due_date||'')));
+    const orderIds=new Set(rem.map(r=>r.order_id).filter(Boolean));
+    const orders=(state.orders||[]).filter(o=>orderIds.has(o.id)||whatsappDigits(o.customer_whatsapp||'')===phoneDigits);
+    const deliveries=(state.deliveries||[]).filter(d=>orderIds.has(d.order_id)||orders.some(o=>o.id===d.order_id)).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+    $('clientHistoryTitle').textContent='Historial · '+(c.name||'Cliente');
+    const remHtml=rem.map(r=>`<div class="history-item"><div class="top"><span>🔔 ${esc(r.service_name||'Servicio')}</span><span>${esc(reminderStatusLabel(r))}</span></div><div class="help">Vence: ${esc(r.due_date||'—')} · ${money(r.amount)}</div>${linkedAccountHtmlForReminder(r)}${r.whatsapp_message?`<pre>${esc(r.whatsapp_message)}</pre>`:''}</div>`).join('');
+    const delHtml=deliveries.map(d=>`<div class="history-item"><div class="top"><span>📦 Cuenta entregada</span><span>${d.created_at?esc(new Date(d.created_at).toLocaleString('es-PE')):'—'}</span></div><pre>${esc(d.delivered_message||d.message||JSON.stringify(d.delivery_data||{},null,2))}</pre></div>`).join('');
+    const fam=customerFamilyAdmin(c);
+    const famHtml=fam?`<div class="history-item"><div class="top"><span>👨‍👩‍👧 Grupo familiar vinculado</span><span>${esc(fam)}</span></div><div class="help">Gmail cliente: ${esc(customerGmail(c)||'—')}</div></div>`:'';
+    $('clientHistoryBody').innerHTML=famHtml+((delHtml?'<strong>📦 Entregas</strong>'+delHtml:'')+(remHtml?'<strong>🔔 Recordatorios</strong>'+remHtml:'')||'<div class="empty-state"><span class="icon">📭</span><p>Sin historial aún.</p></div>');
+    showDialog('dlgClientHistory');
+  };
+
+  setTimeout(()=>{ensureLinkedAccountUi();},0);
+})();
+
 </script>
 </body>
 </html>
+
+
 
 
 
