@@ -7816,11 +7816,583 @@ setTimeout(enhanceCuposEntregaUi,0);
   setTimeout(()=>{ensureLinkedAccountUi();},0);
 })();
 
+
+/* ==============================================================
+   PATCH v12 — Access TOTP único por entrega
+   - Ya no reutiliza códigos precreados del stock para ChatGPT.
+   - El código final se crea en totp_access_codes al registrar la entrega.
+   - El cupo registra el código entregado en used_totp_codes e historial.
+   - Al cambiar la cuenta seleccionada se refresca el código provisional.
+   ============================================================== */
+(function(){
+  if(window.__innovTotpUniqueDeliveryV12)return;
+  window.__innovTotpUniqueDeliveryV12=true;
+  window.__innovIssuedTotpCodes=window.__innovIssuedTotpCodes||new Set();
+
+  function upperCode(v){return String(v||'').trim().toUpperCase();}
+  function collectExistingTotpCodes(){
+    const used=new Set();
+    try{(state.totpCodes||[]).forEach(c=>{const code=upperCode(c.access_code);if(code)used.add(code);});}catch(_){ }
+    try{(state.stock||[]).forEach(item=>{
+      const d=opsSecret(item)||{};
+      (Array.isArray(d.totp_codes)?d.totp_codes:[]).forEach(c=>{const code=upperCode(c);if(code)used.add(code);});
+      (Array.isArray(d.used_totp_codes)?d.used_totp_codes:[]).forEach(c=>{const code=upperCode(c);if(code)used.add(code);});
+    });}catch(_){ }
+    try{window.__innovIssuedTotpCodes.forEach(c=>{const code=upperCode(c);if(code)used.add(code);});}catch(_){ }
+    return used;
+  }
+
+  window.generateUniqueTotpAccessCode=generateUniqueTotpAccessCode=function(){
+    const existing=collectExistingTotpCodes();
+    for(let i=0;i<120;i++){
+      const code=upperCode(makeTotpAccessCode());
+      if(code&&!existing.has(code)){
+        window.__innovIssuedTotpCodes.add(code);
+        return code;
+      }
+    }
+    const fallback='IA'+Date.now().toString(36).toUpperCase().slice(-8);
+    window.__innovIssuedTotpCodes.add(fallback);
+    return fallback;
+  };
+
+  // No tomamos códigos antiguos del arreglo totp_codes: se crea uno nuevo por cliente.
+  window.nextStockTotpCode=nextStockTotpCode=function(){return '';};
+
+  async function insertFreshTotpAccessCode(accountId,customerName,customerPhone,service){
+    if(!accountId)return {ok:true,skipped:true,code:''};
+    let lastError='';
+    for(let attempt=0;attempt<8;attempt++){
+      const finalCode=generateUniqueTotpAccessCode();
+      const payload={
+        account_id:accountId,
+        access_code:finalCode,
+        customer_name:customerName||null,
+        customer_phone:customerPhone||null,
+        max_uses:1,
+        valid_days:30,
+        active:true,
+        notes:'Auto entrega única: '+(service||'ChatGPT'),
+        updated_at:new Date().toISOString()
+      };
+      const r=await db.from('totp_access_codes').insert(payload).select().single();
+      if(!r.error){
+        window.__innovIssuedTotpCodes.add(finalCode);
+        try{state.totpCodes.unshift(r.data||payload);}catch(_){ }
+        return {ok:true,code:finalCode,data:r.data||payload,created:true};
+      }
+      lastError=r.error.message||String(r.error||'Error desconocido');
+      if(!/duplicate|unique|access_code|llave duplicada|duplicad/i.test(lastError))break;
+      window.__innovIssuedTotpCodes.add(finalCode);
+    }
+    return {ok:false,error:lastError||'No se pudo generar un código único'};
+  }
+
+  window.createTotpCodeForDelivery=createTotpCodeForDelivery=async function(accountId,code,customerName,customerPhone,service){
+    // Siempre crea un registro nuevo por entrega. El parámetro code queda como compatibilidad.
+    if(!accountId)return {ok:true,skipped:true,code:upperCode(code)};
+    return insertFreshTotpAccessCode(accountId,customerName,customerPhone,service);
+  };
+
+  window.createTotpCodeForManualDelivery=createTotpCodeForManualDelivery=async function(){
+    const accountId=$('manualTotpAccountId')?.value||'';
+    if(!accountId)return {ok:true,skipped:true,code:''};
+    const orderId=$('manualOrderId')?.value||'';
+    const o=(state.orders||[]).find(x=>x.id===orderId)||{};
+    const phone=normalizePhone(o.customer_whatsapp||'');
+    const service=planName($('manualPlan')?.value)||'ChatGPT';
+    const made=await createTotpCodeForDelivery(accountId,'',o.customer_name||'',phone.ok?phone.e164:(o.customer_whatsapp||''),service);
+    if(!made.ok)return made;
+    if($('manualTotpCode'))$('manualTotpCode').value=made.code||'';
+    if($('manualCode'))$('manualCode').value=made.code||'';
+    try{renderDeliveryMessage();}catch(_){ }
+    return made;
+  };
+
+  function currentManualTotpCode(){return upperCode($('manualTotpCode')?.value||$('manualCode')?.value||'');}
+  window.markManualStockUsed=markManualStockUsed=async function(orderId,totpCode=''){
+    const stockId=$('manualStockSelect')?.value||$('manualStockId')?.value||'';
+    if(!stockId)return;
+    const planId=$('manualPlan')?.value||'';
+    const o=(state.orders||[]).find(x=>x.id===orderId)||{};
+    const phone=normalizePhone(o.customer_whatsapp||'');
+    const context={
+      stock_id:stockId,
+      order_id:orderId,
+      plan_id:planId,
+      customer_name:o.customer_name||'',
+      customer_phone:phone.ok?phone.e164:(o.customer_whatsapp||''),
+      customer_email:o.customer_email||'',
+      service:planName(planId),
+      source:'entrega_manual_pedido',
+      totp_code:upperCode(totpCode)||currentManualTotpCode()
+    };
+    const res=await consumePlanStock(planId,context);
+    if(!res.ok)toast('Entrega registrada, pero no se pudo marcar stock usado: '+res.error,'bad');
+  };
+
+  function syncManualTotpForSelectedStock(){
+    const planId=$('manualPlan')?.value||'';
+    const stockId=$('manualStockSelect')?.value||$('manualStockId')?.value||'';
+    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+    const accountId=(item?stockTotpAccountId(item,planId):'')||planTotpAccountId(planId)||'';
+    if($('manualTotpAccountId'))$('manualTotpAccountId').value=accountId||'';
+    const code=accountId?generateUniqueTotpAccessCode():'';
+    if($('manualTotpCode'))$('manualTotpCode').value=code;
+    if($('manualCode'))$('manualCode').value=code;
+    if($('manualTotpInfo')){
+      $('manualTotpInfo').classList.toggle('hidden',!accountId);
+      const label=accountId?(totpAccountName(accountId)||planTotpAccountLabel(planId)||'Access TOTP'):'';
+      $('manualTotpInfo').textContent=accountId?('🛡 '+label+' · se creará un código nuevo al registrar. Código provisional: '+code):'';
+    }
+    try{renderDeliveryMessage();}catch(_){ }
+  }
+
+  function syncOpsTotpForSelectedStock(){
+    const stockId=$('opsDeliverStockSelect')?.value||$('opsDeliverStockId')?.value||'';
+    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+    const planId=item?.plan_id||$('opsDeliverPlanId')?.value||'';
+    if(item&&$('opsDeliverPlanId'))$('opsDeliverPlanId').value=item.plan_id||planId;
+    if(item&&$('opsDeliverStockId'))$('opsDeliverStockId').value=item.id||'';
+    const accountId=(item?stockTotpAccountId(item,planId):'')||planTotpAccountId(planId)||'';
+    if($('opsDeliverTotpAccountId'))$('opsDeliverTotpAccountId').value=accountId||'';
+    const code=accountId?generateUniqueTotpAccessCode():'';
+    if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=code;
+    if($('opsDeliverTotpInfo')){
+      $('opsDeliverTotpInfo').classList.toggle('hidden',!accountId);
+      const label=accountId?(totpAccountName(accountId)||planTotpAccountLabel(planId)||'Access TOTP'):'';
+      $('opsDeliverTotpInfo').textContent=accountId?('🛡 '+label+' · se creará un código nuevo al registrar. Código provisional: '+code):'';
+    }
+    try{refreshOpsDeliverMessage();}catch(_){ }
+  }
+
+  if(!window.__innovTotpUniqueDeliveryV12Events){
+    window.__innovTotpUniqueDeliveryV12Events=true;
+    document.addEventListener('change',function(e){
+      const id=e.target?.id||'';
+      if(id==='manualStockSelect'||id==='manualPlan')setTimeout(syncManualTotpForSelectedStock,0);
+      if(id==='opsDeliverStockSelect'||id==='opsDeliverPlanId')setTimeout(syncOpsTotpForSelectedStock,0);
+    });
+  }
+
+  const previousOpenOpsDeliver=window.openOpsDeliver||openOpsDeliver;
+  window.openOpsDeliver=openOpsDeliver=function(id='',forcedPlanId=''){
+    previousOpenOpsDeliver(id,forcedPlanId);
+    setTimeout(syncOpsTotpForSelectedStock,0);
+  };
+
+  const previousOpenManualDelivery=window.openManualDelivery||openManualDelivery;
+  window.openManualDelivery=openManualDelivery=function(id){
+    previousOpenManualDelivery(id);
+    setTimeout(syncManualTotpForSelectedStock,0);
+  };
+
+  // Los botones fueron enlazados antes de algunos parches; se re-enlazan a las funciones finales.
+  setTimeout(function(){
+    if($('btnOpsSaveDeliver'))$('btnOpsSaveDeliver').onclick=window.saveOpsDeliver||saveOpsDeliver;
+    if($('btnSaveManualDelivery'))$('btnSaveManualDelivery').onclick=window.saveManualDelivery||saveManualDelivery;
+  },0);
+})();
+
+/* ==============================================================
+   PATCH v16 PRO — Entregas blindadas, cupos vinculados y trazabilidad
+   Mantiene intacto el manejo actual de contraseñas/secretos/backups.
+   ============================================================== */
+(function(){
+  if(window.__innovDeliveryProV16)return;
+  window.__innovDeliveryProV16=true;
+
+  const $id=(id)=>document.getElementById(id);
+  const nowIso=()=>new Date().toISOString();
+  const upper=(v)=>String(v||'').trim().toUpperCase();
+  const isMissingDbFeature=(msg)=>/function .* does not exist|schema cache|column .* does not exist|relation .* does not exist|Could not find|PGRST202|PGRST204|no existe|no se encontr/i.test(String(msg||''));
+
+  // Toast seguro: evita que un mensaje externo se pinte como HTML.
+  window.toast=toast=function(msg,type='info'){
+    const d=document.createElement('div');
+    d.className='toast'+(type==='bad'?' toast-bad':type==='ok'?' toast-ok':'');
+    d.textContent=String(msg??'');
+    ($id('toastContainer')||document.body).appendChild(d);
+    setTimeout(()=>{d.style.opacity='0';d.style.transform='translateX(60px)';d.style.transition='all .3s';setTimeout(()=>d.remove(),300)},3600);
+  };
+
+  // Bloqueo anti doble clic por operación crítica.
+  const locks=new Set();
+  async function withLock(key,btn,work,busy='Procesando...'){
+    if(locks.has(key)){toast('Ya hay una operación en curso. Espera a que termine.','bad');return;}
+    locks.add(key);
+    const oldText=btn?btn.textContent:'';
+    if(btn){btn.disabled=true;btn.dataset.oldText=oldText;btn.textContent=busy;}
+    try{return await work();}
+    catch(e){console.error(e);toast(e?.message||String(e)||'Error inesperado','bad');}
+    finally{locks.delete(key);if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||oldText;}}
+  }
+
+  function stockSecretSafe(item){try{return {...(opsSecret(item)||{})};}catch(_){return {...(item?.secret_data||{})};}}
+  function usedCount(item){try{return stockUsedCount(item);}catch(_){return Number(stockSecretSafe(item).used_count||0)||0;}}
+  function maxUses(item){try{return stockMaxUses(item);}catch(_){return Math.max(1,Number(stockSecretSafe(item).max_uses||1)||1);}}
+  function remainingUses(item){return Math.max(0,maxUses(item)-usedCount(item));}
+  function isUsableStock(item){
+    if(!item)return false;
+    let st='available';
+    try{st=String(opsAvailableStatus(item)||'available').toLowerCase();}catch(_){st=String(item.status||'available').toLowerCase();}
+    if(['blocked','bloqueado','expired','vencido','deleted','eliminado'].includes(st))return false;
+    return remainingUses(item)>0;
+  }
+  function stockLabel(item){
+    const d=stockSecretSafe(item);
+    const base=item?.title||d.correo||d.usuario||d.email||'Cuenta';
+    const parts=[base];
+    if(d.perfil)parts.push('Perfil '+d.perfil);
+    if(d.pin)parts.push('PIN '+d.pin);
+    parts.push('libre '+remainingUses(item)+'/'+maxUses(item));
+    return parts.join(' · ');
+  }
+  window.availableStockForPlan=availableStockForPlan=function(planId){
+    return (state.stock||[]).filter(x=>x.plan_id===planId && (!window.opsIsAccount || opsIsAccount(x)) && isUsableStock(x));
+  };
+  window.firstAvailableStockForPlan=firstAvailableStockForPlan=function(planId){return availableStockForPlan(planId)[0]||null;};
+
+  function ensureStockSelectors(){
+    if($id('manualPlan') && !$id('manualStockSelect')){
+      const host=$id('manualPlan').closest('div');
+      const box=document.createElement('div');
+      box.className='stock-box';
+      box.style.marginTop='8px';
+      box.innerHTML='<label class="subtle">Cuenta/cupo que se entregará</label><select class="input" id="manualStockSelect"></select><p class="help" id="manualStockSelectHelp" style="margin-top:6px">Solo se muestran cuentas con cupo libre. Si una cuenta está llena, ya no aparece.</p>';
+      host.appendChild(box);
+    }
+    if($id('dlgOpsDeliver') && !$id('opsDeliverStockSelect')){
+      const grid=$id('dlgOpsDeliver').querySelector('.grid.grid-2');
+      if(grid){
+        const box=document.createElement('div');
+        box.className='full stock-box';
+        box.innerHTML='<label class="subtle">Cuenta/cupo que se entregará</label><select class="input" id="opsDeliverStockSelect"></select><p class="help" id="opsDeliverStockSelectHelp" style="margin-top:6px">Se ocultan automáticamente las cuentas llenas o bloqueadas.</p>';
+        grid.insertBefore(box,grid.firstChild);
+      }
+    }
+  }
+  function fillStockSelect(selectId,planId,currentId=''){
+    const sel=$id(selectId);if(!sel)return null;
+    const rows=availableStockForPlan(planId);
+    const opts=[];
+    if(!rows.length)opts.push('<option value="">Sin cuenta libre: entrega manual</option>');
+    else opts.push(...rows.map(x=>`<option value="${esc(x.id)}">${esc(stockLabel(x))}</option>`));
+    sel.innerHTML=opts.join('');
+    if(currentId && rows.some(x=>x.id===currentId))sel.value=currentId;
+    else if(rows[0])sel.value=rows[0].id;
+    else sel.value='';
+    return rows.find(x=>x.id===sel.value)||null;
+  }
+  function fillDeliveryFieldsFromStock(item,prefix){
+    const d=stockSecretSafe(item);
+    if(prefix==='manual'){
+      if($id('manualStockId'))$id('manualStockId').value=item?.id||'';
+      if(!item)return;
+      if($id('manualUser'))$id('manualUser').value=d.correo||d.usuario||d.email||'';
+      if($id('manualPass'))$id('manualPass').value=d.clave||d.pass||d.password||d.contraseña||d.contrasena||'';
+      if($id('manualProfile'))$id('manualProfile').value=d.perfil||'';
+      if($id('manualPin'))$id('manualPin').value=d.pin||'';
+      if($id('manualGroup'))$id('manualGroup').value=d.grupo||d.url_grupo||d.group||'';
+      if($id('manualUrl'))$id('manualUrl').value=d.url||d.link||d.enlace||d.grupo||'';
+      if($id('manualNote'))$id('manualNote').value=d.nota||item.notes||'';
+    }else{
+      if($id('opsDeliverStockId'))$id('opsDeliverStockId').value=item?.id||'';
+      if(!item)return;
+      if($id('opsDeliverPlanId'))$id('opsDeliverPlanId').value=item.plan_id||$id('opsDeliverPlanId').value||'';
+      if($id('opsDeliverService'))$id('opsDeliverService').value=planName(item.plan_id)||$id('opsDeliverService').value||'';
+      const p=plan(item.plan_id);if($id('opsDeliverAmount'))$id('opsDeliverAmount').value=p?.price??$id('opsDeliverAmount').value??'';
+      try{syncOpsDeliverFamilyBox(item.plan_id);}catch(_){ }
+    }
+  }
+  function syncManualStockSelect(){
+    ensureStockSelectors();
+    const planId=$id('manualPlan')?.value||'';
+    const item=fillStockSelect('manualStockSelect',planId,$id('manualStockId')?.value||'');
+    fillDeliveryFieldsFromStock(item,'manual');
+    if($id('manualStockHint'))$id('manualStockHint').textContent=item?'✅ Cuenta seleccionada: '+stockLabel(item):'No hay cuenta libre cargada para este plan. Puedes escribir la entrega manualmente.';
+    syncManualFreshTotp();
+    try{renderDeliveryMessage();}catch(_){ }
+  }
+  function syncOpsStockSelect(){
+    ensureStockSelectors();
+    const planId=$id('opsDeliverPlanId')?.value||'';
+    const item=fillStockSelect('opsDeliverStockSelect',planId,$id('opsDeliverStockId')?.value||'');
+    fillDeliveryFieldsFromStock(item,'ops');
+    syncOpsFreshTotp();
+    try{refreshOpsDeliverMessage();}catch(_){ }
+  }
+
+  function freshTotpCode(){try{return generateUniqueTotpAccessCode();}catch(_){return 'IA'+Date.now().toString(36).toUpperCase().slice(-8);}}
+  window.setupManualTotpForPlan=setupManualTotpForPlan=function(planId){
+    syncManualFreshTotp(planId);
+  };
+  function syncManualFreshTotp(planId=$id('manualPlan')?.value||''){
+    const stockId=$id('manualStockSelect')?.value||$id('manualStockId')?.value||'';
+    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+    const accountId=(item?stockTotpAccountId(item,planId):'')||planTotpAccountId(planId)||'';
+    if($id('manualTotpAccountId'))$id('manualTotpAccountId').value=accountId;
+    const code=accountId?freshTotpCode():'';
+    if($id('manualTotpCode'))$id('manualTotpCode').value=code;
+    if($id('manualCode'))$id('manualCode').value=code;
+    if($id('manualTotpInfo')){
+      $id('manualTotpInfo').classList.toggle('hidden',!accountId);
+      const label=accountId?(totpAccountName(accountId)||planTotpAccountLabel(planId)||'Access TOTP'):'';
+      $id('manualTotpInfo').textContent=accountId?'🛡 '+label+' · se generará y guardará un código único al registrar. Vista previa: '+code:'';
+    }
+  }
+  function syncOpsFreshTotp(){
+    const stockId=$id('opsDeliverStockSelect')?.value||$id('opsDeliverStockId')?.value||'';
+    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+    const planId=item?.plan_id||$id('opsDeliverPlanId')?.value||'';
+    const accountId=(item?stockTotpAccountId(item,planId):'')||planTotpAccountId(planId)||'';
+    if($id('opsDeliverTotpAccountId'))$id('opsDeliverTotpAccountId').value=accountId;
+    const code=accountId?freshTotpCode():'';
+    if($id('opsDeliverTotpCode'))$id('opsDeliverTotpCode').value=code;
+    if($id('opsDeliverTotpInfo')){
+      $id('opsDeliverTotpInfo').classList.toggle('hidden',!accountId);
+      const label=accountId?(totpAccountName(accountId)||planTotpAccountLabel(planId)||'Access TOTP'):'';
+      $id('opsDeliverTotpInfo').textContent=accountId?'🛡 '+label+' · se generará y guardará un código único al registrar. Vista previa: '+code:'';
+    }
+  }
+
+  async function updateStockWithPreferredStatus(id,secretData,preferredStatus){
+    let r=await db.from('stock_items').update({status:preferredStatus,secret_data:secretData}).eq('id',id).select().single();
+    if(r.error && /check|constraint|violates|restricci/i.test(r.error.message||'')){
+      r=await db.from('stock_items').update({status:'available',secret_data:secretData}).eq('id',id).select().single();
+    }
+    return r;
+  }
+  async function logStockUsage(row){
+    try{await db.from('stock_usage_logs').insert({created_at:nowIso(),...row});}catch(_){ }
+  }
+  async function linkReminder(reminderId,ctx){
+    if(!reminderId)return;
+    const data={linked_stock_item_id:ctx.stock_id||null,linked_totp_code_id:ctx.totp_code_id||null,linked_delivery_data:ctx};
+    try{
+      const r=await db.from('payment_reminders').update(data).eq('id',reminderId);
+      if(r.error && !isMissingDbFeature(r.error.message))console.warn('link reminder',r.error.message);
+    }catch(_){ }
+  }
+  async function consumeSpecificStock(stockId,ctx={}){
+    if(!stockId)return {ok:true,skipped:true};
+    const fresh=await db.from('stock_items').select('*').eq('id',stockId).single();
+    if(fresh.error)return {ok:false,error:fresh.error.message};
+    const item=fresh.data;
+    if(!isUsableStock(item))return {ok:false,error:'La cuenta seleccionada ya no tiene cupos libres.'};
+    const d=stockSecretSafe(item);
+    d.used_count=usedCount(item)+1;
+    d.max_uses=maxUses(item);
+    d.last_customer=ctx.customer_name||'';
+    d.last_phone=ctx.customer_phone||'';
+    d.last_email=ctx.customer_email||'';
+    d.last_used_at=nowIso();
+    if(ctx.totp_code){d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];if(!d.used_totp_codes.includes(ctx.totp_code))d.used_totp_codes.push(ctx.totp_code);}
+    d.history=Array.isArray(d.history)?d.history:[];
+    d.history.push({
+      usage_id:ctx.usage_id||('use_'+Date.now().toString(36)),stock_id:stockId,order_id:ctx.order_id||null,reminder_id:ctx.reminder_id||null,pedido:ctx.pedido||'',
+      customer_id:ctx.customer_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',client_email:ctx.customer_email||'',
+      service:ctx.service||planName(item.plan_id)||'',amount:ctx.amount??null,due_date:ctx.due_date||'',totp_code:ctx.totp_code||'',source:ctx.source||'entrega',at:nowIso()
+    });
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+    const finalStatus=(d.used_count>=d.max_uses)?'used':'available';
+    const up=await updateStockWithPreferredStatus(stockId,d,finalStatus);
+    if(up.error)return {ok:false,error:up.error.message};
+    const idx=(state.stock||[]).findIndex(s=>s.id===stockId);if(idx>=0)state.stock[idx]=up.data||{...item,secret_data:d,status:finalStatus};
+    await logStockUsage({stock_item_id:stockId,customer_id:ctx.customer_id||null,reminder_id:ctx.reminder_id||null,order_id:ctx.order_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',service_name:ctx.service||'',totp_access_code:ctx.totp_code||'',status:'used',used_at:nowIso(),context:ctx});
+    return {ok:true,stock_id:stockId,status:finalStatus};
+  }
+
+  window.createTotpCodeForDelivery=createTotpCodeForDelivery=async function(accountId,code,customerName,customerPhone,service){
+    if(!accountId)return {ok:true,skipped:true,code:upper(code)};
+    let lastError='';
+    for(let attempt=0;attempt<12;attempt++){
+      const finalCode=upper(code)||freshTotpCode();
+      const expiresAt=new Date(Date.now()+30*24*60*60*1000).toISOString();
+      const payload={account_id:accountId,access_code:finalCode,customer_name:customerName||null,customer_phone:customerPhone||null,max_uses:1,valid_days:30,expires_at:expiresAt,active:true,notes:'Auto entrega única: '+(service||'Servicio'),updated_at:nowIso()};
+      let r=await db.from('totp_access_codes').insert(payload).select().single();
+      if(r.error && /column .*expires_at|schema cache|PGRST204/i.test(r.error.message||'')){
+        const {expires_at,...minimal}=payload;
+        r=await db.from('totp_access_codes').insert(minimal).select().single();
+      }
+      if(!r.error){try{state.totpCodes.unshift(r.data||payload);}catch(_){ }return {ok:true,code:finalCode,data:r.data||payload,created:true};}
+      lastError=r.error.message||String(r.error);
+      if(!/duplicate|unique|access_code|duplicad|llave/i.test(lastError))break;
+      code='';
+    }
+    return {ok:false,error:lastError||'No se pudo crear código único'};
+  };
+
+  async function upsertDeliveryCustomer({name,phoneRaw,phone,email,source,notes,meta}){
+    const existing=(state.customers||[]).find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
+    const finalName=(existing?.name||name||'Cliente').trim();
+    let cleanNotes=existing?.notes||notes||'Creado desde entrega';
+    try{cleanNotes=stripCustomerMetaNotes(cleanNotes);}catch(_){ }
+    let finalNotes=cleanNotes;
+    try{finalNotes=notesWithCustomerMeta(cleanNotes,{...(customerMeta(existing)||{}),...(meta||{})});}catch(_){ }
+    const payload={name:finalName,phone_raw:phoneRaw||phone.e164,phone_e164:phone.e164,email:email||existing?.email||null,source:existing?.source||source||'entrega',notes:finalNotes};
+    const c=existing?.id?await db.from('crm_customers').update(payload).eq('id',existing.id).select().single():await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
+    if(c.error)return {ok:false,error:c.error.message};
+    return {ok:true,data:c.data,existing};
+  }
+  async function insertReminderFlexible(payload){
+    let r=await db.from('payment_reminders').insert(payload).select().single();
+    if(r.error && isMissingDbFeature(r.error.message)){
+      const minimal={customer_id:payload.customer_id,order_id:payload.order_id||null,order_item_id:payload.order_item_id||null,product_id:payload.product_id||null,plan_id:payload.plan_id||null,service_name:payload.service_name,amount:payload.amount,currency:payload.currency||'PEN',due_date:payload.due_date,status:payload.status||'pending',whatsapp_message:payload.whatsapp_message||null};
+      Object.keys(minimal).forEach(k=>minimal[k]===undefined&&delete minimal[k]);
+      r=await db.from('payment_reminders').insert(minimal).select().single();
+    }
+    return r;
+  }
+  function duplicateActiveReminder(phone,planId){
+    const digits=phone?.digits||whatsappDigits(phone?.e164||'');
+    const c=(state.customers||[]).find(x=>whatsappDigits(x.phone_e164||x.phone_raw)===digits);
+    if(!c)return null;
+    return (state.reminders||[]).find(r=>r.customer_id===c.id && r.plan_id===planId && reminderIsOpen(r));
+  }
+  async function tryBackendDeliveryV2(params){
+    try{
+      const r=await db.rpc('admin_register_delivery_v2',params);
+      if(r.error){if(isMissingDbFeature(r.error.message))return null;return {ok:false,error:r.error.message};}
+      return {ok:true,data:r.data};
+    }catch(e){return null;}
+  }
+
+  const _openManualDelivery=window.openManualDelivery||openManualDelivery;
+  window.openManualDelivery=openManualDelivery=function(id){
+    _openManualDelivery(id);
+    ensureStockSelectors();
+    setTimeout(syncManualStockSelect,0);
+  };
+  const _openOpsDeliver=window.openOpsDeliver||openOpsDeliver;
+  window.openOpsDeliver=openOpsDeliver=function(id='',forcedPlanId=''){
+    _openOpsDeliver(id,forcedPlanId);
+    ensureStockSelectors();
+    setTimeout(syncOpsStockSelect,0);
+  };
+
+  window.markManualStockUsed=markManualStockUsed=async function(orderId,totpCode=''){
+    const stockId=$id('manualStockSelect')?.value||$id('manualStockId')?.value||'';
+    if(!stockId)return {ok:true,skipped:true};
+    const planId=$id('manualPlan')?.value||'';
+    const o=(state.orders||[]).find(x=>x.id===orderId)||{};
+    const phone=normalizePhone(o.customer_whatsapp||'');
+    const code=upper(totpCode||$id('manualTotpCode')?.value||$id('manualCode')?.value||'');
+    return await consumeSpecificStock(stockId,{stock_id:stockId,order_id:orderId,plan_id:planId,customer_name:o.customer_name||'',customer_phone:phone.ok?phone.e164:(o.customer_whatsapp||''),customer_email:o.customer_email||'',service:planName(planId),source:'entrega_manual_pedido',totp_code:code});
+  };
+
+  window.saveManualDelivery=saveManualDelivery=async function(){
+    const btn=$id('btnSaveManualDelivery');
+    return withLock('manual-delivery-'+($id('manualOrderId')?.value||''),btn,async()=>{
+      renderDeliveryMessage();
+      const data={};
+      if($id('manualUser')?.value.trim())data.correo=$id('manualUser').value.trim();
+      if($id('manualPass')?.value.trim())data.clave=$id('manualPass').value.trim();
+      if($id('manualProfile')?.value.trim())data.perfil=$id('manualProfile').value.trim();
+      if($id('manualPin')?.value.trim())data.pin=$id('manualPin').value.trim();
+      if($id('manualGroup')?.value.trim())data.grupo=$id('manualGroup').value.trim();
+      if($id('manualUrl')?.value.trim())data.url=$id('manualUrl').value.trim();
+      if($id('manualCode')?.value.trim())data.codigo=$id('manualCode').value.trim();
+      if($id('manualNote')?.value.trim())data.nota=$id('manualNote').value.trim();
+      const stockId=$id('manualStockSelect')?.value||$id('manualStockId')?.value||'';
+      if(stockId)data.stock_id=stockId;
+      if($id('manualStartDate')?.value)data.fecha_inicio=displayDateFromInput($id('manualStartDate').value);
+      if($id('manualRestrictions')?.value.trim())data.restricciones=$id('manualRestrictions').value.trim();
+      const tpl=getDeliveryTemplate();if(tpl?.template_key)data.template_key=tpl.template_key;
+      if(!Object.keys(data).some(k=>!['restricciones','fecha_inicio','template_key','stock_id'].includes(k)))return toast('Ingresa datos reales para entregar','bad');
+      const madeTotp=await createTotpCodeForManualDelivery();
+      if(!madeTotp.ok)return toast('No se pudo crear el código Access TOTP: '+madeTotp.error,'bad');
+      if(madeTotp.code){data.codigo=madeTotp.code;if($id('manualCode'))$id('manualCode').value=madeTotp.code;renderDeliveryMessage();}
+      const r=await db.rpc('admin_manual_deliver_order',{p_order_id:$id('manualOrderId').value,p_plan_id:$id('manualPlan').value,p_delivery_data:data,p_delivery_message:$id('manualMessage').value});
+      if(r.error)return toast(r.error.message,'bad');
+      const used=await markManualStockUsed($id('manualOrderId').value,madeTotp.code||data.codigo||'');
+      if(!used.ok)return toast('Entrega registrada, pero no se pudo descontar cupo: '+used.error,'bad');
+      closeDialog('dlgManual');toast('Entrega registrada y cupo vinculado','ok');
+      await createRemindersFromOrder($id('manualOrderId').value);
+      await loadAll();
+      openDeliveredOrderWhatsApp($id('manualOrderId').value);
+    },'Registrando...');
+  };
+
+  window.saveOpsDeliver=saveOpsDeliver=async function(){
+    const btn=$id('btnOpsSaveDeliver');
+    return withLock('ops-delivery',btn,async()=>{
+      let stockId=$id('opsDeliverStockSelect')?.value||$id('opsDeliverStockId')?.value||'';
+      let x=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+      let planId=(x?.plan_id)||$id('opsDeliverPlanId')?.value||'';
+      if(!x&&planId){x=firstAvailableStockForPlan(planId);stockId=x?.id||'';if($id('opsDeliverStockId'))$id('opsDeliverStockId').value=stockId;if($id('opsDeliverStockSelect'))$id('opsDeliverStockSelect').value=stockId;}
+      const rawName=($id('opsDeliverName')?.value||'').trim();
+      if(!rawName)return toast('Ingresa nombre del cliente','bad');
+      const phone=normalizePhone($id('opsDeliverPhone')?.value||'');
+      if(!phone.ok)return toast(phone.error||'WhatsApp inválido','bad');
+      if(!planId)return toast('Selecciona un plan','bad');
+      const dup=duplicateActiveReminder(phone,planId);
+      if(dup && !confirm('Este WhatsApp ya tiene un recordatorio activo para este plan. ¿Registrar otra entrega de todas formas?'))return;
+      const secret=x?stockSecretSafe(x):{};
+      const isFamily=(window.isFamilyInvitePlanId&&isFamilyInvitePlanId(planId))||(window.stockIsFamilyInvite&&stockIsFamilyInvite(x));
+      const clientEmail=($id('opsDeliverClientEmail')?.value||'').trim();
+      if(isFamily&&!clientEmail)return toast('Ingresa el correo Gmail del cliente para vincularlo al grupo familiar','bad');
+      const meta={};
+      try{if(isFamily)Object.assign(meta,familyCustomerMetaFromStock(secret,clientEmail));else if(clientEmail)meta.family_client_email=clientEmail;}catch(_){ }
+      const c=await upsertDeliveryCustomer({name:rawName,phoneRaw:($id('opsDeliverPhone')?.value||'').trim(),phone,email:clientEmail,source:'entrega_manual_stock',notes:'Creado desde entrega manual de stock',meta});
+      if(!c.ok)return toast('Cliente no guardado: '+c.error,'bad');
+      const finalName=(c.data?.name||rawName).trim();
+      const service=($id('opsDeliverService')?.value||'').trim()||planName(planId)||'Servicio';
+      const amount=$id('opsDeliverAmount')?.value===''?null:Number($id('opsDeliverAmount')?.value||0);
+      const startDate=$id('opsDeliverStart')?.value||todayISO();
+      const payDate=$id('opsDeliverPayDate')?.value||todayISO();
+      const due=$id('opsDeliverDue')?.value||planRenewalDue(planId);
+      const totpAccount=$id('opsDeliverTotpAccountId')?.value||stockTotpAccountId(x,planId)||'';
+      let deliveredCode=$id('opsDeliverTotpCode')?.value||'';
+      if(totpAccount&&!deliveredCode){deliveredCode=freshTotpCode();if($id('opsDeliverTotpCode'))$id('opsDeliverTotpCode').value=deliveredCode;}
+      refreshOpsDeliverMessage();
+      let msg=$id('opsDeliverText')?.value?.trim()||opsDeliveryTextFromPlan(planId,{pedido:$id('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due,correo:secret.correo||secret.usuario||'',contraseña:secret.clave||secret.pass||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',url:secret.url||secret.grupo||'',codigo:deliveredCode,correo_admin:secret.family_admin_email||secret.correo_admin||secret.correo||'',contraseña_admin:secret.family_admin_pass||secret.clave_admin||secret.clave||'',grupo_familiar:secret.family_admin_email||secret.correo_admin||secret.correo||'',cliente_gmail:clientEmail,codigo_2fa:secret.twofa_code||secret.codigo_2fa||''});
+
+      const backend=await tryBackendDeliveryV2({p_plan_id:planId||null,p_stock_item_id:stockId||null,p_customer_name:finalName,p_customer_phone:phone.e164,p_customer_email:clientEmail||null,p_service_name:service,p_amount:amount,p_due_date:due,p_whatsapp_message:msg,p_totp_account_id:totpAccount||null,p_totp_access_code:deliveredCode||null,p_context:{source:'ops_delivery',pedido:$id('opsDeliverPedido')?.value||'',start_date:startDate,pay_date:payDate}});
+      if(backend&&backend.ok){
+        closeDialog('dlgOpsDeliver');toast('Entrega registrada en modo transaccional','ok');copyTextSafe(msg);
+        if($id('opsDeliverOpenWa')?.checked){const url=waLink(phone.e164,msg);if(url!=='#')window.open(url,'_blank','noopener,noreferrer');}
+        await loadAll();switchTab('inventory');return;
+      }
+      if(backend&&!backend.ok)return toast('No se pudo registrar entrega: '+backend.error,'bad');
+
+      if(totpAccount){
+        const made=await createTotpCodeForDelivery(totpAccount,deliveredCode,finalName,phone.e164,service);
+        if(!made.ok)return toast('No se pudo crear el código Access TOTP: '+made.error,'bad');
+        deliveredCode=made.code;if($id('opsDeliverTotpCode'))$id('opsDeliverTotpCode').value=deliveredCode;
+        refreshOpsDeliverMessage();
+        msg=$id('opsDeliverText')?.value?.trim()||msg;
+      }
+      const reminderDraft={customer_id:c.data.id,product_id:plan(planId)?.product_id||null,plan_id:planId||null,service_name:service,amount,currency:'PEN',due_date:due,status:'pending',fecha_inicio:startDate,fecha_pago:payDate,whatsapp_message:buildTemplateMessage(getDefaultTemplate(),c.data,{service_name:service,amount,currency:'PEN',due_date:due,status:'pending',fecha_inicio:startDate,fecha_pago:payDate})};
+      const r=await insertReminderFlexible(reminderDraft);
+      if(r.error)return toast('Recordatorio no creado: '+r.error.message,'bad');
+      const reminderId=r.data?.id||null;
+      let used={ok:true,skipped:true};
+      if(stockId){used=await consumeSpecificStock(stockId,{stock_id:stockId,customer_id:c.data.id,reminder_id:reminderId,customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,service,amount,due_date:due,totp_code:deliveredCode,source:'ops_delivery',pedido:$id('opsDeliverPedido')?.value||''});}
+      else if(planId&&window.consumePlanStock){used=await consumePlanStock(planId,{customer_id:c.data.id,reminder_id:reminderId,customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,service,amount,due_date:due,source:'ops_delivery'});}
+      if(!used.ok)return toast('Recordatorio creado, pero no se pudo descontar cupo: '+used.error,'bad');
+      await linkReminder(reminderId,{stock_id:stockId||used.stock_id||null,customer_id:c.data.id,customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,service,amount,due_date:due,totp_code:deliveredCode,source:'ops_delivery'});
+      copyTextSafe(msg);closeDialog('dlgOpsDeliver');toast('Entrega creada, cupo descontado y recordatorio vinculado','ok');
+      if($id('opsDeliverOpenWa')?.checked){const url=waLink(phone.e164,msg);if(url!=='#')window.open(url,'_blank','noopener,noreferrer');}
+      await loadAll();switchTab('inventory');
+    },'Registrando...');
+  };
+
+  document.addEventListener('change',function(e){
+    const id=e.target?.id||'';
+    if(id==='manualPlan')setTimeout(syncManualStockSelect,0);
+    if(id==='manualStockSelect')setTimeout(()=>{const item=(state.stock||[]).find(s=>s.id===$id('manualStockSelect').value);fillDeliveryFieldsFromStock(item,'manual');syncManualFreshTotp();try{renderDeliveryMessage();}catch(_){ }},0);
+    if(id==='opsDeliverStockSelect')setTimeout(()=>{const item=(state.stock||[]).find(s=>s.id===$id('opsDeliverStockSelect').value);fillDeliveryFieldsFromStock(item,'ops');syncOpsFreshTotp();try{refreshOpsDeliverMessage();}catch(_){ }},0);
+    if(id==='opsDeliverPlanId')setTimeout(syncOpsStockSelect,0);
+  });
+
+  setTimeout(function(){
+    ensureStockSelectors();
+    if($id('btnSaveManualDelivery'))$id('btnSaveManualDelivery').onclick=window.saveManualDelivery;
+    if($id('btnOpsSaveDeliver'))$id('btnOpsSaveDeliver').onclick=window.saveOpsDeliver;
+  },0);
+})();
+
 </script>
 </body>
 </html>
-
-
-
-
-
