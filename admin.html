@@ -8838,8 +8838,293 @@ setTimeout(enhanceCuposEntregaUi,0);
 })();
 
 </script>
+
+
+<script>
+/* ================================================================
+   PATCH V26 — SELECCIÓN MÚLTIPLE DE CUENTAS / CUPOS
+   - Doble clic en una cuenta: activa selección múltiple.
+   - Mantener presionado en móvil: activa selección múltiple.
+   - Luego un clic agrega/quita cuentas.
+   - Permite borrar varias cuentas en una sola operación.
+   - Mantiene el borrado robusto: RPC si existe, si no limpia vínculos,
+     borra o archiva para que ya no aparezca ni cuente cupo.
+   ================================================================ */
+(function(){
+  if(window.__innovStockMultiSelectV26)return;
+  window.__innovStockMultiSelectV26=true;
+
+  function safeState(){
+    window.state=window.state||{};
+    if(!state.selectedStockIds || !(state.selectedStockIds instanceof Set))state.selectedStockIds=new Set();
+    if(typeof state.stockSelectionMode!=='boolean')state.stockSelectionMode=false;
+    return state;
+  }
+  safeState();
+
+  function byId(id){return document.getElementById(id)}
+  function ehtml(v){try{return esc(v)}catch(_){return String(v??'').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}}
+  function stockSecretV26(x){try{return {...(opsSecret(x)||{})}}catch(_){return {...(x?.secret_data||{})}}}
+  function stockDeletedV26(x){
+    const d=stockSecretV26(x);
+    return !!(d.deleted||d.archived||d.removed||d.eliminado)||/^\s*\[ELIMINADO\]/i.test(String(x?.notes||''));
+  }
+  function stockStatusV26(x){try{return String(opsAvailableStatus(x)||'available').toLowerCase()}catch(_){return String(x?.status||'available').toLowerCase()}}
+  function stockUsedV26(x){const d=stockSecretV26(x);return Math.max(0,Number(d.used_count||0)||0)}
+  function stockMaxV26(x){const d=stockSecretV26(x);return Math.max(1,Number(d.max_uses||1)||1)}
+  function stockFreeV26(x){return Math.max(0,stockMaxV26(x)-stockUsedV26(x))}
+  function currentPlanStockId(){return byId('planStockPlanId')?.value||''}
+  function currentPlanStockRowsV26(){
+    let rows=[];
+    try{rows=(typeof planStockFilteredRows==='function'?planStockFilteredRows():[])||[]}catch(_){rows=[]}
+    return rows.filter(x=>x&&x.id&&!stockDeletedV26(x));
+  }
+  function selectedStockRowsV26(){
+    safeState();
+    const visibleIds=new Set(currentPlanStockRowsV26().map(x=>x.id));
+    return Array.from(state.selectedStockIds).filter(id=>visibleIds.has(id));
+  }
+
+  function injectStockSelectionStyles(){
+    if(byId('stockMultiSelectV26Styles'))return;
+    const style=document.createElement('style');
+    style.id='stockMultiSelectV26Styles';
+    style.textContent=`
+      .stock-bulk-bar{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:10px 12px;border-left:4px solid var(--danger);background:var(--danger-alpha);border-radius:14px;border:1px solid rgba(185,28,28,.18)}
+      .stock-bulk-bar.show{display:flex}.stock-bulk-bar strong{color:var(--card-ink)}
+      .plan-stock-row.selection-mode{cursor:pointer}.plan-stock-row.rem-selected{outline:2px solid var(--primary);background:var(--primary-alpha)!important}
+      .stock-select-check{display:none;align-items:center;justify-content:center;width:27px;height:27px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);font-weight:900;color:var(--primary);margin-right:7px;flex:0 0 auto;vertical-align:middle}
+      .selection-mode .stock-select-check{display:inline-flex}.rem-selected .stock-select-check{background:var(--primary);color:#fff;border-color:var(--primary)}
+      .stock-select-title{display:flex;align-items:center;gap:2px;min-width:0}.stock-select-title .plan-stock-title-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      @media(max-width:700px){.stock-bulk-bar{display:none;gap:6px}.stock-bulk-bar.show{display:grid;grid-template-columns:1fr 1fr}.stock-bulk-bar strong,.stock-bulk-bar .help{grid-column:1/-1}.stock-bulk-bar .btn{width:100%}.stock-select-check{width:25px;height:25px}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureStockBulkBar(){
+    const list=byId('planStockList');
+    if(!list)return null;
+    let bar=byId('planStockBulkBar');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='planStockBulkBar';
+      bar.className='stock-bulk-bar';
+      bar.innerHTML=`
+        <strong id="planStockBulkCount">0 cuentas seleccionadas</strong>
+        <button class="btn btn-danger" id="btnDeleteSelectedPlanStock" type="button">Eliminar seleccionadas</button>
+        <button class="btn" id="btnCancelPlanStockSelection" type="button">Cancelar</button>
+        <span class="help">Doble clic en una cuenta para activar selección. En celular, mantén presionado.</span>`;
+      list.parentNode.insertBefore(bar,list);
+      byId('btnDeleteSelectedPlanStock').onclick=deleteSelectedPlanStockV26;
+      byId('btnCancelPlanStockSelection').onclick=cancelStockSelectionV26;
+    }
+    return bar;
+  }
+
+  function updateStockBulkBarV26(){
+    safeState();
+    injectStockSelectionStyles();
+    const bar=ensureStockBulkBar();
+    if(!bar)return;
+    const ids=selectedStockRowsV26();
+    if(ids.length===0 && state.stockSelectionMode){state.stockSelectionMode=false;state.selectedStockIds=new Set();}
+    const show=state.stockSelectionMode && ids.length>0;
+    bar.classList.toggle('show',show);
+    const count=byId('planStockBulkCount');
+    if(count)count.textContent=ids.length+' cuenta'+(ids.length===1?'':'s')+' seleccionada'+(ids.length===1?'':'s');
+  }
+
+  window.startStockSelection=function(id){
+    safeState();
+    id=String(id||'');
+    if(!id)return;
+    state.stockSelectionMode=true;
+    if(state.selectedStockIds.has(id))state.selectedStockIds.delete(id);else state.selectedStockIds.add(id);
+    if(state.selectedStockIds.size===0)state.stockSelectionMode=false;
+    try{renderPlanStockView()}catch(_){}
+    updateStockBulkBarV26();
+  };
+
+  window.handlePlanStockRowClick=function(ev,id){
+    if(ev && ev.target && ev.target.closest && ev.target.closest('button,a,input,select,textarea,label'))return;
+    safeState();
+    if(!state.stockSelectionMode)return;
+    id=String(id||'');
+    if(state.selectedStockIds.has(id))state.selectedStockIds.delete(id);else state.selectedStockIds.add(id);
+    if(state.selectedStockIds.size===0)state.stockSelectionMode=false;
+    try{renderPlanStockView()}catch(_){}
+    updateStockBulkBarV26();
+  };
+
+  window.stockPressStart=function(ev,id){
+    if(ev && ev.target && ev.target.closest && ev.target.closest('button,a,input,select,textarea,label'))return;
+    window.stockPressEnd();
+    state.stockLongPressTimer=setTimeout(()=>window.startStockSelection(id),520);
+  };
+  window.stockPressEnd=function(){
+    if(state.stockLongPressTimer){clearTimeout(state.stockLongPressTimer);state.stockLongPressTimer=null;}
+  };
+
+  function cancelStockSelectionV26(){
+    safeState();
+    state.stockSelectionMode=false;
+    state.selectedStockIds=new Set();
+    try{renderPlanStockView()}catch(_){}
+    updateStockBulkBarV26();
+  }
+  window.cancelStockSelectionV26=cancelStockSelectionV26;
+
+  async function ignoreMissingV26(promise){
+    try{
+      const r=await promise;
+      if(r?.error){
+        const msg=String(r.error.message||'');
+        if(/does not exist|schema cache|column|relation|not found|no existe|PGRST/i.test(msg))return {data:null,error:null,ignored:true};
+      }
+      return r;
+    }catch(e){
+      const msg=String(e?.message||e||'');
+      if(/does not exist|schema cache|column|relation|not found|no existe|PGRST/i.test(msg))return {data:null,error:null,ignored:true};
+      return {data:null,error:e};
+    }
+  }
+  async function detachStockRefsV26(id){
+    const targets=[
+      ['deliveries','stock_item_id',{stock_item_id:null}],
+      ['payment_reminders','stock_item_id',{stock_item_id:null}],
+      ['payment_reminders','linked_stock_item_id',{linked_stock_item_id:null}],
+      ['payment_reminders','linked_stock_id',{linked_stock_id:null}],
+      ['orders','stock_item_id',{stock_item_id:null}],
+      ['orders','linked_stock_item_id',{linked_stock_item_id:null}],
+      ['stock_usage_logs','stock_item_id',{status:'released',released_at:new Date().toISOString(),release_reason:'bulk_delete_admin'}]
+    ];
+    for(const [table,col,payload] of targets){
+      await ignoreMissingV26(db.from(table).update(payload).eq(col,id));
+    }
+  }
+  async function archiveStockV26(id,reason){
+    const x=(state.stock||[]).find(s=>s.id===id)||{};
+    const d=stockSecretV26(x);
+    const max=Math.max(1,stockMaxV26(x));
+    d.deleted=true;d.archived=true;d.removed=true;d.archived_at=new Date().toISOString();d.archive_reason=reason||'bulk_delete_fallback';d.used_count=max;d.max_uses=max;
+    const note='[ELIMINADO] '+String(x.notes||d.nota||'').replace(/^\[ELIMINADO\]\s*/,'');
+    const payload={secret_data:d,notes:note,status:(typeof stockDbStatus==='function'?stockDbStatus('available'):'available')};
+    const r=await db.from('stock_items').update(payload).eq('id',id).select('id');
+    if(r.error)throw r.error;
+    return {ok:true,mode:'archived'};
+  }
+  async function deleteStockOneV26(id){
+    id=String(id||'').trim();
+    if(!id)return {ok:false,mode:'skip'};
+    try{
+      const rpc=await db.rpc('admin_delete_stock_item',{p_stock_item_id:id});
+      if(!rpc.error && rpc.data && rpc.data.ok)return {ok:true,mode:rpc.data.mode||'deleted'};
+    }catch(_){ }
+    await detachStockRefsV26(id);
+    const del=await db.from('stock_items').delete().eq('id',id).select('id');
+    if(!del.error && Array.isArray(del.data) && del.data.length)return {ok:true,mode:'deleted'};
+    if(del.error){
+      const msg=String(del.error.message||'');
+      if(/foreign key|violates|constraint|referencia|referenced|violates row-level|permission/i.test(msg))return await archiveStockV26(id,msg);
+      throw del.error;
+    }
+    return await archiveStockV26(id,'delete_returned_zero_rows');
+  }
+
+  async function deleteSelectedPlanStockV26(){
+    safeState();
+    const ids=selectedStockRowsV26();
+    if(!ids.length)return toast('No hay cuentas seleccionadas','bad');
+    if(!confirm('¿Eliminar '+ids.length+' cuenta(s) seleccionada(s)?\n\nSi alguna tiene historial, se desvinculará o archivará para que deje de aparecer y no cuente cupo.'))return;
+    const btn=byId('btnDeleteSelectedPlanStock');
+    const old=btn?btn.textContent:'';
+    if(btn){btn.disabled=true;btn.textContent='Eliminando...';}
+    let ok=0,arch=0,fail=0,lastErr='';
+    try{
+      for(const id of ids){
+        try{
+          const res=await deleteStockOneV26(id);
+          if(res.ok){ok++; if(res.mode==='archived')arch++; state.stock=(state.stock||[]).filter(s=>s.id!==id);}
+        }catch(e){fail++;lastErr=e?.message||String(e||'Error');}
+      }
+      cancelStockSelectionV26();
+      try{await loadAll()}catch(_){}
+      try{renderPlanStockView();renderPlans();renderKPIs();renderSummary();}catch(_){}
+      const msg=`${ok} cuenta(s) procesada(s)`+(arch?`, ${arch} archivada(s)`:``)+(fail?`, ${fail} con error`:``);
+      toast(fail?msg+': '+lastErr:msg,'ok');
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent=old||'Eliminar seleccionadas';}
+    }
+  }
+  window.deleteSelectedPlanStockV26=deleteSelectedPlanStockV26;
+
+  const oldOpenPlanStockView=typeof openPlanStockView==='function'?openPlanStockView:null;
+  window.openPlanStockView=function(planId){
+    safeState();
+    state.stockSelectionMode=false;
+    state.selectedStockIds=new Set();
+    if(oldOpenPlanStockView)return oldOpenPlanStockView(planId);
+  };
+  try{openPlanStockView=window.openPlanStockView;}catch(_){ }
+
+  const oldRenderPlanStockView=typeof renderPlanStockView==='function'?renderPlanStockView:null;
+  window.renderPlanStockView=function(){
+    injectStockSelectionStyles();
+    const list=byId('planStockList');
+    if(!list){if(oldRenderPlanStockView)return oldRenderPlanStockView();return;}
+    ensureStockBulkBar();
+    const planId=currentPlanStockId();
+    const rows=currentPlanStockRowsV26();
+    const allForPlan=(state.stock||[]).filter(x=>x.plan_id===planId&&!stockDeletedV26(x));
+    const totalSlots=allForPlan.reduce((a,x)=>a+stockMaxV26(x),0);
+    const usedSlots=allForPlan.reduce((a,x)=>a+Math.min(stockUsedV26(x),stockMaxV26(x)),0);
+    const freeSlots=allForPlan.reduce((a,x)=>a+(stockStatusV26(x)==='available'?stockFreeV26(x):0),0);
+    const reservedSlots=allForPlan.reduce((a,x)=>a+(stockStatusV26(x)==='reserved'?stockFreeV26(x):0),0);
+    if(!rows.length){
+      list.innerHTML=`<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><p class="help">Puedes cargarlas desde “＋ Agregar”.</p></div>`;
+      updateStockBulkBarV26();
+      return;
+    }
+    const selected=state.selectedStockIds||new Set();
+    const selMode=!!state.stockSelectionMode;
+    list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${freeSlots} cupos libres</span><span class="badge b-warn">${reservedSlots} reservados</span><span class="badge b-bad">${usedSlots} usados</span><span class="badge">${totalSlots} cupos totales</span><button class="btn btn-primary btn-sm" type="button" onclick="openAddStockFromPlanView()">＋ Agregar</button></div>`+rows.map(x=>{
+      const d=stockSecretV26(x), st=stockStatusV26(x), pass=d.clave||d.pass||'';
+      const hist=Array.isArray(d.history)?d.history:[];
+      const last=hist[hist.length-1]||null;
+      const reserve=d.reserved_for?` · reservado para ${ehtml(d.reserved_for)} ${d.reserved_phone?ehtml(d.reserved_phone):''}`:'';
+      const delivered=last?`<div class="plan-stock-sub">Última entrega: <b>${ehtml(last.customer_name||d.last_customer||'Cliente')}</b>${last.customer_phone||d.last_phone?' · '+ehtml(last.customer_phone||d.last_phone):''}${last.at?' · '+ehtml(new Date(last.at).toLocaleString('es-PE')):''}</div>`:(d.last_customer?`<div class="plan-stock-sub">Última entrega: <b>${ehtml(d.last_customer)}</b>${d.last_phone?' · '+ehtml(d.last_phone):''}</div>`:'');
+      const isSel=selected.has(x.id);
+      const rowCls=(selMode?' selection-mode':'')+(isSel?' rem-selected':'');
+      const free=stockFreeV26(x), used=stockUsedV26(x), max=stockMaxV26(x);
+      return `<div class="plan-stock-row${rowCls}" data-stock-id="${ehtml(x.id)}" onclick="handlePlanStockRowClick(event,'${x.id}')" ondblclick="startStockSelection('${x.id}')" onpointerdown="stockPressStart(event,'${x.id}')" onpointerup="stockPressEnd()" onpointerleave="stockPressEnd()">
+        <div class="plan-stock-main">
+          <div class="stock-select-title"><span class="stock-select-check">${isSel?'✓':''}</span><span class="plan-stock-title-text">${ehtml(x.title||d.correo||'Cuenta')}</span></div>
+          <div class="plan-stock-sub">${typeof opsStatusBadge==='function'?opsStatusBadge(st):`<span class="badge">${ehtml(st)}</span>`} <span class="badge">Usos ${used}/${max}</span> <span class="badge b-ok">${free} libres</span>${reserve}${(typeof stockTotpAccountId==='function'&&stockTotpAccountId(x))?` <span class="badge b-purple">🛡 TOTP</span>`:''}</div>
+          <div class="plan-stock-secret"><span class="mono">📧 ${ehtml(d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${ehtml(pass)}</span>`:''}${d.perfil?`<span class="mono">👤 ${ehtml(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${ehtml(d.pin)}</span>`:''}</div>
+          ${delivered}
+        </div>
+        <div class="plan-stock-actions">
+          ${st==='available'||st==='reserved'?`<button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>`:''}
+          <button class="btn" onclick="viewStockHistory('${x.id}')">Historial</button>
+          ${['used','delivered','reserved'].includes(st)?`<button class="btn btn-warning" onclick="restoreStockAvailable('${x.id}')">Reponer</button>`:''}
+          <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button>
+        </div>
+      </div>`;
+    }).join('');
+    updateStockBulkBarV26();
+  };
+  try{renderPlanStockView=window.renderPlanStockView;}catch(_){ }
+
+  setTimeout(()=>{
+    injectStockSelectionStyles();
+    ensureStockBulkBar();
+    if(byId('planStockSearch'))byId('planStockSearch').oninput=()=>{try{renderPlanStockView()}catch(_){}};
+  },0);
+})();
+</script>
 </body>
 </html>
+
 
 
 
