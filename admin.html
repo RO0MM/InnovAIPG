@@ -20,7 +20,195 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=DM+Mono:wght@400;500&display=swap">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+
+/* ================================================================
+   PATCH V22 — CUPOS VISIBLES REALES EN TODOS LOS PRODUCTOS
+   Corrige el caso donde el modal de cuentas muestra cuentas libres,
+   pero la tarjeta del plan seguía en 0 por resumen/RPC desactualizado.
+   Fuente de verdad para planes automáticos: stock_items.secret_data
+   con used_count / max_uses, comparando plan_id de forma normalizada.
+   ================================================================ */
+(function(){
+  if(window.__innovCuposDisplayFixV22)return;
+  window.__innovCuposDisplayFixV22=true;
+  const $id=(id)=>document.getElementById(id);
+  const txt=(v)=>String(v??'');
+  const escHtml=(v)=>txt(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  const num=(v,d=0)=>{const n=Number(v);return Number.isFinite(n)?n:d;};
+  const normId=(v)=>txt(v).trim().toLowerCase();
+  function getSecret(item){
+    try{ if(window.opsSecret)return {...opsSecret(item)}; }catch(_){ }
+    const raw=item?.secret_data;
+    if(!raw)return {};
+    if(typeof raw==='string'){try{return JSON.parse(raw)||{};}catch(_){return {};}}
+    if(typeof raw==='object')return {...raw};
+    return {};
+  }
+  function getPlan(planOrId){return typeof planOrId==='object'?planOrId:((window.state?.plans||[]).find(p=>normId(p.id)===normId(planOrId))||null);}
+  function getPlanId(planOrId){return typeof planOrId==='object'?planOrId?.id:planOrId;}
+  function isManual(p){return ['manual','uncontrolled'].includes(txt(p?.stock_mode).toLowerCase());}
+  function manualCount(p){return Math.max(0,num(p?.manual_stock_count ?? p?.stock_count ?? p?.available_stock ?? 0,0));}
+  function isAccount(item){
+    const d=getSecret(item);
+    const st=txt(item?.stock_type||'account').toLowerCase();
+    if(st==='account')return true;
+    return !!(d.correo||d.usuario||d.email||d.clave||d.password||d.pass||d['contraseña']||d.contrasena);
+  }
+  function used(item){const d=getSecret(item);return Math.max(0,num(d.used_count ?? d.usos_usados ?? d.used ?? 0,0));}
+  function max(item){const d=getSecret(item);return Math.max(1,num(d.max_uses ?? d.usos ?? d.cupos ?? d.family_slots ?? 1,1));}
+  function remaining(item){return Math.max(0,max(item)-used(item));}
+  function isHardBlocked(item){
+    const d=getSecret(item);
+    const raw=txt(item?.status||'available').toLowerCase().trim();
+    if(['blocked','bloqueado','expired','vencido','deleted','eliminado','disabled','inactive','inactivo'].includes(raw))return true;
+    return !!(d.blocked_at||d.expired_at||d.deleted_at);
+  }
+  function isReserved(item){
+    const d=getSecret(item);
+    const raw=txt(item?.status||'available').toLowerCase().trim();
+    return ['reserved','reservado'].includes(raw)||!!(d.reserved_at||d.reserved_for||d.reserved_phone);
+  }
+  function planStockRows(planId){
+    const pid=normId(planId);
+    return (window.state?.stock||[]).filter(x=>normId(x.plan_id)===pid && isAccount(x));
+  }
+  function freeRows(planId){
+    return planStockRows(planId).filter(x=>!isHardBlocked(x)&&!isReserved(x)&&remaining(x)>0).sort((a,b)=>{
+      const ua=used(a),ub=used(b); if(ua!==ub)return ub-ua;
+      const ra=remaining(a),rb=remaining(b); if(ra!==rb)return ra-rb;
+      return txt(a.created_at).localeCompare(txt(b.created_at));
+    });
+  }
+  function counts(planId){
+    const rows=planStockRows(planId);
+    const libres=rows.reduce((a,x)=>a+(!isHardBlocked(x)&&!isReserved(x)?remaining(x):0),0);
+    const usados=rows.reduce((a,x)=>a+used(x),0);
+    const total=rows.reduce((a,x)=>a+max(x),0);
+    const llenas=rows.filter(x=>remaining(x)<=0).length;
+    const reservadas=rows.filter(isReserved).length;
+    return {rows,libres,usados,total,llenas,reservadas};
+  }
+  function exactCupos(planOrId){
+    const planId=getPlanId(planOrId); if(!planId)return 0;
+    const p=getPlan(planOrId)||{};
+    const c=counts(planId);
+    if(c.rows.length>0)return c.libres;
+    if(isManual(p))return manualCount(p);
+    const s=(window.state?.summary||[]).find(x=>normId(x.plan_id)===normId(planId));
+    return Math.max(0,num(s?.available_stock,0));
+  }
+  function stockLabel(item){
+    const d=getSecret(item);
+    const base=item?.title||d.family_admin_email||d.correo_admin||d.correo||d.usuario||d.email||'Cuenta';
+    const parts=[];
+    if(d.perfil)parts.push('Perfil '+d.perfil);
+    if(d.pin)parts.push('PIN '+d.pin);
+    parts.push(`${used(item)}/${max(item)} usados`);
+    parts.push(`${remaining(item)} libres`);
+    return `${base} — ${parts.join(' · ')}`;
+  }
+
+  window.realCuposForPlanV22=exactCupos;
+  window.realStockCountsV22=counts;
+  window.availableStockForPlan=availableStockForPlan=function(planId){return freeRows(planId);};
+  window.firstAvailableStockForPlan=firstAvailableStockForPlan=function(planId){return freeRows(planId)[0]||null;};
+  window.stockUsedCount=stockUsedCount=function(item){return used(item);};
+  window.stockMaxUses=stockMaxUses=function(item){return max(item);};
+  window.stockRemainingUses=stockRemainingUses=function(item){return remaining(item);};
+  window.stockIsDeliverable=stockIsDeliverable=function(item){return !!item && !isHardBlocked(item)&&!isReserved(item)&&remaining(item)>0&&isAccount(item);};
+  window.visibleStock=visibleStock=function(planOrId){return exactCupos(planOrId);};
+
+  window.renderPlans=renderPlans=function(){
+    const grid=$id('plansGrid'); if(!grid)return;
+    const q=txt($id('planSearch')?.value).toLowerCase();
+    let arr=(window.state?.plans||[]).filter(p=>txt((window.prodName?prodName(p.product_id):'')+' '+p.name).toLowerCase().includes(q));
+    if(window.state?.onlyEmpty)arr=arr.filter(p=>exactCupos(p)<=0);
+    grid.innerHTML=arr.map(p=>{
+      const cupos=exactCupos(p);
+      const c=counts(p.id);
+      const detalle=c.rows.length?`<div class="help">${c.usados}/${c.total} usados · ${c.rows.length} cuenta(s)</div>`:'';
+      const tipo=window.typeLabel?typeLabel(p):(isManual(p)?'Manual':'Automática');
+      const tipoCls=window.typeBadge?typeBadge(p):(isManual(p)?'b-warn':'b-ok');
+      return `<div class="mini-card">
+        <div class="mini-head">
+          <div><b>${escHtml(window.prodName?prodName(p.product_id):'Producto')}</b><div>${escHtml(p.name||'Plan')}</div><div class="help">${window.money?money(p.price):('S/ '+num(p.price).toFixed(2))} · ${escHtml(p.period||'')}</div></div>
+          <span class="badge ${tipoCls}">${escHtml(tipo)}</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          <span class="badge ${cupos>0?'b-ok':'b-bad'}">${cupos} cupo${cupos===1?'':'s'}</span>
+          <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
+          <span class="badge">${escHtml(p.availability_status||'available')}</span>
+          ${window.planTotpAccountId&&planTotpAccountId(p)?`<span class="badge b-purple">🛡 Access TOTP</span>`:''}
+        </div>
+        ${detalle}
+        <div class="line-actions">
+          <button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar</button>
+          <button class="btn btn-success" onclick="openPlanManualDelivery('${p.id}')" ${cupos<=0?'title="Agrega una cuenta/cupo primero"':''}>Entregar</button>
+          <button class="btn" onclick="addStockForPlan('${p.id}')">＋ Agregar</button>
+          <button class="btn" onclick="openPlanAccounts('${p.id}')">▾ Cuentas</button>
+          <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
+          <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">Elim.</button>
+        </div>
+      </div>`;
+    }).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
+  };
+
+  window.renderSummary=renderSummary=function(){
+    const body=$id('summaryRows'); if(!body)return;
+    const rows=(window.state?.plans||[]).map(p=>{
+      const product=(window.prod?prod(p.product_id):null)||{};
+      const cupos=exactCupos(p);
+      const c=counts(p.id);
+      const detail=c.rows.length?`<div class="help">Exacto desde cuentas: ${c.usados}/${c.total} usados · ${c.rows.length} cuenta(s)</div>`:'<div class="help">Sin cuentas cargadas para este plan</div>';
+      return `<tr>
+        <td data-label="Producto"><b>${escHtml(product.name||(window.prodName?prodName(p.product_id):'Producto'))}</b></td>
+        <td data-label="Plan">${escHtml(p.name||'Plan')}</td>
+        <td data-label="Tipo"><span class="badge ${isManual(p)?'b-warn':'b-ok'}">${isManual(p)?'Manual':'Automática'}</span></td>
+        <td data-label="Cupos"><span class="badge ${cupos>0?'b-ok':'b-bad'}">${cupos} cupo${cupos===1?'':'s'}</span>${detail}</td>
+        <td data-label="Estado">${escHtml(p.availability_status||'available')}</td>
+        <td data-label="Acción"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editPlan('${p.id}')">Editar</button><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${p.id}')">Ver cuentas</button></div></td>
+      </tr>`;
+    });
+    body.innerHTML=rows.join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
+  };
+
+  window.renderKPIs=renderKPIs=function(){
+    try{
+      if($id('kpiProducts'))$id('kpiProducts').textContent=(window.state?.products||[]).filter(p=>p.active!==false).length;
+      if($id('kpiStock'))$id('kpiStock').textContent=(window.state?.plans||[]).reduce((a,p)=>a+exactCupos(p),0);
+      const pend=(window.state?.orders||[]).filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
+      if($id('kpiOrders'))$id('kpiOrders').textContent=pend;
+      if($id('kpiDelivery'))$id('kpiDelivery').textContent=(window.state?.orders||[]).filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
+      if($id('kpiClients'))$id('kpiClients').textContent=(window.state?.customers||[]).length;
+      const due=(window.state?.reminders||[]).filter(r=>window.reminderIsExpired?reminderIsExpired(r):false).length;
+      if($id('kpiDue'))$id('kpiDue').textContent=due;
+      ['tbOrders','mbOrders'].forEach(id=>{const el=$id(id);if(el){el.textContent=pend;el.style.display=pend>0?'':'none';}});
+      ['tbReminders','mbReminders'].forEach(id=>{const el=$id(id);if(el){el.textContent=due;el.style.display=due>0?'':'none';}});
+    }catch(e){console.warn('renderKPIs v22',e);}
+  };
+
+  const oldRenderPlanStockView=window.renderPlanStockView;
+  window.renderPlanStockView=renderPlanStockView=function(){
+    if(typeof oldRenderPlanStockView==='function')oldRenderPlanStockView();
+    const list=$id('planStockList'); const planId=$id('planStockPlanId')?.value||''; if(!list||!planId)return;
+    const c=counts(planId);
+    const first=list.firstElementChild;
+    if(first && first.classList?.contains('chips')){
+      first.innerHTML=`<span class="badge b-ok">${c.libres} cupos libres</span><span class="badge b-bad">${c.usados} usados</span><span class="badge">${c.total} cupos totales</span><span class="badge">${c.rows.length} cuenta(s)</span><button class="btn btn-primary btn-sm" type="button" onclick="addStockForPlan('${planId}')">＋ Agregar</button>`;
+    }
+  };
+
+  window.refreshExactCupos=refreshExactCupos=function(){
+    try{renderKPIs();renderSummary();if(typeof renderProducts==='function')renderProducts();renderPlans();if(typeof renderPlanStockView==='function')renderPlanStockView();}catch(e){console.warn('refresh cupos v22',e);}
+  };
+
+  // Después de cualquier inserción/update en stock_items, recalcula visualmente sin esperar al resumen RPC.
+  document.addEventListener('click',function(){setTimeout(()=>{try{refreshExactCupos();}catch(_){ }},300);},true);
+  setTimeout(()=>{try{refreshExactCupos();}catch(_){ }},0);
+})();
+
+</script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
 
