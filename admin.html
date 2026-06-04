@@ -4583,12 +4583,19 @@ async function autoTotpCodesFromPlan(planId){
 /* ---- Orders ---- */
 async function approveOrder(id){
   if(!confirm('¿Aprobar pago? Si es activación por correo/texto, luego usa “Confirmar activación”. Si es cuenta, usa “Entregar cuenta”.'))return;
-  const r=await db.rpc('admin_approve_payment_and_deliver',{p_order_id:id});
-  if(r.error)return toast(r.error.message,'bad');
+  let r=await db.rpc('admin_approve_payment_and_deliver',{p_order_id:id});
+  if(r.error){
+    console.warn('RPC admin_approve_payment_and_deliver falló, usando fallback directo:', r.error);
+    const u1=await db.from('orders').update({status:'paid',delivery_status:'waiting_manual_delivery',updated_at:new Date().toISOString()}).eq('id',id).select().maybeSingle();
+    if(u1.error)return toast('No se pudo aprobar: '+u1.error.message,'bad');
+    await db.from('payment_proofs').update({status:'approved'}).eq('order_id',id);
+    r={data:[{message:'Pago aprobado con fallback directo',delivery_status:'waiting_manual_delivery'}]};
+  }
   toast(r.data?.[0]?.message||'Pago aprobado','ok');
-  await createRemindersFromOrder(id);await loadAll();
+  await createRemindersFromOrder(id).catch(e=>toast('Pago aprobado, pero no se creó recordatorio: '+e.message,'bad'));
+  await loadAll();
   const status=r.data?.[0]?.delivery_status;
-  if(['waiting_manual_delivery','partial'].includes(status)){
+  if(['waiting_manual_delivery','partial','pending'].includes(String(status||''))){
     openManualDelivery(id);
     return;
   }
@@ -4608,8 +4615,14 @@ function openDeliveredOrderWhatsApp(orderId){
 async function rejectOrder(id){
   const motivo=prompt('Motivo del rechazo para mostrar al cliente:', 'Pago no validado. Si fue un error, escríbenos por el chat del pedido.');
   if(motivo===null)return;
-  const r=await db.rpc('admin_reject_order',{p_order_id:id,p_reason:motivo});
-  if(r.error)return toast(r.error.message,'bad');
+  let r=await db.rpc('admin_reject_order',{p_order_id:id,p_reason:motivo});
+  if(r.error){
+    console.warn('RPC admin_reject_order falló, usando fallback directo:', r.error);
+    const u1=await db.from('orders').update({status:'rejected',delivery_status:'cancelled',admin_note:motivo,updated_at:new Date().toISOString()}).eq('id',id).select().maybeSingle();
+    if(u1.error)return toast('No se pudo rechazar: '+u1.error.message,'bad');
+    await db.from('payment_proofs').update({status:'rejected'}).eq('order_id',id);
+    await db.from('order_chat_messages').insert({order_id:id,sender_role:'admin',sender_name:'Soporte Innov IA',message:motivo,public_visible:true}).catch(()=>{});
+  }
   toast('Pedido rechazado y notificado al cliente','ok');
   await loadAll();
 }
@@ -5246,16 +5259,24 @@ async function uploadQr(){
 }
 async function savePayment(){
   const current=getPaymentSettings();
-  const value={...current,yape_number:$('setYape').value.trim()||'991564053',yape_qr_url:$('setQr').value.trim()||'img/yape-qr.png',whatsapp_group_url:$('setWaGroup')?.value.trim()||''};
+  const value={
+    ...current,
+    yape_number:$('setYape').value.trim()||'991564053',
+    yape_qr_url:$('setQr').value.trim()||'img/yape-qr.png',
+    whatsapp_group_url:$('setWaGroup')?.value.trim()||''
+  };
   value.grupo_whatsapp=value.whatsapp_group_url;
   setLocalPaymentSettings(value);
-  const r=await db.from('app_settings').upsert({key:'payment_public',value});
+  const payload={key:'payment_public',value,updated_at:new Date().toISOString()};
+  const r=await db.from('app_settings').upsert(payload,{onConflict:'key'}).select().maybeSingle();
   if(r.error){
-    toast('Guardado localmente en este navegador. Supabase no aceptó el cambio: '+r.error.message,'ok');
+    toast('Guardado localmente, pero Supabase no aceptó el cambio: '+r.error.message,'bad');
     renderSettings();
     return;
   }
-  toast('Pago y grupo WhatsApp guardados','ok');await loadAll();
+  toast('Pago, QR y grupo WhatsApp guardados','ok');
+  await loadSettings().catch(()=>{});
+  renderSettings();
 }
 function exportBackup(){
   const data={...state,exported_at:new Date().toISOString()};
@@ -6574,139 +6595,6 @@ if($('btnTotpSaveBulk'))$('btnTotpSaveBulk').onclick=saveTotpBulkCodes;
 if($('totpBulkAccount'))$('totpBulkAccount').onchange=()=>{state.totpBulkDraft=[];};
 if($('btnTotpResetCode'))$('btnTotpResetCode').onclick=()=>resetTotpCode();
 if($('btnTotpDeleteCode'))$('btnTotpDeleteCode').onclick=()=>deleteTotpCode();
-
-
-/* ================================================================
-   PATCH V39 — Botones de pedidos más claros + Telegram manual
-   No cambia cupos ni TOTP. Usa RPC estables V39 si existen.
-   ================================================================ */
-function orderCanApproveV39(o){
-  const st=orderStatusValue(o), ds=orderDeliveryValue(o);
-  return ['pending_payment','payment_review','pending','review','por_revisar','awaiting_payment'].includes(st) || ['pending','waiting_manual_delivery','partial'].includes(ds);
-}
-function orderCanDeliverV39(o){
-  const ds=orderDeliveryValue(o), st=orderStatusValue(o);
-  return ['waiting_manual_delivery','partial','pending'].includes(ds) || ['paid'].includes(st);
-}
-function orderCanRejectV39(o){
-  const g=orderGroupKey(o), st=orderStatusValue(o);
-  return g==='pending' || ['pending_payment','payment_review','paid'].includes(st);
-}
-function orderActionButtonsV39(o){
-  const id=o.id;
-  const g=orderGroupKey(o);
-  const ds=orderDeliveryValue(o);
-  const buttons=[];
-  if(orderCanApproveV39(o))buttons.push(`<button class="btn btn-success" onclick="approveOrder('${id}')">✅ Aprobar</button>`);
-  if(orderCanDeliverV39(o))buttons.push(`<button class="btn btn-primary" onclick="openManualDelivery('${id}')">📦 Entregar</button>`);
-  if(['waiting_manual_delivery','partial'].includes(ds))buttons.push(`<button class="btn btn-warning" onclick="confirmActivation('${id}')">✅ Activación</button>`);
-  if(orderCanRejectV39(o))buttons.push(`<button class="btn btn-danger" onclick="rejectOrder('${id}')">❌ Rechazar</button>`);
-  if(g==='released')buttons.push(`<button class="btn btn-success" onclick="openDeliveredOrderWhatsApp('${id}')">💬 WhatsApp</button>`);
-  buttons.push(`<button class="btn" onclick="openOrderChat('${id}')">Chat</button>`);
-  buttons.push(`<button class="btn" onclick="copyOrderSummary('${id}')">Copiar</button>`);
-  buttons.push(`<button class="btn" onclick="viewDelivery('${id}')">Ver entrega</button>`);
-  buttons.push(`<button class="btn" onclick="sendOrderTelegramV39('${id}')">📨 Telegram</button>`);
-  if(g==='cancelled')buttons.push(`<button class="btn btn-danger" onclick="deleteOrder('${id}')">Eliminar</button>`);
-  return buttons.join('');
-}
-window.sendOrderTelegramV39=async function(id){
-  const r=await db.rpc('admin_notify_order_to_telegram_v39',{p_order_id:id});
-  if(r.error)return toast(r.error.message,'bad');
-  toast(r.data||'Pedido enviado a Telegram','ok');
-};
-window.sendDueRemindersTelegramV39=async function(){
-  const r=await db.rpc('admin_send_due_reminders_now',{p_force:true});
-  if(r.error)return toast(r.error.message,'bad');
-  toast(r.data||'Recordatorios enviados a Telegram','ok');
-};
-window.sendStockAlertTelegramV39=async function(){
-  const threshold=Number(prompt('Avisar planes con cupos menores o iguales a:', '2')||2);
-  const r=await db.rpc('admin_send_stock_alert_now',{p_threshold:threshold,p_force:true});
-  if(r.error)return toast(r.error.message,'bad');
-  toast(r.data||'Alerta de stock enviada a Telegram','ok');
-};
-window.approveOrder=approveOrder=async function(id){
-  const o=state.orders.find(x=>x.id===id)||{};
-  const label=o.order_code?` ${o.order_code}`:'';
-  if(!confirm('¿Aprobar pago'+label+'?\n\nSi hay cuenta automática disponible, se intentará entregar. Si falta cuenta, quedará como pendiente de entrega.'))return;
-  let r=await db.rpc('admin_approve_payment_and_deliver',{p_order_id:id});
-  if(r.error){
-    console.warn('admin_approve_payment_and_deliver falló, usando wrapper V39:', r.error.message);
-    r=await db.rpc('admin_approve_order_v39',{p_order_id:id});
-  }
-  if(r.error)return toast(r.error.message,'bad');
-  const row=Array.isArray(r.data)?(r.data[0]||{}):(r.data||{});
-  toast(row.message||'Pago aprobado','ok');
-  try{await createRemindersFromOrder(id)}catch(e){console.warn('createRemindersFromOrder',e)}
-  await loadAll();
-  const status=row.delivery_status || orderDeliveryValue(state.orders.find(x=>x.id===id)||{});
-  if(['waiting_manual_delivery','partial','pending'].includes(String(status))){openManualDelivery(id);return;}
-  openDeliveredOrderWhatsApp(id);
-};
-window.rejectOrder=rejectOrder=async function(id){
-  const o=state.orders.find(x=>x.id===id)||{};
-  const motivo=prompt('Motivo del rechazo para mostrar al cliente:', 'Pago no validado. Si fue un error, escríbenos por el chat del pedido.');
-  if(motivo===null)return;
-  let r=await db.rpc('admin_reject_order',{p_order_id:id,p_reason:motivo});
-  if(r.error){
-    console.warn('admin_reject_order falló, usando wrapper V39:', r.error.message);
-    r=await db.rpc('admin_reject_order_v39',{p_order_id:id,p_reason:motivo});
-  }
-  if(r.error)return toast(r.error.message,'bad');
-  toast('Pedido rechazado y notificado al cliente','ok');
-  await loadAll();
-};
-const _renderOrdersBeforeV39=renderOrders;
-renderOrders=function(){
-  const q=($('orderSearch')?.value||'').toLowerCase();
-  let arr=state.orders.filter(o=>(`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''}`).toLowerCase().includes(q));
-  if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(orderStatusValue(o))||orderGroupKey(o)==='pending');
-  if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(orderDeliveryValue(o)));
-  if(state.onlySupport)arr=arr.filter(o=>state.orderChats.some(m=>m.order_id===o.id));
-  arr=arr.sort((a,b)=>{
-    const ga=orderGroupRank(a), gb=orderGroupRank(b);
-    if(ga!==gb)return ga-gb;
-    const ac=state.orderChats.filter(m=>m.order_id===a.id).length;
-    const bc=state.orderChats.filter(m=>m.order_id===b.id).length;
-    return bc-ac || new Date(b.created_at||0)-new Date(a.created_at||0);
-  });
-  const groups=['pending','released','cancelled'];
-  const html=groups.map(group=>{
-    const rows=arr.filter(o=>orderGroupKey(o)===group);
-    if(!rows.length)return '';
-    return orderSectionTitle(group,rows.length)+rows.map(o=>{
-      const pr=state.proofs.find(p=>p.order_id===o.id);
-      const items=state.items.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join(' · ');
-      const del=state.deliveries.filter(d=>d.order_id===o.id).length;
-      const inp=state.orderInputs.find(x=>x.order_id===o.id);
-      const chats=state.orderChats.filter(m=>m.order_id===o.id);
-      const lastChat=chats[chats.length-1];
-      const g=orderGroupKey(o);
-      const rowCls=g==='pending'?'pending-row':g==='cancelled'?'cancelled-row':'released-row';
-      const extra=inp?.requirement_summary?`<div class="order-extra"><b>📌 Datos:</b> ${esc(inp.requirement_summary)}</div>`:'';
-      const chatPreview=lastChat?`<div class="order-chat-preview"><b>💬 Último:</b> ${esc(lastChat.sender_role)} — ${esc(lastChat.message)}</div>`:'';
-      const created=o.created_at?esc(new Date(o.created_at).toLocaleString('es-PE')):'—';
-      return `<div class="order-row ${rowCls}">
-        <div class="order-main"><div class="order-title">${esc(o.order_code||'Pedido')}</div><div class="order-sub">${esc(o.customer_name||'Sin cliente')} · ${esc(o.customer_whatsapp||'Sin WhatsApp')}</div></div>
-        <div class="order-meta-line"><span class="badge ${orderStatusClass(o)}">${esc(orderStatusLabel(o))}</span><span class="badge">${money(o.total)}</span>${chats.length?`<span class="badge b-warn">💬 ${chats.length}</span>`:''}<span class="badge b-purple">${esc(o.delivery_status||'sin entrega')}</span></div>
-        <div class="order-meta-line"><span class="pill due0">${created}</span><span class="help">${items||'Sin items'} · Op: <span class="mono">${esc(pr?.operation_code||'pendiente')}</span> · Entregas: ${del}</span>${extra}${chatPreview}</div>
-        <div class="order-actions">${orderActionButtonsV39(o)}</div>
-      </div>`;
-    }).join('');
-  }).join('');
-  $('ordersGrid').innerHTML=html||'<div class="empty-state"><span class="icon">🧾</span><p>No hay pedidos.</p></div>';
-};
-function installV39TelegramSettingsButtons(){
-  const btn=$('btnSaveAdminLocalSettings');
-  if(!btn || $('btnSendDueTelegramV39'))return;
-  const wrap=document.createElement('div');
-  wrap.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px';
-  wrap.innerHTML=`<button class="btn btn-warning" id="btnSendDueTelegramV39" type="button">🔔 Enviar vencidos a Telegram</button><button class="btn btn-success" id="btnSendStockTelegramV39" type="button">📦 Revisar stock Telegram</button>`;
-  btn.parentElement?.appendChild(wrap);
-  $('btnSendDueTelegramV39').onclick=sendDueRemindersTelegramV39;
-  $('btnSendStockTelegramV39').onclick=sendStockAlertTelegramV39;
-}
-setTimeout(installV39TelegramSettingsButtons,800);
 
 /* ---- Init ---- */
 init();
@@ -8795,3 +8683,6 @@ setTimeout(enhanceCuposEntregaUi,0);
 </script>
 </body>
 </html>
+
+
+
