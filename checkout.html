@@ -270,7 +270,7 @@
     let orderRealtimeChannel = null;
     let orderRealtimeTimer = null;
     let orderRealtimePending = false;
-    let settings = { yape_number:'991564053', yape_qr_url:'img/yape-qr.png' };
+    let settings = { yape_number:'991564053', yape_qr_url:'' };
     let deliverySummary = { type:'manual', label:'Entrega manual', help:'Se requiere revisión/entrega por administrador.' };
     let planRequirementMap = new Map();
     let specialRequirements = [];
@@ -605,11 +605,12 @@
       const qr = $('qrImage');
       const miss = $('qrMissingNote');
       if(qr){
-        const qrUrl = String(settings.yape_qr_url || '').trim();
+        const qrUrl = String(settings.yape_qr_url || settings.qr_url || settings.yape_qr || settings.qr || '').trim();
         qr.onload = () => { qr.style.display='block'; miss?.classList.add('hidden'); };
         qr.onerror = () => { qr.style.display='none'; miss?.classList.remove('hidden'); };
         if(qrUrl){
           qr.style.display='block';
+          qr.removeAttribute('crossorigin');
           qr.src = qrUrl;
         }else{
           qr.style.display='none';
