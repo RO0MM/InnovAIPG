@@ -4522,7 +4522,7 @@ function parseBulk(){
 async function saveBulkIfAny(planId){
   const txt=$('bulkText').value.trim();if(!txt)return;
   const{valid}=parseBulk();if(!valid.length)return;
-  const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));
+  const rows=valid.map(v=>({...v,plan_id:planId,status:'available',max_uses:Math.max(1,Number(v.secret_data?.max_uses||1)),used_count:Math.max(0,Number(v.secret_data?.used_count||0))}));
   const r=await db.from('stock_items').insert(rows);
   if(r.error)throw r.error;
   $('bulkText').value='';
@@ -4559,7 +4559,7 @@ async function markManualStockUsed(orderId){
   d.used_count=Math.min(Number(d.max_uses||1),Number(d.used_count||0)+1);
   d.delivered_order_id=orderId;
   d.delivered_at=new Date().toISOString();
-  const r=await db.from('stock_items').update({status:stockDbStatus('used'),secret_data:d}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus('used'),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
   if(r.error)toast('Entrega registrada, pero no se pudo marcar stock usado: '+r.error.message,'bad');
 }
 async function autoTotpCodesFromPlan(planId){
@@ -4938,7 +4938,7 @@ async function consumePlanStock(planId,context={}){
     }
     const max=Number(d.max_uses||1);
     const finalStatus=d.used_count>=max?'used':'available';
-    const r=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',available.id);
+    const r=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',available.id);
     if(r.error)return {ok:false,error:r.error.message};
     return {ok:true,stock_id:available.id,status:finalStatus,family_admin:stockIsFamilyInvite(available)?(d.family_admin_email||d.correo_admin||d.correo||''):'',stock_secret:d};
   }
@@ -5463,7 +5463,7 @@ async function restoreStockAvailable(id){
   d.used_count=Math.max(0,Number(d.used_count||0)-1);
   delete d.reserved_for; delete d.reserved_phone; delete d.reserved_due; delete d.reserved_note; delete d.reserved_at;
   d.restored_at=new Date().toISOString();
-  const r=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   toast('Cuenta repuesta como disponible','ok');await loadAll();if($('dlgPlanStockView')?.open)renderPlanStockView();else renderOps();
 }
@@ -5702,7 +5702,9 @@ async function saveOpsStock(ev){
     title:$('opsStockTitle').value.trim()||d.correo||planName(planId),
     secret_data:d,
     notes:note||null,
-    status:stockDbStatus($('opsStockStatus').value||'available')
+    status:stockDbStatus($('opsStockStatus').value||'available'),
+    max_uses:Math.max(1,Number(d.max_uses||1)),
+    used_count:Math.max(0,Number(d.used_count||0))
   };
   const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
@@ -5729,7 +5731,7 @@ async function cycleOpsStatus(id){
   }else if(next==='reserved'&&!d.reserved_at){
     d.reserved_at=new Date().toISOString();
   }
-  const r=await db.from('stock_items').update({status:stockDbStatus(next),secret_data:d}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus(next),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   toast('Estado: '+next,'ok');await loadAll();switchTab('ops');
 }
@@ -5759,7 +5761,7 @@ async function saveOpsReserve(){
   }else{
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
   }
-  const r=await db.from('stock_items').update({status:stockDbStatus(status),secret_data:d}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus(status),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   closeDialog('dlgOpsReserve');toast(status==='reserved'?'Cuenta reservada':'Estado actualizado','ok');await loadAll();switchTab('ops');
 }
@@ -5907,7 +5909,7 @@ async function saveOpsDeliver(){
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const max=Number(d.max_uses||1);
     const finalStatus=(d.used_count>=max)?'used':'available';
-    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
+    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
     if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,source:'entrega_manual'});
@@ -5981,7 +5983,7 @@ async function saveOpsBulk(){
   if(!planId)return toast('Selecciona un plan destino','bad');
   const {valid}=parseOpsBulk();
   if(!valid.length)return toast('No hay válidas para guardar','bad');
-  const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));
+  const rows=valid.map(v=>({...v,plan_id:planId,status:'available',max_uses:Math.max(1,Number(v.secret_data?.max_uses||1)),used_count:Math.max(0,Number(v.secret_data?.used_count||0))}));
   const r=await db.from('stock_items').insert(rows).select();
   if(r.error)return toast(r.error.message,'bad');
   const inserted=r.data||[];
@@ -6943,7 +6945,7 @@ async function saveOpsDeliver(){
     d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,service,amount,due_date:due,at:new Date().toISOString(),totp_code:deliveredCode||''});
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const max=Number(d.max_uses||1);const finalStatus=(d.used_count>=max)?'used':'available';
-    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
+    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
     if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,source:'entrega_manual'});
@@ -7131,7 +7133,7 @@ async function saveOpsStock(ev){
   if(!id && bulkProfiles.length){
     const rows=bulkProfiles.map((pf,idx)=>{
       const d={...baseSecret,perfil:pf.perfil,pin:pf.pin,max_uses:1,used_count:0};
-      return {plan_id:planId,stock_type:'account',title:titleBase||`${correo} · ${pf.perfil||('Perfil '+(idx+1))}`,secret_data:d,notes:note||null,status:'available'};
+      return {plan_id:planId,stock_type:'account',title:titleBase||`${correo} · ${pf.perfil||('Perfil '+(idx+1))}`,secret_data:d,notes:note||null,status:'available',max_uses:1,used_count:0};
     });
     const r=await db.from('stock_items').insert(rows).select();
     if(r.error)return toast(r.error.message,'bad');
@@ -7141,7 +7143,7 @@ async function saveOpsStock(ev){
     }
     closeDialog('dlgOpsStock');toast(rows.length+' perfiles/cupos guardados','ok');await loadAll();switchTab('inventory');return;
   }
-  const payload={plan_id:planId,stock_type:'account',title:titleBase||correo,secret_data:baseSecret,notes:note||null,status:stockDbStatus($('opsStockStatus')?.value||'available')};
+  const payload={plan_id:planId,stock_type:'account',title:titleBase||correo,secret_data:baseSecret,notes:note||null,status:stockDbStatus($('opsStockStatus')?.value||'available'),max_uses:Math.max(1,Number(baseSecret.max_uses||1)),used_count:Math.max(0,Number(baseSecret.used_count||0))};
   const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
   if(baseSecret.totp_account_id){const made=await createStockTotpCodesForItem(r.data,baseSecret.max_uses);if(!made.ok)return toast('Cuenta guardada, pero no se pudieron crear códigos TOTP: '+made.error,'bad');}
@@ -7260,7 +7262,7 @@ async function saveOpsDeliver(){
     d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,client_email:clientEmail,service,amount,due_date:due,at:new Date().toISOString(),correo:d.correo||'',perfil:d.perfil||'',pin:d.pin||'',totp_code:deliveredCode||'',family_admin:d.family_admin_email||d.correo_admin||d.correo||'',family_2fa:d.twofa_code||d.codigo_2fa||''});
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const finalStatus=(d.used_count>=stockMaxUses(x))?'used':'available';
-    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
+    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
     if(st.error)return toast('Recordatorio creado, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,source:'entrega_manual'});
@@ -7493,7 +7495,7 @@ setTimeout(enhanceCuposEntregaUi,0);
     });
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const finalStatus=used>=safeStockMax(x)?'used':'available';
-    const res=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',x.id).select().single();
+    const res=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',x.id).select().single();
     if(res.error)return {ok:false,error:res.error.message};
     Object.assign(x,res.data||{secret_data:d,status:stockDbStatus(finalStatus)});
     return {ok:true,stock_id:x.id,status:finalStatus,family_admin:d.family_admin_email||d.correo_admin||d.correo||'',stock_secret:d};
@@ -7521,7 +7523,7 @@ setTimeout(enhanceCuposEntregaUi,0);
       correo:sec.family_admin_email,email:sec.family_admin_email,usuario:sec.family_admin_email,clave:sec.family_admin_pass,password:sec.family_admin_pass,pass:sec.family_admin_pass,
       family_mode:true,family_admin_email:sec.family_admin_email,family_admin_pass:sec.family_admin_pass,correo_admin:sec.family_admin_email,clave_admin:sec.family_admin_pass,twofa_code:sec.twofa_code,codigo_2fa:sec.twofa_code,family_slots:5,max_uses:5,used_count:0,invite_method:'Invitación familiar'
     },planId);
-    const r=await db.from('stock_items').insert({plan_id:planId,stock_type:'account',title:sec.family_admin_email,secret_data:secret,notes:'Creado desde recordatorio',status:'available'}).select().single();
+    const r=await db.from('stock_items').insert({plan_id:planId,stock_type:'account',title:sec.family_admin_email,secret_data:secret,notes:'Creado desde recordatorio',status:'available',max_uses:Math.max(1,Number(secret.max_uses||5)),used_count:Math.max(0,Number(secret.used_count||0))}).select().single();
     if(r.error)return {ok:false,error:r.error.message};
     state.stock.unshift(r.data);
     return {ok:true,stock:r.data};
@@ -7636,7 +7638,7 @@ setTimeout(enhanceCuposEntregaUi,0);
     const h=d.history.find(h=>h.reminder_id===r.id)||(link.history&&d.history.find(h=>h===link.history));
     if(h){h.released_at=new Date().toISOString();h.release_reason=reason;}
     d.last_released_at=new Date().toISOString();
-    const res=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d}).eq('id',x.id).select().single();
+    const res=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',x.id).select().single();
     if(res.error)return {ok:false,error:res.error.message};
     Object.assign(x,res.data||{secret_data:d,status:stockDbStatus('available')});
     return {ok:true,stock_id:x.id};
@@ -8157,9 +8159,9 @@ setTimeout(enhanceCuposEntregaUi,0);
   }
 
   async function updateStockWithPreferredStatus(id,secretData,preferredStatus){
-    let r=await db.from('stock_items').update({status:preferredStatus,secret_data:secretData}).eq('id',id).select().single();
+    let r=await db.from('stock_items').update({status:preferredStatus,secret_data:secretData,max_uses:Math.max(1,Number(secretData?.max_uses||1)),used_count:Math.max(0,Number(secretData?.used_count||0))}).eq('id',id).select().single();
     if(r.error && /check|constraint|violates|restricci/i.test(r.error.message||'')){
-      r=await db.from('stock_items').update({status:'available',secret_data:secretData}).eq('id',id).select().single();
+      r=await db.from('stock_items').update({status:'available',secret_data:secretData,max_uses:Math.max(1,Number(secretData?.max_uses||1)),used_count:Math.max(0,Number(secretData?.used_count||0))}).eq('id',id).select().single();
     }
     return r;
   }
@@ -8394,916 +8396,292 @@ setTimeout(enhanceCuposEntregaUi,0);
 })();
 
 
-
 /* ================================================================
-   PATCH V20 — MOTOR ROBUSTO DE CUPOS
-   Corrige cupos que no se descuentan, planes que muestran cupo en 0,
-   selección de cuentas llenas y resumen stale de Supabase.
+   PATCH V23 — MOTOR ÚNICO DE CUPOS REALES
+   Corrige el desfase donde el modal "Cuentas" ve cuentas en stock_items
+   pero la tarjeta del plan sigue mostrando 0 cupos por usar summary/RPC.
+   Este parche debe ejecutarse dentro del script principal, al final.
    ================================================================ */
 (function(){
-  if(window.__innovCuposRobustosV20)return;
-  window.__innovCuposRobustosV20=true;
+  if(window.__innovCuposCoreFixV23)return;
+  window.__innovCuposCoreFixV23=true;
 
-  const $id=(id)=>document.getElementById(id);
-  const originalRenderKPIs=window.renderKPIs;
-  const originalRenderSummary=window.renderSummary;
-  const originalSaveOpsDeliver=window.saveOpsDeliver;
-  const originalSaveManualDelivery=window.saveManualDelivery;
+  const txt=v=>String(v??'');
+  const norm=v=>txt(v).trim().toLowerCase();
+  const toNum=(v,d=0)=>{const n=Number(v);return Number.isFinite(n)?n:d;};
+  const html=v=>txt(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  const getEl=id=>document.getElementById(id);
 
-  function n(v,def=0){const x=Number(v);return Number.isFinite(x)?x:def;}
-  function safePlan(planOrId){return typeof planOrId==='string'?(window.plan?plan(planOrId):null):(planOrId||null);}
-  function safePlanId(planOrId){return typeof planOrId==='string'?planOrId:planOrId?.id;}
-  function safeSecret(item){
-    try{return {...(window.opsSecret?opsSecret(item):{})};}
-    catch(_){
-      const raw=item?.secret_data;
-      if(!raw)return {};
-      if(typeof raw==='string'){try{return JSON.parse(raw)||{};}catch(_){return {};}}
-      return {...raw};
+  function secretV23(item){
+    try{ if(typeof opsSecret==='function')return {...opsSecret(item)}; }catch(_){ }
+    const raw=item?.secret_data;
+    if(!raw)return {};
+    if(typeof raw==='string'){
+      try{return JSON.parse(raw)||{};}catch(_){
+        const p=raw.split('|').map(x=>x.trim());
+        return p.length>=2?{correo:p[0],usuario:p[0],email:p[0],clave:p[1],password:p[1],pass:p[1],perfil:p[2]||'',pin:p[3]||'',max_uses:toNum(p[4],1),used_count:0}:{};
+      }
     }
+    return typeof raw==='object'?{...raw}:{};
   }
-  function exactUsed(item){
-    const d=safeSecret(item);
-    return Math.max(0,n(d.used_count ?? d.usos_usados ?? d.used ?? 0,0));
+  function planObjV23(planOrId){
+    if(planOrId&&typeof planOrId==='object')return planOrId;
+    return (state?.plans||[]).find(p=>norm(p.id)===norm(planOrId))||null;
   }
-  function exactMax(item){
-    const d=safeSecret(item);
-    return Math.max(1,n(d.max_uses ?? d.usos ?? d.cupos ?? d.family_slots ?? 1,1));
+  function planIdV23(planOrId){return planOrId&&typeof planOrId==='object'?planOrId.id:planOrId;}
+  function stockPlanIdV23(item){
+    const d=secretV23(item);
+    return item?.plan_id||item?.product_plan_id||d.plan_id||d.product_plan_id||d.plan||'';
   }
-  function exactRemaining(item){return Math.max(0,exactMax(item)-exactUsed(item));}
-  function isAccountItem(item){
-    if(!item)return false;
-    try{if(window.opsIsAccount && opsIsAccount(item))return true;}catch(_){ }
-    const d=safeSecret(item);
-    return String(item.stock_type||'').toLowerCase()==='account' || !!(d.correo||d.usuario||d.email||d.clave||d.password||d.pass);
+  function samePlanV23(item,planId){return !!planId && norm(stockPlanIdV23(item))===norm(planId);}
+  function isManualPlanV23(p){return ['manual','uncontrolled'].includes(norm(p?.stock_mode));}
+  function manualCountV23(p){return Math.max(0,toNum(p?.manual_stock_count ?? p?.stock_count ?? p?.available_stock,0));}
+  function maxUsesV23(item){
+    const d=secretV23(item);
+    return Math.max(1,toNum(d.max_uses ?? d.max_use ?? d.usos_maximos ?? d.slots ?? item?.max_uses,1));
   }
-  function rawStatus(item){return String(item?.status||'available').toLowerCase().trim();}
-  function exactStatus(item){
-    const raw=rawStatus(item);
-    const d=safeSecret(item);
-    if(exactRemaining(item)<=0 || exactUsed(item)>=exactMax(item))return 'used';
-    if(['blocked','bloqueado','expired','vencido','deleted','eliminado','disabled','inactive'].includes(raw))return raw;
-    if(d.blocked_at||d.expired_at)return 'blocked';
-    if(['reserved','reservado'].includes(raw)||d.reserved_at||d.reserved_for)return 'reserved';
-    if(['used','delivered','usado','agotado'].includes(raw))return 'used';
+  function usedCountV23(item){
+    const d=secretV23(item);
+    return Math.min(maxUsesV23(item),Math.max(0,toNum(d.used_count ?? d.usos_usados ?? d.used ?? item?.used_count,0)));
+  }
+  function remainingV23(item){return Math.max(0,maxUsesV23(item)-usedCountV23(item));}
+  function isAccountV23(item){
+    const d=secretV23(item);
+    const t=norm(item?.stock_type||'account');
+    if(['code','codigo','pin','access_code','totp_code'].includes(t))return false;
+    const hasCredential=!!(d.correo||d.usuario||d.email||d.family_admin_email||d.correo_admin||d.clave||d.password||d.pass||d['contraseña']||d.contrasena);
+    // Evita cupos fantasma: una fila con solo título/nota ya no cuenta como cuenta real.
+    if(t==='account')return hasCredential;
+    return hasCredential;
+  }
+  function isReservedV23(item){
+    const d=secretV23(item), st=norm(item?.status);
+    return st==='reserved'||!!(d.reserved_at||d.reserved_for||d.reserved_phone||d.reserved_due);
+  }
+  function isBlockedV23(item){
+    const d=secretV23(item), st=norm(item?.status);
+    return ['blocked','bloqueado','expired','vencido','disabled','inactive'].includes(st)||d.blocked===true||d.disabled===true;
+  }
+  function stockStatusV23(item){
+    if(!item)return 'missing';
+    if(isBlockedV23(item))return 'blocked';
+    if(usedCountV23(item)>=maxUsesV23(item))return 'used';
+    if(isReservedV23(item))return 'reserved';
     return 'available';
   }
-  function stockRowsForPlan(planId){return (window.state?.stock||[]).filter(x=>x.plan_id===planId && isAccountItem(x));}
-  function deliverableRowsForPlan(planId){
-    return stockRowsForPlan(planId).filter(x=>exactStatus(x)==='available' && exactRemaining(x)>0).sort((a,b)=>{
-      const au=exactUsed(a),bu=exactUsed(b);
-      if(au!==bu)return bu-au; // completar primero cuentas parcialmente usadas
-      const ar=exactRemaining(a),br=exactRemaining(b);
-      if(ar!==br)return ar-br;
-      return String(a.created_at||'').localeCompare(String(b.created_at||''));
-    });
+  function allRowsV23(planId){
+    return (state?.stock||[]).filter(x=>samePlanV23(x,planId)&&isAccountV23(x));
   }
-  function exactStockCounts(planId){
-    const rows=stockRowsForPlan(planId);
-    const free=rows.reduce((a,x)=>a+((exactStatus(x)==='available')?exactRemaining(x):0),0);
-    const used=rows.reduce((a,x)=>a+exactUsed(x),0);
-    const total=rows.reduce((a,x)=>a+exactMax(x),0);
-    const reserved=rows.filter(x=>exactStatus(x)==='reserved').length;
-    const full=rows.filter(x=>exactStatus(x)==='used').length;
-    return {rows,free,used,total,reserved,full};
-  }
-  function manualStockForPlan(p){return Math.max(0,n(p?.manual_stock_count ?? p?.stock_count ?? 0,0));}
-  function isManualPlan(p){return String(p?.stock_mode||'').toLowerCase()==='manual';}
-  function exactVisibleStock(planOrId){
-    const planId=safePlanId(planOrId); if(!planId)return 0;
-    const p=safePlan(planOrId)||{};
-    const counts=exactStockCounts(planId);
-    // Si hay cuentas subidas, el valor exacto sale de used_count/max_uses. No usar resumen viejo.
-    if(counts.rows.length>0)return counts.free;
-    if(isManualPlan(p))return manualStockForPlan(p);
-    // Solo se acepta el resumen RPC si no se cargó detalle de stock para ese plan.
-    const s=(window.state?.summary||[]).find(x=>x.plan_id===planId);
-    const rpc=n(s?.available_stock,0);
-    return Math.max(0,Number.isFinite(rpc)?rpc:0);
-  }
-  function hasRealCup(planId,stockId=''){
-    if(stockId){
-      const item=(window.state?.stock||[]).find(x=>x.id===stockId);
-      return !!item && exactStatus(item)==='available' && exactRemaining(item)>0;
-    }
-    const p=window.plan?plan(planId):null;
-    if(deliverableRowsForPlan(planId).length>0)return true;
-    if(isManualPlan(p) && manualStockForPlan(p)>0)return true;
-    return false;
-  }
-  function stockOptionText(item){
-    const d=safeSecret(item);
-    const base=item?.title||d.family_admin_email||d.correo_admin||d.correo||d.usuario||d.email||'Cuenta';
-    const meta=[];
-    if(d.perfil)meta.push('Perfil '+d.perfil);
-    if(d.pin)meta.push('PIN '+d.pin);
-    meta.push(`${exactUsed(item)}/${exactMax(item)} usados`);
-    meta.push(`${exactRemaining(item)} libre${exactRemaining(item)===1?'':'s'}`);
-    return base+' — '+meta.join(' · ');
-  }
-  function setSelectOptions(select,planId,current=''){
-    if(!select)return null;
-    const rows=deliverableRowsForPlan(planId);
-    const selected=(current&&rows.some(x=>x.id===current))?current:(rows[0]?.id||'');
-    select.innerHTML=rows.length
-      ? rows.map(x=>`<option value="${String(x.id).replaceAll('"','&quot;')}" ${x.id===selected?'selected':''}>${String(stockOptionText(x)).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</option>`).join('')
-      : '<option value="">Sin cuentas libres</option>';
-    select.value=selected;
-    select.disabled=!rows.length;
-    return rows.find(x=>x.id===selected)||null;
-  }
-
-  window.stockUsedCount=stockUsedCount=function(item){return exactUsed(item);};
-  window.stockMaxUses=stockMaxUses=function(item){return exactMax(item);};
-  window.stockRemainingUses=stockRemainingUses=function(item){return exactRemaining(item);};
-  window.opsAvailableStatus=opsAvailableStatus=function(item){return exactStatus(item);};
-  window.stockIsDeliverable=stockIsDeliverable=function(item){return !!item && exactStatus(item)==='available' && exactRemaining(item)>0 && isAccountItem(item);};
-  window.availableStockForPlan=availableStockForPlan=function(planId){return deliverableRowsForPlan(planId);};
-  window.firstAvailableStockForPlan=firstAvailableStockForPlan=function(planId){return deliverableRowsForPlan(planId)[0]||null;};
-  window.visibleStock=visibleStock=function(planOrId){return exactVisibleStock(planOrId);};
-
-  window.renderKPIs=renderKPIs=function(){
-    try{
-      if($id('kpiProducts'))$id('kpiProducts').textContent=(state.products||[]).filter(p=>p.active!==false).length;
-      if($id('kpiStock'))$id('kpiStock').textContent=(state.plans||[]).reduce((a,p)=>a+exactVisibleStock(p),0);
-      const pendOrders=(state.orders||[]).filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
-      if($id('kpiOrders'))$id('kpiOrders').textContent=pendOrders;
-      if($id('kpiDelivery'))$id('kpiDelivery').textContent=(state.orders||[]).filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
-      if($id('kpiClients'))$id('kpiClients').textContent=(state.customers||[]).length;
-      const dueRem=(state.reminders||[]).filter(r=>window.reminderIsExpired?reminderIsExpired(r):false).length;
-      if($id('kpiDue'))$id('kpiDue').textContent=dueRem;
-      ['tbOrders','mbOrders'].forEach(id=>{const el=$id(id);if(el){el.textContent=pendOrders;el.style.display=pendOrders>0?'':'none';}});
-      ['tbReminders','mbReminders'].forEach(id=>{const el=$id(id);if(el){el.textContent=dueRem;el.style.display=dueRem>0?'':'none';}});
-    }catch(e){console.warn('renderKPIs v20',e); if(typeof originalRenderKPIs==='function')originalRenderKPIs();}
-  };
-
-  window.renderSummary=renderSummary=function(){
-    const body=$id('summaryRows'); if(!body)return;
-    const rows=(state.plans||[]).map(p=>{
-      const product=window.prod?prod(p.product_id):null;
-      const counts=exactStockCounts(p.id);
-      const cupos=exactVisibleStock(p);
-      const tipo=isManualPlan(p)?'Manual':'Auto';
-      const badge=cupos>0?'b-ok':'b-bad';
-      const detail=counts.rows.length?` · ${counts.used}/${counts.total} usados`:'';
-      return `<tr>
-        <td data-label="Producto"><b>${esc(product?.name||prodName(p.product_id)||'Producto')}</b></td>
-        <td data-label="Plan">${esc(p.name||'Plan')}</td>
-        <td data-label="Tipo"><span class="badge ${isManualPlan(p)?'b-warn':'b-ok'}">${tipo}</span></td>
-        <td data-label="Cupos"><span class="badge ${badge}">${cupos} cupo${cupos===1?'':'s'}</span><div class="help">Exacto${detail}</div></td>
-        <td data-label="Estado">${esc(p.availability_status||'available')}</td>
-        <td data-label="Acción"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editPlan('${p.id}')">Editar</button><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${p.id}')">Ver cuentas</button></div></td>
-      </tr>`;
-    });
-    body.innerHTML=rows.join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
-  };
-
-  async function updateStockExact(id,secretData,preferredStatus){
-    let r=await db.from('stock_items').update({status:preferredStatus,secret_data:secretData}).eq('id',id).select().single();
-    if(r.error && /check|constraint|violates|restricci|invalid input/i.test(r.error.message||'')){
-      r=await db.from('stock_items').update({status:'available',secret_data:secretData}).eq('id',id).select().single();
-    }
-    return r;
-  }
-  async function logUsageSafe(row){try{await db.from('stock_usage_logs').insert({created_at:new Date().toISOString(),...row});}catch(_){}}
-  window.consumeSpecificStock=consumeSpecificStock=async function(stockId,ctx={}){
-    if(!stockId)return {ok:false,error:'Selecciona una cuenta con cupo libre.'};
-    const fresh=await db.from('stock_items').select('*').eq('id',stockId).single();
-    if(fresh.error)return {ok:false,error:fresh.error.message};
-    const item=fresh.data;
-    if(exactStatus(item)!=='available' || exactRemaining(item)<=0)return {ok:false,error:'Esta cuenta ya está llena o no tiene cupos libres.'};
-    const d=safeSecret(item);
-    d.max_uses=exactMax(item);
-    d.used_count=Math.min(d.max_uses,exactUsed(item)+1);
-    d.last_customer=ctx.customer_name||'';
-    d.last_phone=ctx.customer_phone||'';
-    d.last_email=ctx.customer_email||'';
-    d.last_used_at=new Date().toISOString();
-    if(ctx.totp_code){d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];if(!d.used_totp_codes.includes(ctx.totp_code))d.used_totp_codes.push(ctx.totp_code);}
-    d.history=Array.isArray(d.history)?d.history:[];
-    d.history.push({
-      usage_id:ctx.usage_id||('use_'+Date.now().toString(36)),stock_id:stockId,order_id:ctx.order_id||null,reminder_id:ctx.reminder_id||null,pedido:ctx.pedido||'',
-      customer_id:ctx.customer_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',client_email:ctx.customer_email||'',
-      service:ctx.service||((window.planName&&item.plan_id)?planName(item.plan_id):''),amount:ctx.amount??null,due_date:ctx.due_date||'',totp_code:ctx.totp_code||'',source:ctx.source||'entrega',at:new Date().toISOString()
-    });
-    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
-    const finalStatus=d.used_count>=d.max_uses?'used':'available';
-    const r=await updateStockExact(stockId,d,finalStatus);
-    if(r.error)return {ok:false,error:r.error.message};
-    const idx=(state.stock||[]).findIndex(s=>s.id===stockId);
-    if(idx>=0)state.stock[idx]=r.data||{...item,secret_data:d,status:finalStatus};
-    await logUsageSafe({stock_item_id:stockId,customer_id:ctx.customer_id||null,reminder_id:ctx.reminder_id||null,order_id:ctx.order_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',service_name:ctx.service||'',status:'used',used_at:new Date().toISOString(),context:ctx});
-    return {ok:true,stock_id:stockId,status:finalStatus,remaining:Math.max(0,d.max_uses-d.used_count)};
-  };
-  window.consumePlanStock=consumePlanStock=async function(planId,ctx={}){
-    if(!planId)return {ok:false,error:'Selecciona un plan.'};
-    const stockId=ctx.stock_id||'';
-    if(stockId)return consumeSpecificStock(stockId,ctx);
-    const item=firstAvailableStockForPlan(planId);
-    if(item)return consumeSpecificStock(item.id,{...ctx,stock_id:item.id,plan_id:planId});
-    const p=window.plan?plan(planId):null;
-    if(isManualPlan(p) && manualStockForPlan(p)>0){
-      const next=Math.max(0,manualStockForPlan(p)-1);
-      const r=await db.from('product_plans').update({manual_stock_count:next}).eq('id',planId).select().single();
-      if(r.error)return {ok:false,error:r.error.message};
-      const idx=(state.plans||[]).findIndex(x=>x.id===planId); if(idx>=0)state.plans[idx]=r.data||{...p,manual_stock_count:next};
-      return {ok:true,manual:true,next};
-    }
-    return {ok:false,error:'Este plan está en 0 cupos. Agrega una cuenta/cupo antes de entregar.'};
-  };
-
-  function refreshExactSelectors(){
-    try{
-      const mp=$id('manualPlan')?.value||'';
-      if(mp&&$id('manualStockSelect')){
-        const cur=$id('manualStockSelect').value;
-        const selected=setSelectOptions($id('manualStockSelect'),mp,cur);
-        if($id('manualStockId'))$id('manualStockId').value=selected?.id||'';
-        if($id('manualStockSelectHelp'))$id('manualStockSelectHelp').textContent=selected?'Cuenta lista: '+stockOptionText(selected):'No hay cuentas libres. Agrega una cuenta/cupo antes de entregar.';
-      }
-      const op=$id('opsDeliverPlanId')?.value||'';
-      if(op&&$id('opsDeliverStockSelect')){
-        const cur=$id('opsDeliverStockSelect').value||$id('opsDeliverStockId')?.value||'';
-        const selected=setSelectOptions($id('opsDeliverStockSelect'),op,cur);
-        if($id('opsDeliverStockId'))$id('opsDeliverStockId').value=selected?.id||'';
-        const h=$id('opsDeliverStockSelectHelp')||$id('opsDeliverStockHint');
-        if(h)h.textContent=selected?'Cuenta lista: '+stockOptionText(selected):'No hay cupos libres para este plan. Agrega una cuenta antes de entregar.';
-      }
-    }catch(e){console.warn('refreshExactSelectors',e);}
-  }
-  window.refreshExactCupos=refreshExactCupos=function(){
-    try{renderKPIs();renderSummary();if(typeof renderProducts==='function')renderProducts();if(typeof renderPlans==='function')renderPlans();if(typeof renderPlanStockView==='function')renderPlanStockView();refreshExactSelectors();}catch(e){console.warn('refreshExactCupos',e);}
-  };
-
-  window.saveOpsDeliver=saveOpsDeliver=async function(){
-    const stockId=$id('opsDeliverStockSelect')?.value||$id('opsDeliverStockId')?.value||'';
-    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
-    const planId=item?.plan_id||$id('opsDeliverPlanId')?.value||'';
-    if(!planId)return toast('Selecciona un plan.','bad');
-    if(!hasRealCup(planId,stockId)){
-      refreshExactSelectors();
-      return toast('No se puede entregar: este plan está en 0 cupos reales. Agrega una cuenta/cupo primero.','bad');
-    }
-    return originalSaveOpsDeliver.apply(this,arguments);
-  };
-  window.saveManualDelivery=saveManualDelivery=async function(){
-    const stockId=$id('manualStockSelect')?.value||$id('manualStockId')?.value||'';
-    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
-    const planId=item?.plan_id||$id('manualPlan')?.value||'';
-    if(planId && !hasRealCup(planId,stockId)){
-      refreshExactSelectors();
-      return toast('No se puede entregar: este plan está en 0 cupos reales. Agrega una cuenta/cupo primero.','bad');
-    }
-    return originalSaveManualDelivery.apply(this,arguments);
-  };
-
-  document.addEventListener('change',function(e){
-    const id=e.target?.id||'';
-    if(['manualPlan','opsDeliverPlanId','manualStockSelect','opsDeliverStockSelect'].includes(id))setTimeout(refreshExactSelectors,0);
-  });
-  setTimeout(refreshExactCupos,0);
-})();
-
-
-/* ================================================================
-   PATCH V27 — Cuentas: borrado robusto + selección múltiple
-   Aplicado sobre admin (15).html sin tocar tienda, checkout, Telegram ni TOTP público.
-   ================================================================ */
-(function(){
-  const $id = (id)=>document.getElementById(id);
-  const css = `
-    .plan-stock-bulk{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 10px;padding:10px 12px;border:1px solid var(--border);border-left:4px solid var(--danger);border-radius:14px;background:var(--danger-alpha)}
-    .plan-stock-bulk.show{display:flex}
-    .plan-stock-bulk .btn{padding:7px 10px;font-size:.78rem}
-    .plan-stock-row.plan-stock-selectable{position:relative;cursor:default;transition:outline var(--tr),background var(--tr),transform var(--tr-fast)}
-    .plan-stock-row.plan-stock-selectable.selection-mode{cursor:pointer}
-    .plan-stock-row.plan-stock-selectable.selection-mode:hover{outline:1px solid var(--primary);background:var(--primary-alpha2)}
-    .plan-stock-row.plan-stock-selectable.is-selected{outline:2px solid var(--primary);background:var(--primary-alpha)!important}
-    .plan-stock-check{display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);color:var(--primary);font-weight:900;margin-right:8px;flex:0 0 auto;box-shadow:var(--shadow-xs)}
-    .selection-mode .plan-stock-check{display:inline-flex}
-    .plan-stock-row.is-selected .plan-stock-check{background:var(--primary);border-color:var(--primary);color:#fff}
-    .plan-stock-title-line{display:flex;align-items:center;gap:0;min-width:0}
-    .plan-stock-row.is-archived{display:none!important}
-    @media(max-width:700px){.plan-stock-bulk{display:none;position:sticky;top:0;z-index:4}.plan-stock-bulk.show{display:flex}.plan-stock-bulk .btn{flex:1 1 calc(50% - 6px)}.plan-stock-check{width:26px;height:26px}}
-  `;
-  try{
-    const st=document.createElement('style');
-    st.setAttribute('data-patch','v27-plan-stock-selection');
-    st.textContent=css;
-    document.head.appendChild(st);
-  }catch(_){ }
-
-  if(typeof state==='object'){
-    state.planStockSelectionMode = !!state.planStockSelectionMode;
-    state.selectedPlanStockIds = state.selectedPlanStockIds instanceof Set ? state.selectedPlanStockIds : new Set();
-    state.planStockLongPressTimer = null;
-  }
-
-  function safeEsc(v){return (typeof esc==='function')?esc(v):String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');}
-  function secretOf(item){try{return typeof opsSecret==='function'?({...opsSecret(item)}):({...((item&&item.secret_data)||{})});}catch(_){return {};}}
-  function nowIso(){return new Date().toISOString();}
-  function stockTitle(item){const d=secretOf(item);return item?.title||d.family_admin_email||d.correo_admin||d.correo||d.email||d.usuario||'Cuenta';}
-  function isArchivedStock(item){
-    const d=secretOf(item);
-    const raw=String(item?.status||'').toLowerCase();
-    return !!(d.archived||d._archived||d.deleted_at||d.archived_at||d.delete_requested_at||d.hidden_from_admin||raw==='archived'||raw==='deleted');
-  }
-  window.isArchivedStock=isArchivedStock;
-
-  const previousOpsAvailableStatus = (typeof opsAvailableStatus==='function') ? opsAvailableStatus : null;
-  window.opsAvailableStatus = opsAvailableStatus = function(item){
-    if(isArchivedStock(item))return 'archived';
-    if(previousOpsAvailableStatus)return previousOpsAvailableStatus(item);
-    return 'available';
-  };
-
-  function accountRowsForPlan(planId,includeArchived=false){
-    return (state.stock||[]).filter(x=>x&&x.plan_id===planId && (typeof opsIsAccount!=='function'||opsIsAccount(x)) && (includeArchived||!isArchivedStock(x)));
-  }
-  function usedCount(item){try{return typeof stockUsedCount==='function'?stockUsedCount(item):Math.max(0,Number(secretOf(item).used_count||0)||0);}catch(_){return 0;}}
-  function maxUses(item){try{return typeof stockMaxUses==='function'?stockMaxUses(item):Math.max(1,Number(secretOf(item).max_uses||1)||1);}catch(_){return 1;}}
-  function remainingUses(item){try{return typeof stockRemainingUses==='function'?stockRemainingUses(item):Math.max(0,maxUses(item)-usedCount(item));}catch(_){return 0;}}
-  function planStockStats(planId){
-    const rows=accountRowsForPlan(planId,false);
-    const free=rows.filter(x=>opsAvailableStatus(x)==='available').reduce((a,x)=>a+remainingUses(x),0);
-    const reserved=rows.filter(x=>opsAvailableStatus(x)==='reserved').reduce((a,x)=>a+Math.max(1,remainingUses(x)||1),0);
-    const used=rows.reduce((a,x)=>a+usedCount(x),0);
-    const total=rows.reduce((a,x)=>a+maxUses(x),0);
-    return {rows,free,reserved,used,total};
-  }
-
-  const previousVisibleStock = (typeof visibleStock==='function') ? visibleStock : null;
-  window.visibleStock = visibleStock = function(planOrId){
-    const planId=typeof planOrId==='string'?planOrId:planOrId?.id;
-    if(!planId)return 0;
-    const p=typeof planOrId==='string'?(typeof plan==='function'?plan(planId):null):planOrId;
-    const rows=accountRowsForPlan(planId,false);
-    if(rows.length)return rows.filter(x=>opsAvailableStatus(x)==='available').reduce((a,x)=>a+remainingUses(x),0);
-    if((p?.stock_mode||'')==='manual')return Number(p.manual_stock_count||0);
-    if(previousVisibleStock)return Math.max(0,Number(previousVisibleStock(planOrId)||0));
-    return 0;
-  };
-
-  window.stockIsDeliverable = stockIsDeliverable = function(item){
-    return !!item && !isArchivedStock(item) && opsAvailableStatus(item)==='available' && remainingUses(item)>0 && (typeof opsIsAccount!=='function'||opsIsAccount(item));
-  };
-
-  window.firstAvailableStockForPlan = firstAvailableStockForPlan = function(planId){
-    return accountRowsForPlan(planId,false)
-      .filter(x=>stockIsDeliverable(x))
+  function freeRowsV23(planId){
+    return allRowsV23(planId)
+      .filter(x=>stockStatusV23(x)==='available'&&remainingV23(x)>0)
       .sort((a,b)=>{
-        const au=usedCount(a), bu=usedCount(b);
-        if((au>0)!==(bu>0))return au>0?-1:1;
-        return String(a.created_at||'').localeCompare(String(b.created_at||''));
-      })[0]||null;
-  };
-
-  window.planStockFilteredRows = planStockFilteredRows = function(){
-    const planId=$id('planStockPlanId')?.value||'';
-    const q=($id('planStockSearch')?.value||'').toLowerCase().trim();
-    let rows=accountRowsForPlan(planId,false);
-    if(q)rows=rows.filter(x=>{
-      const d=secretOf(x);
-      const hist=Array.isArray(d.history)?d.history.map(h=>`${h.customer_name||''} ${h.customer_phone||''} ${h.client_email||''} ${h.family_admin||''} ${h.service||''}`).join(' '):'';
-      return (`${x.title||''} ${x.notes||''} ${opsAvailableStatus(x)} ${d.correo||''} ${d.email||''} ${d.usuario||''} ${d.clave||''} ${d.pass||''} ${d.perfil||''} ${d.pin||''} ${d.family_admin_email||''} ${d.correo_admin||''} ${d.twofa_code||''} ${d.codigo_2fa||''} ${d.reserved_for||''} ${d.reserved_phone||''} ${hist}`).toLowerCase().includes(q);
-    });
-    rows.sort((a,b)=>{
-      const order={available:0,reserved:1,used:2,delivered:2,archived:9};
-      return (order[opsAvailableStatus(a)]??3)-(order[opsAvailableStatus(b)]??3)||String(a.created_at||'').localeCompare(String(b.created_at||''));
-    });
-    return rows;
-  };
-
-  function rowHistoryHtml(d){
-    const hist=Array.isArray(d.history)?d.history:[];
-    if(!hist.length)return '<div class="plan-stock-sub">Sin entregas registradas todavía.</div>';
-    return `<div class="plan-stock-sub"><b>Historial:</b> ${hist.slice(-4).reverse().map(h=>`${safeEsc(h.customer_name||'Cliente')}${h.customer_phone?' · '+safeEsc(h.customer_phone):''}${h.client_email?' · Gmail '+safeEsc(h.client_email):''}${h.family_admin?' · Grupo '+safeEsc(h.family_admin):''}${h.perfil?' · '+safeEsc(h.perfil):''}${h.at?' · '+safeEsc(new Date(h.at).toLocaleDateString('es-PE')):''}`).join('<br>')}</div>`;
+        const au=usedCountV23(a), bu=usedCountV23(b);
+        if(au!==bu)return bu-au; // completar primero cuentas parcialmente usadas
+        return txt(a.created_at).localeCompare(txt(b.created_at));
+      });
   }
-  function resetInvalidSelection(rows){
-    if(!state?.selectedPlanStockIds)return;
-    const valid=new Set(rows.map(x=>x.id));
-    [...state.selectedPlanStockIds].forEach(id=>{if(!valid.has(id))state.selectedPlanStockIds.delete(id);});
-    if(!state.selectedPlanStockIds.size)state.planStockSelectionMode=false;
+  function countsV23(planId){
+    const rows=allRowsV23(planId);
+    const total=rows.reduce((a,x)=>a+maxUsesV23(x),0);
+    const used=rows.reduce((a,x)=>a+usedCountV23(x),0);
+    const libres=rows.reduce((a,x)=>a+remainingV23(x),0);
+    const reservadas=rows.filter(x=>stockStatusV23(x)==='reserved').length;
+    const agotadas=rows.filter(x=>remainingV23(x)<=0||stockStatusV23(x)==='used').length;
+    return {rows,total,used,libres,reservadas,agotadas};
+  }
+  function visibleStockV23(planOrId){
+    const p=planObjV23(planOrId);
+    const pid=planIdV23(planOrId)||p?.id;
+    if(!pid)return 0;
+    const c=countsV23(pid);
+    if(isManualPlanV23(p))return manualCountV23(p);
+    if(norm(p?.stock_mode)==='unlimited')return 999999;
+    // Para planes automáticos/controlled la única fuente válida son cuentas reales en stock_items.
+    // No usamos fallback RPC porque podía contar filas antiguas/códigos y crear cupos invisibles.
+    return c.libres;
+  }
+  function planTypeLabelV23(p){return isManualPlanV23(p)?'Manual':'Automática';}
+  function planTypeBadgeV23(p){return isManualPlanV23(p)?'b-warn':'b-ok';}
+
+  // Fuente única de verdad para todo el frontend.
+  try{opsAvailableStatus=window.opsAvailableStatus=function(x){return stockStatusV23(x);};}catch(_){window.opsAvailableStatus=function(x){return stockStatusV23(x);};}
+  try{stockUsedCount=window.stockUsedCount=function(x){return usedCountV23(x);};}catch(_){window.stockUsedCount=function(x){return usedCountV23(x);};}
+  try{stockMaxUses=window.stockMaxUses=function(x){return maxUsesV23(x);};}catch(_){window.stockMaxUses=function(x){return maxUsesV23(x);};}
+  window.stockRemainingUses=function(x){return remainingV23(x);};
+  try{safeStockUsed=window.safeStockUsed=function(x){return usedCountV23(x);};}catch(_){window.safeStockUsed=function(x){return usedCountV23(x);};}
+  try{safeStockMax=window.safeStockMax=function(x){return maxUsesV23(x);};}catch(_){window.safeStockMax=function(x){return maxUsesV23(x);};}
+  try{safeStockRemaining=window.safeStockRemaining=function(x){return remainingV23(x);};}catch(_){window.safeStockRemaining=function(x){return remainingV23(x);};}
+  try{isDeliverableStock=window.isDeliverableStock=function(x){return !!x&&isAccountV23(x)&&stockStatusV23(x)==='available'&&remainingV23(x)>0;};}catch(_){window.isDeliverableStock=function(x){return !!x&&isAccountV23(x)&&stockStatusV23(x)==='available'&&remainingV23(x)>0;};}
+  try{availableStockForPlan=window.availableStockForPlan=function(planId){return freeRowsV23(planId);};}catch(_){window.availableStockForPlan=function(planId){return freeRowsV23(planId);};}
+  try{firstAvailableStockForPlan=window.firstAvailableStockForPlan=function(planId){return freeRowsV23(planId)[0]||null;};}catch(_){window.firstAvailableStockForPlan=function(planId){return freeRowsV23(planId)[0]||null;};}
+  try{visibleStock=window.visibleStock=function(planOrId){return visibleStockV23(planOrId);};}catch(_){window.visibleStock=function(planOrId){return visibleStockV23(planOrId);};}
+  window.realCuposForPlanV23=visibleStockV23;
+  window.realStockCountsV23=countsV23;
+  window.realStockRowsForPlanV23=allRowsV23;
+  window.realFreeRowsForPlanV23=freeRowsV23;
+
+  function buildLocalSummaryV23(){
+    return (state?.plans||[]).map(p=>{
+      const pr=(state?.products||[]).find(x=>norm(x.id)===norm(p.product_id))||{};
+      const c=countsV23(p.id);
+      const available=visibleStockV23(p);
+      const total=c.rows.length?c.total:(isManualPlanV23(p)?manualCountV23(p):available);
+      return {
+        product_id:p.product_id,
+        product_name:pr.name||'Producto',
+        product_active:pr.active!==false,
+        product_priority:pr.priority??100,
+        plan_id:p.id,
+        plan_name:p.name||'Plan',
+        plan_active:p.active!==false,
+        plan_priority:p.priority??100,
+        stock_mode:p.stock_mode||'controlled',
+        total_stock:total,
+        available_stock:available,
+        used_stock:Math.max(0,total-available),
+        max_uses:c.total,
+        used_count:c.used,
+        account_count:c.rows.length,
+        availability_status:p.availability_status||'available'
+      };
+    });
+  }
+  window.rebuildLocalStockSummaryV23=function(){state.summary=buildLocalSummaryV23();return state.summary;};
+
+  function cupoBadgeHtmlV23(p){
+    const cupos=visibleStockV23(p);
+    const c=countsV23(p.id);
+    const cls=cupos>0?'b-ok':'b-bad';
+    const title=c.rows.length?`${c.used}/${c.total} usados · ${c.rows.length} cuenta(s)`:'Sin cuentas cargadas';
+    return `<span class="badge ${cls}" title="${html(title)}">${cupos} cupo${cupos===1?'':'s'}</span>`;
   }
 
-  window.renderPlanStockView = renderPlanStockView = function(){
-    const list=$id('planStockList');if(!list)return;
-    const planId=$id('planStockPlanId')?.value||'';
-    const rows=planStockFilteredRows();
-    resetInvalidSelection(rows);
-    const stats=planStockStats(planId);
-    const selectedCount=state.selectedPlanStockIds?.size||0;
-    const selectionMode=!!state.planStockSelectionMode;
-    const bulk=`<div id="planStockBulkBar" class="plan-stock-bulk ${selectionMode?'show':''}">
-      <strong id="planStockBulkCount">${selectedCount} seleccionada${selectedCount===1?'':'s'}</strong>
-      <button class="btn btn-danger" type="button" ${selectedCount?'':'disabled'} onclick="deleteSelectedPlanStock()">Eliminar seleccionadas</button>
-      <button class="btn" type="button" onclick="cancelPlanStockSelection()">Cancelar</button>
-      <span class="help">Doble clic para seleccionar. En celular mantén presionado y luego toca otras cuentas.</span>
+  function renderPlanCardActionsV23(p,cupos){
+    const disabled=cupos<=0?'disabled title="No hay cupos libres. Agrega una cuenta primero."':'';
+    return `<div class="line-actions">
+      <button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar</button>
+      <button class="btn btn-success" onclick="openPlanManualDelivery('${p.id}')" ${disabled}>Entregar</button>
+      <button class="btn" onclick="addStockForPlan('${p.id}')">＋ Agregar</button>
+      <button class="btn" onclick="openPlanAccounts('${p.id}')">⌄ Cuentas</button>
+      <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
+      <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">Elim.</button>
     </div>`;
-    if(!rows.length){
-      list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${stats.free} cupos libres</span><span class="badge b-bad">${stats.used} usados</span><span class="badge">${stats.total} cupos totales</span><button class="btn btn-primary btn-sm" type="button" onclick="addStockForPlan('${planId}')">＋ Agregar</button></div>${bulk}<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><p class="help">Usa “＋ Agregar” para cargar correo, contraseña y perfiles.</p></div>`;
-      return;
-    }
-    list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${stats.free} cupos libres</span><span class="badge b-warn">${stats.reserved} reservados</span><span class="badge b-bad">${stats.used} usados</span><span class="badge">${stats.total} cupos totales</span><button class="btn btn-primary btn-sm" type="button" onclick="addStockForPlan('${planId}')">＋ Agregar</button></div>${bulk}`+rows.map(x=>{
-      const d=secretOf(x), st=opsAvailableStatus(x), pass=d.clave||d.pass||d.password||'', remaining=remainingUses(x), selected=state.selectedPlanStockIds?.has(x.id);
-      const family=(typeof stockIsFamilyInvite==='function')?stockIsFamilyInvite(x):!!(d.family_mode||d.family_admin_email||d.correo_admin||d.codigo_2fa);
-      const totp=(typeof stockTotpAccountId==='function')?stockTotpAccountId(x):'';
-      return `<div class="plan-stock-row plan-stock-selectable ${selectionMode?'selection-mode':''} ${selected?'is-selected':''}" data-stock-id="${x.id}" ondblclick="planStockStartSelection('${x.id}')" onclick="planStockRowClick(event,'${x.id}')" onpointerdown="planStockPointerDown(event,'${x.id}')" onpointerup="planStockPointerCancel()" onpointerleave="planStockPointerCancel()" onpointercancel="planStockPointerCancel()">
-        <div class="plan-stock-main">
-          <div class="plan-stock-title-line"><span class="plan-stock-check">✓</span><div class="plan-stock-title">${safeEsc(stockTitle(x))}</div></div>
-          <div class="plan-stock-sub">${typeof opsStatusBadge==='function'?opsStatusBadge(st):`<span class="badge">${safeEsc(st)}</span>`} <span class="badge">Usos ${safeEsc(usedCount(x))}/${safeEsc(maxUses(x))}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span>${totp?` <span class="badge b-purple">🛡 TOTP</span>`:''}${family?` <span class="badge b-purple">👨‍👩‍👧 Familiar</span>`:''}</div>
-          <div class="plan-stock-secret"><span class="mono">📧 ${safeEsc(d.family_admin_email||d.correo_admin||d.correo||d.email||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${safeEsc(pass)}</span>`:''}${d.twofa_code||d.codigo_2fa?`<span class="mono">2FA ${safeEsc(d.twofa_code||d.codigo_2fa)}</span>`:''}${d.perfil?`<span class="mono">👤 ${safeEsc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${safeEsc(d.pin)}</span>`:''}</div>
-          ${rowHistoryHtml(d)}
+  }
+
+  try{renderPlans=window.renderPlans=function(){
+    const grid=getEl('plansGrid'); if(!grid)return;
+    const q=txt(getEl('planSearch')?.value).toLowerCase();
+    let arr=(state?.plans||[]).filter(p=>txt((typeof prodName==='function'?prodName(p.product_id):'')+' '+(p.name||'')).toLowerCase().includes(q));
+    if(state?.onlyEmpty)arr=arr.filter(p=>visibleStockV23(p)<=0);
+    grid.innerHTML=arr.map(p=>{
+      const cupos=visibleStockV23(p), c=countsV23(p.id);
+      const detalle=c.rows.length?`<div class="help">${c.used}/${c.total} usados · ${c.rows.length} cuenta(s) registrada(s)</div>`:'';
+      return `<div class="mini-card">
+        <div class="mini-head">
+          <div><b>${html(typeof prodName==='function'?prodName(p.product_id):'Producto')}</b><div>${html(p.name||'Plan')}</div><div class="help">${typeof money==='function'?money(p.price):('S/ '+toNum(p.price).toFixed(2))} · ${html(p.period||'')}</div></div>
+          <span class="badge ${planTypeBadgeV23(p)}">${planTypeLabelV23(p)}</span>
         </div>
-        <div class="plan-stock-actions">
-          ${st==='available'&&remaining>0?`<button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>`:''}
-          <button class="btn" onclick="viewStockHistory('${x.id}')">Historial</button>
-          ${usedCount(x)>0||st==='reserved'||st==='used'||st==='delivered'?`<button class="btn btn-warning" onclick="restoreStockAvailable('${x.id}')">Reponer</button>`:''}
-          <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          ${cupoBadgeHtmlV23(p)}
+          <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
+          <span class="badge">${html(p.availability_status||'available')}</span>
+          ${typeof planTotpAccountId==='function'&&planTotpAccountId(p)?`<span class="badge b-purple">🛡 Access TOTP</span>`:''}
         </div>
+        ${detalle}
+        ${renderPlanCardActionsV23(p,cupos)}
       </div>`;
-    }).join('');
-  };
+    }).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
+  };}catch(_){ }
 
-  window.planStockStartSelection=function(id){
-    if(!id)return;
-    state.planStockSelectionMode=true;
-    state.selectedPlanStockIds=state.selectedPlanStockIds instanceof Set?state.selectedPlanStockIds:new Set();
-    state.selectedPlanStockIds.add(id);
-    try{navigator.vibrate&&navigator.vibrate(25);}catch(_){ }
-    renderPlanStockView();
-  };
-  window.planStockToggleSelection=function(id){
-    if(!id)return;
-    state.selectedPlanStockIds=state.selectedPlanStockIds instanceof Set?state.selectedPlanStockIds:new Set();
-    if(state.selectedPlanStockIds.has(id))state.selectedPlanStockIds.delete(id);else state.selectedPlanStockIds.add(id);
-    if(!state.selectedPlanStockIds.size)state.planStockSelectionMode=false;
-    renderPlanStockView();
-  };
-  window.planStockRowClick=function(ev,id){
-    if(ev?.target?.closest&&ev.target.closest('button,a,input,select,textarea,label'))return;
-    if(state.planStockSelectionMode){ev&&ev.preventDefault&&ev.preventDefault();planStockToggleSelection(id);}
-  };
-  window.planStockPointerDown=function(ev,id){
-    if(ev?.target?.closest&&ev.target.closest('button,a,input,select,textarea,label'))return;
-    if(ev?.pointerType==='mouse')return;
-    clearTimeout(state.planStockLongPressTimer);
-    state.planStockLongPressTimer=setTimeout(()=>planStockStartSelection(id),620);
-  };
-  window.planStockPointerCancel=function(){clearTimeout(state.planStockLongPressTimer);state.planStockLongPressTimer=null;};
-  window.cancelPlanStockSelection=function(){
-    state.planStockSelectionMode=false;
-    state.selectedPlanStockIds=new Set();
-    clearTimeout(state.planStockLongPressTimer);
-    renderPlanStockView();
-  };
+  try{renderKPIs=window.renderKPIs=function(){
+    if(getEl('kpiProducts'))getEl('kpiProducts').textContent=(state?.products||[]).filter(p=>p.active!==false).length;
+    if(getEl('kpiStock'))getEl('kpiStock').textContent=(state?.plans||[]).reduce((a,p)=>a+visibleStockV23(p),0);
+    const pendOrders=(state?.orders||[]).filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
+    if(getEl('kpiOrders'))getEl('kpiOrders').textContent=pendOrders;
+    if(getEl('kpiDelivery'))getEl('kpiDelivery').textContent=(state?.orders||[]).filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
+    if(getEl('kpiClients'))getEl('kpiClients').textContent=(state?.customers||[]).length;
+    const dueRem=(state?.reminders||[]).filter(r=>{try{return reminderIsExpired(r);}catch(_){return false;}}).length;
+    if(getEl('kpiDue'))getEl('kpiDue').textContent=dueRem;
+    ['tbOrders','mbOrders'].forEach(id=>{const el=getEl(id);if(el){el.textContent=pendOrders;el.style.display=pendOrders>0?'':'none';}});
+    ['tbReminders','mbReminders'].forEach(id=>{const el=getEl(id);if(el){el.textContent=dueRem;el.style.display=dueRem>0?'':'none';}});
+  };}catch(_){ }
 
-  async function safeUpdate(table,payload,column,id){
-    try{const r=await db.from(table).update(payload).eq(column,id);return !r.error;}catch(_){return false;}
-  }
-  async function unlinkStockReferences(id){
-    try{await db.from('payment_reminders').update({linked_stock_item_id:null,linked_delivery_data:null}).eq('linked_stock_item_id',id);}catch(_){try{await safeUpdate('payment_reminders',{linked_stock_item_id:null},'linked_stock_item_id',id);}catch(__){}}
-    await safeUpdate('deliveries',{stock_item_id:null},'stock_item_id',id);
-    await safeUpdate('deliveries',{stock_id:null},'stock_id',id);
-    await safeUpdate('orders',{stock_item_id:null},'stock_item_id',id);
-    try{await db.from('stock_usage_logs').update({status:'released',released_at:nowIso(),release_reason:'stock_deleted'}).eq('stock_item_id',id);}catch(_){ }
-  }
-  async function archiveStockItem(item,reason='delete_blocked'){
-    const d=secretOf(item);
-    const max=Math.max(1,Number(d.max_uses||maxUses(item)||1)||1);
-    d.archived=true;d.hidden_from_admin=true;d.deleted_at=nowIso();d.archived_at=d.archived_at||d.deleted_at;d.delete_reason=reason;d.used_count=max;d.max_uses=max;
-    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
-    let r=await db.from('stock_items').update({status:'blocked',secret_data:d}).eq('id',item.id).select().single();
-    if(r.error)r=await db.from('stock_items').update({secret_data:d}).eq('id',item.id).select().single();
-    if(r.error)return {ok:false,error:r.error.message};
-    const idx=(state.stock||[]).findIndex(x=>x.id===item.id);
-    if(idx>=0)state.stock[idx]=r.data||{...item,secret_data:d,status:'blocked'};
-    return {ok:true,archived:true};
-  }
-  async function robustDeleteStockItem(id){
-    const item=(state.stock||[]).find(x=>x.id===id)||null;
-    if(!item)return {ok:true,missing:true};
-    await unlinkStockReferences(id);
-    let r=await db.from('stock_items').delete().eq('id',id).select();
-    if(!r.error){
-      const idx=(state.stock||[]).findIndex(x=>x.id===id);
-      if(idx>=0)state.stock.splice(idx,1);
-      return {ok:true,deleted:true};
-    }
-    const archived=await archiveStockItem(item,r.error?.message||'delete_blocked');
-    if(archived.ok)return archived;
-    return {ok:false,error:archived.error||r.error?.message||'No se pudo eliminar'};
-  }
-  window.robustDeleteStockItem=robustDeleteStockItem;
+  try{renderSummary=window.renderSummary=function(){
+    const body=getEl('summaryRows'); if(!body)return;
+    const rows=buildLocalSummaryV23(); state.summary=rows;
+    body.innerHTML=rows.map(s=>`<tr>
+      <td data-label="Producto"><b>${html(s.product_name)}</b></td>
+      <td data-label="Plan">${html(s.plan_name)}</td>
+      <td data-label="Tipo"><span class="badge ${s.stock_mode==='manual'?'b-warn':'b-ok'}">${s.stock_mode==='manual'?'Manual':'Auto'}</span></td>
+      <td data-label="Cupos"><span class="badge ${s.available_stock>0?'b-ok':'b-bad'}">${s.available_stock} libres</span>${s.account_count?` <span class="badge">${s.used_count}/${s.max_uses} usados</span>`:''}</td>
+      <td data-label="Estado"><span class="badge ${s.plan_active?'b-ok':'b-bad'}">${s.plan_active?'Activo':'Oculto'}</span> <span class="badge">${html(s.availability_status)}</span></td>
+      <td data-label="Acción"><button class="btn btn-sm" onclick="openPlanAccounts('${s.plan_id}')">Ver cuentas</button></td>
+    </tr>`).join('')||'<tr><td colspan="6">Sin datos</td></tr>';
+  };}catch(_){ }
 
-  async function refreshAfterStockChange(planId){
-    try{await loadAll();}catch(e){console.warn('loadAll after stock change',e);}
-    if($id('dlgOpsStock')?.open)closeDialog('dlgOpsStock');
-    if($id('dlgPlanStockView')?.open){
-      if(planId&&$id('planStockPlanId'))$id('planStockPlanId').value=planId;
-      renderPlanStockView();
-    }
-    try{if(typeof renderKPIs==='function')renderKPIs();if(typeof renderSummary==='function')renderSummary();if(typeof renderPlans==='function')renderPlans();if(typeof renderProducts==='function')renderProducts();}catch(_){ }
+  const oldRenderAll=typeof renderAll==='function'?renderAll:null;
+  if(oldRenderAll){
+    try{renderAll=window.renderAll=function(){
+      try{state.summary=buildLocalSummaryV23();}catch(_){ }
+      return oldRenderAll();
+    };}catch(_){ }
   }
 
-  window.quickDeleteOpsStock = quickDeleteOpsStock = async function(id,opts={}){
-    const item=(state.stock||[]).find(x=>x.id===id);
-    if(!id||!item)return toast('No se encontró la cuenta seleccionada.','bad');
-    if(!opts.skipConfirm && !confirm('¿Eliminar esta cuenta/cupo? Si tiene historial vinculado, se ocultará y dejará de contar cupo.'))return;
-    const planId=item.plan_id||$id('planStockPlanId')?.value||'';
-    const res=await robustDeleteStockItem(id);
-    if(!res.ok)return toast(res.error||'No se pudo eliminar la cuenta.','bad');
-    toast(res.archived?'Cuenta archivada y retirada de cupos':'Cuenta eliminada','ok');
-    await refreshAfterStockChange(planId);
-    if(!$id('dlgPlanStockView')?.open && typeof switchTab==='function')switchTab('inventory');
-  };
+  window.openPlanManualDelivery=typeof openPlanManualDelivery==='function'?function(planId){
+    const rows=freeRowsV23(planId);
+    if(rows.length===1){openOpsDeliver(rows[0].id,planId);return;}
+    if(rows.length>1){openPlanStockView(planId);try{toast('Elige la cuenta que deseas entregar','ok');}catch(_){ }return;}
+    try{toast('Este plan no tiene cupos libres. Agrega una cuenta primero.','bad');}catch(_){ }
+  }:window.openPlanManualDelivery;
+  try{openPlanManualDelivery=window.openPlanManualDelivery;}catch(_){ }
 
-  window.deleteOpsStock = deleteOpsStock = async function(){
-    const id=$id('opsStockId')?.value||'';
-    if(!id)return toast('Selecciona una cuenta para eliminar.','bad');
-    return quickDeleteOpsStock(id);
+  window.addStockForPlan=function(planId){
+    if(typeof openOpsStockDialog==='function')openOpsStockDialog('account','');
+    const sel=getEl('opsStockPlan'); if(sel)sel.value=planId||sel.value||'';
+    const bulk=getEl('opsStockProfilesBulk'); if(bulk)bulk.value='';
+    try{if(typeof syncOpsStockTotpBox==='function')syncOpsStockTotpBox();}catch(_){ }
+    try{if(typeof syncOpsFamilyUi==='function')syncOpsFamilyUi();}catch(_){ }
+    setTimeout(()=>{try{getEl('opsStockUser')?.focus();}catch(_){ }},60);
   };
+  try{addStockForPlan=window.addStockForPlan;}catch(_){ }
+  window.openPlanAccounts=function(planId){ if(typeof openPlanStockView==='function')openPlanStockView(planId); };
+  try{openPlanAccounts=window.openPlanAccounts;}catch(_){ }
 
-  window.deleteSelectedPlanStock = async function(){
-    const ids=[...(state.selectedPlanStockIds||new Set())].filter(Boolean);
-    if(!ids.length)return toast('Selecciona al menos una cuenta.','bad');
-    if(!confirm(`¿Eliminar ${ids.length} cuenta${ids.length===1?'':'s'} seleccionada${ids.length===1?'':'s'}?`))return;
-    const planId=$id('planStockPlanId')?.value||'';
-    let ok=0,archived=0;const failed=[];
-    for(const id of ids){
-      const r=await robustDeleteStockItem(id);
-      if(r.ok){ok++;if(r.archived)archived++;}else failed.push(r.error||id);
-    }
-    state.planStockSelectionMode=false;
-    state.selectedPlanStockIds=new Set();
-    await refreshAfterStockChange(planId);
-    if(failed.length)toast(`Se procesaron ${ok}. Fallaron ${failed.length}: ${failed.slice(0,2).join(' | ')}`,'bad');
-    else toast(`${ok} cuenta${ok===1?'':'s'} retirada${ok===1?'':'s'} correctamente${archived?` (${archived} archivada${archived===1?'':'s'})`:''}.`,'ok');
-  };
+  // Evita que funciones antiguas vuelvan a una pestaña inexistente llamada "ops".
+  const oldSwitchTab=typeof switchTab==='function'?switchTab:null;
+  if(oldSwitchTab){
+    window.switchTab=function(tab){return oldSwitchTab(tab==='ops'?'inventory':tab);};
+    try{switchTab=window.switchTab;}catch(_){ }
+  }
 
-  const previousOpenPlanStockView = (typeof openPlanStockView==='function') ? openPlanStockView : null;
-  window.openPlanStockView = openPlanStockView = function(planId){
-    state.planStockSelectionMode=false;
-    state.selectedPlanStockIds=new Set();
-    if(previousOpenPlanStockView){previousOpenPlanStockView(planId);return;}
-    if($id('planStockPlanId'))$id('planStockPlanId').value=planId||'';
-    if($id('planStockTitle')&&typeof opsPlanGroupTitle==='function')$id('planStockTitle').textContent='Cuentas e historial · '+opsPlanGroupTitle(planId);
-    if($id('planStockSearch'))$id('planStockSearch').value='';
-    renderPlanStockView();showDialog('dlgPlanStockView');
-  };
-
-  const previousRenderKPIs=(typeof renderKPIs==='function')?renderKPIs:null;
-  window.renderKPIs=renderKPIs=function(){
-    try{
-      if($id('kpiProducts'))$id('kpiProducts').textContent=(state.products||[]).filter(p=>p.active!==false).length;
-      if($id('kpiStock'))$id('kpiStock').textContent=(state.plans||[]).reduce((a,p)=>a+visibleStock(p),0);
-      const pendOrders=(state.orders||[]).filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
-      if($id('kpiOrders'))$id('kpiOrders').textContent=pendOrders;
-      if($id('kpiDelivery'))$id('kpiDelivery').textContent=(state.orders||[]).filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
-      if($id('kpiClients'))$id('kpiClients').textContent=(state.customers||[]).length;
-      const dueRem=(state.reminders||[]).filter(r=>typeof reminderIsExpired==='function'?reminderIsExpired(r):false).length;
-      if($id('kpiDue'))$id('kpiDue').textContent=dueRem;
-      ['tbOrders','mbOrders'].forEach(id=>{const el=$id(id);if(el){el.textContent=pendOrders;el.style.display=pendOrders>0?'':'none';}});
-      ['tbReminders','mbReminders'].forEach(id=>{const el=$id(id);if(el){el.textContent=dueRem;el.style.display=dueRem>0?'':'none';}});
-    }catch(e){console.warn('renderKPIs v27',e);previousRenderKPIs&&previousRenderKPIs();}
-  };
-
-  window.renderSummary = renderSummary = function(){
-    const body=$id('summaryRows');if(!body)return;
-    const rows=(state.plans||[]).map(p=>{
-      const product=typeof prod==='function'?prod(p.product_id):null;
-      const stats=planStockStats(p.id);
-      const cups=visibleStock(p);
-      const tipo=(p.stock_mode==='controlled')?'Auto':'Manual';
-      const detail=stats.rows.length?` · ${stats.used}/${stats.total} usados`:'';
-      return `<tr>
-        <td data-label="Producto"><b>${safeEsc(product?.name||prodName(p.product_id)||'Producto')}</b></td>
-        <td data-label="Plan">${safeEsc(p.name||'Plan')}</td>
-        <td data-label="Tipo"><span class="badge ${p.stock_mode==='controlled'?'b-ok':'b-warn'}">${tipo}</span></td>
-        <td data-label="Cupos"><span class="badge ${cups>0?'b-ok':'b-bad'}">${cups} cupo${cups===1?'':'s'}</span><div class="help">Exacto${detail}</div></td>
-        <td data-label="Estado">${safeEsc(p.availability_status||'available')}</td>
-        <td data-label="Acción"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editPlan('${p.id}')">Editar</button><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${p.id}')">Ver cuentas</button></div></td>
-      </tr>`;
-    });
-    body.innerHTML=rows.join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
-  };
-
+  // Recalcula al terminar escrituras/cargas y repinta si ya hay datos.
   setTimeout(()=>{
-    if($id('btnOpsDeleteStock'))$id('btnOpsDeleteStock').onclick=deleteOpsStock;
-    if($id('planStockSearch'))$id('planStockSearch').oninput=renderPlanStockView;
-    try{renderKPIs();renderSummary();if(typeof renderPlans==='function')renderPlans();if($id('dlgPlanStockView')?.open)renderPlanStockView();}catch(e){console.warn('v27 initial refresh',e);}
+    try{state.summary=buildLocalSummaryV23();}catch(_){ }
+    try{renderKPIs();renderSummary();renderPlans();}catch(_){ }
   },0);
 })();
 
 
 /* ================================================================
-   PATCH V30 — REPARACIÓN FINAL CUPOS / SELECTOR / HISTORIAL
-   - Usa used_count/max_uses como verdad principal.
-   - Si status quedó used/delivered pero aún tiene libres, vuelve a contar.
-   - Selector de entrega usa cuentas reales del plan.
-   - Historial se reconstruye desde secret_data.history, stock_usage_logs y recordatorios vinculados.
-   - Shop/Admin quedan alineados con el SQL V30.
+   PATCH V34 — Cupos fantasma / sincronización DB
+   Mantiene este admin estable, pero evita que el shop cuente filas invisibles.
    ================================================================ */
 (function(){
-  if(window.__innovV30CuposHistorial)return;
-  window.__innovV30CuposHistorial=true;
-  const $id=(id)=>document.getElementById(id);
-  const safeEsc=(v)=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
-  const nowIso=()=>new Date().toISOString();
-  function asObj(v){
-    if(!v)return {};
-    if(typeof v==='string'){try{return JSON.parse(v)||{};}catch(_){return {};}}
-    if(typeof v==='object')return {...v};
-    return {};
-  }
-  function sec(item){
-    try{if(typeof opsSecret==='function')return {...opsSecret(item)};}catch(_){ }
-    return asObj(item?.secret_data);
-  }
-  function num(v,def=0){const n=Number(v);return Number.isFinite(n)?n:def;}
-  function uCount(item){const d=sec(item);return Math.max(0,num(d.used_count ?? d.usos_usados ?? item?.used_count ?? 0,0));}
-  function mUses(item){const d=sec(item);return Math.max(1,num(d.max_uses ?? d.usos ?? d.cupos ?? d.family_slots ?? item?.max_uses ?? 1,1));}
-  function remUses(item){return Math.max(0,mUses(item)-uCount(item));}
-  function rawStatus(item){return String(item?.status||'available').toLowerCase().trim();}
-  function archived(item){const d=sec(item);const st=rawStatus(item);return !!(d.archived||d._archived||d.hidden_from_admin||d.deleted_at||d.archived_at||st==='archived'||st==='deleted');}
-  function reserved(item){const d=sec(item);const st=rawStatus(item);return !!(d.reserved_at||d.reserved_for||d.reserved_phone||st==='reserved'||st==='reservado');}
-  function blocked(item){const d=sec(item);const st=rawStatus(item);return !!(d.blocked_at||d.expired_at||['blocked','bloqueado','expired','vencido','disabled','inactive','unavailable'].includes(st));}
-  function isAccountLike(item){
-    if(!item)return false;
-    try{if(typeof opsIsAccount==='function'&&opsIsAccount(item))return true;}catch(_){ }
-    const d=sec(item);
-    const t=String(item.stock_type||'').toLowerCase();
-    return !t || ['account','cuenta','credential','credentials','code','pin','manual'].includes(t) || !!(d.correo||d.email||d.usuario||d.clave||d.password||d.pass||d.pin||d.perfil||d.family_admin_email||d.correo_admin);
-  }
-  function truthStatus(item){
-    if(!item)return 'used';
-    if(archived(item))return 'archived';
-    if(blocked(item))return 'blocked';
-    if(reserved(item))return 'reserved';
-    // used_count/max_uses manda. Si quedó status used/delivered por un parche viejo,
-    // pero aún quedan cupos, debe seguir disponible.
-    if(remUses(item)>0)return 'available';
-    return 'used';
-  }
-  function rowsForPlan(planId,includeArchived=false){
-    return (window.state?.stock||[]).filter(x=>x&&String(x.plan_id)===String(planId)&&isAccountLike(x)&&(includeArchived||!archived(x)));
-  }
-  function deliverableRows(planId){
-    return rowsForPlan(planId,false).filter(x=>truthStatus(x)==='available'&&remUses(x)>0).sort((a,b)=>{
-      const au=uCount(a),bu=uCount(b);
-      if((au>0)!==(bu>0))return au>0?-1:1;
-      if(au!==bu)return bu-au;
-      return String(a.created_at||'').localeCompare(String(b.created_at||''));
-    });
-  }
-  function planObj(planOrId){return typeof planOrId==='string'?(typeof plan==='function'?plan(planOrId):null):planOrId;}
-  function planIdOf(planOrId){return typeof planOrId==='string'?planOrId:planOrId?.id;}
-  function manualStock(p){return Math.max(0,num(p?.manual_stock_count ?? p?.stock_count ?? 0,0));}
-  function visible(planOrId){
-    const pid=planIdOf(planOrId);if(!pid)return 0;
-    const p=planObj(planOrId);
-    const rows=rowsForPlan(pid,false);
-    if(rows.length)return rows.reduce((a,x)=>a+(truthStatus(x)==='available'?remUses(x):0),0);
-    if(String(p?.stock_mode||'').toLowerCase()==='manual')return manualStock(p);
-    const s=(window.state?.summary||[]).find(x=>String(x.plan_id)===String(pid));
-    return Math.max(0,num(s?.available_stock,0));
-  }
-  function statusBadge(st){
-    if(typeof opsStatusBadge==='function')return opsStatusBadge(st);
-    const cls=st==='available'?'b-ok':st==='reserved'?'b-warn':st==='archived'?'b-nonew':'b-bad';
-    const txt=st==='available'?'Disponible':st==='reserved'?'Reservado':st==='archived'?'Archivado':'Usado';
-    return `<span class="badge ${cls}">${txt}</span>`;
-  }
-  function titleOf(item){const d=sec(item);return item?.title||d.family_admin_email||d.correo_admin||d.correo||d.email||d.usuario||'Cuenta';}
-  function optLabel(item){
-    const d=sec(item);const parts=[];
-    if(d.perfil)parts.push('Perfil '+d.perfil);
-    if(d.pin)parts.push('PIN '+d.pin);
-    parts.push(`${uCount(item)}/${mUses(item)} usados`);
-    parts.push(`${remUses(item)} libre${remUses(item)===1?'':'s'}`);
-    return `${titleOf(item)} — ${parts.join(' · ')}`;
-  }
-  function stockTotp(item,pid){try{return stockTotpAccountId(item,pid)||'';}catch(_){return sec(item).totp_account_id||'';}}
-  function isFamily(item,pid){try{return stockIsFamilyInvite(item)||isFamilyInvitePlanId(pid);}catch(_){const d=sec(item);return !!(d.family_mode||d.family_admin_email||d.correo_admin||d.codigo_2fa);}}
-  function setOptions(sel,pid,current=''){
-    if(!sel)return null;
-    const rows=deliverableRows(pid);
-    const chosen=(current&&rows.some(x=>String(x.id)===String(current)))?current:(rows[0]?.id||'');
-    sel.innerHTML=rows.length?rows.map(x=>`<option value="${safeEsc(x.id)}" ${String(x.id)===String(chosen)?'selected':''}>${safeEsc(optLabel(x))}</option>`).join(''):'<option value="">Sin cuenta libre: entrega manual</option>';
-    sel.value=chosen||'';
-    sel.disabled=!rows.length;
-    return rows.find(x=>String(x.id)===String(chosen))||null;
-  }
-  function ensureOpsSelect(){
-    if($id('opsDeliverStockSelect'))return $id('opsDeliverStockSelect');
-    const grid=$id('dlgOpsDeliver')?.querySelector('.grid.grid-2');
-    if(!grid)return null;
-    const box=document.createElement('div');
-    box.className='full';
-    box.id='opsDeliverStockPickBoxV30';
-    box.innerHTML='<label class="subtle">Cuenta subida a entregar</label><select class="input" id="opsDeliverStockSelect"></select><p class="help" id="opsDeliverStockHint" style="margin-top:6px">Solo aparecerán cuentas con cupos libres.</p>';
-    grid.insertBefore(box,grid.firstChild);
-    return $id('opsDeliverStockSelect');
-  }
-  function fillFromStock(item){
-    if($id('opsDeliverStockId'))$id('opsDeliverStockId').value=item?.id||'';
-    if(item&&$id('opsDeliverPlanId'))$id('opsDeliverPlanId').value=item.plan_id||$id('opsDeliverPlanId').value||'';
-    if(item&&$id('opsDeliverService'))$id('opsDeliverService').value=(typeof planName==='function'?planName(item.plan_id):'Servicio')||$id('opsDeliverService').value||'';
-    const p=item&&typeof plan==='function'?plan(item.plan_id):null;
-    if(item&&p&&$id('opsDeliverAmount'))$id('opsDeliverAmount').value=p.price??$id('opsDeliverAmount').value??'';
-    const pid=item?.plan_id||$id('opsDeliverPlanId')?.value||'';
-    try{if(typeof syncOpsDeliverFamilyBox==='function')syncOpsDeliverFamilyBox(pid);}catch(_){ }
-    const account=stockTotp(item,pid);
-    if($id('opsDeliverTotpAccountId'))$id('opsDeliverTotpAccountId').value=account||'';
-    if($id('opsDeliverTotpCode')){
-      if(account&&!$id('opsDeliverTotpCode').value){try{$id('opsDeliverTotpCode').value=generateUniqueTotpAccessCode();}catch(_){$id('opsDeliverTotpCode').value='IA'+Date.now().toString(36).toUpperCase().slice(-8);}}
-      if(!account)$id('opsDeliverTotpCode').value='';
-    }
-    if($id('opsDeliverTotpInfo')){
-      $id('opsDeliverTotpInfo').classList.toggle('hidden',!account);
-      $id('opsDeliverTotpInfo').textContent=account?'🛡 Access TOTP · se generará un código único al registrar.':'';
-    }
-    try{if(typeof refreshOpsDeliverMessage==='function')refreshOpsDeliverMessage();}catch(_){ }
-  }
-
-  window.opsAvailableStatus=opsAvailableStatus=function(item){return truthStatus(item);};
-  window.stockUsedCount=stockUsedCount=function(item){return uCount(item);};
-  window.stockMaxUses=stockMaxUses=function(item){return mUses(item);};
-  window.stockRemainingUses=stockRemainingUses=function(item){return remUses(item);};
-  window.stockIsDeliverable=stockIsDeliverable=function(item){return !!item&&isAccountLike(item)&&truthStatus(item)==='available'&&remUses(item)>0;};
-  window.availableStockForPlan=availableStockForPlan=function(planId){return deliverableRows(planId);};
-  window.firstAvailableStockForPlan=firstAvailableStockForPlan=function(planId){return deliverableRows(planId)[0]||null;};
-  window.visibleStock=visibleStock=function(planOrId){return visible(planOrId);};
-
-  async function loadStockLogsSafe(){
-    try{
-      const r=await db.from('stock_usage_logs').select('*').order('used_at',{ascending:false}).limit(2000);
-      if(!r.error)state.stockUsageLogs=r.data||[];
-    }catch(_){state.stockUsageLogs=state.stockUsageLogs||[];}
-  }
-  const oldLoadAll=window.loadAll;
-  if(typeof oldLoadAll==='function'){
-    window.loadAll=loadAll=async function(){const r=await oldLoadAll.apply(this,arguments);await loadStockLogsSafe();return r;};
-  }
-  function customerById(id){return (state.customers||[]).find(c=>String(c.id)===String(id))||{};}
-  function histForStock(item){
-    const d=sec(item);const out=[];const seen=new Set();
-    const push=(h,source)=>{
-      if(!h)return;
-      const key=String(h.id||h.usage_id||h.reminder_id||h.order_id||h.at||h.used_at||JSON.stringify(h).slice(0,80));
-      if(seen.has(key))return;seen.add(key);
-      out.push({...h,source});
-    };
-    (Array.isArray(d.history)?d.history:[]).forEach(h=>push(h,'historial'));
-    (state.stockUsageLogs||[]).filter(l=>String(l.stock_item_id)===String(item.id)).forEach(l=>push({id:l.id,customer_id:l.customer_id,customer_name:l.customer_name,customer_phone:l.customer_phone,customer_email:l.customer_email,service:l.service_name,due_date:l.due_date,at:l.used_at||l.created_at,status:l.status},'uso'));
-    (state.reminders||[]).forEach(r=>{
-      const ld=asObj(r.linked_delivery_data);
-      if(String(r.linked_stock_item_id||'')===String(item.id)||String(ld.stock_id||ld.stock_item_id||'')===String(item.id)){
-        const c=customerById(r.customer_id);
-        push({id:r.id,reminder_id:r.id,customer_id:r.customer_id,customer_name:c.name||ld.customer_name||'Cliente',customer_phone:c.phone_e164||c.phone_raw||ld.customer_phone||'',customer_email:c.email||ld.customer_email||'',service:r.service_name||ld.service||'',amount:r.amount,due_date:r.due_date,at:r.created_at||r.updated_at,status:r.status},'recordatorio');
-      }
-    });
-    (state.deliveries||[]).forEach(dl=>{
-      const dd=asObj(dl.delivery_data||dl.data||dl.metadata);
-      if(String(dl.stock_item_id||dl.stock_id||dd.stock_id||dd.stock_item_id||'')===String(item.id))push({id:dl.id,order_id:dl.order_id,customer_name:dd.customer_name||dd.cliente||'',customer_phone:dd.customer_phone||dd.telefono||'',customer_email:dd.customer_email||dd.email||'',service:dd.service||'',at:dl.created_at||dd.at},'entrega');
-    });
-    return out.sort((a,b)=>String(b.at||b.used_at||'').localeCompare(String(a.at||a.used_at||'')));
-  }
-  function historyHtml(item){
-    const hist=histForStock(item);
-    if(!hist.length)return '<div class="plan-stock-sub">Sin entregas registradas todavía.</div>';
-    return `<div class="plan-stock-sub"><b>Historial:</b> ${hist.slice(0,5).map(h=>`${safeEsc(h.customer_name||'Cliente')}${h.customer_phone?' · '+safeEsc(h.customer_phone):''}${h.customer_email?' · '+safeEsc(h.customer_email):''}${h.service?' · '+safeEsc(h.service):''}${h.due_date?' · vence '+safeEsc(typeof displayDateFromInput==='function'?displayDateFromInput(h.due_date):h.due_date):''}${h.at?' · '+safeEsc(new Date(h.at).toLocaleDateString('es-PE')):''}`).join('<br>')}</div>`;
-  }
-  function stats(pid){const rows=rowsForPlan(pid,false);return {rows,free:rows.reduce((a,x)=>a+(truthStatus(x)==='available'?remUses(x):0),0),reserved:rows.filter(x=>truthStatus(x)==='reserved').reduce((a,x)=>a+Math.max(1,remUses(x)||1),0),used:rows.reduce((a,x)=>a+uCount(x),0),total:rows.reduce((a,x)=>a+mUses(x),0)};}
-
-  window.renderPlanStockView=renderPlanStockView=function(){
-    const list=$id('planStockList');if(!list)return;
-    const pid=$id('planStockPlanId')?.value||'';const q=($id('planStockSearch')?.value||'').toLowerCase().trim();
-    let rows=rowsForPlan(pid,false);
-    if(q)rows=rows.filter(x=>{const d=sec(x);return `${titleOf(x)} ${x.notes||''} ${truthStatus(x)} ${d.correo||''} ${d.email||''} ${d.usuario||''} ${d.clave||''} ${d.pass||''} ${d.perfil||''} ${d.pin||''} ${d.family_admin_email||''} ${d.correo_admin||''} ${JSON.stringify(histForStock(x))}`.toLowerCase().includes(q);});
-    rows.sort((a,b)=>{const o={available:0,reserved:1,used:2,blocked:3,archived:9};return (o[truthStatus(a)]??5)-(o[truthStatus(b)]??5)||String(a.created_at||'').localeCompare(String(b.created_at||''));});
-    const st=stats(pid);const selectedCount=state.selectedPlanStockIds?.size||0;const selectionMode=!!state.planStockSelectionMode;
-    const bulk=`<div id="planStockBulkBar" class="plan-stock-bulk ${selectionMode?'show':''}"><strong>${selectedCount} seleccionada${selectedCount===1?'':'s'}</strong><button class="btn btn-danger" type="button" ${selectedCount?'':'disabled'} onclick="deleteSelectedPlanStock()">Eliminar seleccionadas</button><button class="btn" type="button" onclick="cancelPlanStockSelection()">Cancelar</button><span class="help">Doble clic para seleccionar. En celular mantén presionado.</span></div>`;
-    const chips=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${st.free} cupos libres</span><span class="badge b-warn">${st.reserved} reservados</span><span class="badge b-bad">${st.used} usados</span><span class="badge">${st.total} cupos totales</span><button class="btn btn-primary btn-sm" type="button" onclick="addStockForPlan('${safeEsc(pid)}')">＋ Agregar</button></div>`;
-    if(!rows.length){list.innerHTML=chips+bulk+`<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><p class="help">Usa “＋ Agregar” para cargar correo, contraseña y perfiles.</p></div>`;return;}
-    list.innerHTML=chips+bulk+rows.map(x=>{const d=sec(x), s=truthStatus(x), pass=d.clave||d.pass||d.password||'', remaining=remUses(x), selected=state.selectedPlanStockIds?.has(x.id);return `<div class="plan-stock-row plan-stock-selectable ${selectionMode?'selection-mode':''} ${selected?'is-selected':''}" data-stock-id="${safeEsc(x.id)}" ondblclick="planStockStartSelection('${safeEsc(x.id)}')" onclick="planStockRowClick(event,'${safeEsc(x.id)}')" onpointerdown="planStockPointerDown(event,'${safeEsc(x.id)}')" onpointerup="planStockPointerCancel()" onpointerleave="planStockPointerCancel()" onpointercancel="planStockPointerCancel()"><div class="plan-stock-main"><div class="plan-stock-title-line"><span class="plan-stock-check">✓</span><div class="plan-stock-title">${safeEsc(titleOf(x))}</div></div><div class="plan-stock-sub">${statusBadge(s)} <span class="badge">Usos ${uCount(x)}/${mUses(x)}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span>${stockTotp(x,pid)?' <span class="badge b-purple">🛡 TOTP</span>':''}${isFamily(x,pid)?' <span class="badge b-purple">👨‍👩‍👧 Familiar</span>':''}</div><div class="plan-stock-secret"><span class="mono">📧 ${safeEsc(d.family_admin_email||d.correo_admin||d.correo||d.email||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${safeEsc(pass)}</span>`:''}${d.twofa_code||d.codigo_2fa?`<span class="mono">2FA ${safeEsc(d.twofa_code||d.codigo_2fa)}</span>`:''}${d.perfil?`<span class="mono">👤 ${safeEsc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${safeEsc(d.pin)}</span>`:''}</div>${historyHtml(x)}</div><div class="plan-stock-actions">${s==='available'&&remaining>0?`<button class="btn btn-success" onclick="openStockViewDeliver('${safeEsc(x.id)}')">Entregar</button>`:''}<button class="btn" onclick="viewStockHistory('${safeEsc(x.id)}')">Historial</button>${uCount(x)>0||s==='reserved'||s==='used'?`<button class="btn btn-warning" onclick="restoreStockAvailable('${safeEsc(x.id)}')">Reponer</button>`:''}<button class="btn btn-danger" onclick="quickDeleteOpsStock('${safeEsc(x.id)}')">Eliminar</button></div></div>`;}).join('');
+  window.__innovCuposGhostFixV34=true;
+  const n=v=>String(v??'').trim().toLowerCase();
+  const num=(v,d=0)=>{const x=Number(v);return Number.isFinite(x)?x:d;};
+  function sec(item){try{return opsSecret(item)||{};}catch(_){return item?.secret_data||{};}}
+  window.__innovRealAccountStock=function(item){
+    const d=sec(item), t=n(item?.stock_type||'account');
+    if(['code','codigo','pin','access_code','totp_code'].includes(t))return false;
+    return !!(d.correo||d.usuario||d.email||d.family_admin_email||d.correo_admin||d.clave||d.password||d.pass||d['contraseña']||d.contrasena);
   };
-
-  window.openOpsDeliver=openOpsDeliver=function(id='',forcedPlanId=''){
-    const sel=ensureOpsSelect();
-    let item=id?(state.stock||[]).find(s=>String(s.id)===String(id)):null;
-    let pid=item?.plan_id||forcedPlanId||$id('opsDeliverPlanId')?.value||'';
-    if(!pid){try{toast('Selecciona un plan para entregar','bad');}catch(_){}return;}
-    if(!item)item=firstAvailableStockForPlan(pid);
-    const selected=setOptions(sel,pid,item?.id||'');
-    item=selected||item;
-    if($id('opsDeliverStockId'))$id('opsDeliverStockId').value=item?.id||'';
-    if($id('opsDeliverPlanId'))$id('opsDeliverPlanId').value=pid;
-    if($id('opsDeliverPedido')&&typeof makeManualDeliveryCode==='function')$id('opsDeliverPedido').value=makeManualDeliveryCode();
-    const d=sec(item);
-    if($id('opsDeliverName'))$id('opsDeliverName').value=d.reserved_for||'';
-    if($id('opsDeliverPhone'))$id('opsDeliverPhone').value=d.reserved_phone||'';
-    if($id('opsDeliverClientEmail'))$id('opsDeliverClientEmail').value=d.reserved_email||'';
-    if($id('opsDeliverService'))$id('opsDeliverService').value=typeof planName==='function'?planName(pid):'Servicio';
-    const p=typeof plan==='function'?plan(pid):null;
-    if($id('opsDeliverAmount'))$id('opsDeliverAmount').value=p?.price??'';
-    if($id('opsDeliverStart')&&typeof todayISO==='function')$id('opsDeliverStart').value=todayISO();
-    if($id('opsDeliverPayDate')&&typeof todayISO==='function')$id('opsDeliverPayDate').value=todayISO();
-    if($id('opsDeliverDue'))$id('opsDeliverDue').value=typeof planRenewalDue==='function'?planRenewalDue(pid):'';
-    if($id('opsDeliverNewStatus'))$id('opsDeliverNewStatus').value='used';
-    fillFromStock(item);
-    const hint=$id('opsDeliverStockHint')||$id('opsDeliverStockSelectHelp');
-    if(hint)hint.textContent=deliverableRows(pid).length?`Puedes elegir entre ${deliverableRows(pid).length} cuenta(s) con cupos reales.`:'No hay cuentas con cupos libres para este plan.';
-    if(!item&&visible(pid)<=0){try{toast('Este plan no tiene cupos libres. Agrega una cuenta antes de entregar.','bad');}catch(_){} }
-    try{if(typeof refreshOpsDeliverMessage==='function')refreshOpsDeliverMessage();}catch(_){ }
-    if($id('dlgOpsDeliver'))showDialog('dlgOpsDeliver');
+  window.__innovStockColumnsPayload=function(d){
+    d=d||{};return {max_uses:Math.max(1,num(d.max_uses,1)),used_count:Math.max(0,num(d.used_count,0))};
   };
-  window.openStockViewDeliver=function(id){try{closeDialog('dlgPlanStockView');}catch(_){}setTimeout(()=>openOpsDeliver(id),80);};
-
-  async function updateStock(id,d,preferred='available'){
-    let r=await db.from('stock_items').update({status:preferred,secret_data:d}).eq('id',id).select().single();
-    if(r.error&&/check|constraint|violates|restric/i.test(r.error.message||''))r=await db.from('stock_items').update({status:'available',secret_data:d}).eq('id',id).select().single();
-    return r;
-  }
-  async function consumeStock(id,ctx={}){
-    const fresh=await db.from('stock_items').select('*').eq('id',id).single();
-    if(fresh.error)return {ok:false,error:fresh.error.message};
-    const item=fresh.data; if(truthStatus(item)!=='available'||remUses(item)<=0)return {ok:false,error:'La cuenta seleccionada ya no tiene cupos libres.'};
-    const d=sec(item);d.used_count=uCount(item)+1;d.max_uses=mUses(item);d.last_customer=ctx.customer_name||'';d.last_phone=ctx.customer_phone||'';d.last_email=ctx.customer_email||'';d.last_used_at=nowIso();
-    d.history=Array.isArray(d.history)?d.history:[];d.history.push({usage_id:'use_'+Date.now().toString(36),stock_id:id,reminder_id:ctx.reminder_id||null,order_id:ctx.order_id||null,pedido:ctx.pedido||'',customer_id:ctx.customer_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',client_email:ctx.customer_email||'',service:ctx.service||'',amount:ctx.amount??null,due_date:ctx.due_date||'',totp_code:ctx.totp_code||'',source:ctx.source||'entrega',at:nowIso()});
-    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
-    const finalStatus=d.used_count>=d.max_uses?'used':'available';
-    const r=await updateStock(id,d,finalStatus);if(r.error)return {ok:false,error:r.error.message};
-    const idx=(state.stock||[]).findIndex(s=>String(s.id)===String(id));if(idx>=0)state.stock[idx]=r.data||{...item,secret_data:d,status:finalStatus};
-    try{await db.from('stock_usage_logs').insert({created_at:nowIso(),stock_item_id:id,customer_id:ctx.customer_id||null,reminder_id:ctx.reminder_id||null,order_id:ctx.order_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',service_name:ctx.service||'',totp_access_code:ctx.totp_code||'',status:'used',used_at:nowIso(),context:ctx});}catch(_){ }
-    return {ok:true,stock_id:id,status:finalStatus};
-  }
-  async function upsertCustomer(name,phone,email,meta={}){
-    const existing=(state.customers||[]).find(c=>String(c.phone_e164||c.phone_raw||'').replace(/\D+/g,'')===String(phone.e164||'').replace(/\D+/g,''));
-    const notes=existing?.notes||'Creado desde entrega manual de stock';
-    const payload={name:name||existing?.name||'Cliente',phone_raw:phone.raw||phone.e164,phone_e164:phone.e164,email:email||existing?.email||null,source:existing?.source||'entrega_manual_stock',notes};
-    const r=existing?.id?await db.from('crm_customers').update(payload).eq('id',existing.id).select().single():await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
-    return r.error?{ok:false,error:r.error.message}:{ok:true,data:r.data};
-  }
-  async function insertReminder(payload){
-    let r=await db.from('payment_reminders').insert(payload).select().single();
-    if(r.error&&/schema cache|column|PGRST204/i.test(r.error.message||'')){
-      const minimal={customer_id:payload.customer_id,order_id:payload.order_id||null,order_item_id:payload.order_item_id||null,product_id:payload.product_id||null,plan_id:payload.plan_id||null,service_name:payload.service_name,amount:payload.amount,currency:payload.currency||'PEN',due_date:payload.due_date,status:payload.status||'pending',whatsapp_message:payload.whatsapp_message||null};
-      Object.keys(minimal).forEach(k=>minimal[k]===undefined&&delete minimal[k]);
-      r=await db.from('payment_reminders').insert(minimal).select().single();
-    }
-    return r;
-  }
-  async function linkReminderV30(id,ctx){
-    if(!id)return;
-    try{await db.from('payment_reminders').update({linked_stock_item_id:ctx.stock_id||null,linked_delivery_data:ctx}).eq('id',id);}catch(_){ }
-  }
-  window.saveOpsDeliver=saveOpsDeliver=async function(){
-    const btn=$id('btnOpsSaveDeliver');
-    if(window.__savingOpsV30)return;window.__savingOpsV30=true;const oldTxt=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Registrando...';}
-    try{
-      let stockId=$id('opsDeliverStockSelect')?.value||$id('opsDeliverStockId')?.value||'';
-      let item=stockId?(state.stock||[]).find(s=>String(s.id)===String(stockId)):null;
-      let pid=item?.plan_id||$id('opsDeliverPlanId')?.value||'';
-      if(!item&&pid){item=firstAvailableStockForPlan(pid);stockId=item?.id||'';if($id('opsDeliverStockId'))$id('opsDeliverStockId').value=stockId;if($id('opsDeliverStockSelect'))$id('opsDeliverStockSelect').value=stockId;}
-      if(!pid)return toast('Selecciona un plan.','bad');
-      if(!item&&visible(pid)<=0)return toast('No se puede entregar: este plan está en 0 cupos reales. Agrega una cuenta primero.','bad');
-      if(item&&(truthStatus(item)!=='available'||remUses(item)<=0))return toast('La cuenta seleccionada ya no tiene cupos libres.','bad');
-      const rawName=($id('opsDeliverName')?.value||'').trim(); if(!rawName)return toast('Ingresa nombre del cliente','bad');
-      const phone=normalizePhone($id('opsDeliverPhone')?.value||''); if(!phone.ok)return toast(phone.error||'WhatsApp inválido','bad'); phone.raw=($id('opsDeliverPhone')?.value||'').trim();
-      const d=sec(item);const family=isFamily(item,pid);const clientEmail=($id('opsDeliverClientEmail')?.value||'').trim(); if(family&&!clientEmail)return toast('Ingresa el correo Gmail del cliente para vincularlo al grupo familiar','bad');
-      const c=await upsertCustomer(rawName,phone,clientEmail); if(!c.ok)return toast('Cliente no guardado: '+c.error,'bad');
-      const finalName=c.data?.name||rawName;const service=($id('opsDeliverService')?.value||'').trim()||(typeof planName==='function'?planName(pid):'Servicio');const amount=$id('opsDeliverAmount')?.value===''?null:Number($id('opsDeliverAmount')?.value||0);const startDate=$id('opsDeliverStart')?.value||todayISO();const payDate=$id('opsDeliverPayDate')?.value||todayISO();const due=$id('opsDeliverDue')?.value||(typeof planRenewalDue==='function'?planRenewalDue(pid):todayISO());
-      const totpAccount=$id('opsDeliverTotpAccountId')?.value||stockTotp(item,pid)||'';let deliveredCode=$id('opsDeliverTotpCode')?.value||'';if(totpAccount&&!deliveredCode){try{deliveredCode=generateUniqueTotpAccessCode();}catch(_){deliveredCode='IA'+Date.now().toString(36).toUpperCase().slice(-8);}if($id('opsDeliverTotpCode'))$id('opsDeliverTotpCode').value=deliveredCode;}
-      if(totpAccount&&typeof createTotpCodeForDelivery==='function'){const made=await createTotpCodeForDelivery(totpAccount,deliveredCode,finalName,phone.e164,service);if(!made.ok)return toast('No se pudo crear el código Access TOTP: '+made.error,'bad');deliveredCode=made.code||deliveredCode;}
-      const msg=(typeof opsDeliveryTextFromPlan==='function'?opsDeliveryTextFromPlan(pid,{pedido:$id('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due,correo:d.correo||d.usuario||d.email||'',contraseña:d.clave||d.pass||d.password||'',perfil:d.perfil||'',pin:d.pin||'',grupo:d.grupo||'',url:d.url||d.grupo||'',codigo:deliveredCode,correo_admin:d.family_admin_email||d.correo_admin||d.correo||'',contraseña_admin:d.family_admin_pass||d.clave_admin||d.clave||'',grupo_familiar:d.family_admin_email||d.correo_admin||d.correo||'',cliente_gmail:clientEmail,codigo_2fa:d.twofa_code||d.codigo_2fa||''}):($id('opsDeliverText')?.value||''));
-      const reminder={customer_id:c.data.id,product_id:(typeof plan==='function'?plan(pid)?.product_id:null)||null,plan_id:pid,service_name:service,amount,currency:'PEN',due_date:due,status:'pending',fecha_inicio:startDate,fecha_pago:payDate,whatsapp_message:typeof buildTemplateMessage==='function'?buildTemplateMessage(getDefaultTemplate(),c.data,{service_name:service,amount,currency:'PEN',due_date:due,status:'pending',fecha_inicio:startDate,fecha_pago:payDate}):null};
-      const r=await insertReminder(reminder); if(r.error)return toast('Recordatorio no creado: '+r.error.message,'bad');
-      let used={ok:true,manual:true}; if(item)used=await consumeStock(item.id,{stock_id:item.id,customer_id:c.data.id,reminder_id:r.data?.id||null,customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,service,amount,due_date:due,totp_code:deliveredCode,source:'ops_delivery',pedido:$id('opsDeliverPedido')?.value||''});
-      if(!used.ok)return toast('Recordatorio creado, pero no se pudo descontar cupo: '+used.error,'bad');
-      await linkReminderV30(r.data?.id,{stock_id:item?.id||used.stock_id||null,customer_id:c.data.id,customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,service,amount,due_date:due,totp_code:deliveredCode,source:'ops_delivery'});
-      try{copyTextSafe(msg);}catch(_){ }
-      closeDialog('dlgOpsDeliver');toast('Entrega creada, cupo descontado e historial vinculado','ok');
-      if($id('opsDeliverOpenWa')?.checked){const url=waLink(phone.e164,msg);if(url!=='#')window.open(url,'_blank','noopener,noreferrer');}
-      await loadAll();try{switchTab('inventory');}catch(_){ }
-    }finally{window.__savingOpsV30=false;if(btn){btn.disabled=false;btn.textContent=oldTxt||'✅ Registrar entrega y abrir WhatsApp';}}
-  };
-
-  const prevRenderPlans=window.renderPlans;
-  if(typeof prevRenderPlans==='function'){
-    window.renderPlans=renderPlans=function(){prevRenderPlans();};
-  }
-  const prevRenderSummary=window.renderSummary;
-  if(typeof prevRenderSummary==='function'){
-    window.renderSummary=renderSummary=function(){
-      const body=$id('summaryRows');
-      if(!body||!state?.plans)return prevRenderSummary();
-      body.innerHTML=(state.plans||[]).map(p=>{const pr=typeof prod==='function'?prod(p.product_id):null;const cups=visible(p);const st=stats(p.id);return `<tr><td data-label="Producto"><b>${safeEsc(pr?.name||prodName(p.product_id)||'Producto')}</b></td><td data-label="Plan">${safeEsc(p.name||'Plan')}</td><td data-label="Tipo"><span class="badge ${String(p.stock_mode||'controlled')==='controlled'?'b-ok':'b-warn'}">${String(p.stock_mode||'controlled')==='controlled'?'Auto':'Manual'}</span></td><td data-label="Cupos"><span class="badge ${cups>0?'b-ok':'b-bad'}">${cups} cupo${cups===1?'':'s'}</span><div class="help">${st.rows.length?`${st.used}/${st.total} usados`:''}</div></td><td data-label="Estado">${safeEsc(p.availability_status||'available')}</td><td data-label="Acción"><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${safeEsc(p.id)}')">Ver cuentas</button></td></tr>`;}).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
-    };
-  }
-  document.addEventListener('change',function(e){if(e.target?.id==='opsDeliverStockSelect'){const item=(state.stock||[]).find(s=>String(s.id)===String(e.target.value));fillFromStock(item);}});
-  setTimeout(async()=>{try{await loadStockLogsSafe();}catch(_){} try{if(typeof renderKPIs==='function')renderKPIs();if(typeof renderSummary==='function')renderSummary();if(typeof renderPlans==='function')renderPlans();if($id('dlgPlanStockView')?.open)renderPlanStockView();if($id('btnOpsSaveDeliver'))$id('btnOpsSaveDeliver').onclick=saveOpsDeliver;}catch(e){console.warn('V30 refresh',e);}},0);
 })();
+
 </script>
 </body>
 </html>
