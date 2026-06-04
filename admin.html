@@ -8394,742 +8394,606 @@ setTimeout(enhanceCuposEntregaUi,0);
 })();
 
 
+
 /* ================================================================
-   PATCH V23 — MOTOR ÚNICO DE CUPOS REALES
-   Corrige el desfase donde el modal "Cuentas" ve cuentas en stock_items
-   pero la tarjeta del plan sigue mostrando 0 cupos por usar summary/RPC.
-   Este parche debe ejecutarse dentro del script principal, al final.
+   PATCH V20 — MOTOR ROBUSTO DE CUPOS
+   Corrige cupos que no se descuentan, planes que muestran cupo en 0,
+   selección de cuentas llenas y resumen stale de Supabase.
    ================================================================ */
 (function(){
-  if(window.__innovCuposCoreFixV23)return;
-  window.__innovCuposCoreFixV23=true;
+  if(window.__innovCuposRobustosV20)return;
+  window.__innovCuposRobustosV20=true;
 
-  const txt=v=>String(v??'');
-  const norm=v=>txt(v).trim().toLowerCase();
-  const toNum=(v,d=0)=>{const n=Number(v);return Number.isFinite(n)?n:d;};
-  const html=v=>txt(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
-  const getEl=id=>document.getElementById(id);
+  const $id=(id)=>document.getElementById(id);
+  const originalRenderKPIs=window.renderKPIs;
+  const originalRenderSummary=window.renderSummary;
+  const originalSaveOpsDeliver=window.saveOpsDeliver;
+  const originalSaveManualDelivery=window.saveManualDelivery;
 
-  function secretV23(item){
-    try{ if(typeof opsSecret==='function')return {...opsSecret(item)}; }catch(_){ }
-    const raw=item?.secret_data;
-    if(!raw)return {};
-    if(typeof raw==='string'){
-      try{return JSON.parse(raw)||{};}catch(_){
-        const p=raw.split('|').map(x=>x.trim());
-        return p.length>=2?{correo:p[0],usuario:p[0],email:p[0],clave:p[1],password:p[1],pass:p[1],perfil:p[2]||'',pin:p[3]||'',max_uses:toNum(p[4],1),used_count:0}:{};
-      }
+  function n(v,def=0){const x=Number(v);return Number.isFinite(x)?x:def;}
+  function safePlan(planOrId){return typeof planOrId==='string'?(window.plan?plan(planOrId):null):(planOrId||null);}
+  function safePlanId(planOrId){return typeof planOrId==='string'?planOrId:planOrId?.id;}
+  function safeSecret(item){
+    try{return {...(window.opsSecret?opsSecret(item):{})};}
+    catch(_){
+      const raw=item?.secret_data;
+      if(!raw)return {};
+      if(typeof raw==='string'){try{return JSON.parse(raw)||{};}catch(_){return {};}}
+      return {...raw};
     }
-    return typeof raw==='object'?{...raw}:{};
   }
-  function planObjV23(planOrId){
-    if(planOrId&&typeof planOrId==='object')return planOrId;
-    return (state?.plans||[]).find(p=>norm(p.id)===norm(planOrId))||null;
+  function exactUsed(item){
+    const d=safeSecret(item);
+    return Math.max(0,n(d.used_count ?? d.usos_usados ?? d.used ?? 0,0));
   }
-  function planIdV23(planOrId){return planOrId&&typeof planOrId==='object'?planOrId.id:planOrId;}
-  function stockPlanIdV23(item){
-    const d=secretV23(item);
-    return item?.plan_id||item?.product_plan_id||d.plan_id||d.product_plan_id||d.plan||'';
+  function exactMax(item){
+    const d=safeSecret(item);
+    return Math.max(1,n(d.max_uses ?? d.usos ?? d.cupos ?? d.family_slots ?? 1,1));
   }
-  function samePlanV23(item,planId){return !!planId && norm(stockPlanIdV23(item))===norm(planId);}
-  function isManualPlanV23(p){return ['manual','uncontrolled'].includes(norm(p?.stock_mode));}
-  function manualCountV23(p){return Math.max(0,toNum(p?.manual_stock_count ?? p?.stock_count ?? p?.available_stock,0));}
-  function maxUsesV23(item){
-    const d=secretV23(item);
-    return Math.max(1,toNum(d.max_uses ?? d.max_use ?? d.usos_maximos ?? d.slots ?? item?.max_uses,1));
+  function exactRemaining(item){return Math.max(0,exactMax(item)-exactUsed(item));}
+  function isAccountItem(item){
+    if(!item)return false;
+    try{if(window.opsIsAccount && opsIsAccount(item))return true;}catch(_){ }
+    const d=safeSecret(item);
+    return String(item.stock_type||'').toLowerCase()==='account' || !!(d.correo||d.usuario||d.email||d.clave||d.password||d.pass);
   }
-  function usedCountV23(item){
-    const d=secretV23(item);
-    return Math.min(maxUsesV23(item),Math.max(0,toNum(d.used_count ?? d.usos_usados ?? d.used ?? item?.used_count,0)));
-  }
-  function remainingV23(item){return Math.max(0,maxUsesV23(item)-usedCountV23(item));}
-  function isAccountV23(item){
-    const d=secretV23(item);
-    const t=norm(item?.stock_type||'account');
-    if(t==='code')return false;
-    if(t==='account')return true;
-    return !!(d.correo||d.usuario||d.email||d.clave||d.password||d.pass||d['contraseña']||d.contrasena||item?.title);
-  }
-  function isReservedV23(item){
-    const d=secretV23(item), st=norm(item?.status);
-    return st==='reserved'||!!(d.reserved_at||d.reserved_for||d.reserved_phone||d.reserved_due);
-  }
-  function isBlockedV23(item){
-    const d=secretV23(item), st=norm(item?.status);
-    return ['blocked','bloqueado','expired','vencido','disabled','inactive'].includes(st)||d.blocked===true||d.disabled===true;
-  }
-  function stockStatusV23(item){
-    if(!item)return 'missing';
-    if(isBlockedV23(item))return 'blocked';
-    if(usedCountV23(item)>=maxUsesV23(item))return 'used';
-    if(isReservedV23(item))return 'reserved';
+  function rawStatus(item){return String(item?.status||'available').toLowerCase().trim();}
+  function exactStatus(item){
+    const raw=rawStatus(item);
+    const d=safeSecret(item);
+    if(exactRemaining(item)<=0 || exactUsed(item)>=exactMax(item))return 'used';
+    if(['blocked','bloqueado','expired','vencido','deleted','eliminado','disabled','inactive'].includes(raw))return raw;
+    if(d.blocked_at||d.expired_at)return 'blocked';
+    if(['reserved','reservado'].includes(raw)||d.reserved_at||d.reserved_for)return 'reserved';
+    if(['used','delivered','usado','agotado'].includes(raw))return 'used';
     return 'available';
   }
-  function allRowsV23(planId){
-    return (state?.stock||[]).filter(x=>samePlanV23(x,planId)&&isAccountV23(x));
-  }
-  function freeRowsV23(planId){
-    return allRowsV23(planId)
-      .filter(x=>stockStatusV23(x)==='available'&&remainingV23(x)>0)
-      .sort((a,b)=>{
-        const au=usedCountV23(a), bu=usedCountV23(b);
-        if(au!==bu)return bu-au; // completar primero cuentas parcialmente usadas
-        return txt(a.created_at).localeCompare(txt(b.created_at));
-      });
-  }
-  function countsV23(planId){
-    const rows=allRowsV23(planId);
-    const total=rows.reduce((a,x)=>a+maxUsesV23(x),0);
-    const used=rows.reduce((a,x)=>a+usedCountV23(x),0);
-    const libres=rows.reduce((a,x)=>a+remainingV23(x),0);
-    const reservadas=rows.filter(x=>stockStatusV23(x)==='reserved').length;
-    const agotadas=rows.filter(x=>remainingV23(x)<=0||stockStatusV23(x)==='used').length;
-    return {rows,total,used,libres,reservadas,agotadas};
-  }
-  function visibleStockV23(planOrId){
-    const p=planObjV23(planOrId);
-    const pid=planIdV23(planOrId)||p?.id;
-    if(!pid)return 0;
-    const c=countsV23(pid);
-    if(c.rows.length)return c.libres;
-    if(isManualPlanV23(p))return manualCountV23(p);
-    // Solo como respaldo para planes automáticos sin ninguna cuenta cargada.
-    const s=(state?.summary||[]).find(x=>norm(x.plan_id)===norm(pid));
-    const val=toNum(s?.available_stock,0);
-    return Math.max(0,Number.isFinite(val)?val:0);
-  }
-  function planTypeLabelV23(p){return isManualPlanV23(p)?'Manual':'Automática';}
-  function planTypeBadgeV23(p){return isManualPlanV23(p)?'b-warn':'b-ok';}
-
-  // Fuente única de verdad para todo el frontend.
-  try{opsAvailableStatus=window.opsAvailableStatus=function(x){return stockStatusV23(x);};}catch(_){window.opsAvailableStatus=function(x){return stockStatusV23(x);};}
-  try{stockUsedCount=window.stockUsedCount=function(x){return usedCountV23(x);};}catch(_){window.stockUsedCount=function(x){return usedCountV23(x);};}
-  try{stockMaxUses=window.stockMaxUses=function(x){return maxUsesV23(x);};}catch(_){window.stockMaxUses=function(x){return maxUsesV23(x);};}
-  window.stockRemainingUses=function(x){return remainingV23(x);};
-  try{safeStockUsed=window.safeStockUsed=function(x){return usedCountV23(x);};}catch(_){window.safeStockUsed=function(x){return usedCountV23(x);};}
-  try{safeStockMax=window.safeStockMax=function(x){return maxUsesV23(x);};}catch(_){window.safeStockMax=function(x){return maxUsesV23(x);};}
-  try{safeStockRemaining=window.safeStockRemaining=function(x){return remainingV23(x);};}catch(_){window.safeStockRemaining=function(x){return remainingV23(x);};}
-  try{isDeliverableStock=window.isDeliverableStock=function(x){return !!x&&isAccountV23(x)&&stockStatusV23(x)==='available'&&remainingV23(x)>0;};}catch(_){window.isDeliverableStock=function(x){return !!x&&isAccountV23(x)&&stockStatusV23(x)==='available'&&remainingV23(x)>0;};}
-  try{availableStockForPlan=window.availableStockForPlan=function(planId){return freeRowsV23(planId);};}catch(_){window.availableStockForPlan=function(planId){return freeRowsV23(planId);};}
-  try{firstAvailableStockForPlan=window.firstAvailableStockForPlan=function(planId){return freeRowsV23(planId)[0]||null;};}catch(_){window.firstAvailableStockForPlan=function(planId){return freeRowsV23(planId)[0]||null;};}
-  try{visibleStock=window.visibleStock=function(planOrId){return visibleStockV23(planOrId);};}catch(_){window.visibleStock=function(planOrId){return visibleStockV23(planOrId);};}
-  window.realCuposForPlanV23=visibleStockV23;
-  window.realStockCountsV23=countsV23;
-  window.realStockRowsForPlanV23=allRowsV23;
-  window.realFreeRowsForPlanV23=freeRowsV23;
-
-  function buildLocalSummaryV23(){
-    return (state?.plans||[]).map(p=>{
-      const pr=(state?.products||[]).find(x=>norm(x.id)===norm(p.product_id))||{};
-      const c=countsV23(p.id);
-      const available=visibleStockV23(p);
-      const total=c.rows.length?c.total:(isManualPlanV23(p)?manualCountV23(p):available);
-      return {
-        product_id:p.product_id,
-        product_name:pr.name||'Producto',
-        product_active:pr.active!==false,
-        product_priority:pr.priority??100,
-        plan_id:p.id,
-        plan_name:p.name||'Plan',
-        plan_active:p.active!==false,
-        plan_priority:p.priority??100,
-        stock_mode:p.stock_mode||'controlled',
-        total_stock:total,
-        available_stock:available,
-        used_stock:Math.max(0,total-available),
-        max_uses:c.total,
-        used_count:c.used,
-        account_count:c.rows.length,
-        availability_status:p.availability_status||'available'
-      };
+  function stockRowsForPlan(planId){return (window.state?.stock||[]).filter(x=>x.plan_id===planId && isAccountItem(x));}
+  function deliverableRowsForPlan(planId){
+    return stockRowsForPlan(planId).filter(x=>exactStatus(x)==='available' && exactRemaining(x)>0).sort((a,b)=>{
+      const au=exactUsed(a),bu=exactUsed(b);
+      if(au!==bu)return bu-au; // completar primero cuentas parcialmente usadas
+      const ar=exactRemaining(a),br=exactRemaining(b);
+      if(ar!==br)return ar-br;
+      return String(a.created_at||'').localeCompare(String(b.created_at||''));
     });
   }
-  window.rebuildLocalStockSummaryV23=function(){state.summary=buildLocalSummaryV23();return state.summary;};
-
-  function cupoBadgeHtmlV23(p){
-    const cupos=visibleStockV23(p);
-    const c=countsV23(p.id);
-    const cls=cupos>0?'b-ok':'b-bad';
-    const title=c.rows.length?`${c.used}/${c.total} usados · ${c.rows.length} cuenta(s)`:'Sin cuentas cargadas';
-    return `<span class="badge ${cls}" title="${html(title)}">${cupos} cupo${cupos===1?'':'s'}</span>`;
+  function exactStockCounts(planId){
+    const rows=stockRowsForPlan(planId);
+    const free=rows.reduce((a,x)=>a+((exactStatus(x)==='available')?exactRemaining(x):0),0);
+    const used=rows.reduce((a,x)=>a+exactUsed(x),0);
+    const total=rows.reduce((a,x)=>a+exactMax(x),0);
+    const reserved=rows.filter(x=>exactStatus(x)==='reserved').length;
+    const full=rows.filter(x=>exactStatus(x)==='used').length;
+    return {rows,free,used,total,reserved,full};
+  }
+  function manualStockForPlan(p){return Math.max(0,n(p?.manual_stock_count ?? p?.stock_count ?? 0,0));}
+  function isManualPlan(p){return String(p?.stock_mode||'').toLowerCase()==='manual';}
+  function exactVisibleStock(planOrId){
+    const planId=safePlanId(planOrId); if(!planId)return 0;
+    const p=safePlan(planOrId)||{};
+    const counts=exactStockCounts(planId);
+    // Si hay cuentas subidas, el valor exacto sale de used_count/max_uses. No usar resumen viejo.
+    if(counts.rows.length>0)return counts.free;
+    if(isManualPlan(p))return manualStockForPlan(p);
+    // Solo se acepta el resumen RPC si no se cargó detalle de stock para ese plan.
+    const s=(window.state?.summary||[]).find(x=>x.plan_id===planId);
+    const rpc=n(s?.available_stock,0);
+    return Math.max(0,Number.isFinite(rpc)?rpc:0);
+  }
+  function hasRealCup(planId,stockId=''){
+    if(stockId){
+      const item=(window.state?.stock||[]).find(x=>x.id===stockId);
+      return !!item && exactStatus(item)==='available' && exactRemaining(item)>0;
+    }
+    const p=window.plan?plan(planId):null;
+    if(deliverableRowsForPlan(planId).length>0)return true;
+    if(isManualPlan(p) && manualStockForPlan(p)>0)return true;
+    return false;
+  }
+  function stockOptionText(item){
+    const d=safeSecret(item);
+    const base=item?.title||d.family_admin_email||d.correo_admin||d.correo||d.usuario||d.email||'Cuenta';
+    const meta=[];
+    if(d.perfil)meta.push('Perfil '+d.perfil);
+    if(d.pin)meta.push('PIN '+d.pin);
+    meta.push(`${exactUsed(item)}/${exactMax(item)} usados`);
+    meta.push(`${exactRemaining(item)} libre${exactRemaining(item)===1?'':'s'}`);
+    return base+' — '+meta.join(' · ');
+  }
+  function setSelectOptions(select,planId,current=''){
+    if(!select)return null;
+    const rows=deliverableRowsForPlan(planId);
+    const selected=(current&&rows.some(x=>x.id===current))?current:(rows[0]?.id||'');
+    select.innerHTML=rows.length
+      ? rows.map(x=>`<option value="${String(x.id).replaceAll('"','&quot;')}" ${x.id===selected?'selected':''}>${String(stockOptionText(x)).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</option>`).join('')
+      : '<option value="">Sin cuentas libres</option>';
+    select.value=selected;
+    select.disabled=!rows.length;
+    return rows.find(x=>x.id===selected)||null;
   }
 
-  function renderPlanCardActionsV23(p,cupos){
-    const disabled=cupos<=0?'disabled title="No hay cupos libres. Agrega una cuenta primero."':'';
-    return `<div class="line-actions">
-      <button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar</button>
-      <button class="btn btn-success" onclick="openPlanManualDelivery('${p.id}')" ${disabled}>Entregar</button>
-      <button class="btn" onclick="addStockForPlan('${p.id}')">＋ Agregar</button>
-      <button class="btn" onclick="openPlanAccounts('${p.id}')">⌄ Cuentas</button>
-      <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button>
-      <button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">Elim.</button>
+  window.stockUsedCount=stockUsedCount=function(item){return exactUsed(item);};
+  window.stockMaxUses=stockMaxUses=function(item){return exactMax(item);};
+  window.stockRemainingUses=stockRemainingUses=function(item){return exactRemaining(item);};
+  window.opsAvailableStatus=opsAvailableStatus=function(item){return exactStatus(item);};
+  window.stockIsDeliverable=stockIsDeliverable=function(item){return !!item && exactStatus(item)==='available' && exactRemaining(item)>0 && isAccountItem(item);};
+  window.availableStockForPlan=availableStockForPlan=function(planId){return deliverableRowsForPlan(planId);};
+  window.firstAvailableStockForPlan=firstAvailableStockForPlan=function(planId){return deliverableRowsForPlan(planId)[0]||null;};
+  window.visibleStock=visibleStock=function(planOrId){return exactVisibleStock(planOrId);};
+
+  window.renderKPIs=renderKPIs=function(){
+    try{
+      if($id('kpiProducts'))$id('kpiProducts').textContent=(state.products||[]).filter(p=>p.active!==false).length;
+      if($id('kpiStock'))$id('kpiStock').textContent=(state.plans||[]).reduce((a,p)=>a+exactVisibleStock(p),0);
+      const pendOrders=(state.orders||[]).filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
+      if($id('kpiOrders'))$id('kpiOrders').textContent=pendOrders;
+      if($id('kpiDelivery'))$id('kpiDelivery').textContent=(state.orders||[]).filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
+      if($id('kpiClients'))$id('kpiClients').textContent=(state.customers||[]).length;
+      const dueRem=(state.reminders||[]).filter(r=>window.reminderIsExpired?reminderIsExpired(r):false).length;
+      if($id('kpiDue'))$id('kpiDue').textContent=dueRem;
+      ['tbOrders','mbOrders'].forEach(id=>{const el=$id(id);if(el){el.textContent=pendOrders;el.style.display=pendOrders>0?'':'none';}});
+      ['tbReminders','mbReminders'].forEach(id=>{const el=$id(id);if(el){el.textContent=dueRem;el.style.display=dueRem>0?'':'none';}});
+    }catch(e){console.warn('renderKPIs v20',e); if(typeof originalRenderKPIs==='function')originalRenderKPIs();}
+  };
+
+  window.renderSummary=renderSummary=function(){
+    const body=$id('summaryRows'); if(!body)return;
+    const rows=(state.plans||[]).map(p=>{
+      const product=window.prod?prod(p.product_id):null;
+      const counts=exactStockCounts(p.id);
+      const cupos=exactVisibleStock(p);
+      const tipo=isManualPlan(p)?'Manual':'Auto';
+      const badge=cupos>0?'b-ok':'b-bad';
+      const detail=counts.rows.length?` · ${counts.used}/${counts.total} usados`:'';
+      return `<tr>
+        <td data-label="Producto"><b>${esc(product?.name||prodName(p.product_id)||'Producto')}</b></td>
+        <td data-label="Plan">${esc(p.name||'Plan')}</td>
+        <td data-label="Tipo"><span class="badge ${isManualPlan(p)?'b-warn':'b-ok'}">${tipo}</span></td>
+        <td data-label="Cupos"><span class="badge ${badge}">${cupos} cupo${cupos===1?'':'s'}</span><div class="help">Exacto${detail}</div></td>
+        <td data-label="Estado">${esc(p.availability_status||'available')}</td>
+        <td data-label="Acción"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editPlan('${p.id}')">Editar</button><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${p.id}')">Ver cuentas</button></div></td>
+      </tr>`;
+    });
+    body.innerHTML=rows.join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
+  };
+
+  async function updateStockExact(id,secretData,preferredStatus){
+    let r=await db.from('stock_items').update({status:preferredStatus,secret_data:secretData}).eq('id',id).select().single();
+    if(r.error && /check|constraint|violates|restricci|invalid input/i.test(r.error.message||'')){
+      r=await db.from('stock_items').update({status:'available',secret_data:secretData}).eq('id',id).select().single();
+    }
+    return r;
+  }
+  async function logUsageSafe(row){try{await db.from('stock_usage_logs').insert({created_at:new Date().toISOString(),...row});}catch(_){}}
+  window.consumeSpecificStock=consumeSpecificStock=async function(stockId,ctx={}){
+    if(!stockId)return {ok:false,error:'Selecciona una cuenta con cupo libre.'};
+    const fresh=await db.from('stock_items').select('*').eq('id',stockId).single();
+    if(fresh.error)return {ok:false,error:fresh.error.message};
+    const item=fresh.data;
+    if(exactStatus(item)!=='available' || exactRemaining(item)<=0)return {ok:false,error:'Esta cuenta ya está llena o no tiene cupos libres.'};
+    const d=safeSecret(item);
+    d.max_uses=exactMax(item);
+    d.used_count=Math.min(d.max_uses,exactUsed(item)+1);
+    d.last_customer=ctx.customer_name||'';
+    d.last_phone=ctx.customer_phone||'';
+    d.last_email=ctx.customer_email||'';
+    d.last_used_at=new Date().toISOString();
+    if(ctx.totp_code){d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];if(!d.used_totp_codes.includes(ctx.totp_code))d.used_totp_codes.push(ctx.totp_code);}
+    d.history=Array.isArray(d.history)?d.history:[];
+    d.history.push({
+      usage_id:ctx.usage_id||('use_'+Date.now().toString(36)),stock_id:stockId,order_id:ctx.order_id||null,reminder_id:ctx.reminder_id||null,pedido:ctx.pedido||'',
+      customer_id:ctx.customer_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',client_email:ctx.customer_email||'',
+      service:ctx.service||((window.planName&&item.plan_id)?planName(item.plan_id):''),amount:ctx.amount??null,due_date:ctx.due_date||'',totp_code:ctx.totp_code||'',source:ctx.source||'entrega',at:new Date().toISOString()
+    });
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+    const finalStatus=d.used_count>=d.max_uses?'used':'available';
+    const r=await updateStockExact(stockId,d,finalStatus);
+    if(r.error)return {ok:false,error:r.error.message};
+    const idx=(state.stock||[]).findIndex(s=>s.id===stockId);
+    if(idx>=0)state.stock[idx]=r.data||{...item,secret_data:d,status:finalStatus};
+    await logUsageSafe({stock_item_id:stockId,customer_id:ctx.customer_id||null,reminder_id:ctx.reminder_id||null,order_id:ctx.order_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',service_name:ctx.service||'',status:'used',used_at:new Date().toISOString(),context:ctx});
+    return {ok:true,stock_id:stockId,status:finalStatus,remaining:Math.max(0,d.max_uses-d.used_count)};
+  };
+  window.consumePlanStock=consumePlanStock=async function(planId,ctx={}){
+    if(!planId)return {ok:false,error:'Selecciona un plan.'};
+    const stockId=ctx.stock_id||'';
+    if(stockId)return consumeSpecificStock(stockId,ctx);
+    const item=firstAvailableStockForPlan(planId);
+    if(item)return consumeSpecificStock(item.id,{...ctx,stock_id:item.id,plan_id:planId});
+    const p=window.plan?plan(planId):null;
+    if(isManualPlan(p) && manualStockForPlan(p)>0){
+      const next=Math.max(0,manualStockForPlan(p)-1);
+      const r=await db.from('product_plans').update({manual_stock_count:next}).eq('id',planId).select().single();
+      if(r.error)return {ok:false,error:r.error.message};
+      const idx=(state.plans||[]).findIndex(x=>x.id===planId); if(idx>=0)state.plans[idx]=r.data||{...p,manual_stock_count:next};
+      return {ok:true,manual:true,next};
+    }
+    return {ok:false,error:'Este plan está en 0 cupos. Agrega una cuenta/cupo antes de entregar.'};
+  };
+
+  function refreshExactSelectors(){
+    try{
+      const mp=$id('manualPlan')?.value||'';
+      if(mp&&$id('manualStockSelect')){
+        const cur=$id('manualStockSelect').value;
+        const selected=setSelectOptions($id('manualStockSelect'),mp,cur);
+        if($id('manualStockId'))$id('manualStockId').value=selected?.id||'';
+        if($id('manualStockSelectHelp'))$id('manualStockSelectHelp').textContent=selected?'Cuenta lista: '+stockOptionText(selected):'No hay cuentas libres. Agrega una cuenta/cupo antes de entregar.';
+      }
+      const op=$id('opsDeliverPlanId')?.value||'';
+      if(op&&$id('opsDeliverStockSelect')){
+        const cur=$id('opsDeliverStockSelect').value||$id('opsDeliverStockId')?.value||'';
+        const selected=setSelectOptions($id('opsDeliverStockSelect'),op,cur);
+        if($id('opsDeliverStockId'))$id('opsDeliverStockId').value=selected?.id||'';
+        const h=$id('opsDeliverStockSelectHelp')||$id('opsDeliverStockHint');
+        if(h)h.textContent=selected?'Cuenta lista: '+stockOptionText(selected):'No hay cupos libres para este plan. Agrega una cuenta antes de entregar.';
+      }
+    }catch(e){console.warn('refreshExactSelectors',e);}
+  }
+  window.refreshExactCupos=refreshExactCupos=function(){
+    try{renderKPIs();renderSummary();if(typeof renderProducts==='function')renderProducts();if(typeof renderPlans==='function')renderPlans();if(typeof renderPlanStockView==='function')renderPlanStockView();refreshExactSelectors();}catch(e){console.warn('refreshExactCupos',e);}
+  };
+
+  window.saveOpsDeliver=saveOpsDeliver=async function(){
+    const stockId=$id('opsDeliverStockSelect')?.value||$id('opsDeliverStockId')?.value||'';
+    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+    const planId=item?.plan_id||$id('opsDeliverPlanId')?.value||'';
+    if(!planId)return toast('Selecciona un plan.','bad');
+    if(!hasRealCup(planId,stockId)){
+      refreshExactSelectors();
+      return toast('No se puede entregar: este plan está en 0 cupos reales. Agrega una cuenta/cupo primero.','bad');
+    }
+    return originalSaveOpsDeliver.apply(this,arguments);
+  };
+  window.saveManualDelivery=saveManualDelivery=async function(){
+    const stockId=$id('manualStockSelect')?.value||$id('manualStockId')?.value||'';
+    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+    const planId=item?.plan_id||$id('manualPlan')?.value||'';
+    if(planId && !hasRealCup(planId,stockId)){
+      refreshExactSelectors();
+      return toast('No se puede entregar: este plan está en 0 cupos reales. Agrega una cuenta/cupo primero.','bad');
+    }
+    return originalSaveManualDelivery.apply(this,arguments);
+  };
+
+  document.addEventListener('change',function(e){
+    const id=e.target?.id||'';
+    if(['manualPlan','opsDeliverPlanId','manualStockSelect','opsDeliverStockSelect'].includes(id))setTimeout(refreshExactSelectors,0);
+  });
+  setTimeout(refreshExactCupos,0);
+})();
+
+
+/* ================================================================
+   PATCH V27 — Cuentas: borrado robusto + selección múltiple
+   Aplicado sobre admin (15).html sin tocar tienda, checkout, Telegram ni TOTP público.
+   ================================================================ */
+(function(){
+  const $id = (id)=>document.getElementById(id);
+  const css = `
+    .plan-stock-bulk{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 10px;padding:10px 12px;border:1px solid var(--border);border-left:4px solid var(--danger);border-radius:14px;background:var(--danger-alpha)}
+    .plan-stock-bulk.show{display:flex}
+    .plan-stock-bulk .btn{padding:7px 10px;font-size:.78rem}
+    .plan-stock-row.plan-stock-selectable{position:relative;cursor:default;transition:outline var(--tr),background var(--tr),transform var(--tr-fast)}
+    .plan-stock-row.plan-stock-selectable.selection-mode{cursor:pointer}
+    .plan-stock-row.plan-stock-selectable.selection-mode:hover{outline:1px solid var(--primary);background:var(--primary-alpha2)}
+    .plan-stock-row.plan-stock-selectable.is-selected{outline:2px solid var(--primary);background:var(--primary-alpha)!important}
+    .plan-stock-check{display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);color:var(--primary);font-weight:900;margin-right:8px;flex:0 0 auto;box-shadow:var(--shadow-xs)}
+    .selection-mode .plan-stock-check{display:inline-flex}
+    .plan-stock-row.is-selected .plan-stock-check{background:var(--primary);border-color:var(--primary);color:#fff}
+    .plan-stock-title-line{display:flex;align-items:center;gap:0;min-width:0}
+    .plan-stock-row.is-archived{display:none!important}
+    @media(max-width:700px){.plan-stock-bulk{display:none;position:sticky;top:0;z-index:4}.plan-stock-bulk.show{display:flex}.plan-stock-bulk .btn{flex:1 1 calc(50% - 6px)}.plan-stock-check{width:26px;height:26px}}
+  `;
+  try{
+    const st=document.createElement('style');
+    st.setAttribute('data-patch','v27-plan-stock-selection');
+    st.textContent=css;
+    document.head.appendChild(st);
+  }catch(_){ }
+
+  if(typeof state==='object'){
+    state.planStockSelectionMode = !!state.planStockSelectionMode;
+    state.selectedPlanStockIds = state.selectedPlanStockIds instanceof Set ? state.selectedPlanStockIds : new Set();
+    state.planStockLongPressTimer = null;
+  }
+
+  function safeEsc(v){return (typeof esc==='function')?esc(v):String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');}
+  function secretOf(item){try{return typeof opsSecret==='function'?({...opsSecret(item)}):({...((item&&item.secret_data)||{})});}catch(_){return {};}}
+  function nowIso(){return new Date().toISOString();}
+  function stockTitle(item){const d=secretOf(item);return item?.title||d.family_admin_email||d.correo_admin||d.correo||d.email||d.usuario||'Cuenta';}
+  function isArchivedStock(item){
+    const d=secretOf(item);
+    const raw=String(item?.status||'').toLowerCase();
+    return !!(d.archived||d._archived||d.deleted_at||d.archived_at||d.delete_requested_at||d.hidden_from_admin||raw==='archived'||raw==='deleted');
+  }
+  window.isArchivedStock=isArchivedStock;
+
+  const previousOpsAvailableStatus = (typeof opsAvailableStatus==='function') ? opsAvailableStatus : null;
+  window.opsAvailableStatus = opsAvailableStatus = function(item){
+    if(isArchivedStock(item))return 'archived';
+    if(previousOpsAvailableStatus)return previousOpsAvailableStatus(item);
+    return 'available';
+  };
+
+  function accountRowsForPlan(planId,includeArchived=false){
+    return (state.stock||[]).filter(x=>x&&x.plan_id===planId && (typeof opsIsAccount!=='function'||opsIsAccount(x)) && (includeArchived||!isArchivedStock(x)));
+  }
+  function usedCount(item){try{return typeof stockUsedCount==='function'?stockUsedCount(item):Math.max(0,Number(secretOf(item).used_count||0)||0);}catch(_){return 0;}}
+  function maxUses(item){try{return typeof stockMaxUses==='function'?stockMaxUses(item):Math.max(1,Number(secretOf(item).max_uses||1)||1);}catch(_){return 1;}}
+  function remainingUses(item){try{return typeof stockRemainingUses==='function'?stockRemainingUses(item):Math.max(0,maxUses(item)-usedCount(item));}catch(_){return 0;}}
+  function planStockStats(planId){
+    const rows=accountRowsForPlan(planId,false);
+    const free=rows.filter(x=>opsAvailableStatus(x)==='available').reduce((a,x)=>a+remainingUses(x),0);
+    const reserved=rows.filter(x=>opsAvailableStatus(x)==='reserved').reduce((a,x)=>a+Math.max(1,remainingUses(x)||1),0);
+    const used=rows.reduce((a,x)=>a+usedCount(x),0);
+    const total=rows.reduce((a,x)=>a+maxUses(x),0);
+    return {rows,free,reserved,used,total};
+  }
+
+  const previousVisibleStock = (typeof visibleStock==='function') ? visibleStock : null;
+  window.visibleStock = visibleStock = function(planOrId){
+    const planId=typeof planOrId==='string'?planOrId:planOrId?.id;
+    if(!planId)return 0;
+    const p=typeof planOrId==='string'?(typeof plan==='function'?plan(planId):null):planOrId;
+    const rows=accountRowsForPlan(planId,false);
+    if(rows.length)return rows.filter(x=>opsAvailableStatus(x)==='available').reduce((a,x)=>a+remainingUses(x),0);
+    if((p?.stock_mode||'')==='manual')return Number(p.manual_stock_count||0);
+    if(previousVisibleStock)return Math.max(0,Number(previousVisibleStock(planOrId)||0));
+    return 0;
+  };
+
+  window.stockIsDeliverable = stockIsDeliverable = function(item){
+    return !!item && !isArchivedStock(item) && opsAvailableStatus(item)==='available' && remainingUses(item)>0 && (typeof opsIsAccount!=='function'||opsIsAccount(item));
+  };
+
+  window.firstAvailableStockForPlan = firstAvailableStockForPlan = function(planId){
+    return accountRowsForPlan(planId,false)
+      .filter(x=>stockIsDeliverable(x))
+      .sort((a,b)=>{
+        const au=usedCount(a), bu=usedCount(b);
+        if((au>0)!==(bu>0))return au>0?-1:1;
+        return String(a.created_at||'').localeCompare(String(b.created_at||''));
+      })[0]||null;
+  };
+
+  window.planStockFilteredRows = planStockFilteredRows = function(){
+    const planId=$id('planStockPlanId')?.value||'';
+    const q=($id('planStockSearch')?.value||'').toLowerCase().trim();
+    let rows=accountRowsForPlan(planId,false);
+    if(q)rows=rows.filter(x=>{
+      const d=secretOf(x);
+      const hist=Array.isArray(d.history)?d.history.map(h=>`${h.customer_name||''} ${h.customer_phone||''} ${h.client_email||''} ${h.family_admin||''} ${h.service||''}`).join(' '):'';
+      return (`${x.title||''} ${x.notes||''} ${opsAvailableStatus(x)} ${d.correo||''} ${d.email||''} ${d.usuario||''} ${d.clave||''} ${d.pass||''} ${d.perfil||''} ${d.pin||''} ${d.family_admin_email||''} ${d.correo_admin||''} ${d.twofa_code||''} ${d.codigo_2fa||''} ${d.reserved_for||''} ${d.reserved_phone||''} ${hist}`).toLowerCase().includes(q);
+    });
+    rows.sort((a,b)=>{
+      const order={available:0,reserved:1,used:2,delivered:2,archived:9};
+      return (order[opsAvailableStatus(a)]??3)-(order[opsAvailableStatus(b)]??3)||String(a.created_at||'').localeCompare(String(b.created_at||''));
+    });
+    return rows;
+  };
+
+  function rowHistoryHtml(d){
+    const hist=Array.isArray(d.history)?d.history:[];
+    if(!hist.length)return '<div class="plan-stock-sub">Sin entregas registradas todavía.</div>';
+    return `<div class="plan-stock-sub"><b>Historial:</b> ${hist.slice(-4).reverse().map(h=>`${safeEsc(h.customer_name||'Cliente')}${h.customer_phone?' · '+safeEsc(h.customer_phone):''}${h.client_email?' · Gmail '+safeEsc(h.client_email):''}${h.family_admin?' · Grupo '+safeEsc(h.family_admin):''}${h.perfil?' · '+safeEsc(h.perfil):''}${h.at?' · '+safeEsc(new Date(h.at).toLocaleDateString('es-PE')):''}`).join('<br>')}</div>`;
+  }
+  function resetInvalidSelection(rows){
+    if(!state?.selectedPlanStockIds)return;
+    const valid=new Set(rows.map(x=>x.id));
+    [...state.selectedPlanStockIds].forEach(id=>{if(!valid.has(id))state.selectedPlanStockIds.delete(id);});
+    if(!state.selectedPlanStockIds.size)state.planStockSelectionMode=false;
+  }
+
+  window.renderPlanStockView = renderPlanStockView = function(){
+    const list=$id('planStockList');if(!list)return;
+    const planId=$id('planStockPlanId')?.value||'';
+    const rows=planStockFilteredRows();
+    resetInvalidSelection(rows);
+    const stats=planStockStats(planId);
+    const selectedCount=state.selectedPlanStockIds?.size||0;
+    const selectionMode=!!state.planStockSelectionMode;
+    const bulk=`<div id="planStockBulkBar" class="plan-stock-bulk ${selectionMode?'show':''}">
+      <strong id="planStockBulkCount">${selectedCount} seleccionada${selectedCount===1?'':'s'}</strong>
+      <button class="btn btn-danger" type="button" ${selectedCount?'':'disabled'} onclick="deleteSelectedPlanStock()">Eliminar seleccionadas</button>
+      <button class="btn" type="button" onclick="cancelPlanStockSelection()">Cancelar</button>
+      <span class="help">Doble clic para seleccionar. En celular mantén presionado y luego toca otras cuentas.</span>
     </div>`;
-  }
-
-  try{renderPlans=window.renderPlans=function(){
-    const grid=getEl('plansGrid'); if(!grid)return;
-    const q=txt(getEl('planSearch')?.value).toLowerCase();
-    let arr=(state?.plans||[]).filter(p=>txt((typeof prodName==='function'?prodName(p.product_id):'')+' '+(p.name||'')).toLowerCase().includes(q));
-    if(state?.onlyEmpty)arr=arr.filter(p=>visibleStockV23(p)<=0);
-    grid.innerHTML=arr.map(p=>{
-      const cupos=visibleStockV23(p), c=countsV23(p.id);
-      const detalle=c.rows.length?`<div class="help">${c.used}/${c.total} usados · ${c.rows.length} cuenta(s) registrada(s)</div>`:'';
-      return `<div class="mini-card">
-        <div class="mini-head">
-          <div><b>${html(typeof prodName==='function'?prodName(p.product_id):'Producto')}</b><div>${html(p.name||'Plan')}</div><div class="help">${typeof money==='function'?money(p.price):('S/ '+toNum(p.price).toFixed(2))} · ${html(p.period||'')}</div></div>
-          <span class="badge ${planTypeBadgeV23(p)}">${planTypeLabelV23(p)}</span>
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
-          ${cupoBadgeHtmlV23(p)}
-          <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
-          <span class="badge">${html(p.availability_status||'available')}</span>
-          ${typeof planTotpAccountId==='function'&&planTotpAccountId(p)?`<span class="badge b-purple">🛡 Access TOTP</span>`:''}
-        </div>
-        ${detalle}
-        ${renderPlanCardActionsV23(p,cupos)}
-      </div>`;
-    }).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
-  };}catch(_){ }
-
-  try{renderKPIs=window.renderKPIs=function(){
-    if(getEl('kpiProducts'))getEl('kpiProducts').textContent=(state?.products||[]).filter(p=>p.active!==false).length;
-    if(getEl('kpiStock'))getEl('kpiStock').textContent=(state?.plans||[]).reduce((a,p)=>a+visibleStockV23(p),0);
-    const pendOrders=(state?.orders||[]).filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
-    if(getEl('kpiOrders'))getEl('kpiOrders').textContent=pendOrders;
-    if(getEl('kpiDelivery'))getEl('kpiDelivery').textContent=(state?.orders||[]).filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
-    if(getEl('kpiClients'))getEl('kpiClients').textContent=(state?.customers||[]).length;
-    const dueRem=(state?.reminders||[]).filter(r=>{try{return reminderIsExpired(r);}catch(_){return false;}}).length;
-    if(getEl('kpiDue'))getEl('kpiDue').textContent=dueRem;
-    ['tbOrders','mbOrders'].forEach(id=>{const el=getEl(id);if(el){el.textContent=pendOrders;el.style.display=pendOrders>0?'':'none';}});
-    ['tbReminders','mbReminders'].forEach(id=>{const el=getEl(id);if(el){el.textContent=dueRem;el.style.display=dueRem>0?'':'none';}});
-  };}catch(_){ }
-
-  try{renderSummary=window.renderSummary=function(){
-    const body=getEl('summaryRows'); if(!body)return;
-    const rows=buildLocalSummaryV23(); state.summary=rows;
-    body.innerHTML=rows.map(s=>`<tr>
-      <td data-label="Producto"><b>${html(s.product_name)}</b></td>
-      <td data-label="Plan">${html(s.plan_name)}</td>
-      <td data-label="Tipo"><span class="badge ${s.stock_mode==='manual'?'b-warn':'b-ok'}">${s.stock_mode==='manual'?'Manual':'Auto'}</span></td>
-      <td data-label="Cupos"><span class="badge ${s.available_stock>0?'b-ok':'b-bad'}">${s.available_stock} libres</span>${s.account_count?` <span class="badge">${s.used_count}/${s.max_uses} usados</span>`:''}</td>
-      <td data-label="Estado"><span class="badge ${s.plan_active?'b-ok':'b-bad'}">${s.plan_active?'Activo':'Oculto'}</span> <span class="badge">${html(s.availability_status)}</span></td>
-      <td data-label="Acción"><button class="btn btn-sm" onclick="openPlanAccounts('${s.plan_id}')">Ver cuentas</button></td>
-    </tr>`).join('')||'<tr><td colspan="6">Sin datos</td></tr>';
-  };}catch(_){ }
-
-  const oldRenderAll=typeof renderAll==='function'?renderAll:null;
-  if(oldRenderAll){
-    try{renderAll=window.renderAll=function(){
-      try{state.summary=buildLocalSummaryV23();}catch(_){ }
-      return oldRenderAll();
-    };}catch(_){ }
-  }
-
-  window.openPlanManualDelivery=typeof openPlanManualDelivery==='function'?function(planId){
-    const rows=freeRowsV23(planId);
-    if(rows.length===1){openOpsDeliver(rows[0].id,planId);return;}
-    if(rows.length>1){openPlanStockView(planId);try{toast('Elige la cuenta que deseas entregar','ok');}catch(_){ }return;}
-    try{toast('Este plan no tiene cupos libres. Agrega una cuenta primero.','bad');}catch(_){ }
-  }:window.openPlanManualDelivery;
-  try{openPlanManualDelivery=window.openPlanManualDelivery;}catch(_){ }
-
-  window.addStockForPlan=function(planId){
-    if(typeof openOpsStockDialog==='function')openOpsStockDialog('account','');
-    const sel=getEl('opsStockPlan'); if(sel)sel.value=planId||sel.value||'';
-    const bulk=getEl('opsStockProfilesBulk'); if(bulk)bulk.value='';
-    try{if(typeof syncOpsStockTotpBox==='function')syncOpsStockTotpBox();}catch(_){ }
-    try{if(typeof syncOpsFamilyUi==='function')syncOpsFamilyUi();}catch(_){ }
-    setTimeout(()=>{try{getEl('opsStockUser')?.focus();}catch(_){ }},60);
-  };
-  try{addStockForPlan=window.addStockForPlan;}catch(_){ }
-  window.openPlanAccounts=function(planId){ if(typeof openPlanStockView==='function')openPlanStockView(planId); };
-  try{openPlanAccounts=window.openPlanAccounts;}catch(_){ }
-
-  // Evita que funciones antiguas vuelvan a una pestaña inexistente llamada "ops".
-  const oldSwitchTab=typeof switchTab==='function'?switchTab:null;
-  if(oldSwitchTab){
-    window.switchTab=function(tab){return oldSwitchTab(tab==='ops'?'inventory':tab);};
-    try{switchTab=window.switchTab;}catch(_){ }
-  }
-
-  // Recalcula al terminar escrituras/cargas y repinta si ya hay datos.
-  setTimeout(()=>{
-    try{state.summary=buildLocalSummaryV23();}catch(_){ }
-    try{renderKPIs();renderSummary();renderPlans();}catch(_){ }
-  },0);
-})();
-
-
-/* ================================================================
-   PATCH V25 — BORRADO REAL DE CUENTAS / CUPOS
-   - Corrige el botón Eliminar dentro de "Cuentas e historial".
-   - Intenta borrar por RPC segura si existe.
-   - Si no existe RPC, limpia vínculos comunes y borra desde stock_items.
-   - Si Supabase bloquea por historial/FK, archiva y oculta la cuenta para que no cuente cupo.
-   ================================================================ */
-(function(){
-  if(window.__innovDeleteStockFixV25)return;
-  window.__innovDeleteStockFixV25=true;
-
-  function stockDeletedV25(x){
-    try{
-      const d=(typeof opsSecret==='function')?opsSecret(x):(x?.secret_data||{});
-      return !!(d?.deleted || d?.archived || d?.removed || d?.eliminado) || /^\s*\[ELIMINADO\]/i.test(String(x?.notes||''));
-    }catch(_){
-      return /^\s*\[ELIMINADO\]/i.test(String(x?.notes||''));
-    }
-  }
-
-  const oldOpsIsAccountV25=typeof opsIsAccount==='function'?opsIsAccount:null;
-  window.opsIsAccount=function(x){
-    if(stockDeletedV25(x))return false;
-    return oldOpsIsAccountV25?oldOpsIsAccountV25(x):(String(x?.stock_type||'').toLowerCase()==='account');
-  };
-  try{opsIsAccount=window.opsIsAccount;}catch(_){}
-
-  const oldPlanStockFilteredRowsV25=typeof planStockFilteredRows==='function'?planStockFilteredRows:null;
-  window.planStockFilteredRows=function(){
-    const rows=oldPlanStockFilteredRowsV25?oldPlanStockFilteredRowsV25():[];
-    return rows.filter(x=>!stockDeletedV25(x));
-  };
-  try{planStockFilteredRows=window.planStockFilteredRows;}catch(_){}
-
-  async function ignoreMissingColumnOrTableV25(promise){
-    try{
-      const r=await promise;
-      return {ok:!r?.error,error:r?.error||null};
-    }catch(e){
-      return {ok:false,error:e};
-    }
-  }
-
-  async function detachStockRefsV25(id){
-    const jobs=[
-      ['deliveries','stock_item_id','null'],
-      ['payment_reminders','linked_stock_id','null'],
-      ['payment_reminders','stock_item_id','null'],
-      ['orders','stock_item_id','null'],
-      ['totp_access_codes','stock_item_id','null'],
-      ['stock_usage_logs','stock_item_id','delete']
-    ];
-    for(const [table,col,mode] of jobs){
-      if(mode==='delete'){
-        await ignoreMissingColumnOrTableV25(db.from(table).delete().eq(col,id));
-      }else{
-        const payload={}; payload[col]=null;
-        await ignoreMissingColumnOrTableV25(db.from(table).update(payload).eq(col,id));
-      }
-    }
-  }
-
-  async function archiveStockV25(id, reason){
-    const x=(state.stock||[]).find(s=>s.id===id)||{};
-    const d={...(typeof opsSecret==='function'?opsSecret(x):(x.secret_data||{}))};
-    const max=Math.max(1,Number(d.max_uses||1));
-    d.deleted=true;
-    d.archived=true;
-    d.removed=true;
-    d.archived_at=new Date().toISOString();
-    d.archive_reason=reason||'delete_fallback';
-    d.used_count=max;
-    d.max_uses=max;
-    const note='[ELIMINADO] '+String(x.notes||d.nota||'').replace(/^\[ELIMINADO\]\s*/,'');
-    const r=await db.from('stock_items').update({
-      secret_data:d,
-      notes:note,
-      status:(typeof stockDbStatus==='function'?stockDbStatus('available'):'available')
-    }).eq('id',id).select('id');
-    if(r.error)throw r.error;
-    return {ok:true,mode:'archived'};
-  }
-
-  async function deleteStockCoreV25(id){
-    if(!id)throw new Error('No se recibió ID de cuenta.');
-    const before=(state.stock||[]).find(s=>s.id===id)||{};
-    const planId=before.plan_id || $('planStockPlanId')?.value || '';
-
-    // 1) Camino recomendado: RPC segura instalada por SQL opcional.
-    try{
-      const rpc=await db.rpc('admin_delete_stock_item',{p_stock_item_id:id});
-      if(!rpc.error && rpc.data && rpc.data.ok){
-        return {ok:true,mode:rpc.data.mode||'deleted',planId};
-      }
-    }catch(_){}
-
-    // 2) Camino compatible: limpiar referencias comunes y borrar.
-    await detachStockRefsV25(id);
-    let del=await db.from('stock_items').delete().eq('id',id).select('id');
-    if(!del.error && Array.isArray(del.data) && del.data.length){
-      return {ok:true,mode:'deleted',planId};
-    }
-
-    // 3) Si Supabase no devuelve filas o bloquea por FK/RLS, segundo intento con mensaje claro.
-    if(del.error){
-      const msg=String(del.error.message||'');
-      if(/foreign key|violates|constraint|referencia|referenced/i.test(msg)){
-        const archived=await archiveStockV25(id,msg);
-        return {...archived,planId};
-      }
-      throw del.error;
-    }
-
-    // Si no hubo error pero tampoco devolvió fila, la ocultamos para evitar que siga contando cupo.
-    const archived=await archiveStockV25(id,'delete_returned_zero_rows');
-    return {...archived,planId};
-  }
-
-  async function refreshAfterStockDeleteV25(id, result){
-    try{state.stock=(state.stock||[]).filter(s=>s.id!==id);}catch(_){}
-    try{renderPlanStockView();}catch(_){}
-    try{renderPlans();renderKPIs();renderSummary();}catch(_){}
-    try{await loadAll();}catch(_){}
-    try{renderPlanStockView();}catch(_){}
-    try{renderPlans();renderKPIs();renderSummary();}catch(_){}
-    try{
-      const current=$('planStockPlanId')?.value;
-      if(current && result?.planId && current!==result.planId){$('planStockPlanId').value=result.planId;}
-    }catch(_){}
-  }
-
-  window.quickDeleteOpsStock=async function(id){
-    id=String(id||'').trim();
-    const x=(state.stock||[]).find(s=>s.id===id)||{};
-    const d=(typeof opsSecret==='function')?opsSecret(x):{};
-    const label=x.title||d.correo||d.usuario||'esta cuenta';
-    if(!confirm('¿Eliminar definitivamente "'+label+'"?\n\nSi tiene historial vinculado, se desvinculará/archivará para que ya no aparezca ni cuente cupo.'))return;
-    const btn=document.activeElement;
-    try{if(btn&&btn.tagName==='BUTTON'){btn.disabled=true;btn.textContent='Eliminando...';}}catch(_){}
-    try{
-      const result=await deleteStockCoreV25(id);
-      await refreshAfterStockDeleteV25(id,result);
-      toast(result.mode==='archived'?'Cuenta archivada y quitada de cupos':'Cuenta eliminada correctamente','ok');
-    }catch(e){
-      toast('No se pudo eliminar: '+(e?.message||e),'bad');
-    }finally{
-      try{if(btn&&btn.tagName==='BUTTON'){btn.disabled=false;btn.textContent='Eliminar';}}catch(_){}
-    }
-  };
-  try{quickDeleteOpsStock=window.quickDeleteOpsStock;}catch(_){}
-
-  window.deleteOpsStock=async function(){
-    const id=String($('opsStockId')?.value||'').trim();
-    if(!id)return toast('No hay cuenta seleccionada','bad');
-    const x=(state.stock||[]).find(s=>s.id===id)||{};
-    const d=(typeof opsSecret==='function')?opsSecret(x):{};
-    const label=x.title||d.correo||d.usuario||'esta cuenta';
-    if(!confirm('¿Eliminar definitivamente "'+label+'"?'))return;
-    try{
-      const result=await deleteStockCoreV25(id);
-      closeDialog('dlgOpsStock');
-      await refreshAfterStockDeleteV25(id,result);
-      toast(result.mode==='archived'?'Cuenta archivada y quitada de cupos':'Cuenta eliminada correctamente','ok');
-    }catch(e){
-      toast('No se pudo eliminar: '+(e?.message||e),'bad');
-    }
-  };
-  try{deleteOpsStock=window.deleteOpsStock;}catch(_){}
-
-  setTimeout(()=>{
-    try{
-      if($('btnOpsDeleteStock'))$('btnOpsDeleteStock').onclick=window.deleteOpsStock;
-      if($('planStockSearch'))$('planStockSearch').oninput=renderPlanStockView;
-    }catch(_){}
-  },0);
-})();
-
-</script>
-
-
-<script>
-/* ================================================================
-   PATCH V26 — SELECCIÓN MÚLTIPLE DE CUENTAS / CUPOS
-   - Doble clic en una cuenta: activa selección múltiple.
-   - Mantener presionado en móvil: activa selección múltiple.
-   - Luego un clic agrega/quita cuentas.
-   - Permite borrar varias cuentas en una sola operación.
-   - Mantiene el borrado robusto: RPC si existe, si no limpia vínculos,
-     borra o archiva para que ya no aparezca ni cuente cupo.
-   ================================================================ */
-(function(){
-  if(window.__innovStockMultiSelectV26)return;
-  window.__innovStockMultiSelectV26=true;
-
-  function safeState(){
-    window.state=window.state||{};
-    if(!state.selectedStockIds || !(state.selectedStockIds instanceof Set))state.selectedStockIds=new Set();
-    if(typeof state.stockSelectionMode!=='boolean')state.stockSelectionMode=false;
-    return state;
-  }
-  safeState();
-
-  function byId(id){return document.getElementById(id)}
-  function ehtml(v){try{return esc(v)}catch(_){return String(v??'').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}}
-  function stockSecretV26(x){try{return {...(opsSecret(x)||{})}}catch(_){return {...(x?.secret_data||{})}}}
-  function stockDeletedV26(x){
-    const d=stockSecretV26(x);
-    return !!(d.deleted||d.archived||d.removed||d.eliminado)||/^\s*\[ELIMINADO\]/i.test(String(x?.notes||''));
-  }
-  function stockStatusV26(x){try{return String(opsAvailableStatus(x)||'available').toLowerCase()}catch(_){return String(x?.status||'available').toLowerCase()}}
-  function stockUsedV26(x){const d=stockSecretV26(x);return Math.max(0,Number(d.used_count||0)||0)}
-  function stockMaxV26(x){const d=stockSecretV26(x);return Math.max(1,Number(d.max_uses||1)||1)}
-  function stockFreeV26(x){return Math.max(0,stockMaxV26(x)-stockUsedV26(x))}
-  function currentPlanStockId(){return byId('planStockPlanId')?.value||''}
-  function currentPlanStockRowsV26(){
-    let rows=[];
-    try{rows=(typeof planStockFilteredRows==='function'?planStockFilteredRows():[])||[]}catch(_){rows=[]}
-    return rows.filter(x=>x&&x.id&&!stockDeletedV26(x));
-  }
-  function selectedStockRowsV26(){
-    safeState();
-    const visibleIds=new Set(currentPlanStockRowsV26().map(x=>x.id));
-    return Array.from(state.selectedStockIds).filter(id=>visibleIds.has(id));
-  }
-
-  function injectStockSelectionStyles(){
-    if(byId('stockMultiSelectV26Styles'))return;
-    const style=document.createElement('style');
-    style.id='stockMultiSelectV26Styles';
-    style.textContent=`
-      .stock-bulk-bar{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:10px 12px;border-left:4px solid var(--danger);background:var(--danger-alpha);border-radius:14px;border:1px solid rgba(185,28,28,.18)}
-      .stock-bulk-bar.show{display:flex}.stock-bulk-bar strong{color:var(--card-ink)}
-      .plan-stock-row.selection-mode{cursor:pointer}.plan-stock-row.rem-selected{outline:2px solid var(--primary);background:var(--primary-alpha)!important}
-      .stock-select-check{display:none;align-items:center;justify-content:center;width:27px;height:27px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);font-weight:900;color:var(--primary);margin-right:7px;flex:0 0 auto;vertical-align:middle}
-      .selection-mode .stock-select-check{display:inline-flex}.rem-selected .stock-select-check{background:var(--primary);color:#fff;border-color:var(--primary)}
-      .stock-select-title{display:flex;align-items:center;gap:2px;min-width:0}.stock-select-title .plan-stock-title-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      @media(max-width:700px){.stock-bulk-bar{display:none;gap:6px}.stock-bulk-bar.show{display:grid;grid-template-columns:1fr 1fr}.stock-bulk-bar strong,.stock-bulk-bar .help{grid-column:1/-1}.stock-bulk-bar .btn{width:100%}.stock-select-check{width:25px;height:25px}}
-    `;
-    document.head.appendChild(style);
-  }
-
-  function ensureStockBulkBar(){
-    const list=byId('planStockList');
-    if(!list)return null;
-    let bar=byId('planStockBulkBar');
-    if(!bar){
-      bar=document.createElement('div');
-      bar.id='planStockBulkBar';
-      bar.className='stock-bulk-bar';
-      bar.innerHTML=`
-        <strong id="planStockBulkCount">0 cuentas seleccionadas</strong>
-        <button class="btn btn-danger" id="btnDeleteSelectedPlanStock" type="button">Eliminar seleccionadas</button>
-        <button class="btn" id="btnCancelPlanStockSelection" type="button">Cancelar</button>
-        <span class="help">Doble clic en una cuenta para activar selección. En celular, mantén presionado.</span>`;
-      list.parentNode.insertBefore(bar,list);
-      byId('btnDeleteSelectedPlanStock').onclick=deleteSelectedPlanStockV26;
-      byId('btnCancelPlanStockSelection').onclick=cancelStockSelectionV26;
-    }
-    return bar;
-  }
-
-  function updateStockBulkBarV26(){
-    safeState();
-    injectStockSelectionStyles();
-    const bar=ensureStockBulkBar();
-    if(!bar)return;
-    const ids=selectedStockRowsV26();
-    if(ids.length===0 && state.stockSelectionMode){state.stockSelectionMode=false;state.selectedStockIds=new Set();}
-    const show=state.stockSelectionMode && ids.length>0;
-    bar.classList.toggle('show',show);
-    const count=byId('planStockBulkCount');
-    if(count)count.textContent=ids.length+' cuenta'+(ids.length===1?'':'s')+' seleccionada'+(ids.length===1?'':'s');
-  }
-
-  window.startStockSelection=function(id){
-    safeState();
-    id=String(id||'');
-    if(!id)return;
-    state.stockSelectionMode=true;
-    if(state.selectedStockIds.has(id))state.selectedStockIds.delete(id);else state.selectedStockIds.add(id);
-    if(state.selectedStockIds.size===0)state.stockSelectionMode=false;
-    try{renderPlanStockView()}catch(_){}
-    updateStockBulkBarV26();
-  };
-
-  window.handlePlanStockRowClick=function(ev,id){
-    if(ev && ev.target && ev.target.closest && ev.target.closest('button,a,input,select,textarea,label'))return;
-    safeState();
-    if(!state.stockSelectionMode)return;
-    id=String(id||'');
-    if(state.selectedStockIds.has(id))state.selectedStockIds.delete(id);else state.selectedStockIds.add(id);
-    if(state.selectedStockIds.size===0)state.stockSelectionMode=false;
-    try{renderPlanStockView()}catch(_){}
-    updateStockBulkBarV26();
-  };
-
-  window.stockPressStart=function(ev,id){
-    if(ev && ev.target && ev.target.closest && ev.target.closest('button,a,input,select,textarea,label'))return;
-    window.stockPressEnd();
-    state.stockLongPressTimer=setTimeout(()=>window.startStockSelection(id),520);
-  };
-  window.stockPressEnd=function(){
-    if(state.stockLongPressTimer){clearTimeout(state.stockLongPressTimer);state.stockLongPressTimer=null;}
-  };
-
-  function cancelStockSelectionV26(){
-    safeState();
-    state.stockSelectionMode=false;
-    state.selectedStockIds=new Set();
-    try{renderPlanStockView()}catch(_){}
-    updateStockBulkBarV26();
-  }
-  window.cancelStockSelectionV26=cancelStockSelectionV26;
-
-  async function ignoreMissingV26(promise){
-    try{
-      const r=await promise;
-      if(r?.error){
-        const msg=String(r.error.message||'');
-        if(/does not exist|schema cache|column|relation|not found|no existe|PGRST/i.test(msg))return {data:null,error:null,ignored:true};
-      }
-      return r;
-    }catch(e){
-      const msg=String(e?.message||e||'');
-      if(/does not exist|schema cache|column|relation|not found|no existe|PGRST/i.test(msg))return {data:null,error:null,ignored:true};
-      return {data:null,error:e};
-    }
-  }
-  async function detachStockRefsV26(id){
-    const targets=[
-      ['deliveries','stock_item_id',{stock_item_id:null}],
-      ['payment_reminders','stock_item_id',{stock_item_id:null}],
-      ['payment_reminders','linked_stock_item_id',{linked_stock_item_id:null}],
-      ['payment_reminders','linked_stock_id',{linked_stock_id:null}],
-      ['orders','stock_item_id',{stock_item_id:null}],
-      ['orders','linked_stock_item_id',{linked_stock_item_id:null}],
-      ['stock_usage_logs','stock_item_id',{status:'released',released_at:new Date().toISOString(),release_reason:'bulk_delete_admin'}]
-    ];
-    for(const [table,col,payload] of targets){
-      await ignoreMissingV26(db.from(table).update(payload).eq(col,id));
-    }
-  }
-  async function archiveStockV26(id,reason){
-    const x=(state.stock||[]).find(s=>s.id===id)||{};
-    const d=stockSecretV26(x);
-    const max=Math.max(1,stockMaxV26(x));
-    d.deleted=true;d.archived=true;d.removed=true;d.archived_at=new Date().toISOString();d.archive_reason=reason||'bulk_delete_fallback';d.used_count=max;d.max_uses=max;
-    const note='[ELIMINADO] '+String(x.notes||d.nota||'').replace(/^\[ELIMINADO\]\s*/,'');
-    const payload={secret_data:d,notes:note,status:(typeof stockDbStatus==='function'?stockDbStatus('available'):'available')};
-    const r=await db.from('stock_items').update(payload).eq('id',id).select('id');
-    if(r.error)throw r.error;
-    return {ok:true,mode:'archived'};
-  }
-  async function deleteStockOneV26(id){
-    id=String(id||'').trim();
-    if(!id)return {ok:false,mode:'skip'};
-    try{
-      const rpc=await db.rpc('admin_delete_stock_item',{p_stock_item_id:id});
-      if(!rpc.error && rpc.data && rpc.data.ok)return {ok:true,mode:rpc.data.mode||'deleted'};
-    }catch(_){ }
-    await detachStockRefsV26(id);
-    const del=await db.from('stock_items').delete().eq('id',id).select('id');
-    if(!del.error && Array.isArray(del.data) && del.data.length)return {ok:true,mode:'deleted'};
-    if(del.error){
-      const msg=String(del.error.message||'');
-      if(/foreign key|violates|constraint|referencia|referenced|violates row-level|permission/i.test(msg))return await archiveStockV26(id,msg);
-      throw del.error;
-    }
-    return await archiveStockV26(id,'delete_returned_zero_rows');
-  }
-
-  async function deleteSelectedPlanStockV26(){
-    safeState();
-    const ids=selectedStockRowsV26();
-    if(!ids.length)return toast('No hay cuentas seleccionadas','bad');
-    if(!confirm('¿Eliminar '+ids.length+' cuenta(s) seleccionada(s)?\n\nSi alguna tiene historial, se desvinculará o archivará para que deje de aparecer y no cuente cupo.'))return;
-    const btn=byId('btnDeleteSelectedPlanStock');
-    const old=btn?btn.textContent:'';
-    if(btn){btn.disabled=true;btn.textContent='Eliminando...';}
-    let ok=0,arch=0,fail=0,lastErr='';
-    try{
-      for(const id of ids){
-        try{
-          const res=await deleteStockOneV26(id);
-          if(res.ok){ok++; if(res.mode==='archived')arch++; state.stock=(state.stock||[]).filter(s=>s.id!==id);}
-        }catch(e){fail++;lastErr=e?.message||String(e||'Error');}
-      }
-      cancelStockSelectionV26();
-      try{await loadAll()}catch(_){}
-      try{renderPlanStockView();renderPlans();renderKPIs();renderSummary();}catch(_){}
-      const msg=`${ok} cuenta(s) procesada(s)`+(arch?`, ${arch} archivada(s)`:``)+(fail?`, ${fail} con error`:``);
-      toast(fail?msg+': '+lastErr:msg,'ok');
-    }finally{
-      if(btn){btn.disabled=false;btn.textContent=old||'Eliminar seleccionadas';}
-    }
-  }
-  window.deleteSelectedPlanStockV26=deleteSelectedPlanStockV26;
-
-  const oldOpenPlanStockView=typeof openPlanStockView==='function'?openPlanStockView:null;
-  window.openPlanStockView=function(planId){
-    safeState();
-    state.stockSelectionMode=false;
-    state.selectedStockIds=new Set();
-    if(oldOpenPlanStockView)return oldOpenPlanStockView(planId);
-  };
-  try{openPlanStockView=window.openPlanStockView;}catch(_){ }
-
-  const oldRenderPlanStockView=typeof renderPlanStockView==='function'?renderPlanStockView:null;
-  window.renderPlanStockView=function(){
-    injectStockSelectionStyles();
-    const list=byId('planStockList');
-    if(!list){if(oldRenderPlanStockView)return oldRenderPlanStockView();return;}
-    ensureStockBulkBar();
-    const planId=currentPlanStockId();
-    const rows=currentPlanStockRowsV26();
-    const allForPlan=(state.stock||[]).filter(x=>x.plan_id===planId&&!stockDeletedV26(x));
-    const totalSlots=allForPlan.reduce((a,x)=>a+stockMaxV26(x),0);
-    const usedSlots=allForPlan.reduce((a,x)=>a+Math.min(stockUsedV26(x),stockMaxV26(x)),0);
-    const freeSlots=allForPlan.reduce((a,x)=>a+(stockStatusV26(x)==='available'?stockFreeV26(x):0),0);
-    const reservedSlots=allForPlan.reduce((a,x)=>a+(stockStatusV26(x)==='reserved'?stockFreeV26(x):0),0);
     if(!rows.length){
-      list.innerHTML=`<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><p class="help">Puedes cargarlas desde “＋ Agregar”.</p></div>`;
-      updateStockBulkBarV26();
+      list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${stats.free} cupos libres</span><span class="badge b-bad">${stats.used} usados</span><span class="badge">${stats.total} cupos totales</span><button class="btn btn-primary btn-sm" type="button" onclick="addStockForPlan('${planId}')">＋ Agregar</button></div>${bulk}<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p><p class="help">Usa “＋ Agregar” para cargar correo, contraseña y perfiles.</p></div>`;
       return;
     }
-    const selected=state.selectedStockIds||new Set();
-    const selMode=!!state.stockSelectionMode;
-    list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${freeSlots} cupos libres</span><span class="badge b-warn">${reservedSlots} reservados</span><span class="badge b-bad">${usedSlots} usados</span><span class="badge">${totalSlots} cupos totales</span><button class="btn btn-primary btn-sm" type="button" onclick="openAddStockFromPlanView()">＋ Agregar</button></div>`+rows.map(x=>{
-      const d=stockSecretV26(x), st=stockStatusV26(x), pass=d.clave||d.pass||'';
-      const hist=Array.isArray(d.history)?d.history:[];
-      const last=hist[hist.length-1]||null;
-      const reserve=d.reserved_for?` · reservado para ${ehtml(d.reserved_for)} ${d.reserved_phone?ehtml(d.reserved_phone):''}`:'';
-      const delivered=last?`<div class="plan-stock-sub">Última entrega: <b>${ehtml(last.customer_name||d.last_customer||'Cliente')}</b>${last.customer_phone||d.last_phone?' · '+ehtml(last.customer_phone||d.last_phone):''}${last.at?' · '+ehtml(new Date(last.at).toLocaleString('es-PE')):''}</div>`:(d.last_customer?`<div class="plan-stock-sub">Última entrega: <b>${ehtml(d.last_customer)}</b>${d.last_phone?' · '+ehtml(d.last_phone):''}</div>`:'');
-      const isSel=selected.has(x.id);
-      const rowCls=(selMode?' selection-mode':'')+(isSel?' rem-selected':'');
-      const free=stockFreeV26(x), used=stockUsedV26(x), max=stockMaxV26(x);
-      return `<div class="plan-stock-row${rowCls}" data-stock-id="${ehtml(x.id)}" onclick="handlePlanStockRowClick(event,'${x.id}')" ondblclick="startStockSelection('${x.id}')" onpointerdown="stockPressStart(event,'${x.id}')" onpointerup="stockPressEnd()" onpointerleave="stockPressEnd()">
+    list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${stats.free} cupos libres</span><span class="badge b-warn">${stats.reserved} reservados</span><span class="badge b-bad">${stats.used} usados</span><span class="badge">${stats.total} cupos totales</span><button class="btn btn-primary btn-sm" type="button" onclick="addStockForPlan('${planId}')">＋ Agregar</button></div>${bulk}`+rows.map(x=>{
+      const d=secretOf(x), st=opsAvailableStatus(x), pass=d.clave||d.pass||d.password||'', remaining=remainingUses(x), selected=state.selectedPlanStockIds?.has(x.id);
+      const family=(typeof stockIsFamilyInvite==='function')?stockIsFamilyInvite(x):!!(d.family_mode||d.family_admin_email||d.correo_admin||d.codigo_2fa);
+      const totp=(typeof stockTotpAccountId==='function')?stockTotpAccountId(x):'';
+      return `<div class="plan-stock-row plan-stock-selectable ${selectionMode?'selection-mode':''} ${selected?'is-selected':''}" data-stock-id="${x.id}" ondblclick="planStockStartSelection('${x.id}')" onclick="planStockRowClick(event,'${x.id}')" onpointerdown="planStockPointerDown(event,'${x.id}')" onpointerup="planStockPointerCancel()" onpointerleave="planStockPointerCancel()" onpointercancel="planStockPointerCancel()">
         <div class="plan-stock-main">
-          <div class="stock-select-title"><span class="stock-select-check">${isSel?'✓':''}</span><span class="plan-stock-title-text">${ehtml(x.title||d.correo||'Cuenta')}</span></div>
-          <div class="plan-stock-sub">${typeof opsStatusBadge==='function'?opsStatusBadge(st):`<span class="badge">${ehtml(st)}</span>`} <span class="badge">Usos ${used}/${max}</span> <span class="badge b-ok">${free} libres</span>${reserve}${(typeof stockTotpAccountId==='function'&&stockTotpAccountId(x))?` <span class="badge b-purple">🛡 TOTP</span>`:''}</div>
-          <div class="plan-stock-secret"><span class="mono">📧 ${ehtml(d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${ehtml(pass)}</span>`:''}${d.perfil?`<span class="mono">👤 ${ehtml(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${ehtml(d.pin)}</span>`:''}</div>
-          ${delivered}
+          <div class="plan-stock-title-line"><span class="plan-stock-check">✓</span><div class="plan-stock-title">${safeEsc(stockTitle(x))}</div></div>
+          <div class="plan-stock-sub">${typeof opsStatusBadge==='function'?opsStatusBadge(st):`<span class="badge">${safeEsc(st)}</span>`} <span class="badge">Usos ${safeEsc(usedCount(x))}/${safeEsc(maxUses(x))}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span>${totp?` <span class="badge b-purple">🛡 TOTP</span>`:''}${family?` <span class="badge b-purple">👨‍👩‍👧 Familiar</span>`:''}</div>
+          <div class="plan-stock-secret"><span class="mono">📧 ${safeEsc(d.family_admin_email||d.correo_admin||d.correo||d.email||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${safeEsc(pass)}</span>`:''}${d.twofa_code||d.codigo_2fa?`<span class="mono">2FA ${safeEsc(d.twofa_code||d.codigo_2fa)}</span>`:''}${d.perfil?`<span class="mono">👤 ${safeEsc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${safeEsc(d.pin)}</span>`:''}</div>
+          ${rowHistoryHtml(d)}
         </div>
         <div class="plan-stock-actions">
-          ${st==='available'||st==='reserved'?`<button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>`:''}
+          ${st==='available'&&remaining>0?`<button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>`:''}
           <button class="btn" onclick="viewStockHistory('${x.id}')">Historial</button>
-          ${['used','delivered','reserved'].includes(st)?`<button class="btn btn-warning" onclick="restoreStockAvailable('${x.id}')">Reponer</button>`:''}
+          ${usedCount(x)>0||st==='reserved'||st==='used'||st==='delivered'?`<button class="btn btn-warning" onclick="restoreStockAvailable('${x.id}')">Reponer</button>`:''}
           <button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button>
         </div>
       </div>`;
     }).join('');
-    updateStockBulkBarV26();
   };
-  try{renderPlanStockView=window.renderPlanStockView;}catch(_){ }
+
+  window.planStockStartSelection=function(id){
+    if(!id)return;
+    state.planStockSelectionMode=true;
+    state.selectedPlanStockIds=state.selectedPlanStockIds instanceof Set?state.selectedPlanStockIds:new Set();
+    state.selectedPlanStockIds.add(id);
+    try{navigator.vibrate&&navigator.vibrate(25);}catch(_){ }
+    renderPlanStockView();
+  };
+  window.planStockToggleSelection=function(id){
+    if(!id)return;
+    state.selectedPlanStockIds=state.selectedPlanStockIds instanceof Set?state.selectedPlanStockIds:new Set();
+    if(state.selectedPlanStockIds.has(id))state.selectedPlanStockIds.delete(id);else state.selectedPlanStockIds.add(id);
+    if(!state.selectedPlanStockIds.size)state.planStockSelectionMode=false;
+    renderPlanStockView();
+  };
+  window.planStockRowClick=function(ev,id){
+    if(ev?.target?.closest&&ev.target.closest('button,a,input,select,textarea,label'))return;
+    if(state.planStockSelectionMode){ev&&ev.preventDefault&&ev.preventDefault();planStockToggleSelection(id);}
+  };
+  window.planStockPointerDown=function(ev,id){
+    if(ev?.target?.closest&&ev.target.closest('button,a,input,select,textarea,label'))return;
+    if(ev?.pointerType==='mouse')return;
+    clearTimeout(state.planStockLongPressTimer);
+    state.planStockLongPressTimer=setTimeout(()=>planStockStartSelection(id),620);
+  };
+  window.planStockPointerCancel=function(){clearTimeout(state.planStockLongPressTimer);state.planStockLongPressTimer=null;};
+  window.cancelPlanStockSelection=function(){
+    state.planStockSelectionMode=false;
+    state.selectedPlanStockIds=new Set();
+    clearTimeout(state.planStockLongPressTimer);
+    renderPlanStockView();
+  };
+
+  async function safeUpdate(table,payload,column,id){
+    try{const r=await db.from(table).update(payload).eq(column,id);return !r.error;}catch(_){return false;}
+  }
+  async function unlinkStockReferences(id){
+    try{await db.from('payment_reminders').update({linked_stock_item_id:null,linked_delivery_data:null}).eq('linked_stock_item_id',id);}catch(_){try{await safeUpdate('payment_reminders',{linked_stock_item_id:null},'linked_stock_item_id',id);}catch(__){}}
+    await safeUpdate('deliveries',{stock_item_id:null},'stock_item_id',id);
+    await safeUpdate('deliveries',{stock_id:null},'stock_id',id);
+    await safeUpdate('orders',{stock_item_id:null},'stock_item_id',id);
+    try{await db.from('stock_usage_logs').update({status:'released',released_at:nowIso(),release_reason:'stock_deleted'}).eq('stock_item_id',id);}catch(_){ }
+  }
+  async function archiveStockItem(item,reason='delete_blocked'){
+    const d=secretOf(item);
+    const max=Math.max(1,Number(d.max_uses||maxUses(item)||1)||1);
+    d.archived=true;d.hidden_from_admin=true;d.deleted_at=nowIso();d.archived_at=d.archived_at||d.deleted_at;d.delete_reason=reason;d.used_count=max;d.max_uses=max;
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+    let r=await db.from('stock_items').update({status:'blocked',secret_data:d}).eq('id',item.id).select().single();
+    if(r.error)r=await db.from('stock_items').update({secret_data:d}).eq('id',item.id).select().single();
+    if(r.error)return {ok:false,error:r.error.message};
+    const idx=(state.stock||[]).findIndex(x=>x.id===item.id);
+    if(idx>=0)state.stock[idx]=r.data||{...item,secret_data:d,status:'blocked'};
+    return {ok:true,archived:true};
+  }
+  async function robustDeleteStockItem(id){
+    const item=(state.stock||[]).find(x=>x.id===id)||null;
+    if(!item)return {ok:true,missing:true};
+    await unlinkStockReferences(id);
+    let r=await db.from('stock_items').delete().eq('id',id).select();
+    if(!r.error){
+      const idx=(state.stock||[]).findIndex(x=>x.id===id);
+      if(idx>=0)state.stock.splice(idx,1);
+      return {ok:true,deleted:true};
+    }
+    const archived=await archiveStockItem(item,r.error?.message||'delete_blocked');
+    if(archived.ok)return archived;
+    return {ok:false,error:archived.error||r.error?.message||'No se pudo eliminar'};
+  }
+  window.robustDeleteStockItem=robustDeleteStockItem;
+
+  async function refreshAfterStockChange(planId){
+    try{await loadAll();}catch(e){console.warn('loadAll after stock change',e);}
+    if($id('dlgOpsStock')?.open)closeDialog('dlgOpsStock');
+    if($id('dlgPlanStockView')?.open){
+      if(planId&&$id('planStockPlanId'))$id('planStockPlanId').value=planId;
+      renderPlanStockView();
+    }
+    try{if(typeof renderKPIs==='function')renderKPIs();if(typeof renderSummary==='function')renderSummary();if(typeof renderPlans==='function')renderPlans();if(typeof renderProducts==='function')renderProducts();}catch(_){ }
+  }
+
+  window.quickDeleteOpsStock = quickDeleteOpsStock = async function(id,opts={}){
+    const item=(state.stock||[]).find(x=>x.id===id);
+    if(!id||!item)return toast('No se encontró la cuenta seleccionada.','bad');
+    if(!opts.skipConfirm && !confirm('¿Eliminar esta cuenta/cupo? Si tiene historial vinculado, se ocultará y dejará de contar cupo.'))return;
+    const planId=item.plan_id||$id('planStockPlanId')?.value||'';
+    const res=await robustDeleteStockItem(id);
+    if(!res.ok)return toast(res.error||'No se pudo eliminar la cuenta.','bad');
+    toast(res.archived?'Cuenta archivada y retirada de cupos':'Cuenta eliminada','ok');
+    await refreshAfterStockChange(planId);
+    if(!$id('dlgPlanStockView')?.open && typeof switchTab==='function')switchTab('inventory');
+  };
+
+  window.deleteOpsStock = deleteOpsStock = async function(){
+    const id=$id('opsStockId')?.value||'';
+    if(!id)return toast('Selecciona una cuenta para eliminar.','bad');
+    return quickDeleteOpsStock(id);
+  };
+
+  window.deleteSelectedPlanStock = async function(){
+    const ids=[...(state.selectedPlanStockIds||new Set())].filter(Boolean);
+    if(!ids.length)return toast('Selecciona al menos una cuenta.','bad');
+    if(!confirm(`¿Eliminar ${ids.length} cuenta${ids.length===1?'':'s'} seleccionada${ids.length===1?'':'s'}?`))return;
+    const planId=$id('planStockPlanId')?.value||'';
+    let ok=0,archived=0;const failed=[];
+    for(const id of ids){
+      const r=await robustDeleteStockItem(id);
+      if(r.ok){ok++;if(r.archived)archived++;}else failed.push(r.error||id);
+    }
+    state.planStockSelectionMode=false;
+    state.selectedPlanStockIds=new Set();
+    await refreshAfterStockChange(planId);
+    if(failed.length)toast(`Se procesaron ${ok}. Fallaron ${failed.length}: ${failed.slice(0,2).join(' | ')}`,'bad');
+    else toast(`${ok} cuenta${ok===1?'':'s'} retirada${ok===1?'':'s'} correctamente${archived?` (${archived} archivada${archived===1?'':'s'})`:''}.`,'ok');
+  };
+
+  const previousOpenPlanStockView = (typeof openPlanStockView==='function') ? openPlanStockView : null;
+  window.openPlanStockView = openPlanStockView = function(planId){
+    state.planStockSelectionMode=false;
+    state.selectedPlanStockIds=new Set();
+    if(previousOpenPlanStockView){previousOpenPlanStockView(planId);return;}
+    if($id('planStockPlanId'))$id('planStockPlanId').value=planId||'';
+    if($id('planStockTitle')&&typeof opsPlanGroupTitle==='function')$id('planStockTitle').textContent='Cuentas e historial · '+opsPlanGroupTitle(planId);
+    if($id('planStockSearch'))$id('planStockSearch').value='';
+    renderPlanStockView();showDialog('dlgPlanStockView');
+  };
+
+  const previousRenderKPIs=(typeof renderKPIs==='function')?renderKPIs:null;
+  window.renderKPIs=renderKPIs=function(){
+    try{
+      if($id('kpiProducts'))$id('kpiProducts').textContent=(state.products||[]).filter(p=>p.active!==false).length;
+      if($id('kpiStock'))$id('kpiStock').textContent=(state.plans||[]).reduce((a,p)=>a+visibleStock(p),0);
+      const pendOrders=(state.orders||[]).filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
+      if($id('kpiOrders'))$id('kpiOrders').textContent=pendOrders;
+      if($id('kpiDelivery'))$id('kpiDelivery').textContent=(state.orders||[]).filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
+      if($id('kpiClients'))$id('kpiClients').textContent=(state.customers||[]).length;
+      const dueRem=(state.reminders||[]).filter(r=>typeof reminderIsExpired==='function'?reminderIsExpired(r):false).length;
+      if($id('kpiDue'))$id('kpiDue').textContent=dueRem;
+      ['tbOrders','mbOrders'].forEach(id=>{const el=$id(id);if(el){el.textContent=pendOrders;el.style.display=pendOrders>0?'':'none';}});
+      ['tbReminders','mbReminders'].forEach(id=>{const el=$id(id);if(el){el.textContent=dueRem;el.style.display=dueRem>0?'':'none';}});
+    }catch(e){console.warn('renderKPIs v27',e);previousRenderKPIs&&previousRenderKPIs();}
+  };
+
+  window.renderSummary = renderSummary = function(){
+    const body=$id('summaryRows');if(!body)return;
+    const rows=(state.plans||[]).map(p=>{
+      const product=typeof prod==='function'?prod(p.product_id):null;
+      const stats=planStockStats(p.id);
+      const cups=visibleStock(p);
+      const tipo=(p.stock_mode==='controlled')?'Auto':'Manual';
+      const detail=stats.rows.length?` · ${stats.used}/${stats.total} usados`:'';
+      return `<tr>
+        <td data-label="Producto"><b>${safeEsc(product?.name||prodName(p.product_id)||'Producto')}</b></td>
+        <td data-label="Plan">${safeEsc(p.name||'Plan')}</td>
+        <td data-label="Tipo"><span class="badge ${p.stock_mode==='controlled'?'b-ok':'b-warn'}">${tipo}</span></td>
+        <td data-label="Cupos"><span class="badge ${cups>0?'b-ok':'b-bad'}">${cups} cupo${cups===1?'':'s'}</span><div class="help">Exacto${detail}</div></td>
+        <td data-label="Estado">${safeEsc(p.availability_status||'available')}</td>
+        <td data-label="Acción"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editPlan('${p.id}')">Editar</button><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${p.id}')">Ver cuentas</button></div></td>
+      </tr>`;
+    });
+    body.innerHTML=rows.join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
+  };
 
   setTimeout(()=>{
-    injectStockSelectionStyles();
-    ensureStockBulkBar();
-    if(byId('planStockSearch'))byId('planStockSearch').oninput=()=>{try{renderPlanStockView()}catch(_){}};
+    if($id('btnOpsDeleteStock'))$id('btnOpsDeleteStock').onclick=deleteOpsStock;
+    if($id('planStockSearch'))$id('planStockSearch').oninput=renderPlanStockView;
+    try{renderKPIs();renderSummary();if(typeof renderPlans==='function')renderPlans();if($id('dlgPlanStockView')?.open)renderPlanStockView();}catch(e){console.warn('v27 initial refresh',e);}
   },0);
 })();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
