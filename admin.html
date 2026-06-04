@@ -8393,6 +8393,278 @@ setTimeout(enhanceCuposEntregaUi,0);
   },0);
 })();
 
+
+
+/* ================================================================
+   PATCH V20 — MOTOR ROBUSTO DE CUPOS
+   Corrige cupos que no se descuentan, planes que muestran cupo en 0,
+   selección de cuentas llenas y resumen stale de Supabase.
+   ================================================================ */
+(function(){
+  if(window.__innovCuposRobustosV20)return;
+  window.__innovCuposRobustosV20=true;
+
+  const $id=(id)=>document.getElementById(id);
+  const originalRenderKPIs=window.renderKPIs;
+  const originalRenderSummary=window.renderSummary;
+  const originalSaveOpsDeliver=window.saveOpsDeliver;
+  const originalSaveManualDelivery=window.saveManualDelivery;
+
+  function n(v,def=0){const x=Number(v);return Number.isFinite(x)?x:def;}
+  function safePlan(planOrId){return typeof planOrId==='string'?(window.plan?plan(planOrId):null):(planOrId||null);}
+  function safePlanId(planOrId){return typeof planOrId==='string'?planOrId:planOrId?.id;}
+  function safeSecret(item){
+    try{return {...(window.opsSecret?opsSecret(item):{})};}
+    catch(_){
+      const raw=item?.secret_data;
+      if(!raw)return {};
+      if(typeof raw==='string'){try{return JSON.parse(raw)||{};}catch(_){return {};}}
+      return {...raw};
+    }
+  }
+  function exactUsed(item){
+    const d=safeSecret(item);
+    return Math.max(0,n(d.used_count ?? d.usos_usados ?? d.used ?? 0,0));
+  }
+  function exactMax(item){
+    const d=safeSecret(item);
+    return Math.max(1,n(d.max_uses ?? d.usos ?? d.cupos ?? d.family_slots ?? 1,1));
+  }
+  function exactRemaining(item){return Math.max(0,exactMax(item)-exactUsed(item));}
+  function isAccountItem(item){
+    if(!item)return false;
+    try{if(window.opsIsAccount && opsIsAccount(item))return true;}catch(_){ }
+    const d=safeSecret(item);
+    return String(item.stock_type||'').toLowerCase()==='account' || !!(d.correo||d.usuario||d.email||d.clave||d.password||d.pass);
+  }
+  function rawStatus(item){return String(item?.status||'available').toLowerCase().trim();}
+  function exactStatus(item){
+    const raw=rawStatus(item);
+    const d=safeSecret(item);
+    if(exactRemaining(item)<=0 || exactUsed(item)>=exactMax(item))return 'used';
+    if(['blocked','bloqueado','expired','vencido','deleted','eliminado','disabled','inactive'].includes(raw))return raw;
+    if(d.blocked_at||d.expired_at)return 'blocked';
+    if(['reserved','reservado'].includes(raw)||d.reserved_at||d.reserved_for)return 'reserved';
+    if(['used','delivered','usado','agotado'].includes(raw))return 'used';
+    return 'available';
+  }
+  function stockRowsForPlan(planId){return (window.state?.stock||[]).filter(x=>x.plan_id===planId && isAccountItem(x));}
+  function deliverableRowsForPlan(planId){
+    return stockRowsForPlan(planId).filter(x=>exactStatus(x)==='available' && exactRemaining(x)>0).sort((a,b)=>{
+      const au=exactUsed(a),bu=exactUsed(b);
+      if(au!==bu)return bu-au; // completar primero cuentas parcialmente usadas
+      const ar=exactRemaining(a),br=exactRemaining(b);
+      if(ar!==br)return ar-br;
+      return String(a.created_at||'').localeCompare(String(b.created_at||''));
+    });
+  }
+  function exactStockCounts(planId){
+    const rows=stockRowsForPlan(planId);
+    const free=rows.reduce((a,x)=>a+((exactStatus(x)==='available')?exactRemaining(x):0),0);
+    const used=rows.reduce((a,x)=>a+exactUsed(x),0);
+    const total=rows.reduce((a,x)=>a+exactMax(x),0);
+    const reserved=rows.filter(x=>exactStatus(x)==='reserved').length;
+    const full=rows.filter(x=>exactStatus(x)==='used').length;
+    return {rows,free,used,total,reserved,full};
+  }
+  function manualStockForPlan(p){return Math.max(0,n(p?.manual_stock_count ?? p?.stock_count ?? 0,0));}
+  function isManualPlan(p){return String(p?.stock_mode||'').toLowerCase()==='manual';}
+  function exactVisibleStock(planOrId){
+    const planId=safePlanId(planOrId); if(!planId)return 0;
+    const p=safePlan(planOrId)||{};
+    const counts=exactStockCounts(planId);
+    // Si hay cuentas subidas, el valor exacto sale de used_count/max_uses. No usar resumen viejo.
+    if(counts.rows.length>0)return counts.free;
+    if(isManualPlan(p))return manualStockForPlan(p);
+    // Solo se acepta el resumen RPC si no se cargó detalle de stock para ese plan.
+    const s=(window.state?.summary||[]).find(x=>x.plan_id===planId);
+    const rpc=n(s?.available_stock,0);
+    return Math.max(0,Number.isFinite(rpc)?rpc:0);
+  }
+  function hasRealCup(planId,stockId=''){
+    if(stockId){
+      const item=(window.state?.stock||[]).find(x=>x.id===stockId);
+      return !!item && exactStatus(item)==='available' && exactRemaining(item)>0;
+    }
+    const p=window.plan?plan(planId):null;
+    if(deliverableRowsForPlan(planId).length>0)return true;
+    if(isManualPlan(p) && manualStockForPlan(p)>0)return true;
+    return false;
+  }
+  function stockOptionText(item){
+    const d=safeSecret(item);
+    const base=item?.title||d.family_admin_email||d.correo_admin||d.correo||d.usuario||d.email||'Cuenta';
+    const meta=[];
+    if(d.perfil)meta.push('Perfil '+d.perfil);
+    if(d.pin)meta.push('PIN '+d.pin);
+    meta.push(`${exactUsed(item)}/${exactMax(item)} usados`);
+    meta.push(`${exactRemaining(item)} libre${exactRemaining(item)===1?'':'s'}`);
+    return base+' — '+meta.join(' · ');
+  }
+  function setSelectOptions(select,planId,current=''){
+    if(!select)return null;
+    const rows=deliverableRowsForPlan(planId);
+    const selected=(current&&rows.some(x=>x.id===current))?current:(rows[0]?.id||'');
+    select.innerHTML=rows.length
+      ? rows.map(x=>`<option value="${String(x.id).replaceAll('"','&quot;')}" ${x.id===selected?'selected':''}>${String(stockOptionText(x)).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</option>`).join('')
+      : '<option value="">Sin cuentas libres</option>';
+    select.value=selected;
+    select.disabled=!rows.length;
+    return rows.find(x=>x.id===selected)||null;
+  }
+
+  window.stockUsedCount=stockUsedCount=function(item){return exactUsed(item);};
+  window.stockMaxUses=stockMaxUses=function(item){return exactMax(item);};
+  window.stockRemainingUses=stockRemainingUses=function(item){return exactRemaining(item);};
+  window.opsAvailableStatus=opsAvailableStatus=function(item){return exactStatus(item);};
+  window.stockIsDeliverable=stockIsDeliverable=function(item){return !!item && exactStatus(item)==='available' && exactRemaining(item)>0 && isAccountItem(item);};
+  window.availableStockForPlan=availableStockForPlan=function(planId){return deliverableRowsForPlan(planId);};
+  window.firstAvailableStockForPlan=firstAvailableStockForPlan=function(planId){return deliverableRowsForPlan(planId)[0]||null;};
+  window.visibleStock=visibleStock=function(planOrId){return exactVisibleStock(planOrId);};
+
+  window.renderKPIs=renderKPIs=function(){
+    try{
+      if($id('kpiProducts'))$id('kpiProducts').textContent=(state.products||[]).filter(p=>p.active!==false).length;
+      if($id('kpiStock'))$id('kpiStock').textContent=(state.plans||[]).reduce((a,p)=>a+exactVisibleStock(p),0);
+      const pendOrders=(state.orders||[]).filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
+      if($id('kpiOrders'))$id('kpiOrders').textContent=pendOrders;
+      if($id('kpiDelivery'))$id('kpiDelivery').textContent=(state.orders||[]).filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
+      if($id('kpiClients'))$id('kpiClients').textContent=(state.customers||[]).length;
+      const dueRem=(state.reminders||[]).filter(r=>window.reminderIsExpired?reminderIsExpired(r):false).length;
+      if($id('kpiDue'))$id('kpiDue').textContent=dueRem;
+      ['tbOrders','mbOrders'].forEach(id=>{const el=$id(id);if(el){el.textContent=pendOrders;el.style.display=pendOrders>0?'':'none';}});
+      ['tbReminders','mbReminders'].forEach(id=>{const el=$id(id);if(el){el.textContent=dueRem;el.style.display=dueRem>0?'':'none';}});
+    }catch(e){console.warn('renderKPIs v20',e); if(typeof originalRenderKPIs==='function')originalRenderKPIs();}
+  };
+
+  window.renderSummary=renderSummary=function(){
+    const body=$id('summaryRows'); if(!body)return;
+    const rows=(state.plans||[]).map(p=>{
+      const product=window.prod?prod(p.product_id):null;
+      const counts=exactStockCounts(p.id);
+      const cupos=exactVisibleStock(p);
+      const tipo=isManualPlan(p)?'Manual':'Auto';
+      const badge=cupos>0?'b-ok':'b-bad';
+      const detail=counts.rows.length?` · ${counts.used}/${counts.total} usados`:'';
+      return `<tr>
+        <td data-label="Producto"><b>${esc(product?.name||prodName(p.product_id)||'Producto')}</b></td>
+        <td data-label="Plan">${esc(p.name||'Plan')}</td>
+        <td data-label="Tipo"><span class="badge ${isManualPlan(p)?'b-warn':'b-ok'}">${tipo}</span></td>
+        <td data-label="Cupos"><span class="badge ${badge}">${cupos} cupo${cupos===1?'':'s'}</span><div class="help">Exacto${detail}</div></td>
+        <td data-label="Estado">${esc(p.availability_status||'available')}</td>
+        <td data-label="Acción"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editPlan('${p.id}')">Editar</button><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${p.id}')">Ver cuentas</button></div></td>
+      </tr>`;
+    });
+    body.innerHTML=rows.join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
+  };
+
+  async function updateStockExact(id,secretData,preferredStatus){
+    let r=await db.from('stock_items').update({status:preferredStatus,secret_data:secretData}).eq('id',id).select().single();
+    if(r.error && /check|constraint|violates|restricci|invalid input/i.test(r.error.message||'')){
+      r=await db.from('stock_items').update({status:'available',secret_data:secretData}).eq('id',id).select().single();
+    }
+    return r;
+  }
+  async function logUsageSafe(row){try{await db.from('stock_usage_logs').insert({created_at:new Date().toISOString(),...row});}catch(_){}}
+  window.consumeSpecificStock=consumeSpecificStock=async function(stockId,ctx={}){
+    if(!stockId)return {ok:false,error:'Selecciona una cuenta con cupo libre.'};
+    const fresh=await db.from('stock_items').select('*').eq('id',stockId).single();
+    if(fresh.error)return {ok:false,error:fresh.error.message};
+    const item=fresh.data;
+    if(exactStatus(item)!=='available' || exactRemaining(item)<=0)return {ok:false,error:'Esta cuenta ya está llena o no tiene cupos libres.'};
+    const d=safeSecret(item);
+    d.max_uses=exactMax(item);
+    d.used_count=Math.min(d.max_uses,exactUsed(item)+1);
+    d.last_customer=ctx.customer_name||'';
+    d.last_phone=ctx.customer_phone||'';
+    d.last_email=ctx.customer_email||'';
+    d.last_used_at=new Date().toISOString();
+    if(ctx.totp_code){d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];if(!d.used_totp_codes.includes(ctx.totp_code))d.used_totp_codes.push(ctx.totp_code);}
+    d.history=Array.isArray(d.history)?d.history:[];
+    d.history.push({
+      usage_id:ctx.usage_id||('use_'+Date.now().toString(36)),stock_id:stockId,order_id:ctx.order_id||null,reminder_id:ctx.reminder_id||null,pedido:ctx.pedido||'',
+      customer_id:ctx.customer_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',client_email:ctx.customer_email||'',
+      service:ctx.service||((window.planName&&item.plan_id)?planName(item.plan_id):''),amount:ctx.amount??null,due_date:ctx.due_date||'',totp_code:ctx.totp_code||'',source:ctx.source||'entrega',at:new Date().toISOString()
+    });
+    delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+    const finalStatus=d.used_count>=d.max_uses?'used':'available';
+    const r=await updateStockExact(stockId,d,finalStatus);
+    if(r.error)return {ok:false,error:r.error.message};
+    const idx=(state.stock||[]).findIndex(s=>s.id===stockId);
+    if(idx>=0)state.stock[idx]=r.data||{...item,secret_data:d,status:finalStatus};
+    await logUsageSafe({stock_item_id:stockId,customer_id:ctx.customer_id||null,reminder_id:ctx.reminder_id||null,order_id:ctx.order_id||null,customer_name:ctx.customer_name||'',customer_phone:ctx.customer_phone||'',customer_email:ctx.customer_email||'',service_name:ctx.service||'',status:'used',used_at:new Date().toISOString(),context:ctx});
+    return {ok:true,stock_id:stockId,status:finalStatus,remaining:Math.max(0,d.max_uses-d.used_count)};
+  };
+  window.consumePlanStock=consumePlanStock=async function(planId,ctx={}){
+    if(!planId)return {ok:false,error:'Selecciona un plan.'};
+    const stockId=ctx.stock_id||'';
+    if(stockId)return consumeSpecificStock(stockId,ctx);
+    const item=firstAvailableStockForPlan(planId);
+    if(item)return consumeSpecificStock(item.id,{...ctx,stock_id:item.id,plan_id:planId});
+    const p=window.plan?plan(planId):null;
+    if(isManualPlan(p) && manualStockForPlan(p)>0){
+      const next=Math.max(0,manualStockForPlan(p)-1);
+      const r=await db.from('product_plans').update({manual_stock_count:next}).eq('id',planId).select().single();
+      if(r.error)return {ok:false,error:r.error.message};
+      const idx=(state.plans||[]).findIndex(x=>x.id===planId); if(idx>=0)state.plans[idx]=r.data||{...p,manual_stock_count:next};
+      return {ok:true,manual:true,next};
+    }
+    return {ok:false,error:'Este plan está en 0 cupos. Agrega una cuenta/cupo antes de entregar.'};
+  };
+
+  function refreshExactSelectors(){
+    try{
+      const mp=$id('manualPlan')?.value||'';
+      if(mp&&$id('manualStockSelect')){
+        const cur=$id('manualStockSelect').value;
+        const selected=setSelectOptions($id('manualStockSelect'),mp,cur);
+        if($id('manualStockId'))$id('manualStockId').value=selected?.id||'';
+        if($id('manualStockSelectHelp'))$id('manualStockSelectHelp').textContent=selected?'Cuenta lista: '+stockOptionText(selected):'No hay cuentas libres. Agrega una cuenta/cupo antes de entregar.';
+      }
+      const op=$id('opsDeliverPlanId')?.value||'';
+      if(op&&$id('opsDeliverStockSelect')){
+        const cur=$id('opsDeliverStockSelect').value||$id('opsDeliverStockId')?.value||'';
+        const selected=setSelectOptions($id('opsDeliverStockSelect'),op,cur);
+        if($id('opsDeliverStockId'))$id('opsDeliverStockId').value=selected?.id||'';
+        const h=$id('opsDeliverStockSelectHelp')||$id('opsDeliverStockHint');
+        if(h)h.textContent=selected?'Cuenta lista: '+stockOptionText(selected):'No hay cupos libres para este plan. Agrega una cuenta antes de entregar.';
+      }
+    }catch(e){console.warn('refreshExactSelectors',e);}
+  }
+  window.refreshExactCupos=refreshExactCupos=function(){
+    try{renderKPIs();renderSummary();if(typeof renderProducts==='function')renderProducts();if(typeof renderPlans==='function')renderPlans();if(typeof renderPlanStockView==='function')renderPlanStockView();refreshExactSelectors();}catch(e){console.warn('refreshExactCupos',e);}
+  };
+
+  window.saveOpsDeliver=saveOpsDeliver=async function(){
+    const stockId=$id('opsDeliverStockSelect')?.value||$id('opsDeliverStockId')?.value||'';
+    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+    const planId=item?.plan_id||$id('opsDeliverPlanId')?.value||'';
+    if(!planId)return toast('Selecciona un plan.','bad');
+    if(!hasRealCup(planId,stockId)){
+      refreshExactSelectors();
+      return toast('No se puede entregar: este plan está en 0 cupos reales. Agrega una cuenta/cupo primero.','bad');
+    }
+    return originalSaveOpsDeliver.apply(this,arguments);
+  };
+  window.saveManualDelivery=saveManualDelivery=async function(){
+    const stockId=$id('manualStockSelect')?.value||$id('manualStockId')?.value||'';
+    const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+    const planId=item?.plan_id||$id('manualPlan')?.value||'';
+    if(planId && !hasRealCup(planId,stockId)){
+      refreshExactSelectors();
+      return toast('No se puede entregar: este plan está en 0 cupos reales. Agrega una cuenta/cupo primero.','bad');
+    }
+    return originalSaveManualDelivery.apply(this,arguments);
+  };
+
+  document.addEventListener('change',function(e){
+    const id=e.target?.id||'';
+    if(['manualPlan','opsDeliverPlanId','manualStockSelect','opsDeliverStockSelect'].includes(id))setTimeout(refreshExactSelectors,0);
+  });
+  setTimeout(refreshExactCupos,0);
+})();
+
 </script>
 </body>
 </html>
+
