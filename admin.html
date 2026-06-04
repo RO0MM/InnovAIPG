@@ -8388,5 +8388,146 @@ setTimeout(enhanceCuposEntregaUi,0);
 })();
 </script>
 
+
+
+<style id="innov-v45-reminders-css">
+/* V45 — Recordatorios: vista principal ordenada y botón Para avisar retirado */
+#btnOnlyPending{display:none!important}
+.v45-reminder-note{
+  border-left:3px solid var(--primary);
+  background:var(--primary-alpha2);
+  color:var(--muted);
+  border-radius:12px;
+  padding:9px 11px;
+  font-size:.82rem;
+  margin:0 0 8px;
+}
+.v45-reminder-note b{color:var(--card-ink)}
+.v45-reminder-section{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:10px 2px 7px;
+  font-weight:900;
+  color:var(--card-ink);
+}
+.v45-reminder-section .badge{font-weight:900}
+@media(max-width:800px){
+  .v45-reminder-note{font-size:.74rem;line-height:1.25;margin-bottom:7px;padding:8px 9px}
+  .v45-reminder-section{margin:7px 2px 5px;font-size:.84rem}
+}
+</style>
+
+<script id="innov-v45-reminders-order-patch">
+(function(){
+  'use strict';
+  function n(v){const x=Number(v);return Number.isFinite(x)?x:99999;}
+  function calendarDiff(r){try{return n(localCalendarDiffFromToday(r?.due_date));}catch(_){return 99999;}}
+  function isOpenFutureOrToday(r){return reminderIsOpen(r) && calendarDiff(r)>=0;}
+  function isOverdueOrNoRenewal(r){return (reminderIsOpen(r) && calendarDiff(r)<0) || reminderIsNoRenewal(r);}
+  function compareUpcomingV45(a,b){
+    const da=calendarDiff(a), db=calendarDiff(b);
+    if(da!==db)return da-db; // hoy, mañana, 2 días, 30 días...
+    return String(a?.due_date||'').localeCompare(String(b?.due_date||'')) || String(a?.service_name||'').localeCompare(String(b?.service_name||''));
+  }
+  function compareOverdueV45(a,b){
+    const ana=reminderIsNoRenewal(a)?1:0, bna=reminderIsNoRenewal(b)?1:0;
+    if(ana!==bna)return ana-bna; // primero vencidos activos, luego no renovó
+    const da=calendarDiff(a), db=calendarDiff(b);
+    if(da!==db)return db-da; // ayer, antes de ayer, más antiguos
+    return String(b?.due_date||'').localeCompare(String(a?.due_date||''));
+  }
+  function reminderSearchMatchesV45(r,searchVal){
+    const c=(state.customers||[]).find(x=>x.id===r.customer_id)||{};
+    const txt=`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${c.phone_raw||''} ${c.phone||''} ${c.whatsapp||''} ${c.email||''} ${customerFamilyAdmin(c)} ${customerGmail(c)} ${r.status||''} ${r.order_id||''} ${reminderCode(r)} ${reminderStatusLabel(r)} ${reminderWhatsAppLabel(r)}`.toLowerCase();
+    return txt.includes(searchVal);
+  }
+  function splitDefaultV45(data){
+    const today=[];
+    const future=[];
+    data.forEach(r=>{
+      const d=calendarDiff(r);
+      if(d===0)today.push(r);
+      else if(d>0)future.push(r);
+    });
+    today.sort(compareUpcomingV45);
+    future.sort(compareUpcomingV45);
+    return {today,future};
+  }
+  function htmlDefaultV45(data){
+    const parts=splitDefaultV45(data);
+    let html='<div class="v45-reminder-note"><b>Vista principal:</b> primero aparecen los pagos que vencen hoy y debajo todos los próximos pagos en orden de fecha. Los atrasados están solo en “Vencidos”.</div>';
+    html+='<div class="v45-reminder-section">⏰ Vencen hoy <span class="badge b-warn">'+parts.today.length+'</span></div>';
+    html+=reminderRowsHtml(parts.today);
+    html+='<div class="v45-reminder-section">📆 Próximos pagos <span class="badge b-ok">'+parts.future.length+'</span></div>';
+    html+=reminderRowsHtml(parts.future);
+    return html;
+  }
+  function htmlOverdueV45(data){
+    const overdue=data.sort(compareOverdueV45);
+    let html='<div class="v45-reminder-note"><b>Vencidos:</b> aquí aparecen los pagos atrasados de ayer o más y los servicios marcados como “No renovó”.</div>';
+    html+=reminderRowsHtml(overdue);
+    return html;
+  }
+  window.renderReminders=function(){
+    if(state.onlyPending)state.onlyPending=false;
+    const searchVal=($('reminderSearch')?.value||$('clientSearch')?.value||'').toLowerCase();
+    let base=(state.reminders||[]).filter(r=>reminderSearchMatchesV45(r,searchVal));
+    let gridHtml='';
+    let mergedData=[];
+    if(state.onlyDue||state.onlyDueClients){
+      const data=base.filter(isOverdueOrNoRenewal).sort(compareOverdueV45);
+      gridHtml=htmlOverdueV45(data);
+      mergedData=data;
+    }else{
+      const data=base.filter(isOpenFutureOrToday).sort(compareUpcomingV45);
+      gridHtml=htmlDefaultV45(data);
+      mergedData=data;
+    }
+    if($('remindersGrid'))$('remindersGrid').innerHTML=gridHtml;
+    if($('remindersMergedGrid'))$('remindersMergedGrid').innerHTML=reminderRowsHtml(mergedData,120);
+    updateReminderBulkBar();
+  };
+  function rebindV45(){
+    if($('btnOnlyPending')){
+      $('btnOnlyPending').setAttribute('aria-pressed','false');
+      $('btnOnlyPending').classList.add('hidden');
+      $('btnOnlyPending').style.display='none';
+    }
+    if($('btnOnlyDue'))$('btnOnlyDue').onclick=()=>{
+      state.onlyDue=!state.onlyDue;
+      state.onlyPending=false;
+      $('btnOnlyDue').setAttribute('aria-pressed',state.onlyDue);
+      if($('btnOnlyPending'))$('btnOnlyPending').setAttribute('aria-pressed','false');
+      renderReminders();
+    };
+    if($('btnOnlyDueClients'))$('btnOnlyDueClients').onclick=()=>{
+      state.onlyDueClients=!state.onlyDueClients;
+      state.onlyPending=false;
+      $('btnOnlyDueClients').setAttribute('aria-pressed',state.onlyDueClients);
+      if(window.renderClients)renderClients();
+      renderReminders();
+    };
+    ['reminderSearch','clientSearch'].forEach(id=>{
+      if($(id))$(id).oninput=()=>{if(id==='clientSearch'&&window.renderClients)renderClients();renderReminders();};
+    });
+  }
+  const oldLoadAll=window.loadAll;
+  if(typeof oldLoadAll==='function'){
+    window.loadAll=loadAll=async function(){
+      const r=await oldLoadAll.apply(this,arguments);
+      setTimeout(()=>{rebindV45();try{renderReminders();}catch(e){console.warn('renderReminders v45',e);}},80);
+      return r;
+    };
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(rebindV45,200));
+  else setTimeout(rebindV45,200);
+})();
+</script>
+
 </body>
 </html>
+
+
+
