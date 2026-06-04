@@ -8109,8 +8109,284 @@ setTimeout(enhanceCuposEntregaUi,0);
 })();
 </script>
 
+<script>
+/* ================================================================
+   HOTFIX V44 — TOTP por entrega + cupos manuales visibles
+   - Cada entrega genera un código Access TOTP nuevo, único, de 1 uso.
+   - El código se vincula a la cuenta TOTP asociada a la cuenta/stock elegida.
+   - Los códigos no usados se limpian a los 7 días al abrir el admin.
+   - En planes manuales vuelve a mostrarse el campo “Cupos de entrega manual”.
+   ================================================================ */
+(function(){
+  if(window.__innovV44TotpManualFix)return;
+  window.__innovV44TotpManualFix=true;
+
+  function v44Toast(msg,type='info'){
+    try{ toast(msg,type); }catch(_){ console.log('[V44]',msg); }
+  }
+
+  function v44PlanObj(planOrId){
+    try{return typeof planOrId==='object'?planOrId:plan(planOrId);}catch(_){return null;}
+  }
+
+  function v44IsManualPlan(planOrId){
+    const p=v44PlanObj(planOrId)||{};
+    return String(p.stock_mode||'').toLowerCase()==='manual' || String(p.delivery_mode||'').toLowerCase()==='manual';
+  }
+
+  function v44EnsureManualStockUi(){
+    const box=$('manualBox');
+    if(box){
+      const lab=box.querySelector('label.subtle');
+      if(lab)lab.textContent='Cupos de entrega manual';
+      const help=box.querySelector('.help');
+      if(help)help.textContent='Estos cupos se muestran en tienda aunque no tengas cuentas cargadas. Al aprobar, la entrega queda como manual y tú completas los datos reales.';
+    }
+    const input=$('plManualStock');
+    if(input){
+      input.placeholder='Ej: 20';
+      input.min='0';
+      input.step='1';
+    }
+  }
+
+  // Reemplaza la función que antes ocultaba siempre manualBox/autoBox.
+  window.syncDeliveryBoxes = syncDeliveryBoxes = function(){
+    v44EnsureManualStockUi();
+    const isAuto=($('plDeliveryType')?.value||'automatic')==='automatic';
+    if($('autoBox'))$('autoBox').classList.add('hidden');
+    if($('manualBox'))$('manualBox').classList.toggle('hidden',isAuto);
+    try{ syncTotpLinkBox(); }catch(_){ }
+  };
+
+  // Refuerza edición/nuevo plan para que el campo manual quede visible de inmediato.
+  const _v44EditPlan=window.editPlan;
+  if(typeof _v44EditPlan==='function'){
+    window.editPlan = editPlan = function(id){
+      const r=_v44EditPlan.apply(this,arguments);
+      setTimeout(()=>{try{syncDeliveryBoxes();}catch(_){}},50);
+      return r;
+    };
+  }
+  const _v44BlankPlan=window.blankPlan;
+  if(typeof _v44BlankPlan==='function'){
+    window.blankPlan = blankPlan = function(pid=''){
+      const r=_v44BlankPlan.apply(this,arguments);
+      setTimeout(()=>{try{syncDeliveryBoxes();}catch(_){}},50);
+      return r;
+    };
+  }
+
+  $('plDeliveryType')?.addEventListener('change',()=>setTimeout(()=>{try{syncDeliveryBoxes();}catch(_){}},0));
+
+  function v44UniqueCode(){
+    try{
+      const existing=new Set((state.totpCodes||[]).map(c=>String(c.access_code||'').toUpperCase()));
+      let code='';
+      for(let i=0;i<120;i++){
+        code=(typeof makeTotpAccessCode==='function'?makeTotpAccessCode():Math.random().toString(36).slice(2,12)).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10);
+        if(code.length<8)code=('IA'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10);
+        if(!existing.has(code))return code;
+      }
+      return ('IA'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10);
+    }catch(_){
+      return ('IA'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10);
+    }
+  }
+
+  function v44FindTotpAccountForDelivery(stockItem,planId){
+    try{
+      return stockTotpAccountId(stockItem,planId)||planTotpAccountId(planId)||'';
+    }catch(_){
+      try{
+        const d=stockItem?opsSecret(stockItem):{};
+        return d.totp_account_id||'';
+      }catch(__){return '';}
+    }
+  }
+
+  function v44SetDeliveryProvisionalCode(planId,stockItem,mode){
+    const accountId=v44FindTotpAccountForDelivery(stockItem,planId);
+    const code=accountId?v44UniqueCode():'';
+    if(mode==='manual'){
+      if($('manualTotpAccountId'))$('manualTotpAccountId').value=accountId||'';
+      if($('manualTotpCode'))$('manualTotpCode').value=code;
+      if($('manualCode'))$('manualCode').value=code;
+      if($('manualTotpInfo')){
+        $('manualTotpInfo').classList.toggle('hidden',!accountId);
+        const label=(typeof totpAccountName==='function'?totpAccountName(accountId):'')||(typeof planTotpAccountLabel==='function'?planTotpAccountLabel(planId):'')||'Access TOTP';
+        $('manualTotpInfo').textContent=accountId?('🛡 '+label+' · se creará un código nuevo de 1 uso para este cliente: '+code):'';
+      }
+      try{ renderDeliveryMessage(); }catch(_){ }
+    }else{
+      if($('opsDeliverTotpAccountId'))$('opsDeliverTotpAccountId').value=accountId||'';
+      if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=code;
+      if($('opsDeliverTotpInfo')){
+        $('opsDeliverTotpInfo').classList.toggle('hidden',!accountId);
+        const label=(typeof totpAccountName==='function'?totpAccountName(accountId):'')||(typeof planTotpAccountLabel==='function'?planTotpAccountLabel(planId):'')||'Access TOTP';
+        $('opsDeliverTotpInfo').textContent=accountId?('🛡 '+label+' · se creará un código nuevo de 1 uso para este cliente: '+code):'';
+      }
+      try{ refreshOpsDeliverMessage(); }catch(_){ }
+    }
+    return {accountId,code};
+  }
+
+  // Manual desde pedido: usar la cuenta TOTP vinculada a la cuenta/stock seleccionada, no solo al plan.
+  window.setupManualTotpForPlan = setupManualTotpForPlan = function(planId){
+    const itemId=$('manualStockId')?.value||'';
+    const item=itemId?(state.stock||[]).find(s=>s.id===itemId):null;
+    return v44SetDeliveryProvisionalCode(planId,item,'manual');
+  };
+
+  document.addEventListener('change',e=>{
+    if(e.target?.id==='manualStockSelect'){
+      const item=(state.stock||[]).find(s=>s.id===e.target.value)||null;
+      const planId=$('manualPlan')?.value||item?.plan_id||'';
+      v44SetDeliveryProvisionalCode(planId,item,'manual');
+    }
+    if(e.target?.id==='opsDeliverStockSelect'){
+      const item=(state.stock||[]).find(s=>s.id===e.target.value)||null;
+      const planId=$('opsDeliverPlanId')?.value||item?.plan_id||'';
+      v44SetDeliveryProvisionalCode(planId,item,'ops');
+    }
+  });
+
+  const _v44AutoFillManualFromStock=window.autoFillManualFromStock;
+  if(typeof _v44AutoFillManualFromStock==='function'){
+    window.autoFillManualFromStock = autoFillManualFromStock = function(){
+      const r=_v44AutoFillManualFromStock.apply(this,arguments);
+      setTimeout(()=>{
+        const itemId=$('manualStockId')?.value||'';
+        const item=itemId?(state.stock||[]).find(s=>s.id===itemId):null;
+        v44SetDeliveryProvisionalCode($('manualPlan')?.value||item?.plan_id||'',item,'manual');
+      },30);
+      return r;
+    };
+  }
+
+  const _v44OpenOpsDeliver=window.openOpsDeliver;
+  if(typeof _v44OpenOpsDeliver==='function'){
+    window.openOpsDeliver = openOpsDeliver = function(id='',forcedPlanId=''){
+      const r=_v44OpenOpsDeliver.apply(this,arguments);
+      setTimeout(()=>{
+        const stockId=$('opsDeliverStockId')?.value||$('opsDeliverStockSelect')?.value||'';
+        const item=stockId?(state.stock||[]).find(s=>s.id===stockId):null;
+        const planId=$('opsDeliverPlanId')?.value||item?.plan_id||forcedPlanId||'';
+        v44SetDeliveryProvisionalCode(planId,item,'ops');
+      },60);
+      return r;
+    };
+  }
+
+  // Función principal: ahora SIEMPRE crea una fila nueva en totp_access_codes para cada entrega/cliente.
+  // No reutiliza ni actualiza códigos anteriores.
+  window.createTotpCodeForDelivery = createTotpCodeForDelivery = async function(accountId,proposedCode,customerName,customerPhone,service){
+    if(!accountId)return {ok:true,skipped:true,code:''};
+
+    // Usamos el código visible si no existe; si ya existe, el backend/RPC generará otro.
+    let code=String(proposedCode||'').trim().toUpperCase();
+    if(!code || (state.totpCodes||[]).some(c=>String(c.access_code||'').toUpperCase()===code)) code=v44UniqueCode();
+
+    // Preferido: RPC segura con retry en SQL.
+    try{
+      const rr=await db.rpc('admin_create_delivery_totp_access_code',{
+        p_account_id:accountId,
+        p_customer_name:customerName||null,
+        p_customer_phone:customerPhone||null,
+        p_service:service||'Entrega',
+        p_valid_days:7
+      });
+      if(!rr.error){
+        const row=Array.isArray(rr.data)?rr.data[0]:rr.data;
+        if(row?.access_code){
+          const data={id:row.id,account_id:accountId,access_code:row.access_code,customer_name:customerName||null,customer_phone:customerPhone||null,max_uses:1,used_count:0,valid_days:7,active:true,expires_at:row.expires_at,notes:'Auto entrega: '+(service||'Entrega'),created_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+          state.totpCodes=state.totpCodes||[];
+          state.totpCodes.unshift(data);
+          return {ok:true,code:row.access_code,data,created:true};
+        }
+      }
+    }catch(_){ }
+
+    // Fallback directo por si no ejecutaste todavía el SQL V44.
+    for(let attempt=0;attempt<6;attempt++){
+      const finalCode=attempt===0?code:v44UniqueCode();
+      const expires=new Date(Date.now()+7*24*60*60*1000).toISOString();
+      const payload={
+        account_id:accountId,
+        access_code:finalCode,
+        customer_name:customerName||null,
+        customer_phone:customerPhone||null,
+        max_uses:1,
+        used_count:0,
+        valid_days:7,
+        active:true,
+        expires_at:expires,
+        notes:'Auto entrega: '+(service||'Entrega'),
+        updated_at:new Date().toISOString()
+      };
+      const r=await db.from('totp_access_codes').insert(payload).select().single();
+      if(!r.error){
+        state.totpCodes=state.totpCodes||[];
+        state.totpCodes.unshift(r.data||payload);
+        return {ok:true,code:finalCode,data:r.data||payload,created:true};
+      }
+      if(!/duplicate|unique|access_code/i.test(r.error.message||''))return {ok:false,error:r.error.message,code:finalCode};
+    }
+    return {ok:false,error:'No se pudo generar un código TOTP único para esta entrega.',code};
+  };
+
+  // Después de crear el código final, sincroniza el texto antes de WhatsApp.
+  const _v44CreateManual=window.createTotpCodeForManualDelivery;
+  if(typeof _v44CreateManual==='function'){
+    window.createTotpCodeForManualDelivery = createTotpCodeForManualDelivery = async function(){
+      const planId=$('manualPlan')?.value||'';
+      const itemId=$('manualStockId')?.value||$('manualStockSelect')?.value||'';
+      const item=itemId?(state.stock||[]).find(s=>s.id===itemId):null;
+      const accountId=v44FindTotpAccountForDelivery(item,planId);
+      if($('manualTotpAccountId'))$('manualTotpAccountId').value=accountId||'';
+      if(accountId && !$('manualTotpCode')?.value){
+        const p=v44SetDeliveryProvisionalCode(planId,item,'manual');
+        if($('manualCode'))$('manualCode').value=p.code||'';
+      }
+      const result=await _v44CreateManual.apply(this,arguments);
+      if(result?.ok && result.code){
+        if($('manualTotpCode'))$('manualTotpCode').value=result.code;
+        if($('manualCode'))$('manualCode').value=result.code;
+        try{renderDeliveryMessage();}catch(_){ }
+      }
+      return result;
+    };
+  }
+
+  // Limpieza automática al abrir admin: borra códigos creados hace +7 días que nunca se usaron.
+  async function cleanupTotpV44(){
+    const key='innov_totp_cleanup_v44_last';
+    const today=(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
+    try{ if(localStorage.getItem(key)===today)return; }catch(_){ }
+    try{
+      await db.rpc('cleanup_unused_totp_access_codes',{p_days:7});
+      try{localStorage.setItem(key,today);}catch(_){ }
+    }catch(_){ }
+  }
+
+  const _v44LoadAll=window.loadAll;
+  if(typeof _v44LoadAll==='function'){
+    window.loadAll = loadAll = async function(){
+      const r=await _v44LoadAll.apply(this,arguments);
+      setTimeout(cleanupTotpV44,900);
+      return r;
+    };
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{v44EnsureManualStockUi();try{syncDeliveryBoxes();}catch(_){};setTimeout(cleanupTotpV44,1500);});
+  }else{
+    v44EnsureManualStockUi();
+    try{syncDeliveryBoxes();}catch(_){}
+    setTimeout(cleanupTotpV44,1500);
+  }
+})();
+</script>
+
 </body>
 </html>
-
-
-
