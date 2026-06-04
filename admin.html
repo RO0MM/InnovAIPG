@@ -8659,101 +8659,10 @@ setTimeout(enhanceCuposEntregaUi,0);
   },0);
 })();
 
-
-
-/* ================================================================
-   PATCH V24 — MOTOR ÚNICO DE CUPOS + PLANTILLAS DE ENTREGA
-   Fuente real: stock_items.max_uses/used_count y respaldo secret_data.
-   ================================================================ */
-(function(){
-  if(window.__innovV24CuposPatch)return; window.__innovV24CuposPatch=true;
-  const $v=id=>document.getElementById(id);
-  const norm=v=>String(v??'').trim();
-  const low=v=>norm(v).toLowerCase();
-  const n=(v,d=0)=>{const x=Number(v);return Number.isFinite(x)?x:d};
-  const h=s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
-  function sec(x){
-    const raw=x?.secret_data; if(!raw)return{};
-    if(typeof raw==='object')return raw||{};
-    try{return JSON.parse(raw)||{}}catch(_){return{raw:String(raw)}}
-  }
-  function maxUses(x){const d=sec(x); return Math.max(1,n(x?.max_uses,n(d.max_uses,1)));}
-  function usedCount(x){const d=sec(x); return Math.min(maxUses(x),Math.max(0,n(x?.used_count,n(d.used_count,0))));}
-  function remaining(x){return Math.max(0,maxUses(x)-usedCount(x));}
-  function isAccount(x){const d=sec(x); return low(x?.stock_type||'account')==='account'||!!(d.correo||d.email||d.usuario||d.clave||d.password||d.pass);}
-  function statusReal(x){
-    const d=sec(x), raw=low(x?.status||'available');
-    if(['blocked','archived'].includes(raw))return raw;
-    if(raw==='reserved'||d.reserved_at||d.reserved_for)return 'reserved';
-    if(['used','delivered','usado','agotado'].includes(raw))return 'used';
-    if(usedCount(x)>=maxUses(x))return 'used';
-    return 'available';
-  }
-  function rowsForPlan(planId){return (window.state?.stock||[]).filter(x=>norm(x.plan_id)===norm(planId)&&isAccount(x)&&statusReal(x)!=='archived');}
-  function freeRowsForPlan(planId){return rowsForPlan(planId).filter(x=>statusReal(x)==='available'&&remaining(x)>0);}
-  function planObj(p){return typeof p==='object'?p:(window.state?.plans||[]).find(x=>norm(x.id)===norm(p));}
-  function isManualPlan(p){p=planObj(p)||{}; return low(p.stock_mode)==='manual'||low(p.delivery_mode)==='manual';}
-  function visibleStockFixed(p){
-    const plan=planObj(p); const pid=norm(plan?.id||p); if(!pid)return 0;
-    const rows=rowsForPlan(pid);
-    if(rows.length)return rows.reduce((a,x)=>a+remaining(x),0);
-    if(isManualPlan(plan))return Math.max(0,n(plan.manual_stock_count,0));
-    if(low(plan?.stock_mode)==='unlimited')return 999999;
-    const s=(window.state?.summary||[]).find(x=>norm(x.plan_id)===pid);
-    return Math.max(0,n(s?.available_stock,0));
-  }
-  function counts(planId){const rows=rowsForPlan(planId);return{rows,total:rows.reduce((a,x)=>a+maxUses(x),0),used:rows.reduce((a,x)=>a+usedCount(x),0),free:rows.reduce((a,x)=>a+remaining(x),0),available:freeRowsForPlan(planId)}}
-  window.innovCuposV24={sec,maxUses,usedCount,remaining,statusReal,rowsForPlan,freeRowsForPlan,visibleStock:visibleStockFixed,counts};
-  window.stockDbStatus=function(status){return ['used','reserved','blocked','archived','delivered'].includes(low(status))?low(status):'available';};
-  window.opsAvailableStatus=function(x){return statusReal(x);};
-  window.stockUsedCount=function(x){return usedCount(x);};
-  window.stockMaxUses=function(x){return maxUses(x);};
-  window.stockRemainingUses=function(x){return remaining(x);};
-  window.safeStockUsed=function(x){return usedCount(x);};
-  window.safeStockMax=function(x){return maxUses(x);};
-  window.safeStockRemaining=function(x){return remaining(x);};
-  window.isDeliverableStock=function(x){return !!x&&isAccount(x)&&statusReal(x)==='available'&&remaining(x)>0;};
-  window.availableStockForPlan=function(planId){return freeRowsForPlan(planId);};
-  window.firstAvailableStockForPlan=function(planId){return freeRowsForPlan(planId)[0]||null;};
-  window.visibleStock=function(p){return visibleStockFixed(p);};
-  function localSummary(){return (window.state?.plans||[]).map(p=>{const pr=(window.state?.products||[]).find(x=>norm(x.id)===norm(p.product_id))||{};const c=counts(p.id);const av=visibleStockFixed(p);const total=c.rows.length?c.total:(isManualPlan(p)?Math.max(0,n(p.manual_stock_count,0)):av);return{product_id:p.product_id,product_name:pr.name||'Producto',product_active:pr.active!==false,product_priority:pr.priority??100,plan_id:p.id,plan_name:p.name||'Plan',plan_active:p.active!==false,plan_priority:p.priority??100,stock_mode:p.stock_mode||'controlled',total_stock:total,available_stock:av,used_stock:Math.max(0,total-av),max_uses:c.total,used_count:c.used,account_count:c.rows.length,availability_status:p.availability_status||'available'}})}
-  window.rebuildLocalStockSummaryV24=function(){window.state.summary=localSummary();return window.state.summary;};
-  const oldLoadSummary=window.loadSummary;
-  window.loadSummary=async function(){try{if(typeof oldLoadSummary==='function')await oldLoadSummary();}catch(_){ } window.state.summary=localSummary();};
-  window.renderKPIs=function(){
-    if($v('kpiProducts'))$v('kpiProducts').textContent=(state.products||[]).filter(p=>p.active!==false).length;
-    if($v('kpiStock'))$v('kpiStock').textContent=(state.plans||[]).reduce((a,p)=>a+(visibleStockFixed(p)>=999999?0:visibleStockFixed(p)),0);
-    const pend=(state.orders||[]).filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
-    if($v('kpiOrders'))$v('kpiOrders').textContent=pend;
-    if($v('kpiDelivery'))$v('kpiDelivery').textContent=(state.orders||[]).filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
-    if($v('kpiClients'))$v('kpiClients').textContent=(state.customers||[]).length;
-    const due=(state.reminders||[]).filter(r=>{try{return typeof reminderIsExpired==='function'?reminderIsExpired(r):false}catch(_){return false}}).length;
-    if($v('kpiDue'))$v('kpiDue').textContent=due;
-    ['tbOrders','mbOrders'].forEach(id=>{const el=$v(id);if(el){el.textContent=pend;el.style.display=pend>0?'':'none'}});
-    ['tbReminders','mbReminders'].forEach(id=>{const el=$v(id);if(el){el.textContent=due;el.style.display=due>0?'':'none'}});
-  };
-  window.renderSummary=function(){
-    const body=$v('summaryRows'); if(!body)return;
-    state.summary=localSummary();
-    body.innerHTML=state.summary.map(s=>`<tr><td data-label="Producto"><b>${h(s.product_name)}</b></td><td data-label="Plan">${h(s.plan_name)}</td><td data-label="Tipo"><span class="badge ${s.stock_mode==='manual'?'b-warn':'b-ok'}">${s.stock_mode==='manual'?'Manual':'Auto'}</span></td><td data-label="Cupos"><span class="badge ${s.available_stock>0?'b-ok':'b-bad'}">${s.available_stock>=999999?'∞':s.available_stock} libres</span>${s.account_count?` <span class="badge">${s.used_count}/${s.max_uses} usados</span>`:''}</td><td data-label="Estado"><span class="badge ${s.plan_active?'b-ok':'b-bad'}">${s.plan_active?'Activo':'Oculto'}</span> <span class="badge">${h(s.availability_status)}</span></td><td data-label="Acción"><button class="btn btn-sm" onclick="openPlanStockView('${s.plan_id}')">Ver cuentas</button></td></tr>`).join('')||'<tr><td colspan="6">Sin datos</td></tr>';
-  };
-  window.renderPlans=function(){
-    const grid=$v('plansGrid'); if(!grid)return;
-    const q=low($v('planSearch')?.value||'');
-    let arr=(state.plans||[]).filter(p=>low((typeof prodName==='function'?prodName(p.product_id):'')+' '+(p.name||'')).includes(q));
-    if(state.onlyEmpty)arr=arr.filter(p=>visibleStockFixed(p)<=0);
-    grid.innerHTML=arr.map(p=>{const c=counts(p.id);const cupos=visibleStockFixed(p);const infinite=cupos>=999999;return `<div class="mini-card"><div class="mini-head"><div><b>${h(typeof prodName==='function'?prodName(p.product_id):'Producto')}</b><div>${h(p.name||'Plan')}</div><div class="help">${typeof money==='function'?money(p.price):('S/ '+n(p.price).toFixed(2))} · ${h(p.period||'')}</div></div><span class="badge ${isManualPlan(p)?'b-warn':'b-ok'}">${isManualPlan(p)?'Manual':'Automática'}</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><span class="badge ${cupos>0?'b-ok':'b-bad'}">${infinite?'∞':cupos} cupos</span><span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span><span class="badge">${h(p.availability_status||'available')}</span>${typeof planTotpAccountId==='function'&&planTotpAccountId(p)?'<span class="badge b-purple">🛡 Access TOTP</span>':''}</div>${c.rows.length?`<div class="help">${c.used}/${c.total} usados · ${c.rows.length} cuenta(s)</div>`:''}<div class="line-actions"><button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar</button><button class="btn btn-success" onclick="openPlanManualDelivery('${p.id}')" ${(!infinite&&cupos<=0)?'disabled title="No hay cupos libres"':''}>Entregar</button><button class="btn" onclick="addStockForPlan('${p.id}')">＋ Agregar</button><button class="btn" onclick="openPlanStockView('${p.id}')">⌄ Cuentas</button><button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${p.id}')">${p.active?'Ocultar':'Activar'}</button><button class="btn btn-danger" onclick="quickDeletePlan('${p.id}')">Elim.</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
-  };
-  window.openPlanManualDelivery=function(planId){
-    const rows=freeRowsForPlan(planId); const p=planObj(planId);
-    if(rows.length===1){openOpsDeliver(rows[0].id,planId);return;}
-    if(rows.length>1){openPlanStockView(planId);try{toast('Elige la cuenta que deseas entregar','ok')}catch(_){}return;}
-    if(isManualPlan(p)&&Math.max(0,n(p.manual_stock_count,0))>0){openOpsDeliver('',planId);return;}
-    try{toast('Este plan no tiene cupos libres. Agrega una cuenta primero.','bad')}catch(_){}
-  };
-  const oldRenderAll=window.renderAll;
-  window.renderAll=function(){state.summary=localSummary(); if(typeof oldRenderAll==='function')return oldRenderAll.apply(this,arguments);};
-})();
 </script>
 </body>
 </html>
+
+
+
+
