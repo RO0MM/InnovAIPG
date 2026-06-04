@@ -3771,7 +3771,7 @@ function renderPlans(){
 
 
 function openPlanStockView(planId){
-  if(!$('dlgPlanStockView')){switchTab('ops');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps();},60);return;}
+  if(!$('dlgPlanStockView')){switchTab('inventory');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps();},60);return;}
   $('planStockPlanId').value=planId||'';
   const p=plan(planId)||{};
   $('planStockTitle').textContent='Entregas / historial · '+opsPlanGroupTitle(planId);
@@ -3831,7 +3831,7 @@ function renderPlanStockView(){
 function openStockViewDeliver(id){closeDialog('dlgPlanStockView');setTimeout(()=>openOpsDeliver(id),80)}
 function openStockViewEdit(id){closeDialog('dlgPlanStockView');setTimeout(()=>openOpsStockDialog('account',id),80)}
 function openAddStockFromPlanView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');openOpsStockDialog('account');if($('opsStockPlan')){$('opsStockPlan').value=planId;syncOpsStockTotpBox();}}
-function openOpsFromPlanStockView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');switchTab('ops');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps()},60)}
+function openOpsFromPlanStockView(){const planId=$('planStockPlanId')?.value||'';closeDialog('dlgPlanStockView');switchTab('inventory');setTimeout(()=>{if($('opsPlanFilter'))$('opsPlanFilter').value=planId;renderOps()},60)}
 
 function orderStatusValue(o){return String(o?.status||'').toLowerCase().trim()}
 function orderDeliveryValue(o){return String(o?.delivery_status||'').toLowerCase().trim()}
@@ -5201,7 +5201,7 @@ async function quickDeleteOpsStock(id){
   if(!confirm('¿Eliminar esta cuenta/código del stock?'))return;
   const r=await db.from('stock_items').delete().eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
-  toast('Stock eliminado','ok');await loadAll();switchTab('ops');
+  toast('Stock eliminado','ok');await loadAll();switchTab('inventory');
 }
 
 /* ---- Coupons ---- */
@@ -5710,14 +5710,14 @@ async function saveOpsStock(ev){
     const made=await createStockTotpCodesForItem(r.data, d.max_uses);
     if(!made.ok)return toast('Cuenta guardada, pero no se pudieron crear códigos TOTP: '+made.error,'bad');
   }
-  closeDialog('dlgOpsStock');toast('Guardado en inventario','ok');await loadAll();switchTab('ops');
+  closeDialog('dlgOpsStock');toast('Guardado en inventario','ok');await loadAll();switchTab('inventory');
 }
 async function deleteOpsStock(){
   const id=$('opsStockId').value;if(!id)return;
   if(!confirm('¿Eliminar esta cuenta del inventario?'))return;
   const r=await db.from('stock_items').delete().eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
-  closeDialog('dlgOpsStock');toast('Eliminado','ok');await loadAll();switchTab('ops');
+  closeDialog('dlgOpsStock');toast('Eliminado','ok');await loadAll();switchTab('inventory');
 }
 async function cycleOpsStatus(id){
   const x=state.stock.find(s=>s.id===id);if(!x)return;
@@ -5731,7 +5731,7 @@ async function cycleOpsStatus(id){
   }
   const r=await db.from('stock_items').update({status:stockDbStatus(next),secret_data:d}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
-  toast('Estado: '+next,'ok');await loadAll();switchTab('ops');
+  toast('Estado: '+next,'ok');await loadAll();switchTab('inventory');
 }
 function openOpsReserve(id){
   const x=state.stock.find(s=>s.id===id);if(!x)return;
@@ -5761,7 +5761,7 @@ async function saveOpsReserve(){
   }
   const r=await db.from('stock_items').update({status:stockDbStatus(status),secret_data:d}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
-  closeDialog('dlgOpsReserve');toast(status==='reserved'?'Cuenta reservada':'Estado actualizado','ok');await loadAll();switchTab('ops');
+  closeDialog('dlgOpsReserve');toast(status==='reserved'?'Cuenta reservada':'Estado actualizado','ok');await loadAll();switchTab('inventory');
 }
 
 function defaultDeliveryTemplateForPlan(planId){
@@ -5922,7 +5922,7 @@ async function saveOpsDeliver(){
     const url=waLink(phone.e164,msg);
     if(url!=='#')window.open(url,'_blank','noopener,noreferrer');
   }
-  await loadAll();switchTab('ops');
+  await loadAll();switchTab('inventory');
 }
 function parseOpsBulk(){
   const planId=$('opsBulkPlan')?.value||'';
@@ -5992,7 +5992,7 @@ async function saveOpsBulk(){
       if(!made.ok)return toast('Cuentas guardadas, pero falló TOTP: '+made.error,'bad');
     }
   }
-  closeDialog('dlgOpsBulk');toast(valid.length+' cuentas guardadas en el producto/plan','ok');await loadAll();switchTab('ops');
+  closeDialog('dlgOpsBulk');toast(valid.length+' cuentas guardadas en el producto/plan','ok');await loadAll();switchTab('inventory');
 }
 function exportUnifiedBackup(){
   const localKeys=['pp_settings','pp_templates','pp_clients','pp_msgs','pp_accounts','pp_cuenta_codes','pp_accounts_tpl','pp_acc_view_mode_v1','pp_acc_service_tpl_map_v1','pp_acc_product_tpl_v1'];
@@ -6954,7 +6954,7 @@ async function saveOpsDeliver(){
   closeDialog('dlgOpsDeliver');toast('Entrega + recordatorio creados','ok');
   notifyWeb('Entrega registrada','Se creó recordatorio para '+finalName,true);
   if($('opsDeliverOpenWa')?.checked){const url=waLink(phone.e164,msg);if(url!=='#')window.open(url,'_blank','noopener,noreferrer');}
-  await loadAll();switchTab('ops');
+  await loadAll();switchTab('inventory');
 }
 
 /* ==============================================================
@@ -8664,7 +8664,169 @@ setTimeout(enhanceCuposEntregaUi,0);
   setTimeout(refreshExactCupos,0);
 })();
 
+
+
+/* ================================================================
+   PATCH V21 — FIX GUARDADO REAL DE CUENTAS Y REFRESCO DE CUPOS
+   - No depende de la función RPC para guardar/ver cuentas.
+   - Si Supabase tiene constraint raro en status, reintenta con available.
+   - Si la función admin_plan_stock_summary falta, calcula resumen en cliente.
+   - Después de agregar cuenta regresa a Cupos y refresca el modal de cuentas.
+   ================================================================ */
+(function(){
+  if(window.__innovCuposSaveFixV21)return;
+  window.__innovCuposSaveFixV21=true;
+  const $id=(id)=>document.getElementById(id);
+  function esc2(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');}
+  function toNum(v,def=0){const n=Number(v);return Number.isFinite(n)?n:def;}
+  function jsonSecret(item){
+    try{ if(window.opsSecret)return {...opsSecret(item)}; }catch(_){ }
+    const raw=item?.secret_data;
+    if(!raw)return {};
+    if(typeof raw==='string'){try{return JSON.parse(raw)||{};}catch(_){return {};}}
+    return {...raw};
+  }
+  function isMissingSummaryError(msg){return /admin_plan_stock_summary|function .* does not exist|schema cache|PGRST202|404/i.test(String(msg||''));}
+  function isConstraintStatusError(msg){return /check|constraint|violates|restricci|invalid input|status/i.test(String(msg||''));}
+  function stockMaxFromSecret(d){return Math.max(1,toNum(d.max_uses ?? d.usos ?? d.cupos ?? d.family_slots ?? 1,1));}
+  function stockUsedFromSecret(d){return Math.max(0,toNum(d.used_count ?? d.usos_usados ?? d.used ?? 0,0));}
+  function clientSummary(){
+    const plans=window.state?.plans||[];
+    const products=window.state?.products||[];
+    const stock=window.state?.stock||[];
+    return plans.map(p=>{
+      const prod=products.find(x=>x.id===p.product_id)||{};
+      const rows=stock.filter(x=>x.plan_id===p.id && String(x.stock_type||'account').toLowerCase()==='account');
+      const free=rows.reduce((a,x)=>{
+        const d=jsonSecret(x);
+        const raw=String(x.status||'available').toLowerCase();
+        const blocked=['blocked','expired','deleted','disabled','inactive'].includes(raw) || d.blocked_at || d.expired_at;
+        const max=stockMaxFromSecret(d), used=stockUsedFromSecret(d);
+        return a + (blocked?0:Math.max(0,max-used));
+      },0);
+      const manual=Math.max(0,toNum(p.manual_stock_count ?? p.stock_count ?? 0,0));
+      return {product_id:prod.id||p.product_id,product_name:prod.name||'',plan_id:p.id,plan_name:p.name||'',stock_mode:p.stock_mode||'controlled',available_stock:rows.length?free:(String(p.stock_mode||'').toLowerCase()==='manual'?manual:free),availability_status:p.availability_status||'available'};
+    });
+  }
+  window.loadSummary=loadSummary=async function(){
+    try{
+      const r=await db.rpc('admin_plan_stock_summary');
+      if(r.error){
+        if(!isMissingSummaryError(r.error.message))console.warn('admin_plan_stock_summary:',r.error.message);
+        state.summary=clientSummary();
+        return;
+      }
+      state.summary=r.data||clientSummary();
+    }catch(e){
+      console.warn('loadSummary fallback:',e?.message||e);
+      state.summary=clientSummary();
+    }
+  };
+  async function refreshAfterStockSave(planId){
+    try{ if(typeof loadStock==='function')await loadStock(); }catch(e){toast('Cuenta guardada, pero no pude recargar stock: '+(e.message||e),'bad');}
+    try{ if(typeof loadPlans==='function')await loadPlans(); }catch(_){ }
+    try{ await loadSummary(); }catch(_){ }
+    try{ if(typeof renderAll==='function')renderAll(); else if(typeof refreshExactCupos==='function')refreshExactCupos(); }catch(e){console.warn('render after stock save',e);}
+    try{ if(typeof refreshExactCupos==='function')refreshExactCupos(); }catch(_){ }
+    try{ if(planId && $id('planStockPlanId')?.value===planId && typeof renderPlanStockView==='function')renderPlanStockView(); }catch(_){ }
+    try{ if(typeof switchTab==='function')switchTab('inventory'); }catch(_){ }
+  }
+  async function stockWriteSingle(id,payload){
+    let r=id
+      ? await db.from('stock_items').update(payload).eq('id',id).select().single()
+      : await db.from('stock_items').insert(payload).select().single();
+    if(r.error && isConstraintStatusError(r.error.message)){
+      const retry={...payload,status:'available'};
+      r=id
+        ? await db.from('stock_items').update(retry).eq('id',id).select().single()
+        : await db.from('stock_items').insert(retry).select().single();
+    }
+    return r;
+  }
+  async function stockWriteMany(rows){
+    let r=await db.from('stock_items').insert(rows).select();
+    if(r.error && isConstraintStatusError(r.error.message)){
+      r=await db.from('stock_items').insert(rows.map(x=>({...x,status:'available'}))).select();
+    }
+    return r;
+  }
+  function buildStockSecret(planId,current){
+    const d={...jsonSecret(current)};
+    const correo=($id('opsStockUser')?.value||'').trim();
+    const clave=($id('opsStockPass')?.value||'').trim();
+    d.correo=correo; d.email=correo; d.usuario=correo;
+    d.clave=clave; d.password=clave; d.pass=clave; d['contraseña']=clave; d.contrasena=clave;
+    d.perfil=($id('opsStockProfile')?.value||'').trim();
+    d.pin=($id('opsStockPin')?.value||'').trim();
+    d.max_uses=Math.max(1,toNum($id('opsStockMaxUses')?.value||1,1));
+    d.used_count=Math.max(0,toNum($id('opsStockUsedCount')?.value||0,0));
+    const group=($id('opsStockGroup')?.value||'').trim();
+    if(group){d.grupo=group;d.url=group;}else{delete d.grupo;delete d.url;}
+    const note=($id('opsStockNotes')?.value||'').trim();
+    if(note)d.nota=note;else delete d.nota;
+    try{
+      if(window.isFamilyInvitePlanId?.(planId)){
+        d.family_mode=true; d.family_admin_email=correo; d.family_admin_pass=clave; d.correo_admin=correo; d.clave_admin=clave;
+        d.twofa_code=($id('opsStock2FA')?.value||'').trim(); d.codigo_2fa=d.twofa_code;
+        d.family_slots=Math.max(1,Math.min(50,toNum($id('opsStockFamilySlots')?.value||d.max_uses||5,5)));
+        d.max_uses=d.family_slots;
+        d.invite_method=($id('opsStockInviteMethod')?.value||'Invitación familiar').trim();
+      }
+    }catch(_){ }
+    try{ if(window.isChatGPTPlanId?.(planId) && $id('opsStockTotpAccount')?.value)d.totp_account_id=$id('opsStockTotpAccount').value; else delete d.totp_account_id; }catch(_){ }
+    return d;
+  }
+  window.saveOpsStock=saveOpsStock=async function(ev){
+    if(ev)ev.preventDefault();
+    const id=$id('opsStockId')?.value||'';
+    const planId=$id('opsStockPlan')?.value||'';
+    if(!planId)return toast('Selecciona un plan destino','bad');
+    const correo=($id('opsStockUser')?.value||'').trim();
+    const clave=($id('opsStockPass')?.value||'').trim();
+    if(!correo)return toast('El correo / usuario es obligatorio','bad');
+    if(!clave)return toast('La contraseña es obligatoria','bad');
+    const current=id?(state.stock||[]).find(s=>s.id===id):null;
+    const baseSecret=buildStockSecret(planId,current);
+    if(!id)baseSecret.used_count=0;
+    const note=($id('opsStockNotes')?.value||'').trim();
+    const titleBase=($id('opsStockTitle')?.value||'').trim()||correo;
+    const bulkProfiles=String($id('opsStockProfilesBulk')?.value||'').split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{const p=line.split('|').map(x=>x.trim());return{perfil:p[0]||'',pin:p[1]||''};}).filter(x=>x.perfil||x.pin);
+    const preferredStatus=(window.stockDbStatus?stockDbStatus($id('opsStockStatus')?.value||'available'):'available');
+    if(!id && bulkProfiles.length){
+      const rows=bulkProfiles.map((pf,idx)=>({plan_id:planId,stock_type:'account',title:titleBase+' · '+(pf.perfil||('Perfil '+(idx+1))),secret_data:{...baseSecret,perfil:pf.perfil,pin:pf.pin,max_uses:1,used_count:0},notes:note||null,status:'available'}));
+      const r=await stockWriteMany(rows);
+      if(r.error)return toast('No se guardó en Supabase: '+r.error.message,'bad');
+      closeDialog('dlgOpsStock');toast(rows.length+' perfiles/cupos guardados','ok');await refreshAfterStockSave(planId);return;
+    }
+    const payload={plan_id:planId,stock_type:'account',title:titleBase,secret_data:baseSecret,notes:note||null,status:preferredStatus};
+    const r=await stockWriteSingle(id,payload);
+    if(r.error){
+      const msg=r.error.message||String(r.error);
+      if(/row-level security|permission denied|not authorized|policy/i.test(msg))return toast('Supabase bloqueó el guardado por permisos/RLS. Ejecuta el SQL de reparación incluido. Detalle: '+msg,'bad');
+      return toast('No se guardó en Supabase: '+msg,'bad');
+    }
+    try{ if(baseSecret.totp_account_id && typeof createStockTotpCodesForItem==='function'){const made=await createStockTotpCodesForItem(r.data,baseSecret.max_uses);if(!made.ok)toast('Cuenta guardada, pero falló TOTP: '+made.error,'bad');} }catch(e){console.warn(e);}
+    closeDialog('dlgOpsStock');toast('Cuenta guardada y cupos recalculados','ok');await refreshAfterStockSave(planId);
+  };
+  window.saveOpsBulk=saveOpsBulk=async function(){
+    const planId=$id('opsBulkPlan')?.value||'';
+    if(!planId)return toast('Selecciona un plan destino','bad');
+    const parsed=typeof parseOpsBulk==='function'?parseOpsBulk():{valid:[]};
+    const valid=parsed.valid||[];
+    if(!valid.length)return toast('No hay válidas para guardar','bad');
+    const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));
+    const r=await stockWriteMany(rows);
+    if(r.error)return toast('No se guardó el lote en Supabase: '+r.error.message,'bad');
+    closeDialog('dlgOpsBulk');toast((r.data?.length||valid.length)+' cuentas guardadas y cupos recalculados','ok');await refreshAfterStockSave(planId);
+  };
+  setTimeout(()=>{
+    try{ if($id('opsStockForm'))$id('opsStockForm').onsubmit=window.saveOpsStock; }catch(_){ }
+    try{ if($id('btnOpsSaveBulk'))$id('btnOpsSaveBulk').onclick=window.saveOpsBulk; }catch(_){ }
+  },0);
+})();
+
 </script>
 </body>
 </html>
+
 
