@@ -4522,7 +4522,7 @@ function parseBulk(){
 async function saveBulkIfAny(planId){
   const txt=$('bulkText').value.trim();if(!txt)return;
   const{valid}=parseBulk();if(!valid.length)return;
-  const rows=valid.map(v=>({...v,plan_id:planId,status:'available',max_uses:Math.max(1,Number(v.secret_data?.max_uses||1)),used_count:Math.max(0,Number(v.secret_data?.used_count||0))}));
+  const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));
   const r=await db.from('stock_items').insert(rows);
   if(r.error)throw r.error;
   $('bulkText').value='';
@@ -4559,7 +4559,7 @@ async function markManualStockUsed(orderId){
   d.used_count=Math.min(Number(d.max_uses||1),Number(d.used_count||0)+1);
   d.delivered_order_id=orderId;
   d.delivered_at=new Date().toISOString();
-  const r=await db.from('stock_items').update({status:stockDbStatus('used'),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus('used'),secret_data:d}).eq('id',id);
   if(r.error)toast('Entrega registrada, pero no se pudo marcar stock usado: '+r.error.message,'bad');
 }
 async function autoTotpCodesFromPlan(planId){
@@ -4938,7 +4938,7 @@ async function consumePlanStock(planId,context={}){
     }
     const max=Number(d.max_uses||1);
     const finalStatus=d.used_count>=max?'used':'available';
-    const r=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',available.id);
+    const r=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',available.id);
     if(r.error)return {ok:false,error:r.error.message};
     return {ok:true,stock_id:available.id,status:finalStatus,family_admin:stockIsFamilyInvite(available)?(d.family_admin_email||d.correo_admin||d.correo||''):'',stock_secret:d};
   }
@@ -5463,7 +5463,7 @@ async function restoreStockAvailable(id){
   d.used_count=Math.max(0,Number(d.used_count||0)-1);
   delete d.reserved_for; delete d.reserved_phone; delete d.reserved_due; delete d.reserved_note; delete d.reserved_at;
   d.restored_at=new Date().toISOString();
-  const r=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   toast('Cuenta repuesta como disponible','ok');await loadAll();if($('dlgPlanStockView')?.open)renderPlanStockView();else renderOps();
 }
@@ -5702,9 +5702,7 @@ async function saveOpsStock(ev){
     title:$('opsStockTitle').value.trim()||d.correo||planName(planId),
     secret_data:d,
     notes:note||null,
-    status:stockDbStatus($('opsStockStatus').value||'available'),
-    max_uses:Math.max(1,Number(d.max_uses||1)),
-    used_count:Math.max(0,Number(d.used_count||0))
+    status:stockDbStatus($('opsStockStatus').value||'available')
   };
   const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
@@ -5731,7 +5729,7 @@ async function cycleOpsStatus(id){
   }else if(next==='reserved'&&!d.reserved_at){
     d.reserved_at=new Date().toISOString();
   }
-  const r=await db.from('stock_items').update({status:stockDbStatus(next),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus(next),secret_data:d}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   toast('Estado: '+next,'ok');await loadAll();switchTab('ops');
 }
@@ -5761,7 +5759,7 @@ async function saveOpsReserve(){
   }else{
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
   }
-  const r=await db.from('stock_items').update({status:stockDbStatus(status),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
+  const r=await db.from('stock_items').update({status:stockDbStatus(status),secret_data:d}).eq('id',id);
   if(r.error)return toast(r.error.message,'bad');
   closeDialog('dlgOpsReserve');toast(status==='reserved'?'Cuenta reservada':'Estado actualizado','ok');await loadAll();switchTab('ops');
 }
@@ -5909,7 +5907,7 @@ async function saveOpsDeliver(){
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const max=Number(d.max_uses||1);
     const finalStatus=(d.used_count>=max)?'used':'available';
-    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
+    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
     if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,source:'entrega_manual'});
@@ -5983,7 +5981,7 @@ async function saveOpsBulk(){
   if(!planId)return toast('Selecciona un plan destino','bad');
   const {valid}=parseOpsBulk();
   if(!valid.length)return toast('No hay válidas para guardar','bad');
-  const rows=valid.map(v=>({...v,plan_id:planId,status:'available',max_uses:Math.max(1,Number(v.secret_data?.max_uses||1)),used_count:Math.max(0,Number(v.secret_data?.used_count||0))}));
+  const rows=valid.map(v=>({...v,plan_id:planId,status:'available'}));
   const r=await db.from('stock_items').insert(rows).select();
   if(r.error)return toast(r.error.message,'bad');
   const inserted=r.data||[];
@@ -6577,6 +6575,139 @@ if($('totpBulkAccount'))$('totpBulkAccount').onchange=()=>{state.totpBulkDraft=[
 if($('btnTotpResetCode'))$('btnTotpResetCode').onclick=()=>resetTotpCode();
 if($('btnTotpDeleteCode'))$('btnTotpDeleteCode').onclick=()=>deleteTotpCode();
 
+
+/* ================================================================
+   PATCH V39 — Botones de pedidos más claros + Telegram manual
+   No cambia cupos ni TOTP. Usa RPC estables V39 si existen.
+   ================================================================ */
+function orderCanApproveV39(o){
+  const st=orderStatusValue(o), ds=orderDeliveryValue(o);
+  return ['pending_payment','payment_review','pending','review','por_revisar','awaiting_payment'].includes(st) || ['pending','waiting_manual_delivery','partial'].includes(ds);
+}
+function orderCanDeliverV39(o){
+  const ds=orderDeliveryValue(o), st=orderStatusValue(o);
+  return ['waiting_manual_delivery','partial','pending'].includes(ds) || ['paid'].includes(st);
+}
+function orderCanRejectV39(o){
+  const g=orderGroupKey(o), st=orderStatusValue(o);
+  return g==='pending' || ['pending_payment','payment_review','paid'].includes(st);
+}
+function orderActionButtonsV39(o){
+  const id=o.id;
+  const g=orderGroupKey(o);
+  const ds=orderDeliveryValue(o);
+  const buttons=[];
+  if(orderCanApproveV39(o))buttons.push(`<button class="btn btn-success" onclick="approveOrder('${id}')">✅ Aprobar</button>`);
+  if(orderCanDeliverV39(o))buttons.push(`<button class="btn btn-primary" onclick="openManualDelivery('${id}')">📦 Entregar</button>`);
+  if(['waiting_manual_delivery','partial'].includes(ds))buttons.push(`<button class="btn btn-warning" onclick="confirmActivation('${id}')">✅ Activación</button>`);
+  if(orderCanRejectV39(o))buttons.push(`<button class="btn btn-danger" onclick="rejectOrder('${id}')">❌ Rechazar</button>`);
+  if(g==='released')buttons.push(`<button class="btn btn-success" onclick="openDeliveredOrderWhatsApp('${id}')">💬 WhatsApp</button>`);
+  buttons.push(`<button class="btn" onclick="openOrderChat('${id}')">Chat</button>`);
+  buttons.push(`<button class="btn" onclick="copyOrderSummary('${id}')">Copiar</button>`);
+  buttons.push(`<button class="btn" onclick="viewDelivery('${id}')">Ver entrega</button>`);
+  buttons.push(`<button class="btn" onclick="sendOrderTelegramV39('${id}')">📨 Telegram</button>`);
+  if(g==='cancelled')buttons.push(`<button class="btn btn-danger" onclick="deleteOrder('${id}')">Eliminar</button>`);
+  return buttons.join('');
+}
+window.sendOrderTelegramV39=async function(id){
+  const r=await db.rpc('admin_notify_order_to_telegram_v39',{p_order_id:id});
+  if(r.error)return toast(r.error.message,'bad');
+  toast(r.data||'Pedido enviado a Telegram','ok');
+};
+window.sendDueRemindersTelegramV39=async function(){
+  const r=await db.rpc('admin_send_due_reminders_now',{p_force:true});
+  if(r.error)return toast(r.error.message,'bad');
+  toast(r.data||'Recordatorios enviados a Telegram','ok');
+};
+window.sendStockAlertTelegramV39=async function(){
+  const threshold=Number(prompt('Avisar planes con cupos menores o iguales a:', '2')||2);
+  const r=await db.rpc('admin_send_stock_alert_now',{p_threshold:threshold,p_force:true});
+  if(r.error)return toast(r.error.message,'bad');
+  toast(r.data||'Alerta de stock enviada a Telegram','ok');
+};
+window.approveOrder=approveOrder=async function(id){
+  const o=state.orders.find(x=>x.id===id)||{};
+  const label=o.order_code?` ${o.order_code}`:'';
+  if(!confirm('¿Aprobar pago'+label+'?\n\nSi hay cuenta automática disponible, se intentará entregar. Si falta cuenta, quedará como pendiente de entrega.'))return;
+  let r=await db.rpc('admin_approve_payment_and_deliver',{p_order_id:id});
+  if(r.error){
+    console.warn('admin_approve_payment_and_deliver falló, usando wrapper V39:', r.error.message);
+    r=await db.rpc('admin_approve_order_v39',{p_order_id:id});
+  }
+  if(r.error)return toast(r.error.message,'bad');
+  const row=Array.isArray(r.data)?(r.data[0]||{}):(r.data||{});
+  toast(row.message||'Pago aprobado','ok');
+  try{await createRemindersFromOrder(id)}catch(e){console.warn('createRemindersFromOrder',e)}
+  await loadAll();
+  const status=row.delivery_status || orderDeliveryValue(state.orders.find(x=>x.id===id)||{});
+  if(['waiting_manual_delivery','partial','pending'].includes(String(status))){openManualDelivery(id);return;}
+  openDeliveredOrderWhatsApp(id);
+};
+window.rejectOrder=rejectOrder=async function(id){
+  const o=state.orders.find(x=>x.id===id)||{};
+  const motivo=prompt('Motivo del rechazo para mostrar al cliente:', 'Pago no validado. Si fue un error, escríbenos por el chat del pedido.');
+  if(motivo===null)return;
+  let r=await db.rpc('admin_reject_order',{p_order_id:id,p_reason:motivo});
+  if(r.error){
+    console.warn('admin_reject_order falló, usando wrapper V39:', r.error.message);
+    r=await db.rpc('admin_reject_order_v39',{p_order_id:id,p_reason:motivo});
+  }
+  if(r.error)return toast(r.error.message,'bad');
+  toast('Pedido rechazado y notificado al cliente','ok');
+  await loadAll();
+};
+const _renderOrdersBeforeV39=renderOrders;
+renderOrders=function(){
+  const q=($('orderSearch')?.value||'').toLowerCase();
+  let arr=state.orders.filter(o=>(`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''}`).toLowerCase().includes(q));
+  if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(orderStatusValue(o))||orderGroupKey(o)==='pending');
+  if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(orderDeliveryValue(o)));
+  if(state.onlySupport)arr=arr.filter(o=>state.orderChats.some(m=>m.order_id===o.id));
+  arr=arr.sort((a,b)=>{
+    const ga=orderGroupRank(a), gb=orderGroupRank(b);
+    if(ga!==gb)return ga-gb;
+    const ac=state.orderChats.filter(m=>m.order_id===a.id).length;
+    const bc=state.orderChats.filter(m=>m.order_id===b.id).length;
+    return bc-ac || new Date(b.created_at||0)-new Date(a.created_at||0);
+  });
+  const groups=['pending','released','cancelled'];
+  const html=groups.map(group=>{
+    const rows=arr.filter(o=>orderGroupKey(o)===group);
+    if(!rows.length)return '';
+    return orderSectionTitle(group,rows.length)+rows.map(o=>{
+      const pr=state.proofs.find(p=>p.order_id===o.id);
+      const items=state.items.filter(i=>i.order_id===o.id).map(i=>planName(i.plan_id)+' x'+i.quantity).join(' · ');
+      const del=state.deliveries.filter(d=>d.order_id===o.id).length;
+      const inp=state.orderInputs.find(x=>x.order_id===o.id);
+      const chats=state.orderChats.filter(m=>m.order_id===o.id);
+      const lastChat=chats[chats.length-1];
+      const g=orderGroupKey(o);
+      const rowCls=g==='pending'?'pending-row':g==='cancelled'?'cancelled-row':'released-row';
+      const extra=inp?.requirement_summary?`<div class="order-extra"><b>📌 Datos:</b> ${esc(inp.requirement_summary)}</div>`:'';
+      const chatPreview=lastChat?`<div class="order-chat-preview"><b>💬 Último:</b> ${esc(lastChat.sender_role)} — ${esc(lastChat.message)}</div>`:'';
+      const created=o.created_at?esc(new Date(o.created_at).toLocaleString('es-PE')):'—';
+      return `<div class="order-row ${rowCls}">
+        <div class="order-main"><div class="order-title">${esc(o.order_code||'Pedido')}</div><div class="order-sub">${esc(o.customer_name||'Sin cliente')} · ${esc(o.customer_whatsapp||'Sin WhatsApp')}</div></div>
+        <div class="order-meta-line"><span class="badge ${orderStatusClass(o)}">${esc(orderStatusLabel(o))}</span><span class="badge">${money(o.total)}</span>${chats.length?`<span class="badge b-warn">💬 ${chats.length}</span>`:''}<span class="badge b-purple">${esc(o.delivery_status||'sin entrega')}</span></div>
+        <div class="order-meta-line"><span class="pill due0">${created}</span><span class="help">${items||'Sin items'} · Op: <span class="mono">${esc(pr?.operation_code||'pendiente')}</span> · Entregas: ${del}</span>${extra}${chatPreview}</div>
+        <div class="order-actions">${orderActionButtonsV39(o)}</div>
+      </div>`;
+    }).join('');
+  }).join('');
+  $('ordersGrid').innerHTML=html||'<div class="empty-state"><span class="icon">🧾</span><p>No hay pedidos.</p></div>';
+};
+function installV39TelegramSettingsButtons(){
+  const btn=$('btnSaveAdminLocalSettings');
+  if(!btn || $('btnSendDueTelegramV39'))return;
+  const wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px';
+  wrap.innerHTML=`<button class="btn btn-warning" id="btnSendDueTelegramV39" type="button">🔔 Enviar vencidos a Telegram</button><button class="btn btn-success" id="btnSendStockTelegramV39" type="button">📦 Revisar stock Telegram</button>`;
+  btn.parentElement?.appendChild(wrap);
+  $('btnSendDueTelegramV39').onclick=sendDueRemindersTelegramV39;
+  $('btnSendStockTelegramV39').onclick=sendStockAlertTelegramV39;
+}
+setTimeout(installV39TelegramSettingsButtons,800);
+
 /* ---- Init ---- */
 init();
 initAdminRealtime();
@@ -6945,7 +7076,7 @@ async function saveOpsDeliver(){
     d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,service,amount,due_date:due,at:new Date().toISOString(),totp_code:deliveredCode||''});
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const max=Number(d.max_uses||1);const finalStatus=(d.used_count>=max)?'used':'available';
-    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
+    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
     if(st.error)toast('Entrega registrada, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,source:'entrega_manual'});
@@ -7133,7 +7264,7 @@ async function saveOpsStock(ev){
   if(!id && bulkProfiles.length){
     const rows=bulkProfiles.map((pf,idx)=>{
       const d={...baseSecret,perfil:pf.perfil,pin:pf.pin,max_uses:1,used_count:0};
-      return {plan_id:planId,stock_type:'account',title:titleBase||`${correo} · ${pf.perfil||('Perfil '+(idx+1))}`,secret_data:d,notes:note||null,status:'available',max_uses:1,used_count:0};
+      return {plan_id:planId,stock_type:'account',title:titleBase||`${correo} · ${pf.perfil||('Perfil '+(idx+1))}`,secret_data:d,notes:note||null,status:'available'};
     });
     const r=await db.from('stock_items').insert(rows).select();
     if(r.error)return toast(r.error.message,'bad');
@@ -7143,7 +7274,7 @@ async function saveOpsStock(ev){
     }
     closeDialog('dlgOpsStock');toast(rows.length+' perfiles/cupos guardados','ok');await loadAll();switchTab('inventory');return;
   }
-  const payload={plan_id:planId,stock_type:'account',title:titleBase||correo,secret_data:baseSecret,notes:note||null,status:stockDbStatus($('opsStockStatus')?.value||'available'),max_uses:Math.max(1,Number(baseSecret.max_uses||1)),used_count:Math.max(0,Number(baseSecret.used_count||0))};
+  const payload={plan_id:planId,stock_type:'account',title:titleBase||correo,secret_data:baseSecret,notes:note||null,status:stockDbStatus($('opsStockStatus')?.value||'available')};
   const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
   if(baseSecret.totp_account_id){const made=await createStockTotpCodesForItem(r.data,baseSecret.max_uses);if(!made.ok)return toast('Cuenta guardada, pero no se pudieron crear códigos TOTP: '+made.error,'bad');}
@@ -7262,7 +7393,7 @@ async function saveOpsDeliver(){
     d.history.push({pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,client_email:clientEmail,service,amount,due_date:due,at:new Date().toISOString(),correo:d.correo||'',perfil:d.perfil||'',pin:d.pin||'',totp_code:deliveredCode||'',family_admin:d.family_admin_email||d.correo_admin||d.correo||'',family_2fa:d.twofa_code||d.codigo_2fa||''});
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const finalStatus=(d.used_count>=stockMaxUses(x))?'used':'available';
-    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',id);
+    const st=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',id);
     if(st.error)return toast('Recordatorio creado, pero no se pudo descontar stock: '+st.error.message,'bad');
   }else if(planId){
     const used=await consumePlanStock(planId,{customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,source:'entrega_manual'});
@@ -7495,7 +7626,7 @@ setTimeout(enhanceCuposEntregaUi,0);
     });
     delete d.reserved_for;delete d.reserved_phone;delete d.reserved_email;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
     const finalStatus=used>=safeStockMax(x)?'used':'available';
-    const res=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',x.id).select().single();
+    const res=await db.from('stock_items').update({status:stockDbStatus(finalStatus),secret_data:d}).eq('id',x.id).select().single();
     if(res.error)return {ok:false,error:res.error.message};
     Object.assign(x,res.data||{secret_data:d,status:stockDbStatus(finalStatus)});
     return {ok:true,stock_id:x.id,status:finalStatus,family_admin:d.family_admin_email||d.correo_admin||d.correo||'',stock_secret:d};
@@ -7523,7 +7654,7 @@ setTimeout(enhanceCuposEntregaUi,0);
       correo:sec.family_admin_email,email:sec.family_admin_email,usuario:sec.family_admin_email,clave:sec.family_admin_pass,password:sec.family_admin_pass,pass:sec.family_admin_pass,
       family_mode:true,family_admin_email:sec.family_admin_email,family_admin_pass:sec.family_admin_pass,correo_admin:sec.family_admin_email,clave_admin:sec.family_admin_pass,twofa_code:sec.twofa_code,codigo_2fa:sec.twofa_code,family_slots:5,max_uses:5,used_count:0,invite_method:'Invitación familiar'
     },planId);
-    const r=await db.from('stock_items').insert({plan_id:planId,stock_type:'account',title:sec.family_admin_email,secret_data:secret,notes:'Creado desde recordatorio',status:'available',max_uses:Math.max(1,Number(secret.max_uses||5)),used_count:Math.max(0,Number(secret.used_count||0))}).select().single();
+    const r=await db.from('stock_items').insert({plan_id:planId,stock_type:'account',title:sec.family_admin_email,secret_data:secret,notes:'Creado desde recordatorio',status:'available'}).select().single();
     if(r.error)return {ok:false,error:r.error.message};
     state.stock.unshift(r.data);
     return {ok:true,stock:r.data};
@@ -7638,7 +7769,7 @@ setTimeout(enhanceCuposEntregaUi,0);
     const h=d.history.find(h=>h.reminder_id===r.id)||(link.history&&d.history.find(h=>h===link.history));
     if(h){h.released_at=new Date().toISOString();h.release_reason=reason;}
     d.last_released_at=new Date().toISOString();
-    const res=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d,max_uses:Math.max(1,Number(d.max_uses||1)),used_count:Math.max(0,Number(d.used_count||0))}).eq('id',x.id).select().single();
+    const res=await db.from('stock_items').update({status:stockDbStatus('available'),secret_data:d}).eq('id',x.id).select().single();
     if(res.error)return {ok:false,error:res.error.message};
     Object.assign(x,res.data||{secret_data:d,status:stockDbStatus('available')});
     return {ok:true,stock_id:x.id};
@@ -8159,9 +8290,9 @@ setTimeout(enhanceCuposEntregaUi,0);
   }
 
   async function updateStockWithPreferredStatus(id,secretData,preferredStatus){
-    let r=await db.from('stock_items').update({status:preferredStatus,secret_data:secretData,max_uses:Math.max(1,Number(secretData?.max_uses||1)),used_count:Math.max(0,Number(secretData?.used_count||0))}).eq('id',id).select().single();
+    let r=await db.from('stock_items').update({status:preferredStatus,secret_data:secretData}).eq('id',id).select().single();
     if(r.error && /check|constraint|violates|restricci/i.test(r.error.message||'')){
-      r=await db.from('stock_items').update({status:'available',secret_data:secretData,max_uses:Math.max(1,Number(secretData?.max_uses||1)),used_count:Math.max(0,Number(secretData?.used_count||0))}).eq('id',id).select().single();
+      r=await db.from('stock_items').update({status:'available',secret_data:secretData}).eq('id',id).select().single();
     }
     return r;
   }
@@ -8448,11 +8579,9 @@ setTimeout(enhanceCuposEntregaUi,0);
   function isAccountV23(item){
     const d=secretV23(item);
     const t=norm(item?.stock_type||'account');
-    if(['code','codigo','pin','access_code','totp_code'].includes(t))return false;
-    const hasCredential=!!(d.correo||d.usuario||d.email||d.family_admin_email||d.correo_admin||d.clave||d.password||d.pass||d['contraseña']||d.contrasena);
-    // Evita cupos fantasma: una fila con solo título/nota ya no cuenta como cuenta real.
-    if(t==='account')return hasCredential;
-    return hasCredential;
+    if(t==='code')return false;
+    if(t==='account')return true;
+    return !!(d.correo||d.usuario||d.email||d.clave||d.password||d.pass||d['contraseña']||d.contrasena||item?.title);
   }
   function isReservedV23(item){
     const d=secretV23(item), st=norm(item?.status);
@@ -8495,11 +8624,12 @@ setTimeout(enhanceCuposEntregaUi,0);
     const pid=planIdV23(planOrId)||p?.id;
     if(!pid)return 0;
     const c=countsV23(pid);
+    if(c.rows.length)return c.libres;
     if(isManualPlanV23(p))return manualCountV23(p);
-    if(norm(p?.stock_mode)==='unlimited')return 999999;
-    // Para planes automáticos/controlled la única fuente válida son cuentas reales en stock_items.
-    // No usamos fallback RPC porque podía contar filas antiguas/códigos y crear cupos invisibles.
-    return c.libres;
+    // Solo como respaldo para planes automáticos sin ninguna cuenta cargada.
+    const s=(state?.summary||[]).find(x=>norm(x.plan_id)===norm(pid));
+    const val=toNum(s?.available_stock,0);
+    return Math.max(0,Number.isFinite(val)?val:0);
   }
   function planTypeLabelV23(p){return isManualPlanV23(p)?'Manual':'Automática';}
   function planTypeBadgeV23(p){return isManualPlanV23(p)?'b-warn':'b-ok';}
@@ -8660,26 +8790,6 @@ setTimeout(enhanceCuposEntregaUi,0);
     try{state.summary=buildLocalSummaryV23();}catch(_){ }
     try{renderKPIs();renderSummary();renderPlans();}catch(_){ }
   },0);
-})();
-
-
-/* ================================================================
-   PATCH V34 — Cupos fantasma / sincronización DB
-   Mantiene este admin estable, pero evita que el shop cuente filas invisibles.
-   ================================================================ */
-(function(){
-  window.__innovCuposGhostFixV34=true;
-  const n=v=>String(v??'').trim().toLowerCase();
-  const num=(v,d=0)=>{const x=Number(v);return Number.isFinite(x)?x:d;};
-  function sec(item){try{return opsSecret(item)||{};}catch(_){return item?.secret_data||{};}}
-  window.__innovRealAccountStock=function(item){
-    const d=sec(item), t=n(item?.stock_type||'account');
-    if(['code','codigo','pin','access_code','totp_code'].includes(t))return false;
-    return !!(d.correo||d.usuario||d.email||d.family_admin_email||d.correo_admin||d.clave||d.password||d.pass||d['contraseña']||d.contrasena);
-  };
-  window.__innovStockColumnsPayload=function(d){
-    d=d||{};return {max_uses:Math.max(1,num(d.max_uses,1)),used_count:Math.max(0,num(d.used_count,0))};
-  };
 })();
 
 </script>
