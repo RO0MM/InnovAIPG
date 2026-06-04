@@ -3203,7 +3203,10 @@ function setLocalPaymentSettings(value){
 }
 function getPaymentSettings(){
   const dbPay=state.settings.find(s=>s.key==='payment_public')?.value||{};
-  return {...dbPay,...getLocalPaymentSettings()};
+  const localPay=getLocalPaymentSettings();
+  // V41: Supabase debe tener prioridad. Antes el localStorage podía pisar la URL nueva del QR
+  // y volver a mostrar img/yape-qr.png aunque el QR se hubiera subido correctamente.
+  return {...localPay,...dbPay};
 }
 function getStoreSettings(){return state.settings.find(s=>s.key==='store_public')?.value||{}}
 function getDefaultTemplate(){
@@ -5249,15 +5252,51 @@ async function deleteCoupon(id){
 }
 
 /* ---- Settings ---- */
-async function uploadQr(){
-  const file=$('qrFile').files[0];if(!file)return toast('Selecciona imagen','bad');
-  const path='qr-yape-'+Date.now()+'.'+(file.name.split('.').pop()||'png');
-  const r=await db.storage.from('innov-payment-assets').upload(path,file,{upsert:true,contentType:file.type});
-  if(r.error)return toast(r.error.message,'bad');
-  const url=db.storage.from('innov-payment-assets').getPublicUrl(path).data.publicUrl;
-  $('setQr').value=url;$('qrPreview').src=url;toast('QR subido. Guarda configuración.','ok');
+function fileToDataUrl(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(String(reader.result||''));
+    reader.onerror=()=>reject(reader.error||new Error('No se pudo leer la imagen'));
+    reader.readAsDataURL(file);
+  });
 }
-async function savePayment(){
+async function uploadQr(){
+  const file=$('qrFile')?.files?.[0];
+  if(!file)return toast('Selecciona imagen','bad');
+  if(!String(file.type||'').startsWith('image/'))return toast('El archivo debe ser una imagen','bad');
+
+  let previewUrl='';
+  try{
+    previewUrl=await fileToDataUrl(file);
+    $('qrPreview').src=previewUrl;
+  }catch(_){ }
+
+  const cleanExt=(file.name.split('.').pop()||'png').toLowerCase().replace(/[^a-z0-9]/g,'')||'png';
+  const path='qr-yape/qr-yape-'+Date.now()+'.'+cleanExt;
+  let finalUrl='';
+
+  try{
+    const r=await db.storage.from('innov-payment-assets').upload(path,file,{upsert:true,cacheControl:'3600',contentType:file.type||'image/jpeg'});
+    if(r.error)throw r.error;
+    finalUrl=db.storage.from('innov-payment-assets').getPublicUrl(path).data.publicUrl;
+    if(!finalUrl)throw new Error('Supabase no devolvió URL pública');
+    $('setQr').value=finalUrl;
+    $('qrPreview').src=finalUrl;
+    await savePayment({silent:true});
+    toast('QR subido a Supabase y guardado','ok');
+  }catch(err){
+    // V41: fallback seguro. Si Storage falla por políticas/cache, guardamos la imagen como data URL.
+    // Checkout puede mostrar data:image/... directamente.
+    if(!previewUrl){
+      try{previewUrl=await fileToDataUrl(file);}catch(e){return toast('No se pudo leer ni subir el QR: '+(err?.message||err),'bad');}
+    }
+    $('setQr').value=previewUrl;
+    $('qrPreview').src=previewUrl;
+    await savePayment({silent:true});
+    toast('Storage no aceptó la subida, pero el QR quedó guardado embebido. Motivo: '+(err?.message||err),'ok');
+  }
+}
+async function savePayment(opts={}){
   const current=getPaymentSettings();
   const value={
     ...current,
@@ -5266,15 +5305,20 @@ async function savePayment(){
     whatsapp_group_url:$('setWaGroup')?.value.trim()||''
   };
   value.grupo_whatsapp=value.whatsapp_group_url;
-  setLocalPaymentSettings(value);
   const payload={key:'payment_public',value,updated_at:new Date().toISOString()};
   const r=await db.from('app_settings').upsert(payload,{onConflict:'key'}).select().maybeSingle();
   if(r.error){
+    setLocalPaymentSettings(value);
     toast('Guardado localmente, pero Supabase no aceptó el cambio: '+r.error.message,'bad');
     renderSettings();
     return;
   }
-  toast('Pago, QR y grupo WhatsApp guardados','ok');
+  try{localStorage.removeItem('innov_payment_public_local')}catch(_){ }
+  if(r.data?.value){
+    const i=state.settings.findIndex(s=>s.key==='payment_public');
+    if(i>=0)state.settings[i]=r.data; else state.settings.push(r.data);
+  }
+  if(!opts.silent)toast('Pago, QR y grupo WhatsApp guardados','ok');
   await loadSettings().catch(()=>{});
   renderSettings();
 }
@@ -6534,7 +6578,16 @@ $('rService')?.addEventListener('input',()=>{autoFillReminderFromService(false)}
 ['opsDeliverName','opsDeliverPhone','opsDeliverClientEmail','opsDeliverAmount','opsDeliverStart','opsDeliverPayDate','opsDeliverDue','opsDeliverService'].forEach(id=>$(id)?.addEventListener('input',refreshOpsDeliverMessage));
 $('rCustomer').onchange=applySelectedTemplate;
 $('btnUploadQr').onclick=uploadQr;
-$('btnSavePayment').onclick=savePayment;
+$('qrFile')?.addEventListener('change',async e=>{
+  const file=e.target.files?.[0];
+  if(!file)return;
+  try{
+    const url=await fileToDataUrl(file);
+    $('qrPreview').src=url;
+    toast('Vista previa lista. Presiona Subir QR para guardarlo.','ok');
+  }catch(_){ }
+});
+$('btnSavePayment').onclick=()=>savePayment();
 if($('btnSaveAdminLocalSettings'))$('btnSaveAdminLocalSettings').onclick=saveAdminLocalSettings;
 if($('btnTestNotification'))$('btnTestNotification').onclick=()=>{enableWebNotifications();notifyWeb('Prueba Innov IA','Notificación, sonido y alerta funcionando.',true)};
 $('btnExportBackup').onclick=exportBackup;
@@ -8683,6 +8736,3 @@ setTimeout(enhanceCuposEntregaUi,0);
 </script>
 </body>
 </html>
-
-
-
