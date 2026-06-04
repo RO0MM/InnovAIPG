@@ -8659,9 +8659,191 @@ setTimeout(enhanceCuposEntregaUi,0);
   },0);
 })();
 
+
+/* ================================================================
+   PATCH V25 — BORRADO REAL DE CUENTAS / CUPOS
+   - Corrige el botón Eliminar dentro de "Cuentas e historial".
+   - Intenta borrar por RPC segura si existe.
+   - Si no existe RPC, limpia vínculos comunes y borra desde stock_items.
+   - Si Supabase bloquea por historial/FK, archiva y oculta la cuenta para que no cuente cupo.
+   ================================================================ */
+(function(){
+  if(window.__innovDeleteStockFixV25)return;
+  window.__innovDeleteStockFixV25=true;
+
+  function stockDeletedV25(x){
+    try{
+      const d=(typeof opsSecret==='function')?opsSecret(x):(x?.secret_data||{});
+      return !!(d?.deleted || d?.archived || d?.removed || d?.eliminado) || /^\s*\[ELIMINADO\]/i.test(String(x?.notes||''));
+    }catch(_){
+      return /^\s*\[ELIMINADO\]/i.test(String(x?.notes||''));
+    }
+  }
+
+  const oldOpsIsAccountV25=typeof opsIsAccount==='function'?opsIsAccount:null;
+  window.opsIsAccount=function(x){
+    if(stockDeletedV25(x))return false;
+    return oldOpsIsAccountV25?oldOpsIsAccountV25(x):(String(x?.stock_type||'').toLowerCase()==='account');
+  };
+  try{opsIsAccount=window.opsIsAccount;}catch(_){}
+
+  const oldPlanStockFilteredRowsV25=typeof planStockFilteredRows==='function'?planStockFilteredRows:null;
+  window.planStockFilteredRows=function(){
+    const rows=oldPlanStockFilteredRowsV25?oldPlanStockFilteredRowsV25():[];
+    return rows.filter(x=>!stockDeletedV25(x));
+  };
+  try{planStockFilteredRows=window.planStockFilteredRows;}catch(_){}
+
+  async function ignoreMissingColumnOrTableV25(promise){
+    try{
+      const r=await promise;
+      return {ok:!r?.error,error:r?.error||null};
+    }catch(e){
+      return {ok:false,error:e};
+    }
+  }
+
+  async function detachStockRefsV25(id){
+    const jobs=[
+      ['deliveries','stock_item_id','null'],
+      ['payment_reminders','linked_stock_id','null'],
+      ['payment_reminders','stock_item_id','null'],
+      ['orders','stock_item_id','null'],
+      ['totp_access_codes','stock_item_id','null'],
+      ['stock_usage_logs','stock_item_id','delete']
+    ];
+    for(const [table,col,mode] of jobs){
+      if(mode==='delete'){
+        await ignoreMissingColumnOrTableV25(db.from(table).delete().eq(col,id));
+      }else{
+        const payload={}; payload[col]=null;
+        await ignoreMissingColumnOrTableV25(db.from(table).update(payload).eq(col,id));
+      }
+    }
+  }
+
+  async function archiveStockV25(id, reason){
+    const x=(state.stock||[]).find(s=>s.id===id)||{};
+    const d={...(typeof opsSecret==='function'?opsSecret(x):(x.secret_data||{}))};
+    const max=Math.max(1,Number(d.max_uses||1));
+    d.deleted=true;
+    d.archived=true;
+    d.removed=true;
+    d.archived_at=new Date().toISOString();
+    d.archive_reason=reason||'delete_fallback';
+    d.used_count=max;
+    d.max_uses=max;
+    const note='[ELIMINADO] '+String(x.notes||d.nota||'').replace(/^\[ELIMINADO\]\s*/,'');
+    const r=await db.from('stock_items').update({
+      secret_data:d,
+      notes:note,
+      status:(typeof stockDbStatus==='function'?stockDbStatus('available'):'available')
+    }).eq('id',id).select('id');
+    if(r.error)throw r.error;
+    return {ok:true,mode:'archived'};
+  }
+
+  async function deleteStockCoreV25(id){
+    if(!id)throw new Error('No se recibió ID de cuenta.');
+    const before=(state.stock||[]).find(s=>s.id===id)||{};
+    const planId=before.plan_id || $('planStockPlanId')?.value || '';
+
+    // 1) Camino recomendado: RPC segura instalada por SQL opcional.
+    try{
+      const rpc=await db.rpc('admin_delete_stock_item',{p_stock_item_id:id});
+      if(!rpc.error && rpc.data && rpc.data.ok){
+        return {ok:true,mode:rpc.data.mode||'deleted',planId};
+      }
+    }catch(_){}
+
+    // 2) Camino compatible: limpiar referencias comunes y borrar.
+    await detachStockRefsV25(id);
+    let del=await db.from('stock_items').delete().eq('id',id).select('id');
+    if(!del.error && Array.isArray(del.data) && del.data.length){
+      return {ok:true,mode:'deleted',planId};
+    }
+
+    // 3) Si Supabase no devuelve filas o bloquea por FK/RLS, segundo intento con mensaje claro.
+    if(del.error){
+      const msg=String(del.error.message||'');
+      if(/foreign key|violates|constraint|referencia|referenced/i.test(msg)){
+        const archived=await archiveStockV25(id,msg);
+        return {...archived,planId};
+      }
+      throw del.error;
+    }
+
+    // Si no hubo error pero tampoco devolvió fila, la ocultamos para evitar que siga contando cupo.
+    const archived=await archiveStockV25(id,'delete_returned_zero_rows');
+    return {...archived,planId};
+  }
+
+  async function refreshAfterStockDeleteV25(id, result){
+    try{state.stock=(state.stock||[]).filter(s=>s.id!==id);}catch(_){}
+    try{renderPlanStockView();}catch(_){}
+    try{renderPlans();renderKPIs();renderSummary();}catch(_){}
+    try{await loadAll();}catch(_){}
+    try{renderPlanStockView();}catch(_){}
+    try{renderPlans();renderKPIs();renderSummary();}catch(_){}
+    try{
+      const current=$('planStockPlanId')?.value;
+      if(current && result?.planId && current!==result.planId){$('planStockPlanId').value=result.planId;}
+    }catch(_){}
+  }
+
+  window.quickDeleteOpsStock=async function(id){
+    id=String(id||'').trim();
+    const x=(state.stock||[]).find(s=>s.id===id)||{};
+    const d=(typeof opsSecret==='function')?opsSecret(x):{};
+    const label=x.title||d.correo||d.usuario||'esta cuenta';
+    if(!confirm('¿Eliminar definitivamente "'+label+'"?\n\nSi tiene historial vinculado, se desvinculará/archivará para que ya no aparezca ni cuente cupo.'))return;
+    const btn=document.activeElement;
+    try{if(btn&&btn.tagName==='BUTTON'){btn.disabled=true;btn.textContent='Eliminando...';}}catch(_){}
+    try{
+      const result=await deleteStockCoreV25(id);
+      await refreshAfterStockDeleteV25(id,result);
+      toast(result.mode==='archived'?'Cuenta archivada y quitada de cupos':'Cuenta eliminada correctamente','ok');
+    }catch(e){
+      toast('No se pudo eliminar: '+(e?.message||e),'bad');
+    }finally{
+      try{if(btn&&btn.tagName==='BUTTON'){btn.disabled=false;btn.textContent='Eliminar';}}catch(_){}
+    }
+  };
+  try{quickDeleteOpsStock=window.quickDeleteOpsStock;}catch(_){}
+
+  window.deleteOpsStock=async function(){
+    const id=String($('opsStockId')?.value||'').trim();
+    if(!id)return toast('No hay cuenta seleccionada','bad');
+    const x=(state.stock||[]).find(s=>s.id===id)||{};
+    const d=(typeof opsSecret==='function')?opsSecret(x):{};
+    const label=x.title||d.correo||d.usuario||'esta cuenta';
+    if(!confirm('¿Eliminar definitivamente "'+label+'"?'))return;
+    try{
+      const result=await deleteStockCoreV25(id);
+      closeDialog('dlgOpsStock');
+      await refreshAfterStockDeleteV25(id,result);
+      toast(result.mode==='archived'?'Cuenta archivada y quitada de cupos':'Cuenta eliminada correctamente','ok');
+    }catch(e){
+      toast('No se pudo eliminar: '+(e?.message||e),'bad');
+    }
+  };
+  try{deleteOpsStock=window.deleteOpsStock;}catch(_){}
+
+  setTimeout(()=>{
+    try{
+      if($('btnOpsDeleteStock'))$('btnOpsDeleteStock').onclick=window.deleteOpsStock;
+      if($('planStockSearch'))$('planStockSearch').oninput=renderPlanStockView;
+    }catch(_){}
+  },0);
+})();
+
 </script>
 </body>
 </html>
+
+
+
+
 
 
 
