@@ -8856,5 +8856,466 @@ setTimeout(enhanceCuposEntregaUi,0);
 })();
 </script>
 
+
+<script id="innov-v48-delivery-edit-hotfix">
+/* ================================================================
+   HOTFIX V48 — Entregas + Access TOTP + edición desde historial
+   - Evita que WhatsApp sea bloqueado al abrir después de guardar.
+   - Si falta el SQL/RPC V46, usa fallback directo para emitir Access TOTP
+     y descontar cupos, sin romper la entrega.
+   - Permite modificar la cuenta y cambiar el Access TOTP desde historial.
+   - Al guardar cuenta, vincula el Access TOTP; el código se crea fresco
+     recién al entregar, no al cargar/modificar stock.
+   ================================================================ */
+(function(){
+  'use strict';
+  if(window.__innovV48DeliveryEditHotfix)return;
+  window.__innovV48DeliveryEditHotfix=true;
+
+  const $$=id=>document.getElementById(id);
+  const safeEsc=v=>{try{return typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}catch(_){return String(v??'')}};
+  const now=()=>new Date().toISOString();
+  const rpcMissing=err=>/function|does not exist|not exist|not found|schema cache|Could not find|PGRST202|404|overload/i.test(String(err?.message||err||''));
+  const asArrayRow=data=>Array.isArray(data)?data[0]:data;
+  function stockById(id){return (window.state?.stock||[]).find(x=>String(x.id)===String(id))||null}
+  function planById(id){try{return typeof plan==='function'?plan(id):((state.plans||[]).find(p=>p.id===id)||{})}catch(_){return {}}}
+  function planNameSafe(id){try{return typeof planName==='function'?planName(id):'Servicio'}catch(_){return 'Servicio'}}
+  function secretOf(x){try{return typeof opsSecret==='function'?opsSecret(x):((x&&typeof x.secret_data==='object')?{...x.secret_data}:{})}catch(_){return {}}}
+  function dbStatus(st){try{return typeof stockDbStatus==='function'?stockDbStatus(st):st}catch(_){return st}}
+  function availableStatus(x){try{return typeof opsAvailableStatus==='function'?opsAvailableStatus(x):String(x?.status||'available')}catch(_){return String(x?.status||'available')}}
+  function uniqueTotpCode(){
+    try{if(typeof generateUniqueTotpAccessCode==='function')return generateUniqueTotpAccessCode()}catch(_){}
+    try{if(typeof makeTotpAccessCode==='function')return makeTotpAccessCode()}catch(_){}
+    return ('IA'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10);
+  }
+  function exactTotpAccount(stockItem,planId=''){
+    const d=secretOf(stockItem);
+    try{
+      return d.totp_account_id||stockItem?.totp_account_id||(typeof planTotpAccountId==='function'?planTotpAccountId(planId||stockItem?.plan_id||''):'')||'';
+    }catch(_){return d.totp_account_id||stockItem?.totp_account_id||''}
+  }
+
+  // Fallback de RPC V46: si Supabase no tiene aún las funciones SQL, no bloquea la entrega.
+  if(window.db && !window.__innovV48RpcFallbackInstalled){
+    window.__innovV48RpcFallbackInstalled=true;
+    const originalRpc=db.rpc.bind(db);
+
+    async function fallbackIssueTotp(args={}){
+      const stock=stockById(args.p_stock_item_id);
+      const planId=args.p_plan_id||stock?.plan_id||'';
+      const accountId=exactTotpAccount(stock,planId);
+      if(!accountId)return {data:null,error:{message:'La cuenta seleccionada no tiene Access TOTP vinculado.'}};
+      const validDays=Math.max(1,Number(args.p_valid_days||7));
+      let lastError=null;
+      for(let attempt=0;attempt<8;attempt++){
+        const code=uniqueTotpCode();
+        const expires_at=new Date(Date.now()+validDays*24*60*60*1000).toISOString();
+        const base={
+          account_id:accountId,
+          access_code:code,
+          customer_name:args.p_customer_name||null,
+          customer_phone:args.p_customer_phone||null,
+          max_uses:1,
+          used_count:0,
+          valid_days:validDays,
+          active:true,
+          expires_at,
+          notes:'Auto entrega: '+(args.p_service||planNameSafe(planId)||'Entrega'),
+          updated_at:now()
+        };
+        const optional={
+          stock_item_id:stock?.id||null,
+          plan_id:planId||null,
+          reminder_id:args.p_reminder_id||null,
+          order_id:args.p_order_id||null
+        };
+        for(const payload of [{...base,...optional},base]){
+          const r=await db.from('totp_access_codes').insert(payload).select().single();
+          if(!r.error){
+            const row={...(r.data||payload),stock_item_id:stock?.id||null,plan_id:planId||null,expires_at,access_code:code,account_id:accountId};
+            return {data:row,error:null};
+          }
+          lastError=r.error;
+          if(/stock_item_id|plan_id|reminder_id|order_id|schema cache|column/i.test(String(r.error.message||'')))continue;
+          if(!/duplicate|unique|access_code/i.test(String(r.error.message||'')))break;
+        }
+      }
+      return {data:null,error:lastError||{message:'No se pudo generar un Access TOTP único.'}};
+    }
+
+    async function fallbackConsumeStock(args={}){
+      const stock=stockById(args.p_stock_item_id);
+      if(!stock)return {data:null,error:{message:'No se encontró la cuenta seleccionada para descontar cupo.'}};
+      const ctx=args.p_context||{};
+      const d={...secretOf(stock)};
+      d.used_count=Math.max(0,Number(d.used_count||0))+1;
+      d.last_customer=ctx.customer_name||d.last_customer||'';
+      d.last_phone=ctx.customer_phone||d.last_phone||'';
+      d.last_email=ctx.customer_email||d.last_email||'';
+      d.last_used_at=now();
+      if(ctx.totp_code){
+        d.used_totp_codes=Array.isArray(d.used_totp_codes)?d.used_totp_codes:[];
+        if(!d.used_totp_codes.includes(ctx.totp_code))d.used_totp_codes.push(ctx.totp_code);
+      }
+      d.history=Array.isArray(d.history)?d.history:[];
+      d.history.push({
+        pedido:ctx.pedido||ctx.order_id||'',
+        customer_name:ctx.customer_name||'',
+        customer_phone:ctx.customer_phone||'',
+        customer_email:ctx.customer_email||'',
+        service:ctx.service||planNameSafe(stock.plan_id),
+        amount:ctx.amount??null,
+        due_date:ctx.due_date||'',
+        totp_code:ctx.totp_code||'',
+        at:now(),
+        source:ctx.source||'entrega'
+      });
+      delete d.reserved_for;delete d.reserved_phone;delete d.reserved_due;delete d.reserved_note;delete d.reserved_at;
+      const max=Math.max(1,Number(d.max_uses||1));
+      const finalStatus=d.used_count>=max?'used':'available';
+      const r=await db.from('stock_items').update({status:dbStatus(finalStatus),secret_data:d}).eq('id',stock.id).select().single();
+      if(r.error)return {data:null,error:r.error};
+      Object.assign(stock,r.data||{status:dbStatus(finalStatus),secret_data:d});
+      return {data:{used_count:d.used_count,max_uses:max,secret_data:d,status:finalStatus,stock_id:stock.id},error:null};
+    }
+
+    async function fallbackConsumeManual(args={}){
+      const planId=args.p_plan_id;
+      const p=planById(planId);
+      const next=Math.max(0,Number(p.manual_stock_count||0)-1);
+      const r=await db.from('product_plans').update({manual_stock_count:next}).eq('id',planId).select().single();
+      if(r.error)return {data:null,error:r.error};
+      if(p)p.manual_stock_count=next;
+      return {data:{remaining:next},error:null};
+    }
+
+    db.rpc=async function(name,args,opts){
+      const res=await originalRpc(name,args,opts);
+      if(!res?.error)return res;
+      if(!rpcMissing(res.error))return res;
+      try{
+        if(name==='admin_issue_delivery_totp_v46')return await fallbackIssueTotp(args||{});
+        if(name==='admin_consume_stock_item_v46')return await fallbackConsumeStock(args||{});
+        if(name==='admin_consume_manual_plan_stock_v46')return await fallbackConsumeManual(args||{});
+      }catch(e){
+        return {data:null,error:{message:e?.message||String(e)}};
+      }
+      return res;
+    };
+  }
+
+  // Preabre una pestaña en el clic del usuario y redirige ahí cuando la entrega ya terminó.
+  function startWaPopup(shouldOpen){
+    if(!shouldOpen)return null;
+    try{
+      const w=window.open('about:blank','_blank');
+      if(w){
+        try{
+          w.document.open();
+          w.document.write('<!doctype html><title>Abriendo WhatsApp...</title><body style="font-family:sans-serif;padding:24px">Abriendo WhatsApp...</body>');
+          w.document.close();
+        }catch(_){}
+      }
+      return w;
+    }catch(_){return null}
+  }
+  function bridgeWindowOpen(popup){
+    if(!popup)return ()=>{};
+    const old=window.open;
+    let used=false;
+    window.open=function(url,target,features){
+      const s=String(url||'');
+      if(s && s!=='#' && /(wa\.me|whatsapp)/i.test(s)){
+        used=true;
+        try{popup.location.href=s;}catch(_){}
+        return popup;
+      }
+      return old.apply(window,arguments);
+    };
+    return function(){window.open=old;return used;};
+  }
+  function closePopup(popup){try{if(popup && !popup.closed)popup.close()}catch(_){}}
+  function fallbackWaUrl(phoneValue,msgValue){
+    try{
+      const ph=typeof normalizePhone==='function'?normalizePhone(phoneValue||''):{ok:false};
+      if(ph.ok && msgValue)return typeof waLink==='function'?waLink(ph.e164,msgValue):'#';
+    }catch(_){}
+    return '#';
+  }
+  function wrapSaveWithPopup(fnName,opts={}){
+    const original=window[fnName];
+    if(typeof original!=='function'||original.__v48Wrapped)return;
+    const wrapped=async function(){
+      const dlg=opts.dialogId?$$(opts.dialogId):null;
+      const should=opts.shouldOpen?opts.shouldOpen():true;
+      const popup=startWaPopup(should);
+      const restore=bridgeWindowOpen(popup);
+      let used=false;
+      try{
+        const r=await original.apply(this,arguments);
+        used=restore();
+        const success=!dlg || !dlg.open;
+        if(popup && !used){
+          if(success){
+            const url=opts.fallbackUrl?opts.fallbackUrl():'#';
+            if(url&&url!=='#')try{popup.location.href=url}catch(_){}
+            else closePopup(popup);
+          }else closePopup(popup);
+        }
+        return r;
+      }catch(e){
+        restore();closePopup(popup);
+        console.error('V48 delivery error',e);
+        try{toast('Error al entregar: '+(e?.message||e),'bad')}catch(_){}
+        throw e;
+      }
+    };
+    wrapped.__v48Wrapped=true;
+    window[fnName]=wrapped;
+    try{eval(fnName+'=window[fnName]')}catch(_){}
+  }
+
+  wrapSaveWithPopup('saveOpsDeliver',{
+    dialogId:'dlgOpsDeliver',
+    shouldOpen:()=>!!$$('opsDeliverOpenWa')?.checked,
+    fallbackUrl:()=>fallbackWaUrl($$('opsDeliverPhone')?.value,$$('opsDeliverText')?.value)
+  });
+  wrapSaveWithPopup('saveManualDelivery',{
+    dialogId:'dlgManual',
+    shouldOpen:()=>true,
+    fallbackUrl:()=>{
+      const orderId=$$('manualOrderId')?.value||'';
+      const o=(state.orders||[]).find(x=>x.id===orderId)||{};
+      return fallbackWaUrl(o.customer_whatsapp||'', $$('manualMessage')?.value||'');
+    }
+  });
+
+  // Si alguna función antigua lanza error al abrir entrega, se abre un formulario mínimo.
+  function safeOpenOpsFallback(id='',forcedPlanId=''){
+    const x=id?stockById(id):null;
+    const planId=x?.plan_id||forcedPlanId||$$('opsDeliverPlanId')?.value||'';
+    if(!planId){try{toast('Selecciona un plan para entregar','bad')}catch(_){};return;}
+    const d=secretOf(x);
+    if($$('opsDeliverStockId'))$$('opsDeliverStockId').value=x?.id||'';
+    if($$('opsDeliverPlanId'))$$('opsDeliverPlanId').value=planId;
+    if($$('opsDeliverPedido'))$$('opsDeliverPedido').value=(typeof makeManualDeliveryCode==='function'?makeManualDeliveryCode():('ENT-'+Date.now()));
+    if($$('opsDeliverName'))$$('opsDeliverName').value=d.reserved_for||'';
+    if($$('opsDeliverPhone'))$$('opsDeliverPhone').value=d.reserved_phone||'';
+    if($$('opsDeliverService'))$$('opsDeliverService').value=planNameSafe(planId);
+    if($$('opsDeliverAmount'))$$('opsDeliverAmount').value=planById(planId)?.price??'';
+    if($$('opsDeliverStart'))$$('opsDeliverStart').value=(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
+    if($$('opsDeliverPayDate'))$$('opsDeliverPayDate').value=(typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10));
+    if($$('opsDeliverDue'))$$('opsDeliverDue').value=(typeof planRenewalDue==='function'?planRenewalDue(planId):'');
+    const acc=exactTotpAccount(x,planId);
+    if($$('opsDeliverTotpAccountId'))$$('opsDeliverTotpAccountId').value=acc||'';
+    if($$('opsDeliverTotpCode'))$$('opsDeliverTotpCode').value=acc?uniqueTotpCode():'';
+    try{if(typeof refreshOpsDeliverMessage==='function')refreshOpsDeliverMessage()}catch(_){}
+    try{showDialog('dlgOpsDeliver')}catch(_){$$('dlgOpsDeliver')?.showModal?.()}
+  }
+  const oldOpenOps=window.openOpsDeliver;
+  if(typeof oldOpenOps==='function'&&!oldOpenOps.__v48Safe){
+    const safe=function(id='',forcedPlanId=''){
+      try{return oldOpenOps.apply(this,arguments)}
+      catch(e){console.error('V48 openOpsDeliver fallback',e);safeOpenOpsFallback(id,forcedPlanId)}
+    };
+    safe.__v48Safe=true;
+    window.openOpsDeliver=safe;try{openOpsDeliver=safe}catch(_){}
+  }
+
+  const oldOpenManual=window.openManualDelivery;
+  if(typeof oldOpenManual==='function'&&!oldOpenManual.__v48Safe){
+    const safe=function(id=''){
+      try{return oldOpenManual.apply(this,arguments)}
+      catch(e){
+        console.error('V48 openManualDelivery fallback',e);
+        try{toast('Se abrió entrega en modo seguro. Revisa los datos antes de guardar.','bad')}catch(_){}
+        if($$('manualOrderId'))$$('manualOrderId').value=id;
+        const its=(state.items||[]).filter(i=>i.order_id===id);
+        if($$('manualPlan'))$$('manualPlan').innerHTML=its.map(i=>`<option value="${i.plan_id}">${safeEsc(planNameSafe(i.plan_id))} x${safeEsc(i.quantity||1)}</option>`).join('');
+        try{showDialog('dlgManual')}catch(_){{$$('dlgManual')?.showModal?.()}}
+      }
+    };
+    safe.__v48Safe=true;
+    window.openManualDelivery=safe;try{openManualDelivery=safe}catch(_){}
+  }
+
+  // Access TOTP siempre editable si existen cuentas TOTP o la cuenta ya estaba vinculada.
+  const oldSyncTotpBox=window.syncOpsStockTotpBox;
+  window.syncOpsStockTotpBox=syncOpsStockTotpBox=function(){
+    try{if(typeof oldSyncTotpBox==='function')oldSyncTotpBox.apply(this,arguments)}catch(_){}
+    const box=$$('opsStockTotpBox'); if(!box)return;
+    const selected=$$('opsStockTotpAccount')?.value||'';
+    try{if(typeof fillTotpSelectElement==='function')fillTotpSelectElement($$('opsStockTotpAccount'),selected)}catch(_){}
+    const hasTotp=(state.totpAccounts||[]).length>0 || !!selected;
+    box.classList.toggle('hidden',!hasTotp);
+    const lbl=box.querySelector('label.subtle');
+    if(lbl)lbl.textContent='Access TOTP / accesos.top (opcional)';
+  };
+
+  const oldOpenStock=window.openOpsStockDialog;
+  if(typeof oldOpenStock==='function'&&!oldOpenStock.__v48Edit){
+    const open=function(type='account',id=''){
+      const r=oldOpenStock.apply(this,arguments);
+      setTimeout(()=>{
+        const x=id?stockById(id):null,d=secretOf(x);
+        if($$('opsStock2FA'))$$('opsStock2FA').value=d.twofa_code||d.codigo_2fa||d['2fa']||'';
+        if($$('opsStockFamilySlots'))$$('opsStockFamilySlots').value=Number(d.max_uses||d.family_slots||1);
+        if($$('opsStockInviteMethod'))$$('opsStockInviteMethod').value=d.invite_method||d.tipo_activacion||'';
+        if($$('opsStockTotpAccount')){
+          try{if(typeof fillTotpSelectElement==='function')fillTotpSelectElement($$('opsStockTotpAccount'),d.totp_account_id||'')}catch(_){}
+          $$('opsStockTotpAccount').value=d.totp_account_id||'';
+        }
+        try{syncOpsStockTotpBox();if(typeof syncOpsStockFamilyBox==='function')syncOpsStockFamilyBox()}catch(_){}
+      },0);
+      return r;
+    };
+    open.__v48Edit=true;
+    window.openOpsStockDialog=open;try{openOpsStockDialog=open}catch(_){}
+  }
+
+  // Guardado de cuenta: permite cambiar Access TOTP sin crear códigos anticipados.
+  const oldSaveStock=window.saveOpsStock;
+  window.saveOpsStock=saveOpsStock=async function(ev){
+    ev?.preventDefault?.();
+    const id=$$('opsStockId')?.value||'';
+    const planId=$$('opsStockPlan')?.value||'';
+    if(!planId)return toast('Selecciona un plan destino','bad');
+    const current=id?stockById(id):null;
+    const d={...secretOf(current)};
+    d.correo=$$('opsStockUser')?.value.trim()||'';
+    d.clave=$$('opsStockPass')?.value.trim()||'';
+    if(d.correo){d.email=d.correo;d.usuario=d.correo;d.family_admin_email=d.family_admin_email||d.correo;d.correo_admin=d.correo_admin||d.correo;}
+    if(d.clave){d.password=d.clave;d.pass=d.clave;d['contraseña']=d.clave;d.contrasena=d.clave;d.family_admin_pass=d.family_admin_pass||d.clave;d.clave_admin=d.clave_admin||d.clave;}
+    d.perfil=$$('opsStockProfile')?.value.trim()||'';
+    d.pin=$$('opsStockPin')?.value.trim()||'';
+    d.max_uses=Math.max(1,Number($$('opsStockMaxUses')?.value||$$('opsStockFamilySlots')?.value||1));
+    d.used_count=Math.max(0,Number($$('opsStockUsedCount')?.value||d.used_count||0));
+    const totp=$$('opsStockTotpAccount')?.value||'';
+    if(totp)d.totp_account_id=totp; else delete d.totp_account_id;
+    const twofa=$$('opsStock2FA')?.value.trim()||'';
+    if(twofa){d.twofa_code=twofa;d.codigo_2fa=twofa;} else {delete d.twofa_code;delete d.codigo_2fa;}
+    const invite=$$('opsStockInviteMethod')?.value.trim()||'';
+    if(invite)d.invite_method=invite; else delete d.invite_method;
+    const group=$$('opsStockGroup')?.value.trim()||'';
+    if(group){d.grupo=group;d.url=d.url||group;} else {delete d.grupo;}
+    const note=$$('opsStockNotes')?.value.trim()||'';
+    if(note)d.nota=note; else delete d.nota;
+    if(!d.correo&&!d.clave)return toast('Ingresa usuario/correo y contraseña','bad');
+
+    const payload={
+      plan_id:planId,
+      stock_type:'account',
+      title:$$('opsStockTitle')?.value.trim()||d.correo||planNameSafe(planId),
+      secret_data:d,
+      notes:note||null,
+      status:dbStatus($$('opsStockStatus')?.value||availableStatus(current)||'available')
+    };
+    const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
+    if(r.error)return toast(r.error.message,'bad');
+    // No se crean códigos ahora. Se crea 1 código fresco por cliente al entregar.
+    try{closeDialog('dlgOpsStock')}catch(_){}
+    toast('Cuenta guardada. Access TOTP vinculado para próximas entregas.','ok');
+    await loadAll();
+    if($$('dlgPlanStockView')?.open)try{renderPlanStockView()}catch(_){}
+    else try{switchTab('inventory')}catch(_){}
+  };
+
+  // Botón Modificar visible en el historial/listado de cuentas de cada plan.
+  function extractStockIdFromActions(actions){
+    const html=actions?.innerHTML||'';
+    const m=html.match(/(?:openStockViewDeliver|viewStockHistory|quickDeleteOpsStock|restoreStockAvailable)\('([^']+)'\)/);
+    return m?m[1]:'';
+  }
+  function addEditButtonsToPlanHistory(){
+    document.querySelectorAll('#planStockList .plan-stock-actions').forEach(actions=>{
+      if(actions.querySelector('.v48-edit-stock'))return;
+      const id=extractStockIdFromActions(actions); if(!id)return;
+      const b=document.createElement('button');
+      b.className='btn btn-primary v48-edit-stock';
+      b.type='button';
+      b.textContent='Modificar';
+      b.onclick=()=>{try{closeDialog('dlgPlanStockView')}catch(_){};setTimeout(()=>openOpsStockDialog('account',id),80)};
+      actions.insertBefore(b,actions.firstChild);
+    });
+  }
+  const oldRenderPlanStock=window.renderPlanStockView;
+  if(typeof oldRenderPlanStock==='function'&&!oldRenderPlanStock.__v48EditButtons){
+    const rend=function(){const r=oldRenderPlanStock.apply(this,arguments);setTimeout(addEditButtonsToPlanHistory,0);return r;};
+    rend.__v48EditButtons=true;
+    window.renderPlanStockView=rend;try{renderPlanStockView=rend}catch(_){}
+  }
+  setTimeout(addEditButtonsToPlanHistory,600);
+
+  // Historial mejorado con acceso directo a modificar y cambiar Access TOTP.
+  function ensureHistDlg(){
+    let dlg=$$('dlgV48StockHistory');
+    if(dlg)return dlg;
+    document.body.insertAdjacentHTML('beforeend',`
+      <dialog id="dlgV48StockHistory">
+        <div class="modal-header">
+          <strong id="v48HistTitle">Historial de cuenta</strong>
+          <button class="btn btn-ghost btn-icon" type="button" onclick="closeDialog('dlgV48StockHistory')">✕</button>
+        </div>
+        <div class="dlg-body" id="v48HistBody"></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="v48HistEdit" type="button">Modificar cuenta</button>
+          <button class="btn" id="v48HistTotp" type="button">Cambiar Access TOTP</button>
+          <button class="btn" type="button" onclick="closeDialog('dlgV48StockHistory')">Cerrar</button>
+        </div>
+      </dialog>`);
+    return $$('dlgV48StockHistory');
+  }
+  window.v48OpenEditStock=function(id){
+    try{closeDialog('dlgV48StockHistory')}catch(_){}
+    setTimeout(()=>openOpsStockDialog('account',id),80);
+  };
+  window.viewStockHistory=viewStockHistory=function(id){
+    const x=stockById(id); if(!x)return;
+    const d=secretOf(x), hist=Array.isArray(d.history)?d.history:[];
+    const dlg=ensureHistDlg();
+    $$('v48HistTitle').textContent='Historial · '+(x.title||d.correo||planNameSafe(x.plan_id)||'Cuenta');
+    const accountName=(()=>{try{return exactTotpAccount(x,x.plan_id)?(totpAccountName(exactTotpAccount(x,x.plan_id))||'Access TOTP vinculado'):'Sin Access TOTP'}catch(_){return d.totp_account_id?'Access TOTP vinculado':'Sin Access TOTP'}})();
+    const rows=hist.length?hist.slice().reverse().map((h,i)=>`
+      <div class="totp-event">
+        <div class="top"><span>${safeEsc(h.customer_name||'Cliente')}</span><span>${safeEsc(h.at?new Date(h.at).toLocaleString('es-PE'):'')}</span></div>
+        <div class="sub">${safeEsc(h.service||planNameSafe(x.plan_id))} · ${safeEsc(h.customer_phone||'')} · vence ${safeEsc(h.due_date||'—')}</div>
+        ${h.totp_code?`<div class="sub">Access TOTP entregado: <span class="mono">${safeEsc(h.totp_code)}</span></div>`:''}
+      </div>`).join(''):'<div class="empty-state"><span class="icon">📭</span><p>Sin historial detallado todavía.</p></div>';
+    $$('v48HistBody').innerHTML=`
+      <div class="card" style="box-shadow:none;margin-bottom:10px">
+        <div class="kv"><span class="k">Plan</span><span class="v">${safeEsc(planNameSafe(x.plan_id))}</span></div>
+        <div class="kv"><span class="k">Correo/usuario</span><span class="v mono">${safeEsc(d.correo||d.usuario||'—')}</span></div>
+        <div class="kv"><span class="k">Perfil / PIN</span><span class="v">${safeEsc([d.perfil,d.pin].filter(Boolean).join(' / ')||'—')}</span></div>
+        <div class="kv"><span class="k">Usos</span><span class="v">${safeEsc(Number(d.used_count||0))} / ${safeEsc(Number(d.max_uses||1))}</span></div>
+        <div class="kv"><span class="k">Access TOTP</span><span class="v">${safeEsc(accountName)}</span></div>
+      </div>
+      <strong>Movimientos</strong>
+      <div class="totp-events" style="margin-top:10px">${rows}</div>`;
+    $$('v48HistEdit').onclick=()=>window.v48OpenEditStock(id);
+    $$('v48HistTotp').onclick=()=>window.v48OpenEditStock(id);
+    try{showDialog('dlgV48StockHistory')}catch(_){dlg.showModal?.()}
+  };
+
+  // Reenlaza botones luego de cargar todo.
+  const oldLoadAll=window.loadAll;
+  if(typeof oldLoadAll==='function'&&!oldLoadAll.__v48Rebind){
+    const load=async function(){
+      const r=await oldLoadAll.apply(this,arguments);
+      setTimeout(()=>{try{addEditButtonsToPlanHistory();syncOpsStockTotpBox();}catch(_){ }},150);
+      return r;
+    };
+    load.__v48Rebind=true;
+    window.loadAll=load;try{loadAll=load}catch(_){}
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    setTimeout(()=>{
+      try{if($$('opsStockForm'))$$('opsStockForm').onsubmit=window.saveOpsStock;if($$('btnOpsSaveDeliver'))$$('btnOpsSaveDeliver').onclick=window.saveOpsDeliver;if($$('btnSaveManualDelivery'))$$('btnSaveManualDelivery').onclick=window.saveManualDelivery;}catch(_){}
+      try{addEditButtonsToPlanHistory();syncOpsStockTotpBox();}catch(_){}
+    },400);
+  });
+})();
+</script>
+
 </body>
 </html>
