@@ -8526,8 +8526,335 @@ setTimeout(enhanceCuposEntregaUi,0);
 })();
 </script>
 
+
+<style id="innov-v46-link-stock-tree-css">
+/* V46 — árbol de cuentas vinculadas + estado de consistencia */
+.v46-account-tree{border:1px solid var(--border);border-radius:14px;background:var(--card);box-shadow:var(--shadow-xs);margin:0 0 8px;overflow:hidden}
+.v46-account-tree>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--card2);color:var(--card-ink);font-weight:900}
+.v46-account-tree>summary::-webkit-details-marker{display:none}
+.v46-account-tree>summary::before{content:'▸';color:var(--primary);font-size:1rem;transition:transform .15s ease}
+.v46-account-tree[open]>summary::before{transform:rotate(90deg)}
+.v46-tree-main{display:flex;gap:8px;align-items:center;min-width:0;flex:1}
+.v46-tree-email{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v46-tree-meta{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.v46-tree-children{display:grid;gap:7px;padding:9px;background:var(--bg)}
+.v46-tree-unlinked>summary{border-left:4px solid var(--muted)}
+.v46-tree-linked>summary{border-left:4px solid var(--primary)}
+.v46-account-link-note{font-size:.75rem;color:var(--muted);margin:3px 2px 8px}
+.v46-exact-totp{border-left:3px solid var(--purple)!important;background:var(--purple-alpha)!important}
+@media(max-width:800px){.v46-account-tree>summary{align-items:flex-start;padding:9px}.v46-tree-meta{justify-content:flex-start}.v46-tree-main{align-items:flex-start}.v46-tree-email{white-space:normal;word-break:break-word}.v46-tree-children{padding:6px}}
+</style>
+
+<script id="innov-v46-link-stock-tree-patch">
+(function(){
+  'use strict';
+  if(window.__innovV46LinkStockTree)return;
+  window.__innovV46LinkStockTree=true;
+
+  const V46_SQL_REQUIRED='Ejecuta primero el SQL V46 en Supabase y vuelve a intentar.';
+  const v46Now=()=>new Date().toISOString();
+  const v46Norm=v=>String(v||'').trim().toLowerCase();
+  const v46Uuid=v=>String(v||'').trim();
+
+  function v46StockById(id){return (state.stock||[]).find(x=>x.id===id)||null;}
+  function v46SelectedStockId(mode='ops'){
+    if(mode==='manual')return $('manualStockSelect')?.value||$('manualStockId')?.value||'';
+    return $('opsDeliverStockSelect')?.value||$('opsDeliverStockId')?.value||'';
+  }
+  function v46SelectedStock(mode='ops'){return v46StockById(v46SelectedStockId(mode));}
+  function v46ExactTotpAccount(stockItem,planId=''){
+    if(stockItem){
+      const d=opsSecret(stockItem)||{};
+      return d.totp_account_id||stockItem.totp_account_id||'';
+    }
+    return typeof planTotpAccountId==='function'?planTotpAccountId(planId)||'':'';
+  }
+  function v46AccountEmail(stockItem){
+    if(!stockItem)return '';
+    const d=opsSecret(stockItem)||{};
+    return d.family_admin_email||d.correo_admin||d.correo||d.email||d.usuario||stockItem.title||'';
+  }
+  function v46StockSnapshot(stockItem,totpCode=''){
+    if(!stockItem)return {};
+    const d=opsSecret(stockItem)||{};
+    return {
+      stock_item_id:stockItem.id,plan_id:stockItem.plan_id,correo:v46AccountEmail(stockItem),
+      perfil:d.perfil||'',pin:d.pin||'',grupo:d.grupo||d.url||'',
+      family_admin_email:d.family_admin_email||d.correo_admin||'',
+      totp_account_id:d.totp_account_id||'',totp_code:totpCode||''
+    };
+  }
+  function v46IsDeliverable(stockItem){
+    if(!stockItem)return false;
+    try{return typeof isDeliverableStock==='function'?isDeliverableStock(stockItem):(opsAvailableStatus(stockItem)==='available'&&stockUsedCount(stockItem)<stockMaxUses(stockItem));}
+    catch(_){return false;}
+  }
+
+  // Regla central: si existe una cuenta/stock seleccionada, solamente manda el TOTP de esa cuenta.
+  window.stockTotpAccountId=stockTotpAccountId=function(itemOrId,planId=''){
+    const item=typeof itemOrId==='string'?v46StockById(itemOrId):itemOrId;
+    return v46ExactTotpAccount(item,planId||item?.plan_id||'');
+  };
+
+  function v46RefreshTotpSelection(mode='ops'){
+    const stock=v46SelectedStock(mode);
+    const planId=(mode==='manual'?$('manualPlan')?.value:$('opsDeliverPlanId')?.value)||stock?.plan_id||'';
+    const accountId=v46ExactTotpAccount(stock,planId);
+    const code=accountId?(typeof generateUniqueTotpAccessCode==='function'?generateUniqueTotpAccessCode():'IA'+Date.now().toString(36).toUpperCase()):'';
+    const isManual=mode==='manual';
+    const accountEl=isManual?$('manualTotpAccountId'):$('opsDeliverTotpAccountId');
+    const codeEl=isManual?$('manualTotpCode'):$('opsDeliverTotpCode');
+    const infoEl=isManual?$('manualTotpInfo'):$('opsDeliverTotpInfo');
+    if(accountEl)accountEl.value=accountId;
+    if(codeEl)codeEl.value=code;
+    if(isManual&&$('manualCode'))$('manualCode').value=code;
+    if(infoEl){
+      infoEl.classList.toggle('hidden',!accountId);
+      infoEl.classList.toggle('v46-exact-totp',!!accountId);
+      const label=accountId?(totpAccountName(accountId)||'Cuenta TOTP vinculada'):'';
+      infoEl.textContent=accountId?`🛡 Vínculo exacto: ${label} · se creará un código nuevo de 1 uso para esta entrega.`:'';
+    }
+    try{isManual?renderDeliveryMessage():refreshOpsDeliverMessage();}catch(_){ }
+    return {stock,planId,accountId,code};
+  }
+
+  document.addEventListener('change',e=>{
+    if(e.target?.id==='opsDeliverStockSelect')setTimeout(()=>v46RefreshTotpSelection('ops'),0);
+    if(e.target?.id==='manualStockSelect')setTimeout(()=>v46RefreshTotpSelection('manual'),0);
+  });
+
+  const v46OldOpenOps=window.openOpsDeliver;
+  if(typeof v46OldOpenOps==='function'){
+    window.openOpsDeliver=openOpsDeliver=function(){const r=v46OldOpenOps.apply(this,arguments);setTimeout(()=>v46RefreshTotpSelection('ops'),90);return r;};
+  }
+  const v46OldAutoManual=window.autoFillManualFromStock;
+  if(typeof v46OldAutoManual==='function'){
+    window.autoFillManualFromStock=autoFillManualFromStock=function(){const r=v46OldAutoManual.apply(this,arguments);setTimeout(()=>v46RefreshTotpSelection('manual'),50);return r;};
+  }
+
+  async function v46IssueTotp({stockItem=null,planId='',customerName='',customerPhone='',service='',reminderId=null,orderId=null,validDays=7}={}){
+    const exactAccount=v46ExactTotpAccount(stockItem,planId);
+    if(stockItem && typeof isChatGPTPlanId==='function' && isChatGPTPlanId(planId) && !exactAccount){
+      return {ok:false,error:'La cuenta seleccionada no tiene Access TOTP vinculado. Edítala y selecciona su cuenta TOTP correcta.'};
+    }
+    if(!exactAccount)return {ok:true,skipped:true,code:'',account_id:''};
+    const rr=await db.rpc('admin_issue_delivery_totp_v46',{
+      p_stock_item_id:stockItem?.id||null,p_plan_id:planId||stockItem?.plan_id||null,
+      p_customer_name:customerName||null,p_customer_phone:customerPhone||null,p_service:service||'Entrega',
+      p_reminder_id:reminderId||null,p_order_id:orderId||null,p_valid_days:validDays||7
+    });
+    if(rr.error)return {ok:false,error:rr.error.message+(String(rr.error.message||'').includes('function')?' · '+V46_SQL_REQUIRED:'')};
+    const row=Array.isArray(rr.data)?rr.data[0]:rr.data;
+    if(!row?.access_code)return {ok:false,error:'Supabase no devolvió el código Access TOTP.'};
+    state.totpCodes=state.totpCodes||[];
+    state.totpCodes.unshift({id:row.id,access_code:row.access_code,account_id:row.account_id,stock_item_id:row.stock_item_id,reminder_id:reminderId||null,order_id:orderId||null,customer_name:customerName,customer_phone:customerPhone,max_uses:1,used_count:0,active:true,expires_at:row.expires_at,created_at:v46Now()});
+    return {ok:true,code:row.access_code,id:row.id,account_id:row.account_id,stock_item_id:row.stock_item_id,expires_at:row.expires_at,created:true};
+  }
+
+  // Mantiene compatibilidad con los flujos existentes, pero resuelve siempre desde la cuenta seleccionada.
+  window.createTotpCodeForDelivery=createTotpCodeForDelivery=async function(accountId,proposedCode,customerName,customerPhone,service){
+    const manualOpen=!!$('dlgManual')?.open;
+    const stock=v46SelectedStock(manualOpen?'manual':'ops');
+    const planId=(manualOpen?$('manualPlan')?.value:$('opsDeliverPlanId')?.value)||stock?.plan_id||'';
+    return v46IssueTotp({stockItem:stock,planId,customerName,customerPhone,service,orderId:manualOpen?($('manualOrderId')?.value||null):null});
+  };
+  window.createTotpCodeForManualDelivery=createTotpCodeForManualDelivery=async function(){
+    const stock=v46SelectedStock('manual');
+    const planId=$('manualPlan')?.value||stock?.plan_id||'';
+    const orderId=$('manualOrderId')?.value||'';
+    const o=(state.orders||[]).find(x=>x.id===orderId)||{};
+    const ph=normalizePhone(o.customer_whatsapp||'');
+    const made=await v46IssueTotp({stockItem:stock,planId,customerName:o.customer_name||'',customerPhone:ph.ok?ph.e164:(o.customer_whatsapp||''),service:planName(planId)||'Entrega',orderId:orderId||null});
+    if(made.ok&&made.code){if($('manualTotpAccountId'))$('manualTotpAccountId').value=made.account_id||'';if($('manualTotpCode'))$('manualTotpCode').value=made.code;if($('manualCode'))$('manualCode').value=made.code;try{renderDeliveryMessage();}catch(_){}}
+    return made;
+  };
+
+  async function v46ConsumeStock(stockItem,context={}){
+    if(!stockItem)return {ok:false,error:'No se encontró la cuenta seleccionada.'};
+    const rr=await db.rpc('admin_consume_stock_item_v46',{p_stock_item_id:stockItem.id,p_context:context||{}});
+    if(rr.error)return {ok:false,error:rr.error.message+(String(rr.error.message||'').includes('function')?' · '+V46_SQL_REQUIRED:'')};
+    const row=Array.isArray(rr.data)?rr.data[0]:rr.data;
+    if(row){
+      stockItem.used_count=Number(row.used_count||0);stockItem.max_uses=Number(row.max_uses||1);stockItem.secret_data=row.secret_data||stockItem.secret_data;
+    }
+    return {ok:true,...(row||{}),stock_id:stockItem.id};
+  }
+  async function v46ConsumeManual(planId){
+    const rr=await db.rpc('admin_consume_manual_plan_stock_v46',{p_plan_id:planId});
+    if(rr.error)return {ok:false,error:rr.error.message+(String(rr.error.message||'').includes('function')?' · '+V46_SQL_REQUIRED:'')};
+    const row=Array.isArray(rr.data)?rr.data[0]:rr.data;const p=plan(planId);if(p&&row)p.manual_stock_count=Number(row.remaining||0);
+    return {ok:true,manual:true,next:Number(row?.remaining||0)};
+  }
+  window.consumePlanStock=consumePlanStock=async function(planId,context={}){
+    if(!planId)return {ok:true,skipped:true};
+    const stock=context.stock_id?v46StockById(context.stock_id):firstAvailableStockForPlan(planId);
+    if(stock)return v46ConsumeStock(stock,{...context,plan_id:planId});
+    const p=plan(planId)||{};
+    if(p.stock_mode==='manual')return v46ConsumeManual(planId);
+    if(String(context.source||'').includes('recordatorio'))return {ok:true,skipped:true,no_stock:true};
+    return {ok:false,error:'No hay cupos disponibles para este plan.'};
+  };
+
+  function v46ReminderLinkPayload(stockItem,totpCode=''){
+    return stockItem?{stock_item_id:stockItem.id,linked_account_email:v46AccountEmail(stockItem)||null,linked_account_snapshot:v46StockSnapshot(stockItem,totpCode)}:{};
+  }
+  async function v46InsertReminder(base,stockItem=null,totpCode=''){
+    let r=await db.from('payment_reminders').insert({...base,...v46ReminderLinkPayload(stockItem,totpCode)}).select().single();
+    if(r.error&&/stock_item_id|linked_account_email|linked_account_snapshot|schema cache|column/i.test(r.error.message||'')){
+      r=await db.from('payment_reminders').insert(base).select().single();
+    }
+    return r;
+  }
+  async function v46CleanupIssuedCode(made){if(made?.id){try{await db.from('totp_access_codes').delete().eq('id',made.id);}catch(_){}}}
+
+  // Entrega rápida: vínculo exacto, recordatorio directo y descuento atómico.
+  window.saveOpsDeliver=saveOpsDeliver=async function(){
+    let stock=v46SelectedStock('ops');
+    let planId=stock?.plan_id||$('opsDeliverPlanId')?.value||'';
+    if(!stock&&planId)stock=firstAvailableStockForPlan(planId);
+    if(stock)planId=stock.plan_id;
+    if(!planId)return toast('Selecciona un plan para entregar','bad');
+    if(stock&&!v46IsDeliverable(stock))return toast('La cuenta seleccionada ya está llena o no disponible','bad');
+    if(!stock&&(plan(planId)?.stock_mode||'')!=='manual')return toast('Selecciona una cuenta con cupos libres antes de entregar','bad');
+
+    const name=($('opsDeliverName')?.value||'').trim();if(!name)return toast('Ingresa nombre del cliente','bad');
+    const phone=normalizePhone($('opsDeliverPhone')?.value||'');if(!phone.ok)return toast(phone.error||'WhatsApp inválido','bad');
+    const secret=stock?opsSecret(stock):{};
+    const isFamily=isFamilyInvitePlanId(planId)||stockIsFamilyInvite(stock);
+    const clientEmail=($('opsDeliverClientEmail')?.value||'').trim();
+    if(isFamily&&!clientEmail)return toast('Ingresa el correo Gmail del cliente para vincularlo al grupo familiar','bad');
+    if(stock&&typeof isChatGPTPlanId==='function'&&isChatGPTPlanId(planId)&&!v46ExactTotpAccount(stock,planId))return toast('La cuenta seleccionada no tiene Access TOTP vinculado. Edítala primero.','bad');
+
+    const existingByPhone=(state.customers||[]).find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits||whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
+    const finalName=(name||existingByPhone?.name||'Cliente').trim();
+    const meta={...customerMeta(existingByPhone)};if(isFamily)Object.assign(meta,familyCustomerMetaFromStock(secret,clientEmail));else if(clientEmail)meta.family_client_email=clientEmail;
+    const customerPayload={name:finalName,phone_raw:($('opsDeliverPhone')?.value||'').trim()||phone.e164,phone_e164:phone.e164,email:clientEmail||existingByPhone?.email||null,source:existingByPhone?.source||'entrega_manual_stock',notes:notesWithCustomerMeta(stripCustomerMetaNotes(existingByPhone?.notes||'Creado desde entrega manual de stock'),meta)};
+    const c=existingByPhone?.id?await db.from('crm_customers').update(customerPayload).eq('id',existingByPhone.id).select().single():await db.from('crm_customers').upsert(customerPayload,{onConflict:'phone_e164'}).select().single();
+    if(c.error)return toast('Cliente no guardado: '+c.error.message,'bad');
+
+    const service=($('opsDeliverService')?.value||'').trim()||planName(planId)||'Servicio';
+    const amount=$('opsDeliverAmount')?.value===''?null:Number($('opsDeliverAmount')?.value||0);
+    const startDate=$('opsDeliverStart')?.value||todayISO(),payDate=$('opsDeliverPayDate')?.value||todayISO(),due=$('opsDeliverDue')?.value||planRenewalDue(planId);
+    const reminderBase={customer_id:c.data.id,product_id:plan(planId)?.product_id||null,plan_id:planId,service_name:service,amount,currency:'PEN',due_date:due,status:'pending'};
+    reminderBase.whatsapp_message=buildTemplateMessage(getDefaultTemplate(),c.data,{...reminderBase,fecha_inicio:startDate,fecha_pago:payDate});
+    const rem=await v46InsertReminder(reminderBase,stock,'');
+    if(rem.error)return toast('Recordatorio no creado: '+rem.error.message,'bad');
+
+    const made=await v46IssueTotp({stockItem:stock,planId,customerName:finalName,customerPhone:phone.e164,service,reminderId:rem.data.id,validDays:7});
+    if(!made.ok){await db.from('payment_reminders').delete().eq('id',rem.data.id);return toast('No se pudo crear el código Access TOTP: '+made.error,'bad');}
+    const deliveredCode=made.code||'';if($('opsDeliverTotpAccountId'))$('opsDeliverTotpAccountId').value=made.account_id||'';if($('opsDeliverTotpCode'))$('opsDeliverTotpCode').value=deliveredCode;
+
+    const used=stock?await v46ConsumeStock(stock,{reminder_id:rem.data.id,pedido:$('opsDeliverPedido')?.value||'',customer_name:finalName,customer_phone:phone.e164,customer_email:clientEmail,service,amount,due_date:due,totp_code:deliveredCode,source:'entrega_manual'}):await v46ConsumeManual(planId);
+    if(!used.ok){await v46CleanupIssuedCode(made);await db.from('payment_reminders').delete().eq('id',rem.data.id);return toast('No se pudo descontar el cupo: '+used.error,'bad');}
+
+    try{refreshOpsDeliverMessage();}catch(_){ }
+    const msg=$('opsDeliverText')?.value?.trim()||opsDeliveryTextFromPlan(planId,{pedido:$('opsDeliverPedido')?.value||makeManualDeliveryCode(),cliente:finalName,telefono:phone.e164,monto:amount,fecha_inicio:startDate,fecha_pago:payDate,fecha_vencimiento:due,correo:secret.correo||'',contraseña:secret.clave||'',perfil:secret.perfil||'',pin:secret.pin||'',grupo:secret.grupo||'',codigo:deliveredCode,correo_admin:secret.family_admin_email||secret.correo_admin||secret.correo||'',contraseña_admin:secret.family_admin_pass||secret.clave_admin||secret.clave||'',grupo_familiar:secret.family_admin_email||secret.correo_admin||secret.correo||'',cliente_gmail:clientEmail,codigo_2fa:secret.twofa_code||secret.codigo_2fa||''});
+    copyTextSafe(msg);closeDialog('dlgOpsDeliver');toast('Entrega vinculada y cupo descontado','ok');notifyWeb('Entrega registrada','Se creó recordatorio para '+finalName,true);
+    if($('opsDeliverOpenWa')?.checked){const url=waLink(phone.e164,msg);if(url!=='#')window.open(url,'_blank','noopener,noreferrer');}
+    await loadAll();switchTab('inventory');
+  };
+
+  // Entrega desde pedido: primero registra entrega, después vincula recordatorio y descuenta la cuenta exacta.
+  window.saveManualDelivery=saveManualDelivery=async function(){
+    const stock=v46SelectedStock('manual');const planId=$('manualPlan')?.value||stock?.plan_id||'';const orderId=$('manualOrderId')?.value||'';
+    if(stock&&!v46IsDeliverable(stock))return toast('La cuenta seleccionada ya está llena o no disponible','bad');
+    if(!stock&&(plan(planId)?.stock_mode||'')!=='manual')return toast('Selecciona la cuenta exacta que vas a entregar','bad');
+    if(stock&&typeof isChatGPTPlanId==='function'&&isChatGPTPlanId(planId)&&!v46ExactTotpAccount(stock,planId))return toast('La cuenta seleccionada no tiene Access TOTP vinculado. Edítala primero.','bad');
+
+    const o=(state.orders||[]).find(x=>x.id===orderId)||{};const ph=normalizePhone(o.customer_whatsapp||'');
+    const made=await v46IssueTotp({stockItem:stock,planId,customerName:o.customer_name||'',customerPhone:ph.ok?ph.e164:(o.customer_whatsapp||''),service:planName(planId)||'Entrega',orderId:orderId||null,validDays:7});
+    if(!made.ok)return toast('No se pudo crear el código Access TOTP: '+made.error,'bad');
+    if(made.code){if($('manualTotpAccountId'))$('manualTotpAccountId').value=made.account_id||'';if($('manualTotpCode'))$('manualTotpCode').value=made.code;if($('manualCode'))$('manualCode').value=made.code;}
+
+    try{renderDeliveryMessage();}catch(_){ }
+    const data={};
+    if($('manualUser').value.trim())data.correo=$('manualUser').value.trim();if($('manualPass').value.trim())data.clave=$('manualPass').value.trim();if($('manualProfile').value.trim())data.perfil=$('manualProfile').value.trim();if($('manualPin').value.trim())data.pin=$('manualPin').value.trim();if($('manualGroup').value.trim())data.grupo=$('manualGroup').value.trim();if($('manualUrl').value.trim())data.url=$('manualUrl').value.trim();if(made.code||$('manualCode').value.trim())data.codigo=made.code||$('manualCode').value.trim();if($('manualNote').value.trim())data.nota=$('manualNote').value.trim();if(stock)data.stock_id=stock.id;if($('manualStartDate').value)data.fecha_inicio=displayDateFromInput($('manualStartDate').value);if($('manualRestrictions').value.trim())data.restricciones=$('manualRestrictions').value.trim();
+    const tpl=getDeliveryTemplate();if(tpl?.template_key)data.template_key=tpl.template_key;
+    if(!Object.keys(data).some(k=>!['restricciones','fecha_inicio','template_key'].includes(k))){await v46CleanupIssuedCode(made);return toast('Ingresa datos reales para entregar','bad');}
+    const del=await db.rpc('admin_manual_deliver_order',{p_order_id:orderId,p_plan_id:planId,p_delivery_data:data,p_delivery_message:$('manualMessage').value});
+    if(del.error){await v46CleanupIssuedCode(made);return toast(del.error.message,'bad');}
+
+    await createRemindersFromOrder(orderId);
+    const q=await db.from('payment_reminders').select('*').eq('order_id',orderId).eq('plan_id',planId).order('created_at',{ascending:false}).limit(1);
+    const rem=Array.isArray(q.data)?q.data[0]:null;
+    if(made.id&&rem?.id)await db.from('totp_access_codes').update({reminder_id:rem.id}).eq('id',made.id);
+    const context={reminder_id:rem?.id||'',order_id:orderId,pedido:o.order_code||'',customer_name:o.customer_name||'',customer_phone:ph.ok?ph.e164:(o.customer_whatsapp||''),customer_email:o.customer_email||'',service:planName(planId),totp_code:made.code||'',source:'entrega_manual_pedido'};
+    const used=stock?await v46ConsumeStock(stock,context):await v46ConsumeManual(planId);
+    if(!used.ok)return toast('Entrega registrada, pero no se pudo descontar el cupo: '+used.error,'bad');
+    closeDialog('dlgManual');toast('Entrega vinculada y cupo descontado','ok');await loadAll();openDeliveredOrderWhatsApp(orderId);
+  };
+
+  // Resumen real desde Supabase V46.
+  window.loadSummary=loadSummary=async function(){
+    const r=await db.rpc('admin_plan_stock_summary_v46');
+    if(!r.error){state.summary=r.data||[];return;}
+    const old=await db.rpc('admin_plan_stock_summary');state.summary=old.error?[]:old.data||[];
+  };
+
+  // ---------- Árbol de recordatorios por correo/cuenta vinculada ----------
+  function v46ReminderStock(r){
+    if(r?.stock_item_id){const s=v46StockById(r.stock_item_id);if(s)return s;}
+    try{return findLinkedStockForReminder(r)?.item||null;}catch(_){return null;}
+  }
+  function v46ReminderEmail(r){
+    const stock=v46ReminderStock(r);if(stock)return v46AccountEmail(stock);
+    const snap=(r?.linked_account_snapshot&&typeof r.linked_account_snapshot==='object')?r.linked_account_snapshot:{};
+    return r?.linked_account_email||snap.correo||snap.family_admin_email||'';
+  }
+  function v46ReminderSearch(r,q){
+    const c=(state.customers||[]).find(x=>x.id===r.customer_id)||{};
+    const link=v46ReminderEmail(r);
+    return `${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${c.phone_raw||''} ${c.email||''} ${link} ${r.status||''} ${r.order_id||''} ${reminderCode(r)} ${reminderStatusLabel(r)} ${reminderWhatsAppLabel(r)}`.toLowerCase().includes(q);
+  }
+  function v46GroupReminders(rows){
+    const map=new Map();
+    (rows||[]).forEach(r=>{
+      const email=v46ReminderEmail(r);const key=email?'email:'+v46Norm(email):'none';
+      if(!map.has(key))map.set(key,{key,email:email||'Sin cuenta vinculada',rows:[],stocks:new Map(),first:r.due_date||''});
+      const g=map.get(key);g.rows.push(r);if((r.due_date||'')<g.first||!g.first)g.first=r.due_date||'';
+      const s=v46ReminderStock(r);if(s)g.stocks.set(s.id,s);
+    });
+    return [...map.values()].sort((a,b)=>{if(a.key==='none')return 1;if(b.key==='none')return -1;return String(a.first).localeCompare(String(b.first))||a.email.localeCompare(b.email);});
+  }
+  function v46TreeHtml(rows,open=false){
+    const groups=v46GroupReminders(rows);
+    if(!groups.length)return '<div class="empty-state"><span class="icon">🔔</span><p>Sin recordatorios.</p></div>';
+    return groups.map(g=>{
+      let used=0,max=0;g.stocks.forEach(s=>{used+=Number(stockUsedCount(s)||0);max+=Number(stockMaxUses(s)||1);});
+      const linked=g.key!=='none';
+      return `<details class="v46-account-tree ${linked?'v46-tree-linked':'v46-tree-unlinked'}" ${open?'open':''}><summary><span class="v46-tree-main"><span>${linked?'🌳':'📂'}</span><span class="v46-tree-email">${esc(g.email)}</span></span><span class="v46-tree-meta"><span class="badge ${linked?'b-purple':''}">${g.rows.length} cliente${g.rows.length===1?'':'s'}</span>${linked&&max?`<span class="badge b-ok">${Math.max(0,max-used)} libres</span><span class="badge">${used}/${max} usados</span>`:''}</span></summary><div class="v46-tree-children">${reminderRowsHtml(g.rows)}</div></details>`;
+    }).join('');
+  }
+  function v46Diff(r){const x=Number(localCalendarDiffFromToday(r?.due_date));return Number.isFinite(x)?x:99999;}
+  function v46Open(r){return reminderIsOpen(r);}
+  function v46Overdue(r){return (v46Open(r)&&v46Diff(r)<0)||reminderIsNoRenewal(r);}
+  window.renderReminders=renderReminders=function(){
+    if(state.onlyPending)state.onlyPending=false;
+    const q=($('reminderSearch')?.value||$('clientSearch')?.value||'').toLowerCase();
+    const base=(state.reminders||[]).filter(r=>v46ReminderSearch(r,q));
+    let html='',merged=[];
+    if(state.onlyDue||state.onlyDueClients){
+      const overdue=base.filter(v46Overdue).sort((a,b)=>v46Diff(b)-v46Diff(a));merged=overdue;
+      html='<div class="v45-reminder-note"><b>Vencidos:</b> agrupados por la cuenta/correo donde fueron vinculados.</div>'+v46TreeHtml(overdue,false);
+    }else{
+      const openRows=base.filter(r=>v46Open(r)&&v46Diff(r)>=0).sort((a,b)=>v46Diff(a)-v46Diff(b)||String(a.due_date||'').localeCompare(String(b.due_date||'')));
+      const today=openRows.filter(r=>v46Diff(r)===0),future=openRows.filter(r=>v46Diff(r)>0);merged=openRows;
+      html='<div class="v45-reminder-note"><b>Vista principal:</b> primero vencen hoy y luego próximos pagos; dentro de cada bloque se agrupan por cuenta vinculada.</div>'+
+        `<div class="v45-reminder-section">⏰ Vencen hoy <span class="badge b-warn">${today.length}</span></div>${v46TreeHtml(today,true)}`+
+        `<div class="v45-reminder-section">📆 Próximos pagos <span class="badge b-ok">${future.length}</span></div>${v46TreeHtml(future,false)}`;
+    }
+    if($('remindersGrid'))$('remindersGrid').innerHTML=html;
+    if($('remindersMergedGrid'))$('remindersMergedGrid').innerHTML=v46TreeHtml(merged,false);
+    updateReminderBulkBar();
+  };
+
+  const v46OldLoadAll=window.loadAll;
+  if(typeof v46OldLoadAll==='function'){
+    window.loadAll=loadAll=async function(){const r=await v46OldLoadAll.apply(this,arguments);setTimeout(()=>{try{renderReminders();}catch(e){console.warn('V46 render reminders',e);}},100);return r;};
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{try{renderReminders();}catch(_){}},500));
+})();
+</script>
+
 </body>
 </html>
-
-
-
