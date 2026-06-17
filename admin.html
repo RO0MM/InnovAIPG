@@ -1935,44 +1935,6 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 }
 </style>
 
-
-
-<style id="innov-v59-totp-activity-css">
-/* ================================================================
-   V59 TOTP ACTIVIDAD PRO
-   Solo mejora visual y lectura de actividad. No cambia creación ni validación.
-   ================================================================ */
-#tab-totp .totp-hero{grid-template-columns:1fr!important;margin-bottom:10px!important}
-#tab-totp .totp-hero > .card:first-child{padding:14px!important;border-radius:18px!important;background:linear-gradient(135deg,var(--card),var(--primary-alpha2))!important}
-#tab-totp .totp-hero > .card:nth-child(2){display:none!important}
-#tab-totp .totp-title h2{font-size:1.08rem!important}
-#tab-totp .totp-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
-#tab-totp .totp-kpi{padding:8px 10px!important;border-radius:13px!important}
-#tab-totp .totp-kpi .v{font-size:1.12rem!important}
-#tab-totp .totp-kpi .l{font-size:.64rem!important}
-#tab-totp .admin-toolbar{padding:9px!important;border-radius:15px!important;margin-bottom:9px!important}
-#tab-totp .totp-tabs{gap:6px;margin-bottom:9px!important}
-#tab-totp .totp-tabs .chip{padding:7px 12px!important;border-radius:12px!important;font-weight:800!important}
-#tab-totp .totp-grid.compact{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}
-.totp-row-pro{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:9px 10px;display:grid;grid-template-columns:minmax(170px,1fr) minmax(140px,.72fr) minmax(165px,.9fr) auto;gap:10px;align-items:center;box-shadow:var(--shadow-xs)}
-.totp-row-pro:hover{background:var(--primary-alpha2);box-shadow:var(--shadow-md)}
-.totp-code-pill{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-weight:900;font-size:.9rem;padding:7px 10px;border-radius:12px;background:var(--primary-alpha);color:var(--primary);border:1px solid rgba(96,165,250,.25);letter-spacing:.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
-.totp-row-title{font-weight:900;color:var(--card-ink);font-size:.9rem;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.totp-row-sub{font-size:.74rem;color:var(--muted);line-height:1.15;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.totp-mini-line{display:flex;gap:5px;flex-wrap:wrap;align-items:center;min-width:0}
-.totp-row-actions{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}.totp-row-actions .btn{padding:6px 9px!important;font-size:.74rem!important;border-radius:9px!important}
-.totp-usage-bar{height:7px;border-radius:999px;background:var(--border);overflow:hidden;min-width:110px;margin-top:5px}.totp-usage-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--success),var(--primary));width:0%}
-.totp-activity-wrap{grid-column:1/-1;display:grid;gap:8px}.totp-activity-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow-xs)}
-.totp-activity-head strong{font-size:.95rem;color:var(--card-ink)}.totp-activity-head .help{font-size:.76rem;margin:0}
-.totp-activity-list{display:grid;gap:7px}.totp-activity-card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:10px;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;align-items:start;box-shadow:var(--shadow-xs)}
-.totp-activity-card.ok{border-left:4px solid var(--success)}.totp-activity-card.bad{border-left:4px solid var(--danger)}.totp-activity-card.info{border-left:4px solid var(--primary)}
-.totp-activity-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--primary-alpha);font-size:18px;flex:0 0 auto}.totp-activity-card.ok .totp-activity-icon{background:var(--success-alpha)}.totp-activity-card.bad .totp-activity-icon{background:var(--danger-alpha)}
-.totp-activity-main{min-width:0}.totp-activity-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-weight:900;color:var(--card-ink);line-height:1.15}.totp-activity-code{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:3px;word-break:break-all}.totp-activity-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.totp-activity-chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border);background:var(--card2);border-radius:999px;padding:3px 8px;font-size:.72rem;font-weight:800;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.totp-activity-chip.green{color:var(--success);background:var(--success-alpha)}.totp-activity-chip.red{color:var(--danger);background:var(--danger-alpha)}.totp-activity-chip.blue{color:var(--primary);background:var(--primary-alpha)}
-.totp-activity-time{font-size:.72rem;color:var(--muted);font-weight:800;text-align:right;white-space:nowrap}.totp-ua-details{margin-top:6px}.totp-ua-details summary{cursor:pointer;color:var(--primary);font-size:.74rem;font-weight:800}.totp-ua-box{margin-top:5px;font-family:var(--mono);font-size:.7rem;color:var(--muted);background:var(--card2);border:1px dashed var(--border);border-radius:10px;padding:7px;word-break:break-word}
-@media(max-width:900px){#tab-totp .totp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.totp-row-pro{grid-template-columns:1fr;gap:6px}.totp-row-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));justify-content:stretch}.totp-row-actions .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.totp-activity-card{grid-template-columns:36px minmax(0,1fr);gap:8px}.totp-activity-time{grid-column:2;text-align:left}.totp-activity-icon{width:34px;height:34px;border-radius:12px}}
-@media(max-width:430px){#tab-totp .totp-hero > .card:first-child{padding:11px!important}.totp-row-pro{padding:8px 9px;border-radius:13px}.totp-code-pill{font-size:.82rem;padding:6px 8px}.totp-row-title{font-size:.86rem}.totp-row-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.totp-activity-meta{gap:4px}.totp-activity-chip{font-size:.68rem;padding:2px 7px}.totp-activity-card{padding:8px;border-radius:13px}.rem-bubble{bottom:calc(var(--bottombar-h) + 72px)!important;right:14px!important;left:auto!important}}
-</style>
-
 </head>
 <body>
 
@@ -6041,88 +6003,6 @@ renderTotp=function(){
   let data=codes.filter(c=>{const a=state.totpAccounts.find(x=>x.id===c.account_id)||{};return [c.access_code,c.customer_name,c.customer_phone,c.notes,a.label].join(' ').toLowerCase().includes(q)});
   if(filter)data=data.filter(c=>totpCodeStatus(c)===filter);
   $('totpGrid').innerHTML=data.map(c=>{const st=totpCodeStatus(c);return `<div class="totp-row"><div class="totp-main"><div class="totp-title-line">🎫 ${esc(c.access_code)}</div><div class="totp-sub-line">${esc(totpAccountName(c.account_id))}</div></div><div class="totp-meta-line">${totpStatusBadge(st)}<span class="badge">Usos ${Number(c.used_count||0)}/${Number(c.max_uses||0)}</span></div><div class="totp-meta-line"><span class="badge">👤 ${esc(c.customer_name||'Sin cliente')}</span><span class="badge">${esc(c.customer_phone||'Sin WhatsApp')}</span></div><div class="totp-actions-line"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">Editar</button><button class="btn" onclick="copyTextSafe('${esc(String(c.access_code||'')).replaceAll('&#39;','\\&#39;')}')">Copiar</button><button class="btn" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">Eliminar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>';
-};
-
-
-/* ---- V59: TOTP actividad mejorada, solo presentación ---- */
-function totpJsArg(v){return JSON.stringify(String(v||''));}
-function totpEventMeta(e){
-  let m=e?.metadata||e?.client_info||{};
-  if(typeof m==='string'){try{m=JSON.parse(m)}catch(_){m={raw:m}}}
-  return {
-    ip:e?.ip_address||m.ip_address||m.ip||m.query||'',
-    device:e?.device_type||m.device_type||m.device||'',
-    model:e?.device_model||m.device_model||m.model||'',
-    os:e?.os||m.os||'',
-    browser:e?.browser||m.browser||'',
-    lang:e?.language||m.language||'',
-    tz:e?.timezone||m.timezone||'',
-    screen:e?.screen||m.screen||'',
-    city:e?.city||m.city||'',
-    region:e?.region||m.region||'',
-    country:e?.country||m.country||m.country_name||'',
-    isp:e?.isp||m.isp||m.org||m.connection||'',
-    ua:e?.user_agent||m.user_agent||''
-  };
-}
-function totpDeviceIcon(type){type=String(type||'').toLowerCase();if(/cel|mov|phone|mobile/.test(type))return '📱';if(/tablet|ipad/.test(type))return '▣';if(/pc|desktop|laptop|windows|mac|linux/.test(type))return '💻';return '🛰️';}
-function totpEventLabel(e){const t=String(e?.event_type||'').toLowerCase();if(t==='client_info')return 'Info del cliente';if(t==='redeem')return 'Uso del código';if(t==='copy')return 'Copia';return e?.event_type||'Actividad';}
-function totpEventClass(e){if(e?.success===false)return 'bad';if(String(e?.event_type||'').toLowerCase()==='client_info')return 'info';return 'ok';}
-function totpEventText(e){const m=totpEventMeta(e);return [e.access_code,e.event_type,e.reason,e.success,m.ip,m.device,m.model,m.os,m.browser,m.lang,m.tz,m.screen,m.city,m.region,m.country,m.isp,m.ua].join(' ').toLowerCase();}
-function renderTotpActivityV59(events,q){
-  let data=(events||[]).filter(e=>totpEventText(e).includes(q));
-  const total=data.length, ok=data.filter(e=>e.success!==false).length, bad=data.filter(e=>e.success===false).length;
-  const html=data.map(e=>{
-    const m=totpEventMeta(e), cls=totpEventClass(e), icon=cls==='bad'?'⚠️':(String(e.event_type||'').toLowerCase()==='client_info'?'🧾':'✅');
-    const where=[m.city,m.region,m.country].filter(Boolean).join(', ');
-    const device=[m.device,m.model].filter(Boolean).join(' · ');
-    const system=[m.os,m.browser].filter(Boolean).join(' · ');
-    return `<div class="totp-activity-card ${cls}">
-      <div class="totp-activity-icon">${icon}</div>
-      <div class="totp-activity-main">
-        <div class="totp-activity-top"><span>${esc(totpEventLabel(e))}</span>${e.success===false?'<span class="badge b-bad">Rechazado</span>':'<span class="badge b-ok">Registrado</span>'}</div>
-        <div class="totp-activity-code">Código: ${esc(e.access_code||'—')}</div>
-        <div class="totp-activity-meta">
-          <span class="totp-activity-chip ${m.ip?'blue':'red'}">🌐 IP ${esc(m.ip||'No capturada')}</span>
-          <span class="totp-activity-chip">${totpDeviceIcon(m.device)} ${esc(device||'Dispositivo no detectado')}</span>
-          <span class="totp-activity-chip">🧠 ${esc(system||'Navegador no detectado')}</span>
-          ${where?`<span class="totp-activity-chip">📍 ${esc(where)}</span>`:''}
-          ${m.isp?`<span class="totp-activity-chip">📡 ${esc(m.isp)}</span>`:''}
-          ${m.tz?`<span class="totp-activity-chip">🕒 ${esc(m.tz)}</span>`:''}
-          ${e.reason?`<span class="totp-activity-chip red">${esc(e.reason)}</span>`:''}
-        </div>
-        ${m.ua?`<details class="totp-ua-details"><summary>Ver navegador completo</summary><div class="totp-ua-box">${esc(m.ua)}</div></details>`:''}
-      </div>
-      <div class="totp-activity-time">${totpDate(e.created_at)}</div>
-    </div>`;
-  }).join('');
-  return `<div class="totp-activity-wrap">
-    <div class="totp-activity-head"><div><strong>📜 Actividad TOTP</strong><p class="help">IP y dispositivo aparecen cuando el HTML público pudo capturarlos. Si no sale, el código igual funciona.</p></div><div class="totp-mini-line"><span class="badge b-ok">${ok} OK</span><span class="badge b-bad">${bad} rechazados</span><span class="badge">${total} eventos</span></div></div>
-    <div class="totp-activity-list">${html||'<div class="empty-state"><span class="icon">📜</span><p>Aún no hay actividad.</p></div>'}</div>
-  </div>`;
-}
-function totpUsagePercent(c){const max=Math.max(1,Number(c.max_uses||1));return Math.min(100,Math.round((Number(c.used_count||0)/max)*100));}
-const _renderTotpV59Base=renderTotp;
-renderTotp=function(){
-  if(!$('totpGrid'))return;
-  const q=String($('totpSearch')?.value||'').toLowerCase();
-  const filter=$('totpStatusFilter')?.value||'';
-  const codes=state.totpCodes||[], accounts=state.totpAccounts||[], events=state.totpEvents||[];
-  $('totpKpiAccounts').textContent=accounts.length;
-  $('totpKpiCodes').textContent=codes.length;
-  $('totpKpiUsed').textContent=codes.filter(c=>Number(c.used_count||0)>0).length;
-  $('totpKpiExpired').textContent=codes.filter(totpIsExpired).length;
-  fillTotpAccountSelect();
-  $('totpGrid').classList.add('compact');
-  if(state.totpDbError){$('totpGrid').innerHTML=`<div class="empty-state"><span class="icon">🛠️</span><p>Falta ejecutar el SQL de Supabase para crear las tablas TOTP.</p><p class="help">Detalle: ${esc(state.totpDbError)}</p></div>`;return;}
-  if(state.totpView==='events'){$('totpGrid').classList.remove('compact');$('totpGrid').innerHTML=renderTotpActivityV59(events,q);return;}
-  if(state.totpView==='accounts'){
-    let data=accounts.filter(a=>[a.label,a.issuer,a.notes,a.totp_secret].join(' ').toLowerCase().includes(q));
-    $('totpGrid').innerHTML=data.map(a=>{const linked=codes.filter(c=>c.account_id===a.id).length;return `<div class="totp-row-pro"><div><div class="totp-row-title">🔑 ${esc(a.label||'Cuenta TOTP')}</div><div class="totp-row-sub">${esc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div><div class="totp-mini-line">${totpStatusBadge(a.active!==false?'active':'inactive')}<span class="badge">${linked} códigos</span></div><div class="totp-mini-line"><span class="totp-code-pill" title="Secreto oculto">${esc(totpMaskSecret(a.totp_secret))}</span></div><div class="totp-row-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Pausar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">Borrar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';return;
-  }
-  let data=codes.filter(c=>{const a=state.totpAccounts.find(x=>x.id===c.account_id)||{};return [c.access_code,c.customer_name,c.customer_phone,c.notes,a.label,a.issuer].join(' ').toLowerCase().includes(q)});
-  if(filter)data=data.filter(c=>totpCodeStatus(c)===filter);
-  $('totpGrid').innerHTML=data.map(c=>{const st=totpCodeStatus(c), p=totpUsagePercent(c);return `<div class="totp-row-pro"><div><button class="totp-code-pill" type="button" onclick="copyTextSafe(${totpJsArg(c.access_code)})">🎫 ${esc(c.access_code)}</button><div class="totp-row-sub">${esc(totpAccountName(c.account_id))}</div></div><div><div class="totp-mini-line">${totpStatusBadge(st)}<span class="badge">Usos ${Number(c.used_count||0)}/${Number(c.max_uses||0)}</span></div><div class="totp-usage-bar"><div class="totp-usage-fill" style="width:${p}%"></div></div></div><div class="totp-mini-line"><span class="badge">👤 ${esc(c.customer_name||'Sin cliente')}</span><span class="badge">${esc(c.customer_phone||'Sin WhatsApp')}</span>${c.expires_at?`<span class="badge">📅 ${esc(String(c.expires_at).slice(0,10))}</span>`:''}</div><div class="totp-row-actions"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">Editar</button><button class="btn" onclick="copyTextSafe(${totpJsArg(c.access_code)})">Copiar</button><button class="btn" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">Borrar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>';
 };
 
 /* ---- Web notifications + sound ---- */
@@ -10810,441 +10690,382 @@ Solo sube la campana flotante en celular para no tapar la navegación.
 
 
 <!-- =========================================================
-INNOV IA V60 - TOTP ACTIVIDAD + SELECCION MASIVA + COPY FIX
-No toca la validacion TOTP. Solo mejora admin: actividad, copiado y borrado multiple.
+INNOV IA V62 - TOTP original + selección real
+- Vuelve Actividad/Historial a lectura directa original de totp_access_events.
+- Selección masiva de códigos y actividad con botón +, doble toque/clic y borrar.
+- Copiar reforzado sin depender solo del Clipboard API.
+- No cambia el motor de validación del HTML público.
 ========================================================= -->
-<style id="innov-v60-totp-polish-css">
-#tab-totp .totp-hero > .card:first-child{
-  border:1px solid rgba(96,165,250,.22)!important;
-  box-shadow:0 10px 28px rgba(0,0,0,.12)!important;
+<style id="innov-v62-totp-original-bulk-css">
+#tab-totp .totp-v62-toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin:8px 0 10px;
 }
-#tab-totp .totp-row-pro.v60-selectable{
-  position:relative;
-  grid-template-columns:38px minmax(170px,1fr) minmax(140px,.72fr) minmax(165px,.9fr) auto!important;
-  cursor:default;
-  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+#tab-totp .totp-v62-toolbar .btn{padding:7px 10px;font-size:.78rem;border-radius:10px}
+#tab-totp .totp-v62-toolbar .v62-help-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  border:1px solid var(--border);
+  background:var(--card2);
+  color:var(--muted);
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:.75rem;
+  font-weight:800;
 }
-#tab-totp .totp-row-pro.v60-selectable:hover{transform:translateY(-1px)}
-#tab-totp .totp-row-pro.v60-selected{
-  border-color:var(--primary)!important;
-  background:linear-gradient(90deg,var(--primary-alpha),var(--card))!important;
-  box-shadow:0 0 0 2px var(--primary-alpha), var(--shadow-md)!important;
+#tab-totp .totp-v62-list{display:grid;gap:8px;grid-column:1/-1}
+#tab-totp .totp-v62-row{
+  display:grid;
+  grid-template-columns:34px minmax(150px,1.15fr) minmax(150px,.9fr) minmax(150px,.85fr) minmax(230px,auto);
+  gap:10px;
+  align-items:center;
+  border:1px solid var(--border);
+  background:var(--card);
+  border-radius:14px;
+  padding:10px 12px;
+  box-shadow:var(--shadow-xs);
+  color:var(--card-ink);
+  transition:background var(--tr), border-color var(--tr), transform var(--tr-fast);
 }
-.totp-select-dot{
-  width:30px;height:30px;border-radius:12px;border:1.5px solid var(--border);
-  background:var(--card2);display:grid;place-items:center;font-weight:1000;color:var(--muted);
-  user-select:none;
+#tab-totp .totp-v62-row:hover{background:var(--primary-alpha2);border-color:var(--border2)}
+#tab-totp .totp-v62-row.v62-selected{outline:2px solid var(--primary);background:var(--primary-alpha)!important;border-color:var(--primary)}
+#tab-totp .v62-select-btn{
+  width:28px;height:28px;border-radius:999px;
+  display:grid;place-items:center;
+  border:1.5px solid var(--border);
+  background:var(--card2);
+  color:var(--primary);
+  font-weight:900;
+  cursor:pointer;
+  padding:0!important;
+  line-height:1;
 }
-.v60-selected .totp-select-dot{background:var(--primary);border-color:var(--primary);color:#fff}
-.totp-bulkbar-v60{
-  grid-column:1/-1;display:none;align-items:center;gap:8px;flex-wrap:wrap;
-  border:1px solid rgba(96,165,250,.25);border-left:4px solid var(--primary);
-  background:linear-gradient(135deg,var(--primary-alpha2),var(--card));
-  border-radius:16px;padding:9px 10px;margin-bottom:3px;box-shadow:var(--shadow-xs);
+#tab-totp .v62-selected .v62-select-btn{background:var(--primary);border-color:var(--primary);color:#fff}
+#tab-totp .v62-title{font-weight:950;line-height:1.12;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tab-totp .v62-sub{color:var(--muted);font-size:.76rem;line-height:1.2;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tab-totp .v62-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
+#tab-totp .v62-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+#tab-totp .v62-actions .btn{padding:6px 9px;font-size:.75rem;border-radius:9px}
+#tab-totp .v62-progress{height:7px;border-radius:999px;background:var(--border);overflow:hidden;width:min(210px,100%);margin-top:5px}
+#tab-totp .v62-progress span{display:block;height:100%;background:var(--primary);border-radius:999px}
+#tab-totp .totp-v62-event{
+  display:grid;
+  grid-template-columns:34px minmax(160px,1.1fr) minmax(180px,1fr) minmax(160px,.9fr) minmax(190px,auto);
+  gap:10px;
+  align-items:center;
+  border:1px solid var(--border);
+  border-left:4px solid var(--success);
+  background:var(--card);
+  border-radius:14px;
+  padding:10px 12px;
+  box-shadow:var(--shadow-xs);
 }
-.totp-bulkbar-v60.show{display:flex}
-.totp-bulkbar-v60 strong{color:var(--card-ink)}
-.totp-bulkbar-v60 .btn{padding:6px 10px!important;font-size:.76rem!important;border-radius:10px!important}
-.totp-select-help-v60{
-  grid-column:1/-1;color:var(--muted);font-size:.76rem;margin:0 0 3px;
-  display:flex;gap:7px;align-items:center;flex-wrap:wrap;
-}
-.totp-select-help-v60 .mini-tip{border:1px solid var(--border);background:var(--card2);border-radius:999px;padding:3px 8px;font-weight:800}
-.totp-copy-ok{animation:totpCopyPulse .65s ease}
-@keyframes totpCopyPulse{50%{transform:scale(1.06);box-shadow:0 0 0 6px var(--success-alpha)}}
-#tab-totp .totp-activity-head{background:linear-gradient(135deg,var(--card),var(--primary-alpha2))!important;border-radius:18px!important}
-#tab-totp .totp-activity-list{gap:8px!important}
-#tab-totp .totp-activity-card{border-radius:16px!important}
-#tab-totp .totp-activity-chip{border-radius:10px!important;white-space:normal!important;line-height:1.18!important}
+#tab-totp .totp-v62-event.bad{border-left-color:var(--danger)}
+#tab-totp .totp-v62-event.v62-selected{outline:2px solid var(--primary);background:var(--primary-alpha)!important;border-color:var(--primary)}
+#tab-totp .v62-event-code{font-family:var(--mono);font-weight:950;word-break:break-word}
+#tab-totp .v62-event-device{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#tab-totp .v62-mutedbox{background:var(--card2);border:1px dashed var(--border);border-radius:10px;padding:5px 8px;color:var(--muted);font-size:.75rem;font-weight:800}
+#tab-totp .v62-badbox{background:var(--danger-alpha);color:var(--danger);border-color:rgba(185,28,28,.25)}
+#tab-totp .v62-okbox{background:var(--success-alpha);color:var(--success);border-color:rgba(21,128,61,.25)}
 @media(max-width:900px){
-  #tab-totp .totp-row-pro.v60-selectable{grid-template-columns:34px 1fr!important;gap:7px!important;align-items:start!important}
-  #tab-totp .totp-row-pro.v60-selectable > div:not(.totp-select-dot){grid-column:2!important}
-  #tab-totp .totp-row-actions{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}
-  #tab-totp .totp-bulkbar-v60{display:none;grid-template-columns:1fr 1fr;align-items:stretch}
-  #tab-totp .totp-bulkbar-v60.show{display:grid}
-  #tab-totp .totp-bulkbar-v60 strong,#tab-totp .totp-bulkbar-v60 .help{grid-column:1/-1}
-  #tab-totp .totp-bulkbar-v60 .btn{width:100%}
+  #tab-totp .totp-v62-row,#tab-totp .totp-v62-event{grid-template-columns:34px minmax(0,1fr);gap:7px;align-items:start}
+  #tab-totp .v62-meta,#tab-totp .v62-actions{grid-column:2/-1;justify-content:flex-start}
+  #tab-totp .v62-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+  #tab-totp .v62-actions .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #tab-totp .v62-sub{white-space:normal}
 }
-@media(max-width:430px){
-  #tab-totp .totp-row-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  #tab-totp .totp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+@media(max-width:480px){
+  #tab-totp .totp-v62-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  #tab-totp .totp-v62-toolbar .v62-help-pill{grid-column:1/-1;justify-content:center}
+  #tab-totp .totp-v62-toolbar .btn{width:100%;padding:8px 6px;font-size:.72rem}
+  #tab-totp .v62-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #tab-totp .totp-v62-row,#tab-totp .totp-v62-event{padding:9px;border-radius:13px}
 }
 </style>
-<script id="innov-v60-totp-fix-js">
+<script id="innov-v62-totp-original-bulk-js">
 (function(){
-  function safeJson(v){return JSON.stringify(String(v||''));}
-  function selectedSet(){
-    if(!state.totpSelectedCodes || !(state.totpSelectedCodes instanceof Set)) state.totpSelectedCodes=new Set();
-    return state.totpSelectedCodes;
-  }
-  async function writeClipboardV60(text){
-    text=String(text||'');
+  const byId = id => document.getElementById(id);
+  const safeEsc = v => {
+    if(typeof esc === 'function') return esc(v);
+    return String(v??'').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  };
+  const attr = v => String(v??'').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const toastOk = (msg,type='ok') => { try{ toast(msg,type); }catch(_){ console.log(msg); } };
+
+  async function robustCopy(text,label='Copiado'){
+    text = String(text ?? '');
+    if(!text){ toastOk('No hay texto para copiar','bad'); return false; }
     try{
-      if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); return true; }
+      if(navigator.clipboard && window.isSecureContext){
+        await navigator.clipboard.writeText(text);
+        toastOk(label,'ok');
+        return true;
+      }
     }catch(_){ }
     try{
       const ta=document.createElement('textarea');
-      ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='0';
-      document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
-      const ok=document.execCommand('copy');document.body.removeChild(ta);if(ok)return true;
+      ta.value=text;
+      ta.setAttribute('readonly','');
+      ta.style.position='fixed';
+      ta.style.left='-9999px';
+      ta.style.top='0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      const ok=document.execCommand('copy');
+      ta.remove();
+      if(ok){ toastOk(label,'ok'); return true; }
     }catch(_){ }
-    try{prompt('Copia manual:',text)}catch(_){ }
+    try{ prompt('Copia manual:', text); }catch(_){ }
     return false;
   }
-  window.copyTextSafe=async function(text){
-    const ok=await writeClipboardV60(text);
-    toast(ok?'Copiado al portapapeles':'Copia manual abierta',ok?'ok':'bad');
-    return ok;
-  };
-  window.totpCopyCodeV60=async function(code,ev){
-    if(ev){ev.preventDefault();ev.stopPropagation();}
-    const ok=await window.copyTextSafe(code);
-    try{
-      const btn=ev?.currentTarget;
-      if(btn){btn.classList.add('totp-copy-ok');const old=btn.textContent;btn.textContent='✅ Copiado';setTimeout(()=>{btn.textContent=old;btn.classList.remove('totp-copy-ok')},900)}
-    }catch(_){ }
-    return ok;
-  };
-  window.totpToggleCodeSelectV60=function(id,ev){
-    if(ev){
-      const t=ev.target;
-      if(t && t.closest && t.closest('button,a,input,select,textarea,label')) return;
-      ev.preventDefault();ev.stopPropagation();
-    }
-    const s=selectedSet();
-    if(s.has(id))s.delete(id);else s.add(id);
-    renderTotp();
-  };
-  window.totpDoubleTapSelectV60=function(id,ev){
-    const t=ev?.target;
-    if(t && t.closest && t.closest('button,a,input,select,textarea,label')) return;
-    const row=ev.currentTarget;
-    const now=Date.now();
-    const last=Number(row.dataset.lastTap||0);
-    row.dataset.lastTap=String(now);
-    if(now-last<380){ window.totpToggleCodeSelectV60(id,ev); row.dataset.lastTap='0'; }
-  };
-  window.totpSelectVisibleCodesV60=function(){
-    const q=String(document.getElementById('totpSearch')?.value||'').toLowerCase();
-    const filter=document.getElementById('totpStatusFilter')?.value||'';
-    const s=selectedSet();
-    (state.totpCodes||[]).forEach(c=>{
-      const a=(state.totpAccounts||[]).find(x=>x.id===c.account_id)||{};
-      const hay=[c.access_code,c.customer_name,c.customer_phone,c.notes,a.label,a.issuer].join(' ').toLowerCase().includes(q);
-      if(hay && (!filter || totpCodeStatus(c)===filter))s.add(c.id);
-    });
-    renderTotp();
-  };
-  window.totpClearSelectionV60=function(){selectedSet().clear();renderTotp();};
-  window.totpCopySelectedCodesV60=async function(){
-    const ids=[...selectedSet()];
-    const rows=(state.totpCodes||[]).filter(c=>ids.includes(c.id));
-    if(!rows.length)return toast('No hay códigos seleccionados','bad');
-    await window.copyTextSafe(rows.map(c=>c.access_code).join('\n'));
-  };
-  window.totpDeleteSelectedCodesV60=async function(){
-    const ids=[...selectedSet()];
-    if(!ids.length)return toast('No hay códigos seleccionados','bad');
-    if(!confirm('¿Eliminar '+ids.length+' código(s) TOTP seleccionado(s)?'))return;
-    const r=await db.from('totp_access_codes').delete().in('id',ids);
-    if(r.error)return toast(r.error.message,'bad');
-    selectedSet().clear();toast(ids.length+' código(s) eliminados','ok');await loadAll();switchTab('totp');
-  };
-  window.totpRefreshActivityV60=async function(){await loadTotpEvents();toast('Actividad actualizada','ok');renderTotp();};
+  try{ window.copyTextSafe = robustCopy; copyTextSafe = robustCopy; }catch(_){ window.copyTextSafe = robustCopy; }
 
-  function renderActivityV60(events,q){
-    let data=(events||[]).filter(e=>totpEventText(e).includes(q));
-    const total=data.length, ok=data.filter(e=>e.success!==false).length, bad=data.filter(e=>e.success===false).length;
-    const html=data.map(e=>{
-      const m=totpEventMeta(e), cls=totpEventClass(e), icon=cls==='bad'?'⚠️':(String(e.event_type||'').toLowerCase()==='client_info'?'🧾':'✅');
-      const where=[m.city,m.region,m.country].filter(Boolean).join(', ');
-      const device=[m.device,m.model].filter(Boolean).join(' · ');
-      const system=[m.os,m.browser].filter(Boolean).join(' · ');
-      return `<div class="totp-activity-card ${cls}">
-        <div class="totp-activity-icon">${icon}</div>
-        <div class="totp-activity-main">
-          <div class="totp-activity-top"><span>${esc(totpEventLabel(e))}</span>${e.success===false?'<span class="badge b-bad">Rechazado</span>':'<span class="badge b-ok">Registrado</span>'}</div>
-          <div class="totp-activity-code">Código: ${esc(e.access_code||'—')}</div>
-          <div class="totp-activity-meta">
-            <span class="totp-activity-chip ${m.ip?'blue':'red'}">🌐 IP ${esc(m.ip||'No capturada')}</span>
-            <span class="totp-activity-chip">${totpDeviceIcon(m.device)} ${esc(device||'Dispositivo no detectado')}</span>
-            <span class="totp-activity-chip">🧠 ${esc(system||'Navegador no detectado')}</span>
-            ${where?`<span class="totp-activity-chip">📍 ${esc(where)}</span>`:''}
-            ${m.isp?`<span class="totp-activity-chip">📡 ${esc(m.isp)}</span>`:''}
-            ${m.tz?`<span class="totp-activity-chip">🕒 ${esc(m.tz)}</span>`:''}
-            ${m.screen?`<span class="totp-activity-chip">🖥️ ${esc(m.screen)}</span>`:''}
-            ${e.reason?`<span class="totp-activity-chip red">${esc(e.reason)}</span>`:''}
-          </div>
-          ${m.ua?`<details class="totp-ua-details"><summary>Ver navegador completo</summary><div class="totp-ua-box">${esc(m.ua)}</div></details>`:''}
-        </div>
-        <div class="totp-activity-time">${totpDate(e.created_at)}</div>
+  function ensureSets(){
+    state.totpV62SelectedCodes = state.totpV62SelectedCodes || new Set();
+    state.totpV62SelectedEvents = state.totpV62SelectedEvents || new Set();
+    state.totpV62VisibleCodes = state.totpV62VisibleCodes || [];
+    state.totpV62VisibleEvents = state.totpV62VisibleEvents || [];
+  }
+  function eventKey(e,i){ return String(e.id || e.event_id || (String(e.access_code||'')+'|'+String(e.created_at||'')+'|'+i)); }
+  function uaInfo(ua){
+    ua=String(ua||'');
+    const browser=/Edg\//.test(ua)?'Edge':/OPR\//.test(ua)?'Opera':/Chrome\//.test(ua)?'Chrome':/Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)?'Safari':'Navegador';
+    const os=/Android/i.test(ua)?'Android':/iPhone|iPad|iPod/i.test(ua)?'iOS':/Windows/i.test(ua)?'Windows':/Mac OS/i.test(ua)?'Mac':/Linux/i.test(ua)?'Linux':'Sistema';
+    const device=/Mobile|Android|iPhone/i.test(ua)?'Celular':/iPad|Tablet/i.test(ua)?'Tablet':'PC';
+    return {browser,os,device};
+  }
+  function dateTxt(v){ try{ return (typeof totpDate==='function') ? totpDate(v) : (v ? new Date(v).toLocaleString('es-PE') : '—'); }catch(_){ return '—'; } }
+  function statusName(c){ try{ return totpCodeStatus(c); }catch(_){ return 'available'; } }
+
+  function ensureToolbar(){
+    const grid=byId('totpGrid'); if(!grid) return null;
+    let bar=byId('totpV62Toolbar');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='totpV62Toolbar';
+      bar.className='totp-v62-toolbar';
+      grid.parentNode.insertBefore(bar, grid);
+    }
+    return bar;
+  }
+  function renderToolbar(view){
+    ensureSets();
+    const bar=ensureToolbar(); if(!bar) return;
+    if(view==='codes'){
+      const n=state.totpV62SelectedCodes.size;
+      bar.innerHTML=`
+        <span class="v62-help-pill">Doble toque/clic o + para seleccionar</span>
+        <button class="btn" type="button" id="v62SelectVisibleCodes">Seleccionar visibles</button>
+        <button class="btn" type="button" id="v62ClearCodes" ${n?'':'disabled'}>Limpiar (${n})</button>
+        <button class="btn" type="button" id="v62CopyCodes" ${n?'':'disabled'}>Copiar (${n})</button>
+        <button class="btn btn-danger" type="button" id="v62DeleteCodes" ${n?'':'disabled'}>Eliminar (${n})</button>`;
+      byId('v62SelectVisibleCodes').onclick=selectVisibleCodes;
+      byId('v62ClearCodes').onclick=()=>{state.totpV62SelectedCodes.clear(); renderTotp();};
+      byId('v62CopyCodes').onclick=copySelectedCodes;
+      byId('v62DeleteCodes').onclick=deleteSelectedCodes;
+    }else if(view==='events'){
+      const n=state.totpV62SelectedEvents.size;
+      bar.innerHTML=`
+        <span class="v62-help-pill">Historial original: IP + navegador</span>
+        <button class="btn" type="button" id="v62SelectVisibleEvents">Seleccionar visibles</button>
+        <button class="btn" type="button" id="v62ClearEvents" ${n?'':'disabled'}>Limpiar (${n})</button>
+        <button class="btn btn-danger" type="button" id="v62DeleteEvents" ${n?'':'disabled'}>Eliminar historial (${n})</button>`;
+      byId('v62SelectVisibleEvents').onclick=selectVisibleEvents;
+      byId('v62ClearEvents').onclick=()=>{state.totpV62SelectedEvents.clear(); renderTotp();};
+      byId('v62DeleteEvents').onclick=deleteSelectedEvents;
+    }else{
+      bar.innerHTML='';
+    }
+  }
+  function filteredCodes(){
+    const q=String(byId('totpSearch')?.value||'').toLowerCase().trim();
+    const filter=byId('totpStatusFilter')?.value||'';
+    let data=(state.totpCodes||[]).filter(c=>{
+      const a=(state.totpAccounts||[]).find(x=>x.id===c.account_id)||{};
+      const hay=[c.access_code,c.customer_name,c.customer_phone,c.notes,a.label,a.issuer,c.created_at,c.expires_at].join(' ').toLowerCase().includes(q);
+      return hay && (!filter || statusName(c)===filter);
+    });
+    state.totpV62VisibleCodes=data;
+    return data;
+  }
+  function filteredEvents(){
+    const q=String(byId('totpSearch')?.value||'').toLowerCase().trim();
+    let data=(state.totpEvents||[]).map((e,i)=>Object.assign({_v62key:eventKey(e,i)},e)).filter(e=>{
+      const ui=uaInfo(e.user_agent||'');
+      return [e.access_code,e.event_type,e.ip_address,e.user_agent,e.reason,e.created_at,ui.browser,ui.os,ui.device].join(' ').toLowerCase().includes(q);
+    });
+    state.totpV62VisibleEvents=data;
+    return data;
+  }
+  function bindCodeRows(){
+    let lastKey='', lastTime=0;
+    document.querySelectorAll('#totpGrid [data-v62-code-row]').forEach(row=>{
+      row.addEventListener('click',ev=>{
+        if(ev.target.closest('button')) return;
+        const key=row.dataset.v62CodeRow;
+        const now=Date.now();
+        if(lastKey===key && now-lastTime<420) toggleCode(key);
+        lastKey=key; lastTime=now;
+      });
+    });
+    document.querySelectorAll('#totpGrid [data-v62-toggle-code]').forEach(btn=>btn.onclick=ev=>{ev.stopPropagation(); toggleCode(btn.dataset.v62ToggleCode);});
+    document.querySelectorAll('#totpGrid [data-v62-copy-code]').forEach(btn=>btn.onclick=ev=>{ev.stopPropagation(); copyCode(btn.dataset.v62CopyCode);});
+    document.querySelectorAll('#totpGrid [data-v62-edit-code]').forEach(btn=>btn.onclick=ev=>{ev.stopPropagation(); openTotpCodeDialog(btn.dataset.v62EditCode);});
+    document.querySelectorAll('#totpGrid [data-v62-reset-code]').forEach(btn=>btn.onclick=ev=>{ev.stopPropagation(); resetTotpCode(btn.dataset.v62ResetCode);});
+    document.querySelectorAll('#totpGrid [data-v62-delete-code]').forEach(btn=>btn.onclick=ev=>{ev.stopPropagation(); deleteTotpCode(btn.dataset.v62DeleteCode);});
+  }
+  function bindEventRows(){
+    let lastKey='', lastTime=0;
+    document.querySelectorAll('#totpGrid [data-v62-event-row]').forEach(row=>{
+      row.addEventListener('click',ev=>{
+        if(ev.target.closest('button')) return;
+        const key=row.dataset.v62EventRow;
+        const now=Date.now();
+        if(lastKey===key && now-lastTime<420) toggleEvent(key);
+        lastKey=key; lastTime=now;
+      });
+    });
+    document.querySelectorAll('#totpGrid [data-v62-toggle-event]').forEach(btn=>btn.onclick=ev=>{ev.stopPropagation(); toggleEvent(btn.dataset.v62ToggleEvent);});
+  }
+  function toggleCode(id){ ensureSets(); state.totpV62SelectedCodes.has(id)?state.totpV62SelectedCodes.delete(id):state.totpV62SelectedCodes.add(id); renderTotp(); }
+  function toggleEvent(key){ ensureSets(); state.totpV62SelectedEvents.has(key)?state.totpV62SelectedEvents.delete(key):state.totpV62SelectedEvents.add(key); renderTotp(); }
+  window.toggleTotpCodeSelection=toggleCode;
+  window.toggleTotpEventSelection=toggleEvent;
+  function selectVisibleCodes(){ ensureSets(); (state.totpV62VisibleCodes||[]).forEach(c=>c.id&&state.totpV62SelectedCodes.add(String(c.id))); renderTotp(); }
+  function selectVisibleEvents(){ ensureSets(); (state.totpV62VisibleEvents||[]).forEach(e=>state.totpV62SelectedEvents.add(String(e._v62key))); renderTotp(); }
+  function copyCode(id){ const c=(state.totpCodes||[]).find(x=>String(x.id)===String(id)); robustCopy(c?.access_code||'', 'Código copiado'); }
+  window.copyTotpAccessCode=copyCode;
+  function copySelectedCodes(){
+    const ids=[...state.totpV62SelectedCodes];
+    const lines=(state.totpCodes||[]).filter(c=>ids.includes(String(c.id))).map(c=>c.access_code).filter(Boolean);
+    robustCopy(lines.join('\n'), lines.length+' código(s) copiado(s)');
+  }
+  async function deleteSelectedCodes(){
+    const ids=[...state.totpV62SelectedCodes].filter(Boolean);
+    if(!ids.length) return toastOk('No hay códigos seleccionados','bad');
+    if(!confirm('¿Eliminar '+ids.length+' código(s) seleccionado(s)?')) return;
+    const r=await db.from('totp_access_codes').delete().in('id', ids);
+    if(r.error) return toastOk('No se pudo eliminar: '+r.error.message,'bad');
+    state.totpV62SelectedCodes.clear();
+    toastOk(ids.length+' código(s) eliminado(s)','ok');
+    try{ await loadTotpCodes(); await loadTotpEvents(); }catch(_){ await loadAll(); }
+    renderTotp();
+  }
+  async function deleteSelectedEvents(){
+    const selected=[...state.totpV62SelectedEvents];
+    if(!selected.length) return toastOk('No hay historial seleccionado','bad');
+    const rows=(state.totpV62VisibleEvents||[]).filter(e=>selected.includes(String(e._v62key)));
+    const ids=rows.map(e=>e.id).filter(Boolean);
+    if(!ids.length) return toastOk('No se pueden borrar eventos sin ID. Ejecuta el SQL V62 si corresponde.','bad');
+    if(!confirm('¿Eliminar '+ids.length+' evento(s) del historial?')) return;
+    const r=await db.from('totp_access_events').delete().in('id', ids);
+    if(r.error) return toastOk('No se pudo eliminar historial: '+r.error.message,'bad');
+    state.totpV62SelectedEvents.clear();
+    toastOk(ids.length+' evento(s) eliminado(s)','ok');
+    try{ await loadTotpEvents(); }catch(_){ await loadAll(); }
+    renderTotp();
+  }
+
+  function renderCodes(){
+    const data=filteredCodes();
+    renderToolbar('codes');
+    const html=data.map(c=>{
+      const id=String(c.id||'');
+      const st=statusName(c);
+      const max=Math.max(1,Number(c.max_uses||1));
+      const used=Number(c.used_count||0);
+      const pct=Math.max(0,Math.min(100,(used/max)*100));
+      const selected=state.totpV62SelectedCodes.has(id);
+      return `<div class="totp-v62-row ${selected?'v62-selected':''}" data-v62-code-row="${attr(id)}">
+        <button class="v62-select-btn" type="button" data-v62-toggle-code="${attr(id)}" title="Seleccionar">${selected?'✓':'+'}</button>
+        <div><div class="v62-title">🎫 ${safeEsc(c.access_code)}</div><div class="v62-sub">${safeEsc(totpAccountName(c.account_id))}</div></div>
+        <div><div class="v62-meta">${totpStatusBadge(st)}<span class="badge">Usos ${used}/${max}</span></div><div class="v62-progress"><span style="width:${pct}%"></span></div></div>
+        <div class="v62-meta"><span class="badge">👤 ${safeEsc(c.customer_name||'Sin cliente')}</span><span class="badge">${safeEsc(c.customer_phone||'Sin WhatsApp')}</span><span class="badge">📅 ${safeEsc(c.expires_at?String(c.expires_at).slice(0,10):'Sin venc.')}</span></div>
+        <div class="v62-actions"><button class="btn btn-primary" type="button" data-v62-edit-code="${attr(id)}">Editar</button><button class="btn" type="button" data-v62-copy-code="${attr(id)}">Copiar</button><button class="btn" type="button" data-v62-reset-code="${attr(id)}">Reset</button><button class="btn btn-danger" type="button" data-v62-delete-code="${attr(id)}">Borrar</button></div>
       </div>`;
     }).join('');
-    return `<div class="totp-activity-wrap">
-      <div class="totp-activity-head"><div><strong>📜 Actividad TOTP</strong><p class="help">Se registra con el RPC seguro de actividad. No afecta la validación del código.</p></div><div class="totp-mini-line"><span class="badge b-ok">${ok} OK</span><span class="badge b-bad">${bad} rechazados</span><span class="badge">${total} eventos</span><button class="btn" onclick="totpRefreshActivityV60()">↻ Actualizar</button></div></div>
-      <div class="totp-activity-list">${html||'<div class="empty-state"><span class="icon">📜</span><p>Aún no hay actividad. Ejecuta el SQL V60 y prueba un código desde el HTML público.</p></div>'}</div>
-    </div>`;
+    byId('totpGrid').className='totp-v62-list';
+    byId('totpGrid').innerHTML=html||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>';
+    bindCodeRows();
+  }
+  function renderEvents(){
+    const data=filteredEvents();
+    renderToolbar('events');
+    const ok=data.filter(e=>!!e.success).length, bad=data.filter(e=>!e.success).length;
+    const rows=data.map((e)=>{
+      const key=String(e._v62key);
+      const selected=state.totpV62SelectedEvents.has(key);
+      const ui=uaInfo(e.user_agent||'');
+      const success=!!e.success;
+      return `<div class="totp-v62-event ${success?'':'bad'} ${selected?'v62-selected':''}" data-v62-event-row="${attr(key)}">
+        <button class="v62-select-btn" type="button" data-v62-toggle-event="${attr(key)}" title="Seleccionar">${selected?'✓':'+'}</button>
+        <div><div class="v62-title">${success?'✅':'⚠️'} ${safeEsc(e.event_type||'redeem')} · <span class="v62-event-code">${safeEsc(e.access_code||'')}</span></div><div class="v62-sub">${dateTxt(e.created_at)}</div></div>
+        <div class="v62-meta"><span class="v62-mutedbox ${success?'v62-okbox':'v62-badbox'}">${success?'OK':'Rechazado'}</span>${e.reason?`<span class="v62-mutedbox v62-badbox">${safeEsc(e.reason)}</span>`:''}</div>
+        <div class="v62-event-device"><span class="v62-mutedbox">🌐 IP: ${safeEsc(e.ip_address||'—')}</span><span class="v62-mutedbox">💻 ${safeEsc(ui.device)}</span><span class="v62-mutedbox">🧠 ${safeEsc(ui.browser)}</span><span class="v62-mutedbox">⚙️ ${safeEsc(ui.os)}</span></div>
+        <div class="v62-actions"><button class="btn" type="button" onclick="copyTextSafe('${attr(e.access_code||'')}')">Copiar código</button></div>
+      </div>`;
+    }).join('');
+    byId('totpGrid').className='totp-v62-list';
+    byId('totpGrid').innerHTML=`<div class="card" style="padding:12px;border-left:4px solid var(--primary);"><strong>📜 Actividad TOTP original</strong><div class="help">Lectura directa de <b>totp_access_events</b>. Si una IP aparece vacía, el evento original no la guardó.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><span class="badge b-ok">${ok} OK</span><span class="badge b-bad">${bad} rechazados</span><span class="badge">${data.length} eventos</span></div></div>${rows||'<div class="empty-state"><span class="icon">📜</span><p>Aún no hay actividad.</p></div>'}`;
+    bindEventRows();
+  }
+  function renderAccounts(){
+    renderToolbar('accounts');
+    byId('totpGrid').className='totp-v62-list';
+    const q=String(byId('totpSearch')?.value||'').toLowerCase().trim();
+    const accounts=state.totpAccounts||[], codes=state.totpCodes||[];
+    const data=accounts.filter(a=>[a.label,a.issuer,a.notes,a.totp_secret].join(' ').toLowerCase().includes(q));
+    byId('totpGrid').innerHTML=data.map(a=>`<div class="totp-v62-row" style="grid-template-columns:minmax(180px,1.2fr) minmax(150px,.9fr) minmax(150px,.9fr) minmax(230px,auto)">
+      <div><div class="v62-title">🔑 ${safeEsc(a.label)}</div><div class="v62-sub">${safeEsc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div>
+      <div class="v62-meta">${totpStatusBadge(a.active!==false?'active':'inactive')}<span class="badge">${codes.filter(c=>c.account_id===a.id).length} códigos</span></div>
+      <div class="v62-meta"><span class="mono">${safeEsc(totpMaskSecret(a.totp_secret))}</span></div>
+      <div class="v62-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${attr(a.id)}')">Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${attr(a.id)}')">Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${attr(a.id)}')">${a.active!==false?'Desactivar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${attr(a.id)}')">Borrar</button></div>
+    </div>`).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';
   }
 
-  window.renderTotp=function(){
-    if(!document.getElementById('totpGrid'))return;
-    const q=String(document.getElementById('totpSearch')?.value||'').toLowerCase();
-    const filter=document.getElementById('totpStatusFilter')?.value||'';
-    const codes=state.totpCodes||[], accounts=state.totpAccounts||[], events=state.totpEvents||[];
-    if(document.getElementById('totpKpiAccounts'))document.getElementById('totpKpiAccounts').textContent=accounts.length;
-    if(document.getElementById('totpKpiCodes'))document.getElementById('totpKpiCodes').textContent=codes.length;
-    if(document.getElementById('totpKpiUsed'))document.getElementById('totpKpiUsed').textContent=codes.filter(c=>Number(c.used_count||0)>0).length;
-    if(document.getElementById('totpKpiExpired'))document.getElementById('totpKpiExpired').textContent=codes.filter(totpIsExpired).length;
-    fillTotpAccountSelect();
-    const grid=document.getElementById('totpGrid');
-    grid.classList.add('compact');
-    if(state.totpDbError){grid.innerHTML=`<div class="empty-state"><span class="icon">🛠️</span><p>Falta ejecutar el SQL de Supabase para crear o reparar TOTP.</p><p class="help">Detalle: ${esc(state.totpDbError)}</p></div>`;return;}
-    const s=selectedSet();
-    [...s].forEach(id=>{if(!codes.some(c=>c.id===id))s.delete(id)});
-    if(state.totpView==='events'){
-      s.clear();grid.classList.remove('compact');grid.innerHTML=renderActivityV60(events,q);return;
-    }
-    if(state.totpView==='accounts'){
-      s.clear();
-      let data=accounts.filter(a=>[a.label,a.issuer,a.notes,a.totp_secret].join(' ').toLowerCase().includes(q));
-      grid.innerHTML=data.map(a=>{const linked=codes.filter(c=>c.account_id===a.id).length;return `<div class="totp-row-pro"><div><div class="totp-row-title">🔑 ${esc(a.label||'Cuenta TOTP')}</div><div class="totp-row-sub">${esc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div><div class="totp-mini-line">${totpStatusBadge(a.active!==false?'active':'inactive')}<span class="badge">${linked} códigos</span></div><div class="totp-mini-line"><span class="totp-code-pill" title="Secreto oculto">${esc(totpMaskSecret(a.totp_secret))}</span></div><div class="totp-row-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Pausar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">Borrar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';return;
-    }
-    let data=codes.filter(c=>{const a=accounts.find(x=>x.id===c.account_id)||{};return [c.access_code,c.customer_name,c.customer_phone,c.notes,a.label,a.issuer].join(' ').toLowerCase().includes(q)});
-    if(filter)data=data.filter(c=>totpCodeStatus(c)===filter);
-    const bulk=`<div class="totp-bulkbar-v60 ${s.size?'show':''}"><strong>${s.size} seleccionado(s)</strong><button class="btn" onclick="totpCopySelectedCodesV60()">📋 Copiar</button><button class="btn btn-danger" onclick="totpDeleteSelectedCodesV60()">🗑 Eliminar</button><button class="btn" onclick="totpClearSelectionV60()">Limpiar</button><span class="help">Doble toque o doble clic sobre una fila para seleccionar.</span></div><div class="totp-select-help-v60"><span class="mini-tip">Doble toque/clic = seleccionar</span><button class="btn btn-sm" onclick="totpSelectVisibleCodesV60()">Seleccionar visibles</button></div>`;
-    grid.innerHTML=bulk+(data.map(c=>{const st=totpCodeStatus(c), p=totpUsagePercent(c), id=String(c.id), sel=s.has(id);return `<div class="totp-row-pro v60-selectable ${sel?'v60-selected':''}" data-id="${esc(id)}" ondblclick="totpToggleCodeSelectV60(${safeJson(id)},event)" ontouchend="totpDoubleTapSelectV60(${safeJson(id)},event)"><div class="totp-select-dot">${sel?'✓':'+'}</div><div><button class="totp-code-pill" type="button" onclick="totpCopyCodeV60(${safeJson(c.access_code)},event)">🎫 ${esc(c.access_code)}</button><div class="totp-row-sub">${esc(totpAccountName(c.account_id))}</div></div><div><div class="totp-mini-line">${totpStatusBadge(st)}<span class="badge">Usos ${Number(c.used_count||0)}/${Number(c.max_uses||0)}</span></div><div class="totp-usage-bar"><div class="totp-usage-fill" style="width:${p}%"></div></div></div><div class="totp-mini-line"><span class="badge">👤 ${esc(c.customer_name||'Sin cliente')}</span><span class="badge">${esc(c.customer_phone||'Sin WhatsApp')}</span>${c.expires_at?`<span class="badge">📅 ${esc(String(c.expires_at).slice(0,10))}</span>`:''}</div><div class="totp-row-actions"><button class="btn btn-primary" onclick="event.stopPropagation();openTotpCodeDialog('${id}')">Editar</button><button class="btn" onclick="totpCopyCodeV60(${safeJson(c.access_code)},event)">Copiar</button><button class="btn" onclick="event.stopPropagation();resetTotpCode('${id}')">Reset</button><button class="btn btn-danger" onclick="event.stopPropagation();deleteTotpCode('${id}')">Borrar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>');
-  };
-  try{ if(state.totpView==='codes' || state.totpView==='events') renderTotp(); }catch(_){ }
-})();
-</script>
-
-
-<style id="innov-v61-totp-real-fix-css">
-/* V61: TOTP real fix, selección visible, copy real y actividad legible */
-#tab-totp .totp-grid.compact{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
-#tab-totp .totp-row-pro.v61-row{
-  display:grid!important;
-  grid-template-columns:42px minmax(180px,1fr) minmax(170px,.78fr) minmax(190px,.95fr) auto!important;
-  gap:10px!important;align-items:center!important;
-  background:var(--card)!important;border:1px solid var(--border)!important;border-radius:16px!important;
-  padding:10px 12px!important;box-shadow:var(--shadow-xs)!important;position:relative!important;
-}
-#tab-totp .totp-row-pro.v61-row:hover{background:var(--primary-alpha2)!important;box-shadow:var(--shadow-md)!important}
-#tab-totp .totp-row-pro.v61-selected{outline:2px solid var(--primary)!important;background:linear-gradient(90deg,var(--primary-alpha),var(--card))!important}
-#tab-totp .totp-select-btn-v61{
-  width:30px;height:30px;border-radius:999px;border:1.5px solid var(--border);background:var(--card2);color:var(--muted);
-  display:grid;place-items:center;font-weight:900;cursor:pointer;transition:.15s ease;font-size:.85rem;padding:0;
-}
-#tab-totp .totp-select-btn-v61:hover{border-color:var(--primary);color:var(--primary);transform:scale(1.06)}
-#tab-totp .v61-selected .totp-select-btn-v61{background:var(--primary);color:#fff;border-color:var(--primary)}
-#tab-totp .totp-code-pill{border:none!important;cursor:pointer!important;user-select:none!important}
-#tab-totp .totp-code-pill.v61-copy{background:rgba(96,165,250,.18)!important;color:var(--primary)!important;border:1px solid rgba(96,165,250,.25)!important}
-#tab-totp .totp-code-pill.v61-copy:hover{filter:brightness(1.12);transform:translateY(-1px)}
-#tab-totp .totp-row-actions{display:flex!important;gap:5px!important;justify-content:flex-end!important;flex-wrap:wrap!important}
-#tab-totp .totp-row-actions .btn{padding:6px 9px!important;font-size:.74rem!important;border-radius:10px!important}
-#tab-totp .totp-bulkbar-v61{
-  grid-column:1/-1;display:grid;grid-template-columns:auto auto auto auto 1fr;gap:7px;align-items:center;
-  border:1px solid rgba(96,165,250,.25);border-left:4px solid var(--primary);
-  background:linear-gradient(135deg,var(--primary-alpha2),var(--card));border-radius:16px;padding:9px 10px;margin-bottom:0;box-shadow:var(--shadow-xs)
-}
-#tab-totp .totp-bulkbar-v61 strong{color:var(--card-ink)}
-#tab-totp .totp-bulkbar-v61 .btn{padding:6px 10px!important;font-size:.76rem!important;border-radius:10px!important}
-#tab-totp .totp-bulkbar-v61 .danger-note{color:var(--muted);font-size:.76rem}
-#tab-totp .totp-selected-counter-v61{background:var(--primary)!important;color:#fff!important}
-#tab-totp .totp-copy-flash-v61{animation:copyFlashV61 .7s ease}
-@keyframes copyFlashV61{50%{transform:scale(1.05);box-shadow:0 0 0 7px var(--success-alpha)}}
-#tab-totp .totp-activity-head-v61{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;background:linear-gradient(135deg,var(--card),var(--primary-alpha2));border:1px solid var(--border);border-radius:18px;padding:12px;margin-bottom:8px}
-#tab-totp .totp-activity-list-v61{display:grid;gap:8px}
-#tab-totp .totp-activity-card-v61{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:16px;background:var(--card);padding:10px 12px;box-shadow:var(--shadow-xs)}
-#tab-totp .totp-activity-card-v61.ok{border-left:4px solid var(--success)}
-#tab-totp .totp-activity-card-v61.bad{border-left:4px solid var(--danger)}
-#tab-totp .totp-activity-icon-v61{width:30px;height:30px;border-radius:999px;display:grid;place-items:center;background:var(--card2);font-size:1rem}
-#tab-totp .totp-activity-title-v61{font-weight:900;color:var(--card-ink);line-height:1.2}
-#tab-totp .totp-activity-sub-v61{font-size:.76rem;color:var(--muted);margin-top:2px}
-#tab-totp .totp-activity-tags-v61{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-#tab-totp .totp-activity-tags-v61 .badge{white-space:normal!important;line-height:1.18!important;border-radius:9px!important}
-#tab-totp .totp-activity-time-v61{font-size:.72rem;color:var(--muted);font-weight:800;white-space:nowrap}
-#tab-totp .totp-debug-v61{font-size:.76rem;color:var(--muted);border-left:3px solid var(--warning);background:var(--warning-alpha);border-radius:12px;padding:8px 10px;margin-top:8px}
-@media(max-width:900px){
-  #tab-totp .totp-row-pro.v61-row{grid-template-columns:36px minmax(0,1fr)!important;gap:7px!important;align-items:start!important;padding:9px 10px!important}
-  #tab-totp .totp-row-pro.v61-row > div:not(.totp-select-wrap-v61){grid-column:2!important}
-  #tab-totp .totp-row-actions{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important;width:100%}
-  #tab-totp .totp-row-actions .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #tab-totp .totp-bulkbar-v61{grid-template-columns:1fr 1fr!important;align-items:stretch!important}
-  #tab-totp .totp-bulkbar-v61 strong,#tab-totp .totp-bulkbar-v61 .danger-note{grid-column:1/-1}
-  #tab-totp .totp-bulkbar-v61 .btn{width:100%}
-  #tab-totp .totp-activity-card-v61{grid-template-columns:32px minmax(0,1fr)!important}
-  #tab-totp .totp-activity-time-v61{grid-column:2!important;white-space:normal!important}
-}
-@media(max-width:430px){#tab-totp .totp-row-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-/* campana más arriba en celular */
-@media(max-width:800px){.rem-bubble{bottom:calc(var(--bottombar-h) + 72px)!important;right:14px!important;left:auto!important}.fab{bottom:calc(var(--bottombar-h) + 72px)!important}}
-</style>
-
-
-<script id="innov-v61-totp-real-fix-js">
-(function(){
-  function J(v){return JSON.stringify(String(v==null?'':v));}
-  function S(){ if(!state.totpSelectedCodes || !(state.totpSelectedCodes instanceof Set)) state.totpSelectedCodes=new Set(); return state.totpSelectedCodes; }
-  function text(v){ return String(v==null?'':v); }
-  function visibleTotpCodesV61(){
-    const q=text(document.getElementById('totpSearch')?.value).toLowerCase();
-    const filter=document.getElementById('totpStatusFilter')?.value||'';
-    const accounts=state.totpAccounts||[];
-    return (state.totpCodes||[]).filter(c=>{
-      const a=accounts.find(x=>x.id===c.account_id)||{};
-      const hay=[c.access_code,c.customer_name,c.customer_phone,c.notes,a.label,a.issuer].join(' ').toLowerCase().includes(q);
-      return hay && (!filter || totpCodeStatus(c)===filter);
-    });
-  }
-  async function clipboardV61(value){
-    const val=text(value);
-    if(!val)return false;
-    try{ if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(val); return true; } }catch(e){ console.warn('clipboard api falló',e); }
-    try{
-      const ta=document.createElement('textarea');
-      ta.value=val; ta.readOnly=true; ta.style.position='fixed'; ta.style.left='0'; ta.style.top='0'; ta.style.opacity='0'; ta.style.pointerEvents='none';
-      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, val.length);
-      const ok=document.execCommand('copy'); document.body.removeChild(ta); if(ok)return true;
-    }catch(e){ console.warn('execCommand copy falló',e); }
-    try{ window.prompt('Copia manual:',val); }catch(_){ }
-    return false;
-  }
-  window.copyTextSafe=async function(value){ const ok=await clipboardV61(value); toast(ok?'Copiado ✅':'No se pudo copiar automático. Usa copia manual.','ok'); return ok; };
-  window.totpCopyV61=async function(value,ev){
-    if(ev){ev.preventDefault();ev.stopPropagation();}
-    const ok=await clipboardV61(value);
-    const target=ev?.currentTarget || ev?.target;
-    if(target?.classList){ target.classList.add('totp-copy-flash-v61'); setTimeout(()=>target.classList.remove('totp-copy-flash-v61'),800); }
-    toast(ok?'Copiado: '+String(value).slice(0,18):'No se pudo copiar automático. Te abrí copia manual.', ok?'ok':'bad');
-    return ok;
-  };
-  window.totpToggleSelectV61=function(id,ev){
-    if(ev){ev.preventDefault();ev.stopPropagation();}
-    const s=S(); id=String(id||''); if(!id)return;
-    s.has(id)?s.delete(id):s.add(id);
-    renderTotp();
-  };
-  window.totpDoubleSelectV61=function(id,ev){
-    const t=ev?.target;
-    if(t && t.closest && t.closest('button,a,input,select,textarea,label')) return;
-    const row=ev.currentTarget; const now=Date.now(); const last=Number(row.dataset.lastTap||0); row.dataset.lastTap=String(now);
-    if(ev.type==='dblclick' || now-last<430){ window.totpToggleSelectV61(id,ev); row.dataset.lastTap='0'; }
-  };
-  window.totpSelectVisibleV61=function(){ visibleTotpCodesV61().forEach(c=>S().add(String(c.id))); renderTotp(); };
-  window.totpClearSelectionV61=function(){ S().clear(); renderTotp(); };
-  window.totpCopySelectedV61=async function(){
-    const ids=[...S()].map(String); const rows=(state.totpCodes||[]).filter(c=>ids.includes(String(c.id)));
-    if(!rows.length)return toast('No hay códigos seleccionados','bad');
-    await window.totpCopyV61(rows.map(c=>c.access_code).join('\n'));
-  };
-  window.totpDeleteSelectedV61=async function(){
-    const ids=[...S()].map(String);
-    if(!ids.length)return toast('No hay códigos seleccionados','bad');
-    if(!confirm('¿Eliminar '+ids.length+' código(s) seleccionado(s)?'))return;
-    const r=await db.from('totp_access_codes').delete().in('id',ids);
-    if(r.error)return toast('No se pudo eliminar: '+r.error.message,'bad');
-    S().clear(); toast(ids.length+' código(s) eliminado(s)','ok'); await loadAll(); switchTab('totp');
-  };
-  window.totpDeleteVisibleV61=async function(){
-    const rows=visibleTotpCodesV61();
-    if(!rows.length)return toast('No hay códigos visibles para eliminar','bad');
-    if(!confirm('¿Eliminar TODOS los '+rows.length+' código(s) visibles?'))return;
-    const ids=rows.map(c=>c.id);
-    const r=await db.from('totp_access_codes').delete().in('id',ids);
-    if(r.error)return toast('No se pudo eliminar: '+r.error.message,'bad');
-    S().clear(); toast(rows.length+' código(s) visible(s) eliminado(s)','ok'); await loadAll(); switchTab('totp');
-  };
-
-  async function loadEventsV61(){
-    state.totpEventsError=null;
-    try{
-      const r=await db.rpc('list_totp_access_events',{p_limit:500});
-      if(!r.error && Array.isArray(r.data)){ state.totpEvents=r.data||[]; return; }
-      if(r.error) state.totpEventsError='RPC lista: '+r.error.message;
-    }catch(e){ state.totpEventsError='RPC lista: '+(e?.message||e); }
-    try{
-      const r=await db.from('totp_access_events').select('*').order('created_at',{ascending:false}).limit(500);
-      if(!r.error){ state.totpEvents=r.data||[]; return; }
-      state.totpEventsError=(state.totpEventsError?state.totpEventsError+' | ':'')+'Tabla: '+r.error.message;
-    }catch(e){ state.totpEventsError=(state.totpEventsError?state.totpEventsError+' | ':'')+'Tabla: '+(e?.message||e); }
-    state.totpEvents=[];
-  }
-  try{ loadTotpEvents=loadEventsV61; }catch(_){ window.loadTotpEvents=loadEventsV61; }
-  window.totpRefreshActivityV61=async function(){ await loadEventsV61(); toast((state.totpEvents||[]).length+' evento(s) cargados','ok'); renderTotp(); };
-  window.totpTestActivityV61=async function(){
-    const code=text(document.getElementById('totpSearch')?.value || (state.totpCodes||[])[0]?.access_code || 'PRUEBA-ACTIVIDAD').trim().toUpperCase();
-    try{
-      const info={user_agent:navigator.userAgent,device_type:'admin',browser:'Panel admin',os:navigator.platform||'',language:navigator.language||'',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'',screen:(screen.width+'x'+screen.height),page_url:location.href,logged_from:'admin_test'};
-      const r=await db.rpc('log_totp_access_event',{p_access_code:code,p_event_type:'admin_test',p_success:true,p_reason:'Prueba desde admin',p_client_info:info});
-      if(r.error)throw r.error;
-      toast('Actividad de prueba registrada','ok'); await loadEventsV61(); state.totpView='events'; document.querySelectorAll('[data-totp-view]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.totpView==='events'?'true':'false')); renderTotp();
-    }catch(e){ toast('No se pudo registrar actividad. Ejecuta SQL V61: '+(e.message||e),'bad'); }
-  };
-  function metaV61(e){
-    const md=e.metadata||{};
-    return {ip:e.ip_address||md.ip_address||md.ip||'',device:e.device_type||md.device_type||md.device||'',model:e.device_model||md.device_model||md.model||'',os:e.os||md.os||'',browser:e.browser||md.browser||'',lang:e.language||md.language||'',tz:e.timezone||md.timezone||'',screen:e.screen||md.screen||'',city:e.city||md.city||'',region:e.region||md.region||'',country:e.country||md.country||md.country_name||'',isp:e.isp||md.isp||md.org||'',ua:e.user_agent||md.user_agent||''};
-  }
-  function eventTextV61(e){const m=metaV61(e);return [e.access_code,e.event_type,e.reason,e.success,m.ip,m.device,m.model,m.os,m.browser,m.lang,m.tz,m.screen,m.city,m.region,m.country,m.isp,m.ua].join(' ').toLowerCase();}
-  function eventIconV61(e,m){ if(e.success===false)return '⚠️'; if(/mobile|celular|phone/.test(String(m.device).toLowerCase()))return '📱'; if(/tablet|ipad/.test(String(m.device).toLowerCase()))return '▣'; if(/pc|desktop|laptop|windows|mac|linux/.test(String(m.device+' '+m.os).toLowerCase()))return '💻'; return '✅'; }
-  function dateV61(v){try{return new Date(v).toLocaleString('es-PE',{dateStyle:'short',timeStyle:'short'})}catch(_){return String(v||'—')}}
-  function renderActivityV61(){
-    const q=text(document.getElementById('totpSearch')?.value).toLowerCase();
-    const rows=(state.totpEvents||[]).filter(e=>eventTextV61(e).includes(q));
-    const ok=rows.filter(e=>e.success!==false).length, bad=rows.filter(e=>e.success===false).length;
-    const list=rows.map(e=>{const m=metaV61(e), where=[m.city,m.region,m.country].filter(Boolean).join(', ');return `<div class="totp-activity-card-v61 ${e.success===false?'bad':'ok'}">
-      <div class="totp-activity-icon-v61">${eventIconV61(e,m)}</div>
-      <div><div class="totp-activity-title-v61">${esc(e.event_type||'redeem')} · ${esc(e.access_code||'—')} ${e.success===false?'<span class="badge b-bad">Rechazado</span>':'<span class="badge b-ok">OK</span>'}</div>
-      <div class="totp-activity-sub-v61">${esc(e.reason||'Acceso registrado')}</div>
-      <div class="totp-activity-tags-v61">
-        <span class="badge ${m.ip?'b-pagado':'b-bad'}">🌐 ${esc(m.ip||'IP no capturada')}</span>
-        <span class="badge">${esc(m.device||'Dispositivo no detectado')}</span>
-        <span class="badge">🧠 ${esc([m.os,m.browser].filter(Boolean).join(' · ')||'Navegador no detectado')}</span>
-        ${where?`<span class="badge">📍 ${esc(where)}</span>`:''}
-        ${m.isp?`<span class="badge">📡 ${esc(m.isp)}</span>`:''}
-        ${m.tz?`<span class="badge">🕒 ${esc(m.tz)}</span>`:''}
-        ${m.screen?`<span class="badge">🖥️ ${esc(m.screen)}</span>`:''}
-      </div>${m.ua?`<details style="margin-top:6px"><summary class="help">Ver navegador completo</summary><div class="totp-debug-v61">${esc(m.ua)}</div></details>`:''}</div>
-      <div class="totp-activity-time-v61">${dateV61(e.created_at)}</div>
-    </div>`}).join('');
-    return `<div><div class="totp-activity-head-v61"><div><strong>📜 Actividad TOTP</strong><div class="help">Si no carga, ejecuta el SQL V61. Esta vista lee por RPC y por tabla.</div></div><div class="totp-mini-line"><span class="badge b-ok">${ok} OK</span><span class="badge b-bad">${bad} rechazados</span><span class="badge">${rows.length} eventos</span><button class="btn" onclick="totpRefreshActivityV61()">↻ Actualizar</button><button class="btn btn-primary" onclick="totpTestActivityV61()">Probar actividad</button></div></div>${state.totpEventsError?`<div class="totp-debug-v61">Detalle lectura: ${esc(state.totpEventsError)}</div>`:''}<div class="totp-activity-list-v61">${list||'<div class="empty-state"><span class="icon">📜</span><p>No hay actividad visible.</p><p class="help">Ejecuta el SQL V61 y usa “Probar actividad” para confirmar.</p></div>'}</div></div>`;
-  }
-
-  window.renderTotp=function(){
-    const grid=document.getElementById('totpGrid'); if(!grid)return;
-    const q=text(document.getElementById('totpSearch')?.value).toLowerCase(); const filter=document.getElementById('totpStatusFilter')?.value||'';
-    const codes=state.totpCodes||[], accounts=state.totpAccounts||[];
-    if(document.getElementById('totpKpiAccounts'))document.getElementById('totpKpiAccounts').textContent=accounts.length;
-    if(document.getElementById('totpKpiCodes'))document.getElementById('totpKpiCodes').textContent=codes.length;
-    if(document.getElementById('totpKpiUsed'))document.getElementById('totpKpiUsed').textContent=codes.filter(c=>Number(c.used_count||0)>0).length;
-    if(document.getElementById('totpKpiExpired'))document.getElementById('totpKpiExpired').textContent=codes.filter(totpIsExpired).length;
+  const oldRender = window.renderTotp || (typeof renderTotp==='function' ? renderTotp : null);
+  window.renderTotp = function(){
+    ensureSets();
+    if(!byId('totpGrid')) return;
+    const accounts=state.totpAccounts||[], codes=state.totpCodes||[];
+    byId('totpKpiAccounts') && (byId('totpKpiAccounts').textContent=accounts.length);
+    byId('totpKpiCodes') && (byId('totpKpiCodes').textContent=codes.length);
+    byId('totpKpiUsed') && (byId('totpKpiUsed').textContent=codes.filter(c=>Number(c.used_count||0)>0).length);
+    byId('totpKpiExpired') && (byId('totpKpiExpired').textContent=codes.filter(c=>{try{return totpIsExpired(c)}catch(_){return false}}).length);
     try{ fillTotpAccountSelect(); }catch(_){ }
-    grid.classList.add('compact');
-    if(state.totpDbError){grid.innerHTML=`<div class="empty-state"><span class="icon">🛠️</span><p>Falta reparar TOTP en Supabase.</p><p class="help">${esc(state.totpDbError)}</p></div>`;return;}
-    const s=S(); [...s].forEach(id=>{if(!codes.some(c=>String(c.id)===String(id)))s.delete(id)});
-    if(state.totpView==='events'){ s.clear(); grid.classList.remove('compact'); grid.innerHTML=renderActivityV61(); return; }
-    if(state.totpView==='accounts'){
-      s.clear(); const data=accounts.filter(a=>[a.label,a.issuer,a.notes,a.totp_secret].join(' ').toLowerCase().includes(q));
-      grid.innerHTML=data.map(a=>{const linked=codes.filter(c=>c.account_id===a.id).length;return `<div class="totp-row-pro v61-row"><div class="totp-select-wrap-v61"><span class="totp-select-btn-v61">🔑</span></div><div><div class="totp-row-title">${esc(a.label||'Cuenta TOTP')}</div><div class="totp-row-sub">${esc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div><div class="totp-mini-line">${totpStatusBadge(a.active!==false?'active':'inactive')}<span class="badge">${linked} códigos</span></div><div class="totp-mini-line"><span class="totp-code-pill">${esc(totpMaskSecret(a.totp_secret))}</span></div><div class="totp-row-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Pausar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">Borrar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP.</p></div>';return;
+    if(state.totpDbError){
+      ensureToolbar('codes');
+      byId('totpGrid').innerHTML=`<div class="empty-state"><span class="icon">🛠️</span><p>Falta ejecutar el SQL de Supabase para crear las tablas TOTP.</p><p class="help">Detalle: ${safeEsc(state.totpDbError)}</p></div>`;
+      return;
     }
-    const data=visibleTotpCodesV61();
-    const bulk=`<div class="totp-bulkbar-v61"><strong><span class="badge totp-selected-counter-v61">${s.size}</span> seleccionado(s)</strong><button class="btn" onclick="totpSelectVisibleV61()">Seleccionar visibles</button><button class="btn" onclick="totpCopySelectedV61()">📋 Copiar sel.</button><button class="btn btn-danger" onclick="totpDeleteSelectedV61()">🗑 Eliminar sel.</button><button class="btn" onclick="totpClearSelectionV61()">Limpiar</button><span class="danger-note">Usa el botón + de cada fila, o doble clic/toque sobre la fila.</span></div>`;
-    grid.innerHTML=bulk+(data.map(c=>{const st=totpCodeStatus(c), p=totpUsagePercent(c), id=String(c.id), sel=s.has(id);return `<div class="totp-row-pro v61-row ${sel?'v61-selected':''}" data-id="${esc(id)}" ondblclick="totpDoubleSelectV61(${J(id)},event)" ontouchend="totpDoubleSelectV61(${J(id)},event)">
-      <div class="totp-select-wrap-v61"><button class="totp-select-btn-v61" type="button" title="Seleccionar" onclick="totpToggleSelectV61(${J(id)},event)">${sel?'✓':'+'}</button></div>
-      <div><button class="totp-code-pill v61-copy" type="button" data-totp-copy="${esc(c.access_code)}" onclick="totpCopyV61(${J(c.access_code)},event)">🎫 ${esc(c.access_code)}</button><div class="totp-row-sub">${esc(totpAccountName(c.account_id))}</div></div>
-      <div><div class="totp-mini-line">${totpStatusBadge(st)}<span class="badge">Usos ${Number(c.used_count||0)}/${Number(c.max_uses||0)}</span></div><div class="totp-usage-bar"><div class="totp-usage-fill" style="width:${p}%"></div></div></div>
-      <div class="totp-mini-line"><span class="badge">👤 ${esc(c.customer_name||'Sin cliente')}</span><span class="badge">${esc(c.customer_phone||'Sin WhatsApp')}</span>${c.expires_at?`<span class="badge">📅 ${esc(String(c.expires_at).slice(0,10))}</span>`:''}</div>
-      <div class="totp-row-actions"><button class="btn btn-primary" onclick="event.stopPropagation();openTotpCodeDialog('${id}')">Editar</button><button class="btn" data-totp-copy="${esc(c.access_code)}" onclick="totpCopyV61(${J(c.access_code)},event)">Copiar</button><button class="btn" onclick="event.stopPropagation();resetTotpCode('${id}')">Reset</button><button class="btn btn-danger" onclick="event.stopPropagation();deleteTotpCode('${id}')">Borrar</button></div>
-    </div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>');
+    if(state.totpView==='accounts') return renderAccounts();
+    if(state.totpView==='events') return renderEvents();
+    return renderCodes();
   };
-  document.addEventListener('click',function(ev){
-    const btn=ev.target.closest && ev.target.closest('[data-totp-copy]');
-    if(btn){ ev.preventDefault(); ev.stopPropagation(); window.totpCopyV61(btn.getAttribute('data-totp-copy')||'',ev); }
-  },true);
-  setTimeout(()=>{try{renderTotp()}catch(e){console.warn(e)}},100);
+  try{ renderTotp = window.renderTotp; }catch(_){ }
+
+  function rebind(){
+    if(byId('totpSearch')) byId('totpSearch').oninput=()=>window.renderTotp();
+    if(byId('totpStatusFilter')) byId('totpStatusFilter').onchange=()=>window.renderTotp();
+    document.querySelectorAll('[data-totp-view]').forEach(b=>{
+      b.onclick=()=>{
+        state.totpView=b.dataset.totpView;
+        document.querySelectorAll('[data-totp-view]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+        window.renderTotp();
+      };
+    });
+    if(byId('btnTotpRefresh')) byId('btnTotpRefresh').onclick=async()=>{try{await loadTotpCodes(); await loadTotpEvents(); await loadTotpAccounts();}catch(_){await loadAll();} window.renderTotp();};
+    try{ window.renderTotp(); }catch(e){ console.warn('v62 render',e); if(oldRender)oldRender(); }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(rebind,500)); else setTimeout(rebind,500);
 })();
 </script>
 
 </body>
 </html>
+
 
