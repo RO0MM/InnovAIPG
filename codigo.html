@@ -980,7 +980,7 @@
     <section class="shell">
       <header class="header">
         <div class="logo" aria-label="Logo Innov IA">
-          <img src="Dise%C3%B1o%20sin%20t%C3%ADtulo.png" alt="Innov IA" />
+          <img src="Dise%C3%B1o%20sin%20t%C3%ADtulo.png" alt="Innov IA" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span style=&quot;position:relative;z-index:3;font-weight:1000;color:#fff&quot;>IA</span>')" />
         </div>
         <h1>Acceso temporal</h1>
         <small>Acceso seguro para clientes</small>
@@ -1053,42 +1053,9 @@
   const $=id=>document.getElementById(id);
   let activeAccount=null, activeAccess=null, timerId=null, waitingId=null, thanksTimeout=null, thanksProgressId=null;
   let activeCodeCounter=null, activeDisplayEndsAt=0, activeDisplayPerfEndsAt=0, activeRequestEndsAt=0, activeRequestPerfEndsAt=0;
-  const TOTP_TIME_ADJUST_MS=0; // Importante: no adelantamos el reloj. Así el TOTP queda alineado con Google Authenticator.
+  const TOTP_TIME_ADJUST_MS=0; // V58: sin adelanto para evitar códigos adelantados.
 
   function normalizeCode(v){return String(v||'').trim().toUpperCase()}
-  function withTimeout(promise, ms=2800){
-    const ctrl={done:false};
-    return Promise.race([
-      promise.finally(()=>{ctrl.done=true}),
-      new Promise((_,rej)=>setTimeout(()=>{if(!ctrl.done)rej(new Error('timeout'))},ms))
-    ]);
-  }
-  async function getClientMeta(){
-    const meta={
-      ip:'',
-      user_agent:navigator.userAgent||'',
-      device:[navigator.platform||'', navigator.language||'', (screen?.width||'')+'x'+(screen?.height||'')].filter(Boolean).join(' · '),
-      page_url:location.href,
-      timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||''
-    };
-    // La IP no viene sola desde Supabase. Se consulta desde el navegador y luego se envía al RPC.
-    try{
-      const r=await withTimeout(fetch('https://api64.ipify.org?format=json',{cache:'no-store'}),2800);
-      const j=await r.json();
-      meta.ip=String(j.ip||'').trim();
-    }catch(_){
-      try{
-        const r=await withTimeout(fetch('https://api.ipify.org?format=json',{cache:'no-store'}),2800);
-        const j=await r.json();
-        meta.ip=String(j.ip||'').trim();
-      }catch(__){ meta.ip=''; }
-    }
-    return meta;
-  }
-  function isRpcSignatureError(error){
-    const m=String(error?.message||error?.details||'').toLowerCase();
-    return m.includes('could not find the function') || m.includes('schema cache') || m.includes('function') && m.includes('does not exist');
-  }
   function normalizeSecret(v){return String(v||'').replace(/\s+/g,'').toUpperCase()}
   function showScreen(id){['screenForm','screenWaiting','screenCode','screenThanks'].forEach(s=>$(s).classList.toggle('active',s===id))}
   function showMsg(text,type='info'){const icon=type==='ok'?'✅':type==='err'?'⚠️':'ℹ️';$('clientMsg').className='msg show '+type;$('clientMsg').innerHTML=`<span>${icon}</span><span>${text}</span>`}
@@ -1129,6 +1096,91 @@
     return hotp(secret,counter??counterForPeriod(period),digits);
   }
 
+  async function logRedeemEventSafe(payload){
+    try{ await db.from('totp_access_events').insert(payload); }catch(_){}
+  }
+
+  async function redeemAccessCodeDirect(accessCode){
+    const clean=normalizeCode(accessCode);
+    let q=await db.from('totp_access_codes').select('*').eq('access_code',clean).limit(1);
+    if(q.error)throw q.error;
+    let code=(q.data||[])[0]||null;
+
+    if(!code){
+      q=await db.from('totp_access_codes').select('*').ilike('access_code',clean).limit(1);
+      if(q.error)throw q.error;
+      code=(q.data||[])[0]||null;
+    }
+
+    if(!code){
+      await logRedeemEventSafe({access_code:clean,event_type:'redeem',success:false,reason:'Código no existe',user_agent:navigator.userAgent,created_at:new Date().toISOString()});
+      return {ok:false,message:'Código de acceso no válido.'};
+    }
+
+    const now=new Date();
+    const maxUses=Math.max(1,Number(code.max_uses||1));
+    const used=Number(code.used_count||0);
+    if(code.active===false){
+      await logRedeemEventSafe({access_code:clean,event_type:'redeem',success:false,reason:'Código inactivo',user_agent:navigator.userAgent,created_at:now.toISOString()});
+      return {ok:false,message:'Código inactivo. Contacta a soporte.'};
+    }
+    if(code.expires_at && new Date(code.expires_at).getTime()<Date.now()){
+      await logRedeemEventSafe({access_code:clean,event_type:'redeem',success:false,reason:'Código vencido',user_agent:navigator.userAgent,created_at:now.toISOString()});
+      return {ok:false,message:'Código vencido. Contacta a soporte.'};
+    }
+    if(used>=maxUses){
+      await logRedeemEventSafe({access_code:clean,event_type:'redeem',success:false,reason:'Código agotado',user_agent:navigator.userAgent,created_at:now.toISOString()});
+      return {ok:false,message:'Código agotado. Contacta a soporte.'};
+    }
+
+    const accRes=await db.from('totp_accounts').select('*').eq('id',code.account_id).limit(1);
+    if(accRes.error)throw accRes.error;
+    const account=(accRes.data||[])[0]||null;
+    if(!account){
+      await logRedeemEventSafe({access_code:clean,event_type:'redeem',success:false,reason:'Cuenta TOTP no encontrada',user_agent:navigator.userAgent,created_at:now.toISOString()});
+      return {ok:false,message:'Cuenta TOTP no encontrada. Contacta a soporte.'};
+    }
+    if(account.active===false){
+      await logRedeemEventSafe({access_code:clean,event_type:'redeem',success:false,reason:'Cuenta TOTP inactiva',user_agent:navigator.userAgent,created_at:now.toISOString()});
+      return {ok:false,message:'Cuenta TOTP inactiva. Contacta a soporte.'};
+    }
+
+    const validDays=Math.max(1,Number(code.valid_days||30));
+    const expiresAt=code.expires_at || new Date(Date.now()+validDays*86400000).toISOString();
+    const updatePayload={
+      used_count:used+1,
+      last_used_at:now.toISOString(),
+      expires_at:expiresAt,
+      updated_at:now.toISOString()
+    };
+    if(!code.first_used_at)updatePayload.first_used_at=now.toISOString();
+
+    const upd=await db.from('totp_access_codes').update(updatePayload).eq('id',code.id).select('*').limit(1);
+    if(upd.error)throw upd.error;
+    const updated=(upd.data||[])[0]||Object.assign({},code,updatePayload);
+
+    await logRedeemEventSafe({access_code:clean,event_type:'redeem',success:true,reason:null,user_agent:navigator.userAgent,created_at:now.toISOString()});
+
+    return {
+      ok:true,
+      account:{
+        id:account.id,
+        label:account.label,
+        issuer:account.issuer,
+        secret:account.totp_secret || account.secret,
+        digits:Number(account.digits||6),
+        period:Number(account.period||30)
+      },
+      access:{
+        id:updated.id,
+        access_code:updated.access_code,
+        used_count:Number(updated.used_count||0),
+        max_uses:maxUses,
+        expires_at:updated.expires_at
+      }
+    };
+  }
+
   async function redeemAccessCode(){
     clearAllTimers();hideMsg();
     const accessCode=normalizeCode($('accessInput').value);
@@ -1136,27 +1188,27 @@
     $('useCodeBtn').disabled=true;
     showMsg('Validando acceso...', 'info');
 
-    let meta={ip:'',user_agent:navigator.userAgent||'',device:'',page_url:location.href,timezone:''};
-    try{ meta=await getClientMeta(); }catch(_){ }
-
-    let data=null, error=null;
-    // Nuevo RPC: guarda IP, navegador y dispositivo. Si aún no ejecutaste el SQL nuevo, usa el RPC antiguo como respaldo.
-    let res=await db.rpc('redeem_totp_access_code',{
-      p_access_code:accessCode,
-      p_client_ip:meta.ip||null,
-      p_user_agent:meta.user_agent||null,
-      p_device:[meta.device, meta.timezone].filter(Boolean).join(' · ')||null,
-      p_page_url:meta.page_url||null
-    });
-    data=res.data; error=res.error;
-
-    if(error && isRpcSignatureError(error)){
-      console.warn('RPC con IP no instalado todavía. Usando RPC antiguo.', error);
-      res=await db.rpc('redeem_totp_access_code',{p_access_code:accessCode});
-      data=res.data; error=res.error;
+    let data=null;
+    try{
+      const res=await db.rpc('redeem_totp_access_code',{p_access_code:accessCode});
+      if(res.error){
+        console.warn('RPC redeem_totp_access_code falló. Probando respaldo directo:', res.error);
+        data=await redeemAccessCodeDirect(accessCode);
+      }else{
+        data=res.data;
+      }
+    }catch(error){
+      console.error('Error validando acceso:', error);
+      try{
+        data=await redeemAccessCodeDirect(accessCode);
+      }catch(fallbackError){
+        console.error('Respaldo directo también falló:', fallbackError);
+        $('useCodeBtn').disabled=false;
+        showMsg('No se pudo validar el acceso. Contacta a soporte para revisar la conexión.', 'err');
+        return;
+      }
     }
 
-    if(error){$('useCodeBtn').disabled=false;showMsg('No se pudo validar el acceso. Intenta nuevamente o contacta a soporte.','err');console.error(error);return}
     if(!data?.ok){$('useCodeBtn').disabled=false;showMsg(data?.message||'Código de acceso no válido.','err');return}
     activeAccount=data.account;activeAccess=data.access;
     startWaitingForFreshCycle();
