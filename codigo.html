@@ -661,6 +661,314 @@
     @media(prefers-reduced-motion:reduce){
       *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
     }
+
+
+    /* ===== AJUSTE COMPACTO: diseño más pequeño y proporcionado ===== */
+    :root{--radius:26px}
+
+    .app{
+      max-width:390px;
+      padding:12px 12px calc(16px + env(safe-area-inset-bottom));
+      gap:8px;
+    }
+
+    .shell{
+      min-height:560px;
+      border-radius:26px;
+    }
+
+    .header{
+      top:16px;
+      left:14px;
+      right:14px;
+    }
+
+    .logo{
+      width:56px;
+      height:56px;
+      margin:0 auto 7px;
+      border-radius:16px;
+    }
+
+    .header h1{
+      font-size:21px;
+      line-height:1.04;
+    }
+
+    .header small{
+      margin-top:3px;
+      font-size:11.5px;
+    }
+
+    .divider{
+      margin:10px auto 0;
+      gap:9px;
+      font-size:12px;
+    }
+
+    .divider::before,
+    .divider::after{
+      width:62px;
+    }
+
+    .screen{
+      min-height:560px;
+      padding:132px 25px 24px;
+    }
+
+    .pill{
+      padding:6px 11px;
+      font-size:12px;
+      margin:0 auto 14px;
+    }
+
+    h2{
+      font-size:25px;
+      line-height:1.05;
+    }
+
+    h3{
+      font-size:22px;
+      line-height:1.07;
+    }
+
+    p{
+      margin:9px auto 0;
+      font-size:13px;
+      line-height:1.42;
+      max-width:300px;
+    }
+
+    .notice{
+      gap:10px;
+      margin-top:16px;
+      padding:12px;
+      border-radius:16px;
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    .noticeIcon{
+      width:26px;
+      height:26px;
+      border-radius:10px;
+      font-size:15px;
+    }
+
+    .field{
+      gap:7px;
+      margin-top:15px;
+    }
+
+    label{
+      font-size:12px;
+    }
+
+    input{
+      min-height:48px;
+      border-radius:15px;
+      padding:12px 44px;
+      letter-spacing:.08em;
+      font-weight:900;
+    }
+
+    .inputIcon{
+      left:15px;
+      font-size:17px;
+    }
+
+    .clearBtn{
+      right:10px;
+      width:30px;
+      height:30px;
+      border-radius:10px;
+    }
+
+    .mainBtn{
+      min-height:48px;
+      margin-top:13px;
+      border-radius:15px;
+      font-weight:950;
+    }
+
+    .secondaryBtn{
+      min-height:44px;
+      margin-top:8px;
+      border-radius:15px;
+    }
+
+    .msg{
+      margin-top:12px;
+      padding:12px 13px;
+      border-radius:15px;
+      font-size:12px;
+    }
+
+    .waitingGifWrap{
+      width:min(100%,225px);
+      margin:4px auto 18px;
+    }
+
+    .waitingGif{
+      max-width:225px;
+      max-height:135px;
+      border-radius:16px;
+    }
+
+    .countBadge{
+      min-width:70px;
+      height:32px;
+      padding:0 12px;
+      margin:15px auto 0;
+      font-size:13px;
+    }
+
+    .tipBox{
+      margin:16px auto 0;
+      padding:12px;
+      border-radius:15px;
+      max-width:300px;
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    .codePanel{
+      padding:14px;
+      border-radius:22px;
+    }
+
+    .accountName{
+      font-size:12px;
+      margin-bottom:10px;
+    }
+
+    .otpBox{
+      padding:14px 8px 13px;
+      border-radius:20px;
+    }
+
+    .otpBox::before{
+      border-radius:20px;
+    }
+
+    .otp{
+      min-height:54px;
+      font-size:38px;
+      letter-spacing:.10em;
+    }
+
+    .tapHint{
+      margin-top:5px;
+      font-size:11px;
+    }
+
+    .timerBar{
+      height:10px;
+      margin:14px 0 7px;
+    }
+
+    .timerText{
+      font-size:11px;
+    }
+
+    .thanksGifWrap{
+      width:min(100%,225px);
+      margin:4px auto 14px;
+      border-radius:18px;
+    }
+
+    .thanksGif{
+      max-width:225px;
+      max-height:135px;
+    }
+
+    .miniProgress{
+      width:min(100%,210px);
+      height:9px;
+      margin:14px auto 0;
+    }
+
+    .footerNote{
+      font-size:10px;
+      padding:0 8px;
+    }
+
+    @media(max-width:390px){
+      .app{max-width:360px;padding-left:10px;padding-right:10px}
+      .shell{min-height:535px}
+      .screen{min-height:535px;padding:124px 20px 22px}
+      .logo{width:52px;height:52px;border-radius:15px}
+      .header h1{font-size:20px}
+      h2{font-size:23px}
+      h3{font-size:21px}
+      .otp{font-size:34px;letter-spacing:.085em}
+      .divider::before,.divider::after{width:50px}
+      .waitingGifWrap,.thanksGifWrap{width:min(100%,205px)}
+      .waitingGif,.thanksGif{max-width:205px;max-height:122px}
+    }
+
+    @media(max-height:735px){
+      .shell{min-height:520px}
+      .screen{min-height:520px;padding-top:118px;padding-bottom:20px}
+      .logo{width:48px;height:48px;border-radius:14px}
+      .header h1{font-size:19px}
+      .header small{font-size:10.5px}
+      h2{font-size:22px}
+      h3{font-size:20px}
+      p{font-size:12px}
+      .notice{margin-top:12px;padding:10px;font-size:11.5px}
+      .waitingGifWrap,.thanksGifWrap{width:min(100%,195px);margin-bottom:12px}
+      .waitingGif,.thanksGif{max-width:195px;max-height:116px}
+      .otp{font-size:32px;min-height:48px}
+      .mainBtn{min-height:44px}
+      input{min-height:44px}
+    }
+
+
+
+    /* ===== PULIDO EXTRA: tarjeta flexible y menos alta ===== */
+    .app{
+      max-width:380px;
+      padding-top:10px;
+      padding-bottom:calc(14px + env(safe-area-inset-bottom));
+    }
+
+    .shell{
+      min-height:auto;
+    }
+
+    .screen{
+      min-height:auto;
+      padding-top:124px;
+      padding-bottom:22px;
+      justify-content:flex-start;
+    }
+
+    .header{
+      top:15px;
+    }
+
+    .header small{
+      font-size:11px;
+    }
+
+    .notice{
+      margin-top:14px;
+    }
+
+    .field{
+      margin-top:14px;
+    }
+
+    @media(max-width:390px){
+      .app{max-width:350px}
+      .screen{padding-top:116px}
+    }
+
+    @media(max-height:735px){
+      .screen{padding-top:110px}
+    }
+
   </style>
 </head>
 
@@ -675,15 +983,15 @@
           <img src="Dise%C3%B1o%20sin%20t%C3%ADtulo.png" alt="Innov IA" />
         </div>
         <h1>Acceso temporal</h1>
-        <small>Verificación protegida para clientes</small>
+        <small>Acceso seguro para clientes</small>
         <div class="divider">♢</div>
       </header>
 
       <div class="screen active" id="screenForm">
         <div class="center">
-          <span class="pill">🛡️ Chatgpt Plus</span>
+          <span class="pill">🛡️ ChatGPT Plus</span>
           <h2>Ingresa tu código de acceso</h2>
-          <p>Usa tu código para visualizar el código temporal de verificación. Tendrás el ciclo completo para copiarlo.</p>
+          <p>Usa tu código de acceso para visualizar el código temporal. Tendrás el ciclo completo para copiarlo.</p>
         </div>
         <div class="notice">
           <div class="noticeIcon">⚠️</div>
@@ -697,7 +1005,7 @@
             <button type="button" class="clearBtn" id="clearBtn" title="Limpiar">×</button>
           </div>
         </div>
-        <button class="mainBtn" id="useCodeBtn">✨ Solicitar código de acceso</button>
+        <button class="mainBtn" id="useCodeBtn">🔐 Ver código temporal</button>
         <div class="msg" id="clientMsg"></div>
       </div>
 
@@ -744,15 +1052,56 @@
 
   const $=id=>document.getElementById(id);
   let activeAccount=null, activeAccess=null, timerId=null, waitingId=null, thanksTimeout=null, thanksProgressId=null;
+  let activeCodeCounter=null, activeDisplayEndsAt=0, activeDisplayPerfEndsAt=0, activeRequestEndsAt=0, activeRequestPerfEndsAt=0;
+  const TOTP_TIME_ADJUST_MS=0; // Importante: no adelantamos el reloj. Así el TOTP queda alineado con Google Authenticator.
 
   function normalizeCode(v){return String(v||'').trim().toUpperCase()}
+  function withTimeout(promise, ms=2800){
+    const ctrl={done:false};
+    return Promise.race([
+      promise.finally(()=>{ctrl.done=true}),
+      new Promise((_,rej)=>setTimeout(()=>{if(!ctrl.done)rej(new Error('timeout'))},ms))
+    ]);
+  }
+  async function getClientMeta(){
+    const meta={
+      ip:'',
+      user_agent:navigator.userAgent||'',
+      device:[navigator.platform||'', navigator.language||'', (screen?.width||'')+'x'+(screen?.height||'')].filter(Boolean).join(' · '),
+      page_url:location.href,
+      timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||''
+    };
+    // La IP no viene sola desde Supabase. Se consulta desde el navegador y luego se envía al RPC.
+    try{
+      const r=await withTimeout(fetch('https://api64.ipify.org?format=json',{cache:'no-store'}),2800);
+      const j=await r.json();
+      meta.ip=String(j.ip||'').trim();
+    }catch(_){
+      try{
+        const r=await withTimeout(fetch('https://api.ipify.org?format=json',{cache:'no-store'}),2800);
+        const j=await r.json();
+        meta.ip=String(j.ip||'').trim();
+      }catch(__){ meta.ip=''; }
+    }
+    return meta;
+  }
+  function isRpcSignatureError(error){
+    const m=String(error?.message||error?.details||'').toLowerCase();
+    return m.includes('could not find the function') || m.includes('schema cache') || m.includes('function') && m.includes('does not exist');
+  }
   function normalizeSecret(v){return String(v||'').replace(/\s+/g,'').toUpperCase()}
   function showScreen(id){['screenForm','screenWaiting','screenCode','screenThanks'].forEach(s=>$(s).classList.toggle('active',s===id))}
   function showMsg(text,type='info'){const icon=type==='ok'?'✅':type==='err'?'⚠️':'ℹ️';$('clientMsg').className='msg show '+type;$('clientMsg').innerHTML=`<span>${icon}</span><span>${text}</span>`}
   function hideMsg(){$('clientMsg').className='msg';$('clientMsg').textContent=''}
-  function clearAllTimers(){if(timerId)clearInterval(timerId);if(waitingId)clearInterval(waitingId);if(thanksTimeout)clearTimeout(thanksTimeout);if(thanksProgressId)cancelAnimationFrame(thanksProgressId);timerId=waitingId=thanksTimeout=thanksProgressId=null;$('useCodeBtn').disabled=false}
-  function secondsIntoPeriod(period=30){return Math.floor(Date.now()/1000)%period}
+  function clearAllTimers(){if(timerId)clearTimeout(timerId);if(waitingId)clearTimeout(waitingId);if(thanksTimeout)clearTimeout(thanksTimeout);if(thanksProgressId)cancelAnimationFrame(thanksProgressId);timerId=waitingId=thanksTimeout=thanksProgressId=null;activeCodeCounter=null;activeDisplayEndsAt=0;activeDisplayPerfEndsAt=0;activeRequestEndsAt=0;activeRequestPerfEndsAt=0;$('useCodeBtn').disabled=false}
+  function nowMs(){return Date.now()+TOTP_TIME_ADJUST_MS}
+  function counterForPeriod(period=30){return Math.floor(nowMs()/1000/period)}
+  function msIntoPeriod(period=30){return nowMs()-(counterForPeriod(period)*period*1000)}
+  function msUntilFreshCycle(period=30){const inside=msIntoPeriod(period);return inside<=650?0:(period*1000-inside)}
+  function secondsIntoPeriod(period=30){return Math.floor(nowMs()/1000)%period}
   function secondsLeft(period=30){return period-secondsIntoPeriod(period)}
+  function requestExpired(){return activeRequestEndsAt>0&&(nowMs()>=activeRequestEndsAt||performance.now()>=activeRequestPerfEndsAt)}
+  function displayExpired(){return activeDisplayEndsAt>0&&(nowMs()>=activeDisplayEndsAt||performance.now()>=activeDisplayPerfEndsAt)}
 
   function base32Decode(base32){
     const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -776,8 +1125,8 @@
     const bin=((hmac[offset]&0x7f)<<24)|((hmac[offset+1]&0xff)<<16)|((hmac[offset+2]&0xff)<<8)|(hmac[offset+3]&0xff);
     return String(bin%(10**digits)).padStart(digits,'0');
   }
-  async function totp(secret,period=30,digits=6){
-    return hotp(secret,Math.floor(Date.now()/1000/period),digits);
+  async function totp(secret,period=30,digits=6,counter=null){
+    return hotp(secret,counter??counterForPeriod(period),digits);
   }
 
   async function redeemAccessCode(){
@@ -786,7 +1135,27 @@
     if(!accessCode){showMsg('Ingresa tu código de acceso para continuar.','err');return}
     $('useCodeBtn').disabled=true;
     showMsg('Validando acceso...', 'info');
-    const {data,error}=await db.rpc('redeem_totp_access_code',{p_access_code:accessCode});
+
+    let meta={ip:'',user_agent:navigator.userAgent||'',device:'',page_url:location.href,timezone:''};
+    try{ meta=await getClientMeta(); }catch(_){ }
+
+    let data=null, error=null;
+    // Nuevo RPC: guarda IP, navegador y dispositivo. Si aún no ejecutaste el SQL nuevo, usa el RPC antiguo como respaldo.
+    let res=await db.rpc('redeem_totp_access_code',{
+      p_access_code:accessCode,
+      p_client_ip:meta.ip||null,
+      p_user_agent:meta.user_agent||null,
+      p_device:[meta.device, meta.timezone].filter(Boolean).join(' · ')||null,
+      p_page_url:meta.page_url||null
+    });
+    data=res.data; error=res.error;
+
+    if(error && isRpcSignatureError(error)){
+      console.warn('RPC con IP no instalado todavía. Usando RPC antiguo.', error);
+      res=await db.rpc('redeem_totp_access_code',{p_access_code:accessCode});
+      data=res.data; error=res.error;
+    }
+
     if(error){$('useCodeBtn').disabled=false;showMsg('No se pudo validar el acceso. Intenta nuevamente o contacta a soporte.','err');console.error(error);return}
     if(!data?.ok){$('useCodeBtn').disabled=false;showMsg(data?.message||'Código de acceso no válido.','err');return}
     activeAccount=data.account;activeAccess=data.access;
@@ -796,15 +1165,27 @@
   function startWaitingForFreshCycle(){
     showScreen('screenWaiting');hideMsg();
     const period=Number(activeAccount?.period||30);
+    const initialWaitMs=msUntilFreshCycle(period);
+    activeRequestEndsAt=nowMs()+initialWaitMs+(period*1000);
+    activeRequestPerfEndsAt=performance.now()+initialWaitMs+(period*1000);
+
     const tick=async()=>{
-      const inside=secondsIntoPeriod(period), wait=inside===0?0:period-inside;
-      $('waitCounter').textContent=wait+' s';
-      if(inside<=1){
+      if(requestExpired()){
+        waitingId=null;
+        showThanksThenReset();
+        return;
+      }
+
+      const waitMs=msUntilFreshCycle(period);
+      $('waitCounter').textContent=Math.ceil(waitMs/1000)+' s';
+
+      if(waitMs<=180){
         waitingId=null;
         await showTotp();
         return;
       }
-      waitingId=setTimeout(tick, Math.min(1000, wait*1000));
+
+      waitingId=setTimeout(tick, Math.min(500, waitMs));
     };
     tick();
   }
@@ -813,13 +1194,28 @@
     showScreen('screenCode');
     $('accountLabel').textContent=(activeAccount?.label||'Cuenta')+' · Uso '+(activeAccess?.used_count||1)+' de '+(activeAccess?.max_uses||'');
     const period=Number(activeAccount?.period||30), digits=Number(activeAccount?.digits||6);
+
+    activeCodeCounter=counterForPeriod(period);
+    activeDisplayEndsAt=(activeCodeCounter+1)*period*1000;
+    activeDisplayPerfEndsAt=performance.now()+Math.max(0,activeDisplayEndsAt-nowMs());
+
     const refresh=async()=>{
       try{
-        const code=await totp(activeAccount.secret,period,digits);
-        const left=secondsLeft(period), percent=(left/period)*100;
-        $('otpCode').textContent=code;$('timerFill').style.width=percent+'%';$('timerText').textContent='Tiempo restante: '+left+' s';
-        if(left<=1){timerId=null;showThanksThenReset();return}
-        timerId=setTimeout(refresh, 1000);
+        if(displayExpired()){
+          timerId=null;
+          showThanksThenReset();
+          return;
+        }
+
+        const code=await totp(activeAccount.secret,period,digits,activeCodeCounter);
+        const leftMs=Math.max(0,Math.min(activeDisplayEndsAt-nowMs(),activeDisplayPerfEndsAt-performance.now()));
+        const left=Math.ceil(leftMs/1000), percent=Math.max(0,Math.min(100,(leftMs/(period*1000))*100));
+
+        $('otpCode').textContent=code;
+        $('timerFill').style.width=percent+'%';
+        $('timerText').textContent='Tiempo restante: '+left+' s';
+
+        timerId=setTimeout(refresh, Math.min(500, Math.max(120,leftMs)));
       }catch(e){showScreen('screenForm');showMsg('Error generando el código. Contacta a soporte.','err');console.error(e)}
     };
     await refresh();
@@ -864,6 +1260,19 @@
     catch(e){alert('No se pudo copiar automáticamente. Mantén presionado el código y cópialo manualmente.')}
   }
 
+  function enforceActiveDeadlines(){
+    if($('screenCode').classList.contains('active')&&displayExpired()){
+      showThanksThenReset();
+      return;
+    }
+    if($('screenWaiting').classList.contains('active')&&requestExpired()){
+      showThanksThenReset();
+    }
+  }
+
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')enforceActiveDeadlines()});
+  window.addEventListener('pageshow',enforceActiveDeadlines);
+
   $('useCodeBtn').addEventListener('click',redeemAccessCode);
   $('accessInput').addEventListener('keydown',e=>{if(e.key==='Enter')redeemAccessCode()});
   $('clearBtn').addEventListener('click',()=>{$('accessInput').value='';$('accessInput').focus();hideMsg()});
@@ -878,3 +1287,4 @@
 </script>
 </body>
 </html>
+
