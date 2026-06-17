@@ -10807,5 +10807,217 @@ Solo sube la campana flotante en celular para no tapar la navegación.
 }
 </style>
 
+
+
+<!-- =========================================================
+INNOV IA V60 - TOTP ACTIVIDAD + SELECCION MASIVA + COPY FIX
+No toca la validacion TOTP. Solo mejora admin: actividad, copiado y borrado multiple.
+========================================================= -->
+<style id="innov-v60-totp-polish-css">
+#tab-totp .totp-hero > .card:first-child{
+  border:1px solid rgba(96,165,250,.22)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.12)!important;
+}
+#tab-totp .totp-row-pro.v60-selectable{
+  position:relative;
+  grid-template-columns:38px minmax(170px,1fr) minmax(140px,.72fr) minmax(165px,.9fr) auto!important;
+  cursor:default;
+  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+}
+#tab-totp .totp-row-pro.v60-selectable:hover{transform:translateY(-1px)}
+#tab-totp .totp-row-pro.v60-selected{
+  border-color:var(--primary)!important;
+  background:linear-gradient(90deg,var(--primary-alpha),var(--card))!important;
+  box-shadow:0 0 0 2px var(--primary-alpha), var(--shadow-md)!important;
+}
+.totp-select-dot{
+  width:30px;height:30px;border-radius:12px;border:1.5px solid var(--border);
+  background:var(--card2);display:grid;place-items:center;font-weight:1000;color:var(--muted);
+  user-select:none;
+}
+.v60-selected .totp-select-dot{background:var(--primary);border-color:var(--primary);color:#fff}
+.totp-bulkbar-v60{
+  grid-column:1/-1;display:none;align-items:center;gap:8px;flex-wrap:wrap;
+  border:1px solid rgba(96,165,250,.25);border-left:4px solid var(--primary);
+  background:linear-gradient(135deg,var(--primary-alpha2),var(--card));
+  border-radius:16px;padding:9px 10px;margin-bottom:3px;box-shadow:var(--shadow-xs);
+}
+.totp-bulkbar-v60.show{display:flex}
+.totp-bulkbar-v60 strong{color:var(--card-ink)}
+.totp-bulkbar-v60 .btn{padding:6px 10px!important;font-size:.76rem!important;border-radius:10px!important}
+.totp-select-help-v60{
+  grid-column:1/-1;color:var(--muted);font-size:.76rem;margin:0 0 3px;
+  display:flex;gap:7px;align-items:center;flex-wrap:wrap;
+}
+.totp-select-help-v60 .mini-tip{border:1px solid var(--border);background:var(--card2);border-radius:999px;padding:3px 8px;font-weight:800}
+.totp-copy-ok{animation:totpCopyPulse .65s ease}
+@keyframes totpCopyPulse{50%{transform:scale(1.06);box-shadow:0 0 0 6px var(--success-alpha)}}
+#tab-totp .totp-activity-head{background:linear-gradient(135deg,var(--card),var(--primary-alpha2))!important;border-radius:18px!important}
+#tab-totp .totp-activity-list{gap:8px!important}
+#tab-totp .totp-activity-card{border-radius:16px!important}
+#tab-totp .totp-activity-chip{border-radius:10px!important;white-space:normal!important;line-height:1.18!important}
+@media(max-width:900px){
+  #tab-totp .totp-row-pro.v60-selectable{grid-template-columns:34px 1fr!important;gap:7px!important;align-items:start!important}
+  #tab-totp .totp-row-pro.v60-selectable > div:not(.totp-select-dot){grid-column:2!important}
+  #tab-totp .totp-row-actions{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}
+  #tab-totp .totp-bulkbar-v60{display:none;grid-template-columns:1fr 1fr;align-items:stretch}
+  #tab-totp .totp-bulkbar-v60.show{display:grid}
+  #tab-totp .totp-bulkbar-v60 strong,#tab-totp .totp-bulkbar-v60 .help{grid-column:1/-1}
+  #tab-totp .totp-bulkbar-v60 .btn{width:100%}
+}
+@media(max-width:430px){
+  #tab-totp .totp-row-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #tab-totp .totp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+</style>
+<script id="innov-v60-totp-fix-js">
+(function(){
+  function safeJson(v){return JSON.stringify(String(v||''));}
+  function selectedSet(){
+    if(!state.totpSelectedCodes || !(state.totpSelectedCodes instanceof Set)) state.totpSelectedCodes=new Set();
+    return state.totpSelectedCodes;
+  }
+  async function writeClipboardV60(text){
+    text=String(text||'');
+    try{
+      if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); return true; }
+    }catch(_){ }
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='0';
+      document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
+      const ok=document.execCommand('copy');document.body.removeChild(ta);if(ok)return true;
+    }catch(_){ }
+    try{prompt('Copia manual:',text)}catch(_){ }
+    return false;
+  }
+  window.copyTextSafe=async function(text){
+    const ok=await writeClipboardV60(text);
+    toast(ok?'Copiado al portapapeles':'Copia manual abierta',ok?'ok':'bad');
+    return ok;
+  };
+  window.totpCopyCodeV60=async function(code,ev){
+    if(ev){ev.preventDefault();ev.stopPropagation();}
+    const ok=await window.copyTextSafe(code);
+    try{
+      const btn=ev?.currentTarget;
+      if(btn){btn.classList.add('totp-copy-ok');const old=btn.textContent;btn.textContent='✅ Copiado';setTimeout(()=>{btn.textContent=old;btn.classList.remove('totp-copy-ok')},900)}
+    }catch(_){ }
+    return ok;
+  };
+  window.totpToggleCodeSelectV60=function(id,ev){
+    if(ev){
+      const t=ev.target;
+      if(t && t.closest && t.closest('button,a,input,select,textarea,label')) return;
+      ev.preventDefault();ev.stopPropagation();
+    }
+    const s=selectedSet();
+    if(s.has(id))s.delete(id);else s.add(id);
+    renderTotp();
+  };
+  window.totpDoubleTapSelectV60=function(id,ev){
+    const t=ev?.target;
+    if(t && t.closest && t.closest('button,a,input,select,textarea,label')) return;
+    const row=ev.currentTarget;
+    const now=Date.now();
+    const last=Number(row.dataset.lastTap||0);
+    row.dataset.lastTap=String(now);
+    if(now-last<380){ window.totpToggleCodeSelectV60(id,ev); row.dataset.lastTap='0'; }
+  };
+  window.totpSelectVisibleCodesV60=function(){
+    const q=String(document.getElementById('totpSearch')?.value||'').toLowerCase();
+    const filter=document.getElementById('totpStatusFilter')?.value||'';
+    const s=selectedSet();
+    (state.totpCodes||[]).forEach(c=>{
+      const a=(state.totpAccounts||[]).find(x=>x.id===c.account_id)||{};
+      const hay=[c.access_code,c.customer_name,c.customer_phone,c.notes,a.label,a.issuer].join(' ').toLowerCase().includes(q);
+      if(hay && (!filter || totpCodeStatus(c)===filter))s.add(c.id);
+    });
+    renderTotp();
+  };
+  window.totpClearSelectionV60=function(){selectedSet().clear();renderTotp();};
+  window.totpCopySelectedCodesV60=async function(){
+    const ids=[...selectedSet()];
+    const rows=(state.totpCodes||[]).filter(c=>ids.includes(c.id));
+    if(!rows.length)return toast('No hay códigos seleccionados','bad');
+    await window.copyTextSafe(rows.map(c=>c.access_code).join('\n'));
+  };
+  window.totpDeleteSelectedCodesV60=async function(){
+    const ids=[...selectedSet()];
+    if(!ids.length)return toast('No hay códigos seleccionados','bad');
+    if(!confirm('¿Eliminar '+ids.length+' código(s) TOTP seleccionado(s)?'))return;
+    const r=await db.from('totp_access_codes').delete().in('id',ids);
+    if(r.error)return toast(r.error.message,'bad');
+    selectedSet().clear();toast(ids.length+' código(s) eliminados','ok');await loadAll();switchTab('totp');
+  };
+  window.totpRefreshActivityV60=async function(){await loadTotpEvents();toast('Actividad actualizada','ok');renderTotp();};
+
+  function renderActivityV60(events,q){
+    let data=(events||[]).filter(e=>totpEventText(e).includes(q));
+    const total=data.length, ok=data.filter(e=>e.success!==false).length, bad=data.filter(e=>e.success===false).length;
+    const html=data.map(e=>{
+      const m=totpEventMeta(e), cls=totpEventClass(e), icon=cls==='bad'?'⚠️':(String(e.event_type||'').toLowerCase()==='client_info'?'🧾':'✅');
+      const where=[m.city,m.region,m.country].filter(Boolean).join(', ');
+      const device=[m.device,m.model].filter(Boolean).join(' · ');
+      const system=[m.os,m.browser].filter(Boolean).join(' · ');
+      return `<div class="totp-activity-card ${cls}">
+        <div class="totp-activity-icon">${icon}</div>
+        <div class="totp-activity-main">
+          <div class="totp-activity-top"><span>${esc(totpEventLabel(e))}</span>${e.success===false?'<span class="badge b-bad">Rechazado</span>':'<span class="badge b-ok">Registrado</span>'}</div>
+          <div class="totp-activity-code">Código: ${esc(e.access_code||'—')}</div>
+          <div class="totp-activity-meta">
+            <span class="totp-activity-chip ${m.ip?'blue':'red'}">🌐 IP ${esc(m.ip||'No capturada')}</span>
+            <span class="totp-activity-chip">${totpDeviceIcon(m.device)} ${esc(device||'Dispositivo no detectado')}</span>
+            <span class="totp-activity-chip">🧠 ${esc(system||'Navegador no detectado')}</span>
+            ${where?`<span class="totp-activity-chip">📍 ${esc(where)}</span>`:''}
+            ${m.isp?`<span class="totp-activity-chip">📡 ${esc(m.isp)}</span>`:''}
+            ${m.tz?`<span class="totp-activity-chip">🕒 ${esc(m.tz)}</span>`:''}
+            ${m.screen?`<span class="totp-activity-chip">🖥️ ${esc(m.screen)}</span>`:''}
+            ${e.reason?`<span class="totp-activity-chip red">${esc(e.reason)}</span>`:''}
+          </div>
+          ${m.ua?`<details class="totp-ua-details"><summary>Ver navegador completo</summary><div class="totp-ua-box">${esc(m.ua)}</div></details>`:''}
+        </div>
+        <div class="totp-activity-time">${totpDate(e.created_at)}</div>
+      </div>`;
+    }).join('');
+    return `<div class="totp-activity-wrap">
+      <div class="totp-activity-head"><div><strong>📜 Actividad TOTP</strong><p class="help">Se registra con el RPC seguro de actividad. No afecta la validación del código.</p></div><div class="totp-mini-line"><span class="badge b-ok">${ok} OK</span><span class="badge b-bad">${bad} rechazados</span><span class="badge">${total} eventos</span><button class="btn" onclick="totpRefreshActivityV60()">↻ Actualizar</button></div></div>
+      <div class="totp-activity-list">${html||'<div class="empty-state"><span class="icon">📜</span><p>Aún no hay actividad. Ejecuta el SQL V60 y prueba un código desde el HTML público.</p></div>'}</div>
+    </div>`;
+  }
+
+  window.renderTotp=function(){
+    if(!document.getElementById('totpGrid'))return;
+    const q=String(document.getElementById('totpSearch')?.value||'').toLowerCase();
+    const filter=document.getElementById('totpStatusFilter')?.value||'';
+    const codes=state.totpCodes||[], accounts=state.totpAccounts||[], events=state.totpEvents||[];
+    if(document.getElementById('totpKpiAccounts'))document.getElementById('totpKpiAccounts').textContent=accounts.length;
+    if(document.getElementById('totpKpiCodes'))document.getElementById('totpKpiCodes').textContent=codes.length;
+    if(document.getElementById('totpKpiUsed'))document.getElementById('totpKpiUsed').textContent=codes.filter(c=>Number(c.used_count||0)>0).length;
+    if(document.getElementById('totpKpiExpired'))document.getElementById('totpKpiExpired').textContent=codes.filter(totpIsExpired).length;
+    fillTotpAccountSelect();
+    const grid=document.getElementById('totpGrid');
+    grid.classList.add('compact');
+    if(state.totpDbError){grid.innerHTML=`<div class="empty-state"><span class="icon">🛠️</span><p>Falta ejecutar el SQL de Supabase para crear o reparar TOTP.</p><p class="help">Detalle: ${esc(state.totpDbError)}</p></div>`;return;}
+    const s=selectedSet();
+    [...s].forEach(id=>{if(!codes.some(c=>c.id===id))s.delete(id)});
+    if(state.totpView==='events'){
+      s.clear();grid.classList.remove('compact');grid.innerHTML=renderActivityV60(events,q);return;
+    }
+    if(state.totpView==='accounts'){
+      s.clear();
+      let data=accounts.filter(a=>[a.label,a.issuer,a.notes,a.totp_secret].join(' ').toLowerCase().includes(q));
+      grid.innerHTML=data.map(a=>{const linked=codes.filter(c=>c.account_id===a.id).length;return `<div class="totp-row-pro"><div><div class="totp-row-title">🔑 ${esc(a.label||'Cuenta TOTP')}</div><div class="totp-row-sub">${esc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div><div class="totp-mini-line">${totpStatusBadge(a.active!==false?'active':'inactive')}<span class="badge">${linked} códigos</span></div><div class="totp-mini-line"><span class="totp-code-pill" title="Secreto oculto">${esc(totpMaskSecret(a.totp_secret))}</span></div><div class="totp-row-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Pausar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">Borrar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';return;
+    }
+    let data=codes.filter(c=>{const a=accounts.find(x=>x.id===c.account_id)||{};return [c.access_code,c.customer_name,c.customer_phone,c.notes,a.label,a.issuer].join(' ').toLowerCase().includes(q)});
+    if(filter)data=data.filter(c=>totpCodeStatus(c)===filter);
+    const bulk=`<div class="totp-bulkbar-v60 ${s.size?'show':''}"><strong>${s.size} seleccionado(s)</strong><button class="btn" onclick="totpCopySelectedCodesV60()">📋 Copiar</button><button class="btn btn-danger" onclick="totpDeleteSelectedCodesV60()">🗑 Eliminar</button><button class="btn" onclick="totpClearSelectionV60()">Limpiar</button><span class="help">Doble toque o doble clic sobre una fila para seleccionar.</span></div><div class="totp-select-help-v60"><span class="mini-tip">Doble toque/clic = seleccionar</span><button class="btn btn-sm" onclick="totpSelectVisibleCodesV60()">Seleccionar visibles</button></div>`;
+    grid.innerHTML=bulk+(data.map(c=>{const st=totpCodeStatus(c), p=totpUsagePercent(c), id=String(c.id), sel=s.has(id);return `<div class="totp-row-pro v60-selectable ${sel?'v60-selected':''}" data-id="${esc(id)}" ondblclick="totpToggleCodeSelectV60(${safeJson(id)},event)" ontouchend="totpDoubleTapSelectV60(${safeJson(id)},event)"><div class="totp-select-dot">${sel?'✓':'+'}</div><div><button class="totp-code-pill" type="button" onclick="totpCopyCodeV60(${safeJson(c.access_code)},event)">🎫 ${esc(c.access_code)}</button><div class="totp-row-sub">${esc(totpAccountName(c.account_id))}</div></div><div><div class="totp-mini-line">${totpStatusBadge(st)}<span class="badge">Usos ${Number(c.used_count||0)}/${Number(c.max_uses||0)}</span></div><div class="totp-usage-bar"><div class="totp-usage-fill" style="width:${p}%"></div></div></div><div class="totp-mini-line"><span class="badge">👤 ${esc(c.customer_name||'Sin cliente')}</span><span class="badge">${esc(c.customer_phone||'Sin WhatsApp')}</span>${c.expires_at?`<span class="badge">📅 ${esc(String(c.expires_at).slice(0,10))}</span>`:''}</div><div class="totp-row-actions"><button class="btn btn-primary" onclick="event.stopPropagation();openTotpCodeDialog('${id}')">Editar</button><button class="btn" onclick="totpCopyCodeV60(${safeJson(c.access_code)},event)">Copiar</button><button class="btn" onclick="event.stopPropagation();resetTotpCode('${id}')">Reset</button><button class="btn btn-danger" onclick="event.stopPropagation();deleteTotpCode('${id}')">Borrar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>');
+  };
+  try{ if(state.totpView==='codes' || state.totpView==='events') renderTotp(); }catch(_){ }
+})();
+</script>
+
 </body>
 </html>
+
