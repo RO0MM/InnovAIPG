@@ -1935,6 +1935,44 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 }
 </style>
 
+
+
+<style id="innov-v59-totp-activity-css">
+/* ================================================================
+   V59 TOTP ACTIVIDAD PRO
+   Solo mejora visual y lectura de actividad. No cambia creación ni validación.
+   ================================================================ */
+#tab-totp .totp-hero{grid-template-columns:1fr!important;margin-bottom:10px!important}
+#tab-totp .totp-hero > .card:first-child{padding:14px!important;border-radius:18px!important;background:linear-gradient(135deg,var(--card),var(--primary-alpha2))!important}
+#tab-totp .totp-hero > .card:nth-child(2){display:none!important}
+#tab-totp .totp-title h2{font-size:1.08rem!important}
+#tab-totp .totp-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+#tab-totp .totp-kpi{padding:8px 10px!important;border-radius:13px!important}
+#tab-totp .totp-kpi .v{font-size:1.12rem!important}
+#tab-totp .totp-kpi .l{font-size:.64rem!important}
+#tab-totp .admin-toolbar{padding:9px!important;border-radius:15px!important;margin-bottom:9px!important}
+#tab-totp .totp-tabs{gap:6px;margin-bottom:9px!important}
+#tab-totp .totp-tabs .chip{padding:7px 12px!important;border-radius:12px!important;font-weight:800!important}
+#tab-totp .totp-grid.compact{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}
+.totp-row-pro{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:9px 10px;display:grid;grid-template-columns:minmax(170px,1fr) minmax(140px,.72fr) minmax(165px,.9fr) auto;gap:10px;align-items:center;box-shadow:var(--shadow-xs)}
+.totp-row-pro:hover{background:var(--primary-alpha2);box-shadow:var(--shadow-md)}
+.totp-code-pill{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-weight:900;font-size:.9rem;padding:7px 10px;border-radius:12px;background:var(--primary-alpha);color:var(--primary);border:1px solid rgba(96,165,250,.25);letter-spacing:.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.totp-row-title{font-weight:900;color:var(--card-ink);font-size:.9rem;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.totp-row-sub{font-size:.74rem;color:var(--muted);line-height:1.15;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.totp-mini-line{display:flex;gap:5px;flex-wrap:wrap;align-items:center;min-width:0}
+.totp-row-actions{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}.totp-row-actions .btn{padding:6px 9px!important;font-size:.74rem!important;border-radius:9px!important}
+.totp-usage-bar{height:7px;border-radius:999px;background:var(--border);overflow:hidden;min-width:110px;margin-top:5px}.totp-usage-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--success),var(--primary));width:0%}
+.totp-activity-wrap{grid-column:1/-1;display:grid;gap:8px}.totp-activity-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow-xs)}
+.totp-activity-head strong{font-size:.95rem;color:var(--card-ink)}.totp-activity-head .help{font-size:.76rem;margin:0}
+.totp-activity-list{display:grid;gap:7px}.totp-activity-card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:10px;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;align-items:start;box-shadow:var(--shadow-xs)}
+.totp-activity-card.ok{border-left:4px solid var(--success)}.totp-activity-card.bad{border-left:4px solid var(--danger)}.totp-activity-card.info{border-left:4px solid var(--primary)}
+.totp-activity-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:var(--primary-alpha);font-size:18px;flex:0 0 auto}.totp-activity-card.ok .totp-activity-icon{background:var(--success-alpha)}.totp-activity-card.bad .totp-activity-icon{background:var(--danger-alpha)}
+.totp-activity-main{min-width:0}.totp-activity-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-weight:900;color:var(--card-ink);line-height:1.15}.totp-activity-code{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:3px;word-break:break-all}.totp-activity-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.totp-activity-chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border);background:var(--card2);border-radius:999px;padding:3px 8px;font-size:.72rem;font-weight:800;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.totp-activity-chip.green{color:var(--success);background:var(--success-alpha)}.totp-activity-chip.red{color:var(--danger);background:var(--danger-alpha)}.totp-activity-chip.blue{color:var(--primary);background:var(--primary-alpha)}
+.totp-activity-time{font-size:.72rem;color:var(--muted);font-weight:800;text-align:right;white-space:nowrap}.totp-ua-details{margin-top:6px}.totp-ua-details summary{cursor:pointer;color:var(--primary);font-size:.74rem;font-weight:800}.totp-ua-box{margin-top:5px;font-family:var(--mono);font-size:.7rem;color:var(--muted);background:var(--card2);border:1px dashed var(--border);border-radius:10px;padding:7px;word-break:break-word}
+@media(max-width:900px){#tab-totp .totp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.totp-row-pro{grid-template-columns:1fr;gap:6px}.totp-row-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));justify-content:stretch}.totp-row-actions .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.totp-activity-card{grid-template-columns:36px minmax(0,1fr);gap:8px}.totp-activity-time{grid-column:2;text-align:left}.totp-activity-icon{width:34px;height:34px;border-radius:12px}}
+@media(max-width:430px){#tab-totp .totp-hero > .card:first-child{padding:11px!important}.totp-row-pro{padding:8px 9px;border-radius:13px}.totp-code-pill{font-size:.82rem;padding:6px 8px}.totp-row-title{font-size:.86rem}.totp-row-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.totp-activity-meta{gap:4px}.totp-activity-chip{font-size:.68rem;padding:2px 7px}.totp-activity-card{padding:8px;border-radius:13px}.rem-bubble{bottom:calc(var(--bottombar-h) + 72px)!important;right:14px!important;left:auto!important}}
+</style>
+
 </head>
 <body>
 
@@ -6003,6 +6041,88 @@ renderTotp=function(){
   let data=codes.filter(c=>{const a=state.totpAccounts.find(x=>x.id===c.account_id)||{};return [c.access_code,c.customer_name,c.customer_phone,c.notes,a.label].join(' ').toLowerCase().includes(q)});
   if(filter)data=data.filter(c=>totpCodeStatus(c)===filter);
   $('totpGrid').innerHTML=data.map(c=>{const st=totpCodeStatus(c);return `<div class="totp-row"><div class="totp-main"><div class="totp-title-line">🎫 ${esc(c.access_code)}</div><div class="totp-sub-line">${esc(totpAccountName(c.account_id))}</div></div><div class="totp-meta-line">${totpStatusBadge(st)}<span class="badge">Usos ${Number(c.used_count||0)}/${Number(c.max_uses||0)}</span></div><div class="totp-meta-line"><span class="badge">👤 ${esc(c.customer_name||'Sin cliente')}</span><span class="badge">${esc(c.customer_phone||'Sin WhatsApp')}</span></div><div class="totp-actions-line"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">Editar</button><button class="btn" onclick="copyTextSafe('${esc(String(c.access_code||'')).replaceAll('&#39;','\\&#39;')}')">Copiar</button><button class="btn" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">Eliminar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>';
+};
+
+
+/* ---- V59: TOTP actividad mejorada, solo presentación ---- */
+function totpJsArg(v){return JSON.stringify(String(v||''));}
+function totpEventMeta(e){
+  let m=e?.metadata||e?.client_info||{};
+  if(typeof m==='string'){try{m=JSON.parse(m)}catch(_){m={raw:m}}}
+  return {
+    ip:e?.ip_address||m.ip_address||m.ip||m.query||'',
+    device:e?.device_type||m.device_type||m.device||'',
+    model:e?.device_model||m.device_model||m.model||'',
+    os:e?.os||m.os||'',
+    browser:e?.browser||m.browser||'',
+    lang:e?.language||m.language||'',
+    tz:e?.timezone||m.timezone||'',
+    screen:e?.screen||m.screen||'',
+    city:e?.city||m.city||'',
+    region:e?.region||m.region||'',
+    country:e?.country||m.country||m.country_name||'',
+    isp:e?.isp||m.isp||m.org||m.connection||'',
+    ua:e?.user_agent||m.user_agent||''
+  };
+}
+function totpDeviceIcon(type){type=String(type||'').toLowerCase();if(/cel|mov|phone|mobile/.test(type))return '📱';if(/tablet|ipad/.test(type))return '▣';if(/pc|desktop|laptop|windows|mac|linux/.test(type))return '💻';return '🛰️';}
+function totpEventLabel(e){const t=String(e?.event_type||'').toLowerCase();if(t==='client_info')return 'Info del cliente';if(t==='redeem')return 'Uso del código';if(t==='copy')return 'Copia';return e?.event_type||'Actividad';}
+function totpEventClass(e){if(e?.success===false)return 'bad';if(String(e?.event_type||'').toLowerCase()==='client_info')return 'info';return 'ok';}
+function totpEventText(e){const m=totpEventMeta(e);return [e.access_code,e.event_type,e.reason,e.success,m.ip,m.device,m.model,m.os,m.browser,m.lang,m.tz,m.screen,m.city,m.region,m.country,m.isp,m.ua].join(' ').toLowerCase();}
+function renderTotpActivityV59(events,q){
+  let data=(events||[]).filter(e=>totpEventText(e).includes(q));
+  const total=data.length, ok=data.filter(e=>e.success!==false).length, bad=data.filter(e=>e.success===false).length;
+  const html=data.map(e=>{
+    const m=totpEventMeta(e), cls=totpEventClass(e), icon=cls==='bad'?'⚠️':(String(e.event_type||'').toLowerCase()==='client_info'?'🧾':'✅');
+    const where=[m.city,m.region,m.country].filter(Boolean).join(', ');
+    const device=[m.device,m.model].filter(Boolean).join(' · ');
+    const system=[m.os,m.browser].filter(Boolean).join(' · ');
+    return `<div class="totp-activity-card ${cls}">
+      <div class="totp-activity-icon">${icon}</div>
+      <div class="totp-activity-main">
+        <div class="totp-activity-top"><span>${esc(totpEventLabel(e))}</span>${e.success===false?'<span class="badge b-bad">Rechazado</span>':'<span class="badge b-ok">Registrado</span>'}</div>
+        <div class="totp-activity-code">Código: ${esc(e.access_code||'—')}</div>
+        <div class="totp-activity-meta">
+          <span class="totp-activity-chip ${m.ip?'blue':'red'}">🌐 IP ${esc(m.ip||'No capturada')}</span>
+          <span class="totp-activity-chip">${totpDeviceIcon(m.device)} ${esc(device||'Dispositivo no detectado')}</span>
+          <span class="totp-activity-chip">🧠 ${esc(system||'Navegador no detectado')}</span>
+          ${where?`<span class="totp-activity-chip">📍 ${esc(where)}</span>`:''}
+          ${m.isp?`<span class="totp-activity-chip">📡 ${esc(m.isp)}</span>`:''}
+          ${m.tz?`<span class="totp-activity-chip">🕒 ${esc(m.tz)}</span>`:''}
+          ${e.reason?`<span class="totp-activity-chip red">${esc(e.reason)}</span>`:''}
+        </div>
+        ${m.ua?`<details class="totp-ua-details"><summary>Ver navegador completo</summary><div class="totp-ua-box">${esc(m.ua)}</div></details>`:''}
+      </div>
+      <div class="totp-activity-time">${totpDate(e.created_at)}</div>
+    </div>`;
+  }).join('');
+  return `<div class="totp-activity-wrap">
+    <div class="totp-activity-head"><div><strong>📜 Actividad TOTP</strong><p class="help">IP y dispositivo aparecen cuando el HTML público pudo capturarlos. Si no sale, el código igual funciona.</p></div><div class="totp-mini-line"><span class="badge b-ok">${ok} OK</span><span class="badge b-bad">${bad} rechazados</span><span class="badge">${total} eventos</span></div></div>
+    <div class="totp-activity-list">${html||'<div class="empty-state"><span class="icon">📜</span><p>Aún no hay actividad.</p></div>'}</div>
+  </div>`;
+}
+function totpUsagePercent(c){const max=Math.max(1,Number(c.max_uses||1));return Math.min(100,Math.round((Number(c.used_count||0)/max)*100));}
+const _renderTotpV59Base=renderTotp;
+renderTotp=function(){
+  if(!$('totpGrid'))return;
+  const q=String($('totpSearch')?.value||'').toLowerCase();
+  const filter=$('totpStatusFilter')?.value||'';
+  const codes=state.totpCodes||[], accounts=state.totpAccounts||[], events=state.totpEvents||[];
+  $('totpKpiAccounts').textContent=accounts.length;
+  $('totpKpiCodes').textContent=codes.length;
+  $('totpKpiUsed').textContent=codes.filter(c=>Number(c.used_count||0)>0).length;
+  $('totpKpiExpired').textContent=codes.filter(totpIsExpired).length;
+  fillTotpAccountSelect();
+  $('totpGrid').classList.add('compact');
+  if(state.totpDbError){$('totpGrid').innerHTML=`<div class="empty-state"><span class="icon">🛠️</span><p>Falta ejecutar el SQL de Supabase para crear las tablas TOTP.</p><p class="help">Detalle: ${esc(state.totpDbError)}</p></div>`;return;}
+  if(state.totpView==='events'){$('totpGrid').classList.remove('compact');$('totpGrid').innerHTML=renderTotpActivityV59(events,q);return;}
+  if(state.totpView==='accounts'){
+    let data=accounts.filter(a=>[a.label,a.issuer,a.notes,a.totp_secret].join(' ').toLowerCase().includes(q));
+    $('totpGrid').innerHTML=data.map(a=>{const linked=codes.filter(c=>c.account_id===a.id).length;return `<div class="totp-row-pro"><div><div class="totp-row-title">🔑 ${esc(a.label||'Cuenta TOTP')}</div><div class="totp-row-sub">${esc(a.issuer||'Sin emisor')} · ${a.digits||6} dígitos · ${a.period||30}s</div></div><div class="totp-mini-line">${totpStatusBadge(a.active!==false?'active':'inactive')}<span class="badge">${linked} códigos</span></div><div class="totp-mini-line"><span class="totp-code-pill" title="Secreto oculto">${esc(totpMaskSecret(a.totp_secret))}</span></div><div class="totp-row-actions"><button class="btn btn-primary" onclick="openTotpAccountDialog('${a.id}')">Editar</button><button class="btn" onclick="openTotpBulkCodeDialog('${a.id}')">Masivo</button><button class="btn ${a.active!==false?'btn-warning':'btn-success'}" onclick="toggleTotpAccount('${a.id}')">${a.active!==false?'Pausar':'Activar'}</button><button class="btn btn-danger" onclick="deleteTotpAccount('${a.id}')">Borrar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🔑</span><p>No hay cuentas TOTP registradas.</p></div>';return;
+  }
+  let data=codes.filter(c=>{const a=state.totpAccounts.find(x=>x.id===c.account_id)||{};return [c.access_code,c.customer_name,c.customer_phone,c.notes,a.label,a.issuer].join(' ').toLowerCase().includes(q)});
+  if(filter)data=data.filter(c=>totpCodeStatus(c)===filter);
+  $('totpGrid').innerHTML=data.map(c=>{const st=totpCodeStatus(c), p=totpUsagePercent(c);return `<div class="totp-row-pro"><div><button class="totp-code-pill" type="button" onclick="copyTextSafe(${totpJsArg(c.access_code)})">🎫 ${esc(c.access_code)}</button><div class="totp-row-sub">${esc(totpAccountName(c.account_id))}</div></div><div><div class="totp-mini-line">${totpStatusBadge(st)}<span class="badge">Usos ${Number(c.used_count||0)}/${Number(c.max_uses||0)}</span></div><div class="totp-usage-bar"><div class="totp-usage-fill" style="width:${p}%"></div></div></div><div class="totp-mini-line"><span class="badge">👤 ${esc(c.customer_name||'Sin cliente')}</span><span class="badge">${esc(c.customer_phone||'Sin WhatsApp')}</span>${c.expires_at?`<span class="badge">📅 ${esc(String(c.expires_at).slice(0,10))}</span>`:''}</div><div class="totp-row-actions"><button class="btn btn-primary" onclick="openTotpCodeDialog('${c.id}')">Editar</button><button class="btn" onclick="copyTextSafe(${totpJsArg(c.access_code)})">Copiar</button><button class="btn" onclick="resetTotpCode('${c.id}')">Reset</button><button class="btn btn-danger" onclick="deleteTotpCode('${c.id}')">Borrar</button></div></div>`}).join('')||'<div class="empty-state"><span class="icon">🎫</span><p>No hay códigos de acceso.</p></div>';
 };
 
 /* ---- Web notifications + sound ---- */
@@ -10689,4 +10809,3 @@ Solo sube la campana flotante en celular para no tapar la navegación.
 
 </body>
 </html>
-
