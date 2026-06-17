@@ -11065,7 +11065,269 @@ INNOV IA V62 - TOTP original + selección real
 })();
 </script>
 
+
+<!-- ================================================================
+   V63 — FIX REAL BORRADO RECORDATORIOS
+   - Borrado no depende de liberar cupo
+   - Fallback a ocultar con status=deleted/cancelled si Supabase bloquea DELETE
+   - Selección visible con botón + en cada fila
+   - Seleccionar visibles y borrar lote
+   ================================================================ -->
+<style id="innov-v63-reminders-delete-css">
+  #tab-reminders .reminder-check{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:24px!important;
+    height:24px!important;
+    min-width:24px!important;
+    border-radius:999px!important;
+    border:1.5px solid var(--border)!important;
+    background:var(--card2)!important;
+    color:var(--primary)!important;
+    font-weight:900!important;
+    font-size:.8rem!important;
+    cursor:pointer!important;
+    user-select:none!important;
+  }
+  #tab-reminders .reminder-check:empty::before{content:'+';opacity:.9}
+  #tab-reminders .rem-selected .reminder-check{
+    background:var(--primary)!important;
+    border-color:var(--primary)!important;
+    color:#fff!important;
+  }
+  #tab-reminders .reminder-row.v63-deleting{
+    opacity:.55!important;
+    filter:saturate(.7)!important;
+    pointer-events:none!important;
+  }
+  #reminderBulkBar{
+    gap:8px!important;
+    align-items:center!important;
+    flex-wrap:wrap!important;
+  }
+  #reminderBulkBar.show{display:flex!important}
+  #btnV63SelectVisibleReminders,
+  #btnV63ClearSearchReminders{
+    display:inline-flex;
+  }
+  @media(max-width:800px){
+    #reminderBulkBar.show{display:grid!important;grid-template-columns:1fr 1fr!important}
+    #reminderBulkBar strong,#reminderBulkBar .help{grid-column:1/-1!important}
+    #reminderBulkBar .btn{width:100%!important}
+  }
+</style>
+<script id="innov-v63-reminders-delete-fix">
+(function(){
+  'use strict';
+  const $id=(id)=>document.getElementById(id);
+  const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
+  function v63Toast(msg,type='ok'){
+    try{ toast(msg,type); }catch(_){ alert(msg); }
+  }
+  function v63Err(e){
+    return String(e?.message||e?.details||e?.hint||e?.code||e||'Error desconocido');
+  }
+  function v63Ids(){
+    return Array.from(state?.selectedReminderIds||[]).map(String).filter(Boolean);
+  }
+  function v63VisibleIds(){
+    return Array.from(document.querySelectorAll('#remindersGrid .reminder-row[data-reminder-id]'))
+      .map(el=>String(el.getAttribute('data-reminder-id')||'').trim()).filter(Boolean);
+  }
+  function v63SetSelected(ids){
+    state.selectedReminderIds=new Set((ids||[]).map(String).filter(Boolean));
+    state.reminderSelectionMode=state.selectedReminderIds.size>0;
+    try{ renderReminders(); }catch(_){ }
+    try{ updateReminderBulkBar(); }catch(_){ v63UpdateBulkBar(); }
+  }
+  function v63Toggle(id){
+    id=String(id||'').trim(); if(!id)return;
+    state.selectedReminderIds=state.selectedReminderIds||new Set();
+    if(state.selectedReminderIds.has(id))state.selectedReminderIds.delete(id); else state.selectedReminderIds.add(id);
+    state.reminderSelectionMode=state.selectedReminderIds.size>0;
+    try{ renderReminders(); }catch(_){ }
+    try{ updateReminderBulkBar(); }catch(_){ v63UpdateBulkBar(); }
+  }
+  window.v63ToggleReminder=v63Toggle;
+  function v63UpdateBulkBar(){
+    const n=v63Ids().length;
+    const bar=$id('reminderBulkBar');
+    if(bar)bar.classList.toggle('show',n>0);
+    const count=$id('reminderBulkCount');
+    if(count)count.textContent=n+' seleccionado'+(n===1?'':'s');
+  }
+  window.updateReminderBulkBar=function(){ v63UpdateBulkBar(); };
+  try{ updateReminderBulkBar=window.updateReminderBulkBar; }catch(_){ }
+
+  function v63EnsureBulkButtons(){
+    const bar=$id('reminderBulkBar');
+    if(bar && !$id('btnV63SelectVisibleReminders')){
+      const b=document.createElement('button');
+      b.className='btn'; b.id='btnV63SelectVisibleReminders'; b.type='button';
+      b.textContent='Seleccionar visibles';
+      b.onclick=()=>{
+        const ids=v63VisibleIds();
+        if(!ids.length)return v63Toast('No hay recordatorios visibles para seleccionar','bad');
+        v63SetSelected(ids);
+      };
+      bar.insertBefore(b, $id('btnDeleteSelectedReminders')||bar.children[1]||null);
+    }
+    const actions=document.querySelector('#tab-reminders .admin-toolbar .actions');
+    if(actions && !$id('btnV63SelectFromToolbar')){
+      const b=document.createElement('button');
+      b.className='btn'; b.id='btnV63SelectFromToolbar'; b.type='button';
+      b.title='Seleccionar los resultados visibles'; b.textContent='☑️ Sel.';
+      b.onclick=()=>{
+        const ids=v63VisibleIds();
+        if(!ids.length)return v63Toast('No hay pagos visibles para seleccionar','bad');
+        v63SetSelected(ids);
+      };
+      actions.appendChild(b);
+    }
+  }
+
+  async function v63ReleaseBestEffort(reminders){
+    for(const rem of reminders||[]){
+      try{
+        if(typeof releaseStockForReminder==='function') await releaseStockForReminder(rem,'eliminado_manual');
+      }catch(e){ console.warn('V63: liberar cupo ignorado para no bloquear borrado', e); }
+    }
+  }
+  async function v63HardDelete(ids){
+    try{
+      const res=await db.from('payment_reminders').delete().in('id',ids).select('id');
+      if(res.error)return {ok:false,error:res.error,mode:'delete'};
+      if(Array.isArray(res.data) && res.data.length===0 && ids.length){
+        // Puede ocurrir por RLS. Verificamos si siguen apareciendo.
+        try{
+          const chk=await db.from('payment_reminders').select('id').in('id',ids);
+          if(!chk.error && Array.isArray(chk.data) && chk.data.length===0)return {ok:true,mode:'delete'};
+        }catch(_){ }
+        return {ok:false,error:'Supabase no devolvió filas borradas. Posible bloqueo RLS.',mode:'delete-empty'};
+      }
+      return {ok:true,mode:'delete'};
+    }catch(e){return {ok:false,error:e,mode:'delete-exception'};}
+  }
+  async function v63SoftDelete(ids){
+    const attempts=[{status:'deleted'},{status:'cancelled'},{status:'canceled'}];
+    let last=null;
+    for(const payload of attempts){
+      try{
+        const res=await db.from('payment_reminders').update(payload).in('id',ids).select('id');
+        if(!res.error)return {ok:true,mode:'soft',payload};
+        last=res.error;
+      }catch(e){last=e;}
+    }
+    return {ok:false,error:last||'No se pudo ocultar por estado',mode:'soft'};
+  }
+  async function v63DeleteReminderIds(ids, opts={}){
+    ids=Array.from(new Set((ids||[]).map(String).filter(Boolean)));
+    if(!ids.length)return v63Toast('No hay pagos seleccionados','bad');
+    const reminders=(state.reminders||[]).filter(r=>ids.includes(String(r.id)));
+    document.querySelectorAll('#remindersGrid .reminder-row[data-reminder-id]').forEach(el=>{
+      if(ids.includes(String(el.getAttribute('data-reminder-id'))))el.classList.add('v63-deleting');
+    });
+    // Liberar cupo es secundario. Nunca debe impedir borrar/ocultar el recordatorio.
+    await v63ReleaseBestEffort(reminders);
+    let res=await v63HardDelete(ids);
+    let soft=false;
+    if(!res.ok){
+      console.warn('V63 hard delete falló, usando ocultar por estado:',res);
+      const s=await v63SoftDelete(ids);
+      if(!s.ok){
+        document.querySelectorAll('.v63-deleting').forEach(el=>el.classList.remove('v63-deleting'));
+        return v63Toast('Supabase bloqueó borrar y ocultar: '+v63Err(s.error||res.error),'bad');
+      }
+      soft=true;
+    }
+    state.reminders=(state.reminders||[]).filter(r=>!ids.includes(String(r.id)));
+    state.selectedReminderIds=new Set(); state.reminderSelectionMode=false;
+    try{ renderKPIs(); }catch(_){ }
+    try{ renderClients(); }catch(_){ }
+    try{ renderReminders(); }catch(_){ }
+    try{ updateReminderBulkBar(); }catch(_){ }
+    try{ await loadReminders(); }catch(_){ }
+    try{ renderReminders(); }catch(_){ }
+    v63Toast(soft?'Pago ocultado de la lista. Ejecuta el SQL V63 para permitir borrado real.':'Pago borrado correctamente.','ok');
+  }
+  window.v63DeleteReminderIds=v63DeleteReminderIds;
+
+  window.quickDeleteReminder=async function(id){
+    id=String(id||'').trim(); if(!id)return;
+    const rem=(state.reminders||[]).find(x=>String(x.id)===id)||{};
+    if(!confirm('¿Borrar este pago de recordatorios?'))return;
+    await v63DeleteReminderIds([id]);
+  };
+  try{ quickDeleteReminder=window.quickDeleteReminder; }catch(_){ }
+
+  window.deleteReminder=async function(){
+    const id=String($id('rId')?.value||'').trim(); if(!id)return;
+    if(!confirm('¿Borrar este recordatorio?'))return;
+    await v63DeleteReminderIds([id]);
+    try{ closeDialog('dlgReminder'); }catch(_){ }
+  };
+  try{ deleteReminder=window.deleteReminder; }catch(_){ }
+
+  window.deleteSelectedReminders=async function(){
+    const ids=v63Ids();
+    if(!ids.length)return v63Toast('Primero selecciona uno o varios pagos','bad');
+    if(!confirm('¿Borrar '+ids.length+' pago(s) seleccionado(s)?'))return;
+    await v63DeleteReminderIds(ids);
+  };
+  try{ deleteSelectedReminders=window.deleteSelectedReminders; }catch(_){ }
+
+  window.cancelReminderSelection=function(){
+    state.selectedReminderIds=new Set(); state.reminderSelectionMode=false;
+    try{ renderReminders(); }catch(_){ }
+    try{ updateReminderBulkBar(); }catch(_){ }
+  };
+  try{ cancelReminderSelection=window.cancelReminderSelection; }catch(_){ }
+
+  window.startReminderSelection=function(id){ v63Toggle(id); };
+  try{ startReminderSelection=window.startReminderSelection; }catch(_){ }
+
+  window.handleReminderRowClick=function(ev,id){
+    if(ev?.target?.closest?.('button,a,input,select,textarea,label,.v48-copy'))return;
+    if(state.reminderSelectionMode)v63Toggle(id);
+  };
+  try{ handleReminderRowClick=window.handleReminderRowClick; }catch(_){ }
+
+  // Doble clic y botón + funcionen aunque el HTML tenga handlers antiguos.
+  document.addEventListener('click',function(ev){
+    const plus=ev.target.closest?.('#tab-reminders .reminder-check');
+    if(plus){
+      const row=plus.closest('.reminder-row[data-reminder-id]');
+      if(row){ ev.preventDefault(); ev.stopPropagation(); v63Toggle(row.getAttribute('data-reminder-id')); }
+    }
+  },true);
+  document.addEventListener('dblclick',function(ev){
+    const row=ev.target.closest?.('#tab-reminders .reminder-row[data-reminder-id]');
+    if(row && !ev.target.closest('button,a,input,select,textarea,label,.v48-copy')){
+      ev.preventDefault(); ev.stopPropagation(); v63Toggle(row.getAttribute('data-reminder-id'));
+    }
+  },true);
+
+  function bindButtons(){
+    v63EnsureBulkButtons();
+    const del=$id('btnDeleteSelectedReminders'); if(del)del.onclick=window.deleteSelectedReminders;
+    const cancel=$id('btnCancelReminderSelection'); if(cancel)cancel.onclick=window.cancelReminderSelection;
+    try{ updateReminderBulkBar(); }catch(_){ }
+  }
+  const oldRender=window.renderReminders;
+  window.renderReminders=function(){
+    const r=oldRender&&oldRender.apply(this,arguments);
+    setTimeout(bindButtons,0);
+    return r;
+  };
+  try{ renderReminders=window.renderReminders; }catch(_){ }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bindButtons,500));
+  else setTimeout(bindButtons,500);
+})();
+</script>
+
 </body>
 </html>
+
 
 
