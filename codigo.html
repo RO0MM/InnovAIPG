@@ -1096,40 +1096,8 @@
     return hotp(secret,counter??counterForPeriod(period),digits);
   }
 
-  function detectClientDeviceV61(){
-    const ua=navigator.userAgent||'';
-    let device_type=/ipad|tablet/i.test(ua)?'tablet':(/mobi|android|iphone|phone/i.test(ua)?'celular':'pc');
-    let os=/windows/i.test(ua)?'Windows':/android/i.test(ua)?'Android':/iphone|ipad|ios/i.test(ua)?'iOS':/mac os/i.test(ua)?'macOS':/linux/i.test(ua)?'Linux':'';
-    let browser=/edg\//i.test(ua)?'Edge':/opr\//i.test(ua)?'Opera':/chrome|crios/i.test(ua)?'Chrome':/firefox|fxios/i.test(ua)?'Firefox':/safari/i.test(ua)?'Safari':'';
-    return {device_type,os,browser,user_agent:ua,language:navigator.language||'',timezone:(Intl.DateTimeFormat().resolvedOptions().timeZone||''),screen:(screen.width+'x'+screen.height),pixel_ratio:window.devicePixelRatio||1,page_url:location.href};
-  }
-  async function fetchJsonV61(url,ms=900){
-    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),ms);
-    try{const r=await fetch(url,{signal:ctrl.signal,cache:'no-store'}); return r.ok?await r.json():null;}catch(_){return null;}finally{clearTimeout(t)}
-  }
-  let clientInfoPromiseV61=null;
-  async function collectClientInfoV61(){
-    const base=detectClientDeviceV61();
-    let ipInfo=await fetchJsonV61('https://ipapi.co/json/',1000);
-    if(!ipInfo){ const ipOnly=await fetchJsonV61('https://api.ipify.org?format=json',800); ipInfo=ipOnly?{ip:ipOnly.ip}:{}; }
-    return Object.assign(base,{ip_address:ipInfo?.ip||ipInfo?.query||'',city:ipInfo?.city||'',region:ipInfo?.region||ipInfo?.regionName||'',country:ipInfo?.country_name||ipInfo?.country||'',isp:ipInfo?.org||ipInfo?.isp||ipInfo?.asn||'',latitude:ipInfo?.latitude||ipInfo?.lat||null,longitude:ipInfo?.longitude||ipInfo?.lon||null});
-  }
-  function clientInfoFastV61(ms=650){
-    clientInfoPromiseV61=clientInfoPromiseV61||collectClientInfoV61();
-    return Promise.race([clientInfoPromiseV61,new Promise(res=>setTimeout(()=>res(detectClientDeviceV61()),ms))]);
-  }
-  clientInfoPromiseV61=collectClientInfoV61();
   async function logRedeemEventSafe(payload){
-    try{
-      const info=await clientInfoFastV61(700);
-      const r=await db.rpc('log_totp_access_event',{p_access_code:normalizeCode(payload.access_code),p_event_type:payload.event_type||'redeem',p_success:payload.success===undefined?null:!!payload.success,p_reason:payload.reason||null,p_client_info:info});
-      if(!r.error)return;
-      console.warn('Actividad RPC falló:',r.error.message||r.error);
-    }catch(e){console.warn('Actividad RPC no disponible:',e?.message||e)}
-    try{
-      const info=await clientInfoFastV61(500);
-      await db.from('totp_access_events').insert(Object.assign({},payload,{ip_address:info.ip_address||null,device_type:info.device_type||null,os:info.os||null,browser:info.browser||null,language:info.language||null,timezone:info.timezone||null,screen:info.screen||null,city:info.city||null,region:info.region||null,country:info.country||null,isp:info.isp||null,metadata:info,user_agent:info.user_agent||navigator.userAgent}));
-    }catch(_){ }
+    try{ await db.from('totp_access_events').insert(payload); }catch(_){}
   }
 
   async function redeemAccessCodeDirect(accessCode){
@@ -1221,12 +1189,10 @@
     showMsg('Validando acceso...', 'info');
 
     let data=null;
-    let usedDirectFallback=false;
     try{
       const res=await db.rpc('redeem_totp_access_code',{p_access_code:accessCode});
       if(res.error){
         console.warn('RPC redeem_totp_access_code falló. Probando respaldo directo:', res.error);
-        usedDirectFallback=true;
         data=await redeemAccessCodeDirect(accessCode);
       }else{
         data=res.data;
@@ -1234,20 +1200,15 @@
     }catch(error){
       console.error('Error validando acceso:', error);
       try{
-        usedDirectFallback=true;
         data=await redeemAccessCodeDirect(accessCode);
       }catch(fallbackError){
         console.error('Respaldo directo también falló:', fallbackError);
         $('useCodeBtn').disabled=false;
         showMsg('No se pudo validar el acceso. Contacta a soporte para revisar la conexión.', 'err');
-        logRedeemEventSafe({access_code:accessCode,event_type:'redeem',success:false,reason:'Error de conexión',created_at:new Date().toISOString()}).catch(()=>{});
         return;
       }
     }
 
-    if(!usedDirectFallback){
-      logRedeemEventSafe({access_code:accessCode,event_type:'redeem',success:!!data?.ok,reason:data?.ok?null:(data?.message||'No válido'),created_at:new Date().toISOString()}).catch(()=>{});
-    }
     if(!data?.ok){$('useCodeBtn').disabled=false;showMsg(data?.message||'Código de acceso no válido.','err');return}
     activeAccount=data.account;activeAccess=data.access;
     startWaitingForFreshCycle();
