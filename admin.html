@@ -2298,6 +2298,26 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
               <button class="btn btn-success" id="btnSaveAdminLocalSettings" type="button">Guardar ajustes</button>
             </div>
           </div>
+          <div class="card" style="border-left:4px solid var(--warning)">
+            <strong style="display:block;margin-bottom:10px">🔐 Control de cupos al borrar</strong>
+            <p class="help" style="margin:0 0 10px">Elige en qué servicios se libera cupo automáticamente cuando borras un cliente o recordatorio. Al borrar una cuenta desde <b>Cupos</b>, el recordatorio no se elimina ni se desvincula: solo se oculta la cuenta del stock.</p>
+            <label class="settings-check"><input type="checkbox" id="setReleaseCupoMaster"> <span><b>Activar liberación automática al borrar cliente/recordatorio</b><br><span class="help">Si está apagado, borrar pagos o clientes no toca ningún cupo.</span></span></label>
+            <div class="checkchips" id="releaseCupoServicesBox" style="margin-top:8px">
+              <div class="help" style="margin-bottom:6px"><b>Servicios permitidos</b></div>
+              <div class="chiprow">
+                <label class="chip check"><input type="checkbox" data-release-service="chatgpt"> ChatGPT</label>
+                <label class="chip check"><input type="checkbox" data-release-service="gemini"> Gemini</label>
+                <label class="chip check"><input type="checkbox" data-release-service="google_one"> Google One</label>
+                <label class="chip check"><input type="checkbox" data-release-service="canva"> Canva / Canvas</label>
+                <label class="chip check"><input type="checkbox" data-release-service="autodesk"> Autodesk</label>
+              </div>
+            </div>
+            <div class="sync-note" style="margin-top:10px"><b>Regla segura:</b> borrar desde Cupos nunca borra recordatorios. Borrar recordatorios solo libera cupo si el servicio está activado arriba.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+              <button class="btn btn-success" id="btnSaveReleaseCupoSettings" type="button">Guardar control de cupos</button>
+              <button class="btn" id="btnResetReleaseCupoSettings" type="button">Restaurar recomendado</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -11324,10 +11344,220 @@ INNOV IA V62 - TOTP original + selección real
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bindButtons,500));
   else setTimeout(bindButtons,500);
 })();
+
+
+/* ================================================================
+   V64 — Control seguro de cupos al borrar + stock desacoplado
+   ================================================================ */
+(function(){
+  const RELEASE_KEY='innov_release_cupo_settings_v64';
+  const DEFAULT_RELEASE={enabled:true,services:{chatgpt:true,gemini:true,google_one:true,canva:true,autodesk:true}};
+  const q=id=>document.getElementById(id);
+  const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+  function clone(o){try{return JSON.parse(JSON.stringify(o||{}));}catch(_){return {...(o||{})};}}
+  function releaseSettings(){
+    try{
+      const saved=JSON.parse(localStorage.getItem(RELEASE_KEY)||'{}');
+      return {enabled:saved.enabled!==false,services:{...DEFAULT_RELEASE.services,...(saved.services||{})}};
+    }catch(_){return clone(DEFAULT_RELEASE);}
+  }
+  function saveReleaseSettingsFromUI(){
+    const cfg={enabled:!!q('setReleaseCupoMaster')?.checked,services:{}};
+    document.querySelectorAll('[data-release-service]').forEach(i=>{cfg.services[i.dataset.releaseService]=!!i.checked;});
+    localStorage.setItem(RELEASE_KEY,JSON.stringify(cfg));
+    try{toast('Control de cupos guardado','ok');}catch(_){alert('Control de cupos guardado');}
+  }
+  function resetReleaseSettings(){
+    localStorage.setItem(RELEASE_KEY,JSON.stringify(DEFAULT_RELEASE));
+    paintReleaseSettings();
+    try{toast('Regla recomendada restaurada','ok');}catch(_){alert('Regla recomendada restaurada');}
+  }
+  function paintReleaseSettings(){
+    const cfg=releaseSettings();
+    if(q('setReleaseCupoMaster'))q('setReleaseCupoMaster').checked=cfg.enabled!==false;
+    document.querySelectorAll('[data-release-service]').forEach(i=>{i.checked=!!cfg.services[i.dataset.releaseService];});
+  }
+  window.getReleaseCupoSettings=releaseSettings;
+  window.paintReleaseCupoSettings=paintReleaseSettings;
+
+  const oldRenderSettings=window.renderSettings;
+  window.renderSettings=function(){
+    if(typeof oldRenderSettings==='function')oldRenderSettings.apply(this,arguments);
+    paintReleaseSettings();
+  };
+  try{renderSettings=window.renderSettings;}catch(_){ }
+
+  function serviceKeyMatchesText(text){
+    const t=norm(text);
+    const keys=[];
+    if(/chat\s*gpt|chatgpt|openai|gpt/.test(t))keys.push('chatgpt');
+    if(/gemini|google\s*ai/.test(t))keys.push('gemini');
+    if(/google\s*one|googleone|1\s*tb|2\s*tb|5\s*tb|drive\s*google/.test(t))keys.push('google_one');
+    if(/canva|canvas/.test(t))keys.push('canva');
+    if(/autodesk|autocad|revit|fusion\s*360|maya|inventor/.test(t))keys.push('autodesk');
+    return [...new Set(keys)];
+  }
+  function planText(planId){
+    try{
+      const p=(state.plans||[]).find(x=>String(x.id)===String(planId))||{};
+      const prod=(state.products||[]).find(x=>String(x.id)===String(p.product_id))||{};
+      return [prod.name,p.name,p.period,p.description].filter(Boolean).join(' ');
+    }catch(_){return '';}
+  }
+  function stockTextForReminder(rem){
+    try{
+      const link=typeof findLinkedStockForReminder==='function'?findLinkedStockForReminder(rem):null;
+      const item=link?.item||{}; const d=typeof opsSecret==='function'?opsSecret(item):{};
+      return [item.title,item.notes,planText(item.plan_id),d.correo,d.email,d.usuario,d.family_admin_email,d.correo_admin,d.service,d.servicio].filter(Boolean).join(' ');
+    }catch(_){return '';}
+  }
+  function shouldReleaseForReminder(rem){
+    const cfg=releaseSettings();
+    if(cfg.enabled===false)return false;
+    const c=(state.customers||[]).find(x=>String(x.id)===String(rem?.customer_id))||{};
+    const text=[rem?.service_name, rem?.notes, planText(rem?.plan_id), c.name, c.email, stockTextForReminder(rem)].filter(Boolean).join(' ');
+    const keys=serviceKeyMatchesText(text);
+    return keys.some(k=>cfg.services[k]);
+  }
+  window.shouldReleaseCupoForReminder=shouldReleaseForReminder;
+
+  async function releaseAllowedReminder(rem,reason){
+    if(!rem)return {ok:true,skipped:true};
+    if(!shouldReleaseForReminder(rem))return {ok:true,skipped:true,not_allowed:true};
+    try{
+      if(typeof releaseStockForReminder==='function')return await releaseStockForReminder(rem,reason||'liberado');
+    }catch(e){return {ok:false,error:e?.message||String(e)}}
+    return {ok:true,skipped:true,no_release_function:true};
+  }
+  async function releaseAllowedList(list,reason){
+    let freed=0, skipped=0;
+    for(const r of (list||[])){
+      const res=await releaseAllowedReminder(r,reason);
+      if(res?.stock_id)freed++; else skipped++;
+      if(res&&!res.ok)console.warn('releaseAllowedReminder',res.error);
+    }
+    return {freed,skipped};
+  }
+
+  async function hardDeleteReminders(ids){
+    try{
+      const res=await db.from('payment_reminders').delete().in('id',ids).select('id');
+      if(res.error)return {ok:false,error:res.error};
+      return {ok:true,ids:(res.data||[]).map(x=>String(x.id))};
+    }catch(e){return {ok:false,error:e};}
+  }
+  async function softDeleteReminders(ids){
+    for(const status of ['deleted','cancelled','canceled']){
+      try{
+        const res=await db.from('payment_reminders').update({status}).in('id',ids).select('id');
+        if(!res.error)return {ok:true,status};
+      }catch(_){ }
+    }
+    return {ok:false};
+  }
+  function errMsg(e){return e?.message||e?.details||e?.hint||String(e||'error desconocido');}
+  async function deleteReminderIdsV64(ids){
+    ids=[...new Set((ids||[]).map(String).filter(Boolean))];
+    if(!ids.length)return toast('No hay pagos seleccionados','bad');
+    const reminders=(state.reminders||[]).filter(r=>ids.includes(String(r.id)));
+    const rel=await releaseAllowedList(reminders,'eliminado_manual');
+    let res=await hardDeleteReminders(ids), soft=false;
+    if(!res.ok){
+      console.warn('Delete real bloqueado. Intentando ocultar:',res.error);
+      const s=await softDeleteReminders(ids);
+      if(!s.ok)return toast('Supabase bloqueó borrar/ocultar: '+errMsg(res.error),'bad');
+      soft=true;
+    }
+    state.reminders=(state.reminders||[]).filter(r=>!ids.includes(String(r.id)));
+    state.selectedReminderIds=new Set(); state.reminderSelectionMode=false;
+    try{await loadReminders();}catch(_){ }
+    try{renderReminders();}catch(_){ }
+    try{renderKPIs();}catch(_){ }
+    const suffix=rel.freed?` ${rel.freed} cupo(s) liberado(s).`:' No se tocó cupo.';
+    toast((soft?'Pago ocultado.':'Pago borrado.')+suffix,'ok');
+  }
+  window.deleteReminderIdsV64=deleteReminderIdsV64;
+  window.quickDeleteReminder=async function(id){
+    if(!confirm('¿Borrar este pago?'))return;
+    await deleteReminderIdsV64([id]);
+  };
+  window.deleteReminder=async function(){
+    const id=String(q('rId')?.value||'').trim(); if(!id)return;
+    if(!confirm('¿Borrar este recordatorio?'))return;
+    await deleteReminderIdsV64([id]);
+    try{closeDialog('dlgReminder');}catch(_){ }
+  };
+  window.deleteSelectedReminders=async function(){
+    const ids=[...(state.selectedReminderIds||new Set())];
+    if(!ids.length)return toast('Primero selecciona uno o varios pagos','bad');
+    if(!confirm('¿Borrar '+ids.length+' pago(s) seleccionado(s)?'))return;
+    await deleteReminderIdsV64(ids);
+  };
+  try{quickDeleteReminder=window.quickDeleteReminder;deleteReminder=window.deleteReminder;deleteSelectedReminders=window.deleteSelectedReminders;}catch(_){ }
+
+  // Cliente: libera cupos únicamente según la lista blanca configurada.
+  window.quickDeleteClient=async function(id){
+    const c=(state.customers||[]).find(x=>String(x.id)===String(id))||{};
+    if(!confirm('¿Eliminar cliente "'+(c.name||'')+'"? Los recordatorios pueden quedar sin cliente según Supabase.'))return;
+    const rel=await releaseAllowedList((state.reminders||[]).filter(r=>String(r.customer_id)===String(id)),'cliente_eliminado');
+    const r=await db.from('crm_customers').delete().eq('id',id);
+    if(r.error)return toast(r.error.message,'bad');
+    toast('Cliente eliminado.'+(rel.freed?` ${rel.freed} cupo(s) liberado(s).`:' No se tocó cupo.'),'ok');
+    await loadAll();switchTab('reminders');
+  };
+  window.deleteClient=async function(){
+    const id=String(q('cId')?.value||'').trim(); if(!id)return;
+    const c=(state.customers||[]).find(x=>String(x.id)===String(id))||{};
+    if(!confirm('¿Eliminar cliente "'+(c.name||'')+'"?'))return;
+    const rel=await releaseAllowedList((state.reminders||[]).filter(r=>String(r.customer_id)===String(id)),'cliente_eliminado');
+    const r=await db.from('crm_customers').delete().eq('id',id);
+    if(r.error)return toast(r.error.message,'bad');
+    try{closeDialog('dlgClient');}catch(_){ }
+    toast('Cliente eliminado.'+(rel.freed?` ${rel.freed} cupo(s) liberado(s).`:' No se tocó cupo.'),'ok');
+    await loadAll();switchTab('reminders');
+  };
+  try{quickDeleteClient=window.quickDeleteClient;deleteClient=window.deleteClient;}catch(_){ }
+
+  // Cupos: borrar desde Cupos NO borra ni modifica recordatorios. Solo archiva la cuenta/cupo.
+  function archivePayloadForStock(x){
+    const d=typeof opsSecret==='function'?{...opsSecret(x)}:{};
+    d.archived=true; d.deleted=true; d.hidden=true; d.deleted_at=new Date().toISOString(); d.delete_mode='stock_only_keep_reminders';
+    return {secret_data:d,status:(typeof stockDbStatus==='function'?stockDbStatus('used'):'used'),used_count:Math.max(Number(d.used_count||x.used_count||0),0)};
+  }
+  async function archiveStockOnly(id){
+    const x=(state.stock||[]).find(s=>String(s.id)===String(id))||{};
+    const payload=archivePayloadForStock(x);
+    const r=await db.from('stock_items').update(payload).eq('id',id);
+    if(r.error)return {ok:false,error:r.error.message};
+    return {ok:true};
+  }
+  window.quickDeleteOpsStock=async function(id){
+    if(!confirm('¿Ocultar esta cuenta/cupo? Los recordatorios vinculados NO se borrarán.'))return;
+    const r=await archiveStockOnly(id);
+    if(!r.ok)return toast('No se pudo ocultar: '+r.error,'bad');
+    toast('Cuenta/cupo ocultado. Recordatorios conservados.','ok');
+    await loadAll(); if(q('dlgPlanStockView')?.open)renderPlanStockView(); else try{renderPlans();}catch(_){ }
+  };
+  window.deleteSelectedStock=async function(){
+    const ids=[...(state.selectedStockIds||new Set())];
+    if(!ids.length)return toast('Selecciona cuentas/cupos primero','bad');
+    if(!confirm('¿Ocultar '+ids.length+' cuenta(s)/cupo(s)? Los recordatorios vinculados NO se borrarán.'))return;
+    let ok=0, fail=0;
+    for(const id of ids){const r=await archiveStockOnly(id); if(r.ok)ok++; else fail++;}
+    state.stockSelectionMode=false; state.selectedStockIds=new Set();
+    toast(ok+' cuenta(s) ocultada(s). '+(fail?fail+' falló/fallaron.':'Recordatorios conservados.'), fail?'bad':'ok');
+    await loadAll(); if(q('dlgPlanStockView')?.open)renderPlanStockView();
+  };
+  try{quickDeleteOpsStock=window.quickDeleteOpsStock;deleteSelectedStock=window.deleteSelectedStock;}catch(_){ }
+
+  document.addEventListener('click',function(ev){
+    if(ev.target?.id==='btnSaveReleaseCupoSettings'){ev.preventDefault();saveReleaseSettingsFromUI();}
+    if(ev.target?.id==='btnResetReleaseCupoSettings'){ev.preventDefault();resetReleaseSettings();}
+  });
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(paintReleaseSettings,300));
+  else setTimeout(paintReleaseSettings,300);
+})();
 </script>
 
 </body>
 </html>
-
-
-
