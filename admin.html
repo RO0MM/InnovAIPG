@@ -11522,7 +11522,7 @@ INNOV IA V62 - TOTP original + selección real
   function archivePayloadForStock(x){
     const d=typeof opsSecret==='function'?{...opsSecret(x)}:{};
     d.archived=true; d.deleted=true; d.hidden=true; d.deleted_at=new Date().toISOString(); d.delete_mode='stock_only_keep_reminders';
-    return {secret_data:d,status:(typeof stockDbStatus==='function'?stockDbStatus('used'):'used'),used_count:Math.max(Number(d.used_count||x.used_count||0),0)};
+    return {secret_data:d,status:stockDbStatus?stockDbStatus('used'):'used',used_count:Math.max(Number(d.used_count||x.used_count||0),0)};
   }
   async function archiveStockOnly(id){
     const x=(state.stock||[]).find(s=>String(s.id)===String(id))||{};
@@ -11559,5 +11559,869 @@ INNOV IA V62 - TOTP original + selección real
 })();
 </script>
 
+
+
+<!-- ================================================================
+   V65 — Reparación real de cupos fantasma + borrado robusto
+   - Los cupos usados se calculan también desde clientes activos vinculados.
+   - Si un plan tiene cuentas cargadas, ya NO usa el resumen RPC cuando el cálculo local da 0.
+   - Cuentas archivadas/ocultas no aparecen ni cuentan como libres.
+   - Borrado de recordatorios usa RPC seguro si existe y fallback local.
+   ================================================================ -->
+<style id="innov-v65-cupos-delete-css">
+  .v65-warning-line{border-left:3px solid var(--warning);background:var(--warning-alpha);border-radius:10px;padding:7px 9px;margin-top:6px;font-size:.78rem;color:var(--warning);font-weight:800}
+  .v65-ghost-line{border-left:3px solid var(--danger);background:var(--danger-alpha);border-radius:10px;padding:7px 9px;margin-top:6px;font-size:.78rem;color:var(--danger);font-weight:800}
+  #btnV65RepairCupos{display:inline-flex}
+  @media(max-width:800px){#btnV65RepairCupos{width:100%;}}
+</style>
+<script id="innov-v65-cupos-delete-fix">
+(function(){
+  'use strict';
+  if(window.__innovV65CuposDeleteFix)return;
+  window.__innovV65CuposDeleteFix=true;
+  const $id=id=>document.getElementById(id);
+  const asArr=x=>Array.isArray(x)?x:[];
+  const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const toastSafe=(m,t='ok')=>{try{toast(m,t)}catch(_){console.log(m)}};
+  const digits=v=>String(v||'').replace(/\D+/g,'');
+  const escSafe=s=>{try{return esc(s)}catch(_){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}};
+
+  function secret(x){try{return typeof opsSecret==='function'?opsSecret(x):((x&&typeof x.secret_data==='object')?x.secret_data:{})}catch(_){return {}}}
+  function isArchivedStock(x){
+    const d=secret(x);
+    const st=norm(x?.status);
+    return d.archived===true||d.archived==='true'||d.deleted===true||d.deleted==='true'||d.hidden===true||d.hidden==='true'||['archived','deleted','hidden','eliminado','oculto'].includes(st);
+  }
+  window.isArchivedStockV65=isArchivedStock;
+  function stockPlanId(x){return String(x?.plan_id||'')}
+  function stockEmail(x){const d=secret(x);return norm(d.family_admin_email||d.correo_admin||d.correo||d.email||d.usuario||x?.title||'')}
+  function customerOfReminder(r){return (state.customers||[]).find(c=>String(c.id)===String(r?.customer_id))||{};}
+  function reminderOpen(r){
+    try{return reminderIsOpen(r)}catch(_){
+      const st=norm(r?.status||'pending');
+      return !/(paid|pagado|renew|renov|cancel|deleted|eliminado|borrado|no_renov|archiv)/.test(st);
+    }
+  }
+  function reminderEmail(r){
+    const c=customerOfReminder(r);
+    const snap=(r?.linked_account_snapshot&&typeof r.linked_account_snapshot==='object')?r.linked_account_snapshot:{};
+    return norm(r?.linked_account_email||snap.family_admin_email||snap.correo_admin||snap.correo||snap.email||snap.usuario||'');
+  }
+  function reminderPhone(r){const c=customerOfReminder(r);return digits(c.phone_e164||c.phone_raw||r?.customer_phone||'')}
+  function historyMatch(item,r){
+    const d=secret(item); const hist=asArr(d.history);
+    if(!hist.length)return false;
+    const rp=reminderPhone(r);
+    return hist.some(h=>{
+      if(r?.id && String(h.reminder_id||'')===String(r.id))return true;
+      if(r?.order_id && String(h.order_id||'')===String(r.order_id))return true;
+      if(r?.order_item_id && String(h.order_item_id||'')===String(r.order_item_id))return true;
+      if(rp && digits(h.customer_phone||h.phone||'')===rp)return true;
+      return false;
+    });
+  }
+  function linkedRemindersForStockV65(item){
+    if(!item||isArchivedStock(item))return [];
+    const itemId=String(item.id||''), planId=stockPlanId(item), email=stockEmail(item);
+    const all=(state.reminders||[]).filter(reminderOpen);
+    const candidates=all.filter(r=>{
+      if(String(r.stock_item_id||'') && String(r.stock_item_id)===itemId)return true;
+      if(planId && r.plan_id && String(r.plan_id)!==planId)return false;
+      if(historyMatch(item,r))return true;
+      const re=reminderEmail(r);
+      if(email && re && email===re){
+        const same=(state.stock||[]).filter(s=>!isArchivedStock(s)&&stockPlanId(s)===planId&&stockEmail(s)===email);
+        if(same.length<=1)return true;
+      }
+      return false;
+    });
+    const seen=new Set();
+    return candidates.filter(r=>{const k=String(r.id||`${r.customer_id}|${r.plan_id}|${r.due_date}|${r.service_name}`);if(seen.has(k))return false;seen.add(k);return true;});
+  }
+  window.linkedRemindersForStockV65=linkedRemindersForStockV65;
+  window.activeLinkedRemindersForStock=function(item){return linkedRemindersForStockV65(item)};
+
+  function rawUsed(x){const d=secret(x);return Math.max(0,Number(d.used_count||x?.used_count||0)||0)}
+  function maxUses(x){const d=secret(x);return Math.max(1,Number(d.max_uses||x?.max_uses||1)||1)}
+  function effectiveUsed(x){return isArchivedStock(x)?maxUses(x):Math.min(maxUses(x),Math.max(rawUsed(x),linkedRemindersForStockV65(x).length));}
+  function remaining(x){return Math.max(0,maxUses(x)-effectiveUsed(x));}
+  window.stockUsedCount=function(x){return effectiveUsed(x)};
+  window.stockMaxUses=function(x){return maxUses(x)};
+  window.stockRemainingUses=function(x){return remaining(x)};
+  try{stockUsedCount=window.stockUsedCount;stockMaxUses=window.stockMaxUses;stockRemainingUses=window.stockRemainingUses}catch(_){ }
+
+  window.opsAvailableStatus=function(x){
+    if(!x)return 'hidden';
+    if(isArchivedStock(x))return 'hidden';
+    const d=secret(x); const raw=norm(x.status||'available');
+    if(effectiveUsed(x)>=maxUses(x))return 'used';
+    if(d.reserved_at||d.reserved_for||raw==='reserved')return 'reserved';
+    if(['used','delivered','usado','agotado'].includes(raw))return 'used';
+    return 'available';
+  };
+  try{opsAvailableStatus=window.opsAvailableStatus}catch(_){ }
+  function isAccount(x){try{return opsIsAccount(x)}catch(_){const d=secret(x);return String(x?.stock_type||'').toLowerCase()==='account'||!!d.correo||!!d.usuario||!!d.clave}}
+  function isDeliverable(x){return !!x && !isArchivedStock(x) && isAccount(x) && window.opsAvailableStatus(x)==='available' && remaining(x)>0;}
+  window.stockIsDeliverable=window.isDeliverableStock=isDeliverable;
+  function availableStockForPlanV65(planId){
+    return (state.stock||[]).filter(x=>String(x.plan_id)===String(planId)&&isDeliverable(x)).sort((a,b)=>{
+      if(effectiveUsed(a)!==effectiveUsed(b))return effectiveUsed(b)-effectiveUsed(a);
+      return String(a.created_at||'').localeCompare(String(b.created_at||''));
+    });
+  }
+  window.availableStockForPlan=availableStockForPlanV65;
+  window.firstAvailableStockForPlan=function(planId){return availableStockForPlanV65(planId)[0]||null};
+  window.visibleStock=function(pl){
+    const planId=typeof pl==='string'?pl:pl?.id; if(!planId)return 0;
+    const items=(state.stock||[]).filter(x=>String(x.plan_id)===String(planId)&&!isArchivedStock(x)&&isAccount(x));
+    if(items.length)return items.reduce((a,x)=>a+remaining(x),0);
+    const p=typeof pl==='string'?(typeof plan==='function'?plan(planId):{}):pl;
+    if((p?.stock_mode||'')==='manual')return Number(p.manual_stock_count||0);
+    const s=(state.summary||[]).find(x=>String(x.plan_id)===String(planId));
+    const rpcVal=Number(s?.available_stock||0);
+    return Number.isFinite(rpcVal)?rpcVal:0;
+  };
+  try{availableStockForPlan=window.availableStockForPlan;firstAvailableStockForPlan=window.firstAvailableStockForPlan;visibleStock=window.visibleStock}catch(_){ }
+
+  const oldPlanStockFilteredRows=window.planStockFilteredRows;
+  window.planStockFilteredRows=function(){
+    const rows=typeof oldPlanStockFilteredRows==='function'?oldPlanStockFilteredRows():[];
+    return rows.filter(x=>!isArchivedStock(x));
+  };
+  try{planStockFilteredRows=window.planStockFilteredRows}catch(_){ }
+
+  const oldCompact=window.compactHistoryHtml||null;
+  window.compactHistoryHtml=function(item){
+    const active=linkedRemindersForStockV65(item);
+    if(!active.length)return '<div class="plan-stock-sub"><b>Clientes activos vinculados:</b> ninguno.</div>';
+    const lines=active.map(r=>{
+      const c=customerOfReminder(r);
+      const name=c.name||r.customer_name||'Cliente';
+      const phone=c.phone_e164||c.phone_raw||r.customer_phone||'';
+      return `<span>• ${escSafe(name)}${phone?' · '+escSafe(phone):''} · vence ${escSafe(r.due_date||'—')} · En uso</span>`;
+    }).join('');
+    return `<div class="plan-stock-sub"><b>Clientes activos vinculados (${active.length}):</b><div style="display:grid;gap:3px;margin-top:4px">${lines}</div></div>`;
+  };
+  try{compactHistoryHtml=window.compactHistoryHtml}catch(_){ }
+
+  // Render de Cupos corregido: cuenta los clientes vinculados como usos reales.
+  const baseRenderPlanStockView=window.renderPlanStockView;
+  window.renderPlanStockView=function(){
+    if(typeof baseRenderPlanStockView==='function')baseRenderPlanStockView.apply(this,arguments);
+    document.querySelectorAll('#planStockList .plan-stock-row').forEach(row=>{
+      const m=row.innerHTML.match(/(?:quickDeleteOpsStock|viewStockHistory|restoreStockAvailable)\('([^']+)'\)/);
+      const id=m?m[1]:''; const item=(state.stock||[]).find(s=>String(s.id)===String(id));
+      if(!item)return;
+      const active=linkedRemindersForStockV65(item).length;
+      const d=secret(item), max=maxUses(item), used=effectiveUsed(item), left=remaining(item);
+      const line=row.querySelector('.plan-stock-sub');
+      if(line){
+        line.innerHTML=line.innerHTML.replace(/Usos\s*\d+\s*\/\s*\d+/,'Usos '+used+'/'+max).replace(/>\d+\s+libres</,'>'+left+' libres<');
+        if(active && rawUsed(item)<active && !line.querySelector('.v65-warning-line')){
+          const warn=document.createElement('div');warn.className='v65-warning-line';warn.textContent='⚠️ Cupo corregido por cliente activo vinculado';line.appendChild(warn);
+        }
+      }
+    });
+  };
+  try{renderPlanStockView=window.renderPlanStockView}catch(_){ }
+
+  // Ocultar stock archivado en la pestaña Cupos normal.
+  const oldRenderOps=window.renderOps;
+  window.renderOps=function(){
+    const original=state.stock;
+    state.stock=(original||[]).filter(x=>!isArchivedStock(x));
+    try{return oldRenderOps&&oldRenderOps.apply(this,arguments)}finally{state.stock=original;}
+  };
+  try{renderOps=window.renderOps}catch(_){ }
+
+  // Reparación rápida visible: sincroniza used_count con clientes activos vinculados.
+  async function repairVisibleCuposV65(){
+    const items=(state.stock||[]).filter(x=>!isArchivedStock(x)&&isAccount(x));
+    let changed=0, fail=0;
+    for(const x of items){
+      const active=linkedRemindersForStockV65(x).length;
+      if(active>rawUsed(x)){
+        const d={...secret(x)}; d.used_count=Math.min(maxUses(x),active); d.v65_repaired_at=new Date().toISOString();
+        const r=await db.from('stock_items').update({secret_data:d}).eq('id',x.id);
+        if(r.error)fail++; else {changed++; Object.assign(x,{secret_data:d});}
+      }
+    }
+    toastSafe(`Cupos revisados: ${changed} corregido(s)`+(fail?`, ${fail} falló/fallaron`:''),fail?'bad':'ok');
+    try{await loadAll()}catch(_){ }
+    try{renderPlans();renderOps();if($id('dlgPlanStockView')?.open)renderPlanStockView();}catch(_){ }
+  }
+  window.repairVisibleCuposV65=repairVisibleCuposV65;
+  function addRepairButton(){
+    const actions=document.querySelector('#tab-inventory .admin-toolbar .actions')||document.querySelector('#tab-ops .admin-toolbar .actions')||document.querySelector('.admin-toolbar .actions');
+    if(actions&&!$id('btnV65RepairCupos')){
+      const b=document.createElement('button'); b.id='btnV65RepairCupos'; b.type='button'; b.className='btn btn-warning'; b.textContent='🧹 Reparar cupos'; b.onclick=repairVisibleCuposV65; actions.appendChild(b);
+    }
+  }
+
+  // Borrado de recordatorios robusto: RPC seguro > delete directo > ocultar por estado.
+  function deleteStatusVisible(r){return /(deleted|eliminado|borrado|cancelled|canceled|cancelado)/i.test(String(r?.status||''));}
+  const oldLoadReminders=window.loadReminders||loadReminders;
+  window.loadReminders=loadReminders=async function(){
+    const res=await db.from('payment_reminders').select('*').order('due_date',{ascending:true}).limit(2000);
+    if(res.error)throw res.error;
+    state.reminders=(res.data||[]).filter(r=>!deleteStatusVisible(r));
+  };
+  async function rpcDelete(ids){
+    try{
+      const r=await db.rpc('admin_delete_payment_reminders_safe',{p_ids:ids});
+      if(r.error)return {ok:false,error:r.error};
+      return {ok:true,mode:'rpc'};
+    }catch(e){return {ok:false,error:e};}
+  }
+  async function directDelete(ids){
+    try{const r=await db.from('payment_reminders').delete().in('id',ids); if(r.error)return {ok:false,error:r.error}; return {ok:true,mode:'delete'};}catch(e){return {ok:false,error:e};}
+  }
+  async function softHide(ids){
+    try{const r=await db.from('payment_reminders').update({status:'deleted'}).in('id',ids); if(r.error)return {ok:false,error:r.error}; return {ok:true,mode:'hide'};}catch(e){return {ok:false,error:e};}
+  }
+  async function deleteReminderIdsV65(ids){
+    ids=[...new Set((ids||[]).map(String).filter(Boolean))]; if(!ids.length)return toastSafe('No hay recordatorios seleccionados','bad');
+    const reminders=(state.reminders||[]).filter(r=>ids.includes(String(r.id)));
+    // liberar cupo solo según ajustes V64, nunca bloquea el borrado
+    try{ if(typeof releaseAllowedList==='function') await releaseAllowedList(reminders,'eliminado_manual'); }catch(e){console.warn('releaseAllowedList ignored',e)}
+    let res=await rpcDelete(ids);
+    if(!res.ok)res=await directDelete(ids);
+    if(!res.ok)res=await softHide(ids);
+    if(!res.ok)return toastSafe('No se pudo borrar/ocultar. Ejecuta el SQL V65: '+(res.error?.message||res.error||''),'bad');
+    state.reminders=(state.reminders||[]).filter(r=>!ids.includes(String(r.id)));
+    state.selectedReminderIds=new Set(); state.reminderSelectionMode=false;
+    try{await window.loadReminders()}catch(_){ }
+    try{renderKPIs();renderClients();renderReminders();updateReminderBulkBar?.()}catch(_){ }
+    toastSafe(res.mode==='rpc'?'Recordatorio borrado por Supabase seguro.':res.mode==='hide'?'Recordatorio ocultado de la lista.':'Recordatorio borrado.','ok');
+  }
+  window.deleteReminderIdsV65=deleteReminderIdsV65;
+  window.quickDeleteReminder=async function(id){if(!confirm('¿Borrar este recordatorio?'))return;await deleteReminderIdsV65([id]);};
+  window.deleteReminder=async function(){const id=String($id('rId')?.value||'').trim(); if(!id)return;if(!confirm('¿Borrar este recordatorio?'))return;await deleteReminderIdsV65([id]);try{closeDialog('dlgReminder')}catch(_){ }};
+  window.deleteSelectedReminders=async function(){const ids=[...(state.selectedReminderIds||new Set())]; if(!ids.length)return toastSafe('Selecciona uno o varios recordatorios','bad'); if(!confirm('¿Borrar '+ids.length+' recordatorio(s)?'))return; await deleteReminderIdsV65(ids);};
+  try{quickDeleteReminder=window.quickDeleteReminder;deleteReminder=window.deleteReminder;deleteSelectedReminders=window.deleteSelectedReminders}catch(_){ }
+
+  // Stock: archivar de verdad sin contar como libre.
+  async function archiveStockV65(ids){
+    ids=[...new Set((ids||[]).map(String).filter(Boolean))]; if(!ids.length)return;
+    let ok=0, fail=0;
+    for(const id of ids){
+      const x=(state.stock||[]).find(s=>String(s.id)===String(id))||{};
+      const d={...secret(x)}; d.archived=true; d.deleted=true; d.hidden=true; d.deleted_at=new Date().toISOString(); d.delete_mode='stock_only_keep_reminders'; d.used_count=maxUses(x);
+      let r=null;
+      try{r=await db.rpc('admin_archive_stock_items_safe',{p_ids:[id]});}catch(_){r={error:true}}
+      if(r?.error){ const u=await db.from('stock_items').update({secret_data:d}).eq('id',id); if(u.error)fail++; else ok++; }
+      else ok++;
+    }
+    toastSafe(ok+' cuenta(s) ocultada(s)'+(fail?`, ${fail} falló/fallaron`:''),fail?'bad':'ok');
+    state.stock=(state.stock||[]).filter(s=>!ids.includes(String(s.id)));
+    try{await loadAll()}catch(_){ }
+    try{renderPlans();renderOps();if($id('dlgPlanStockView')?.open)renderPlanStockView();}catch(_){ }
+  }
+  window.quickDeleteOpsStock=async function(id){if(!confirm('¿Ocultar esta cuenta/cupo? Los recordatorios vinculados se conservan.'))return;await archiveStockV65([id]);};
+  window.deleteSelectedStock=async function(){const ids=[...(state.selectedStockIds||new Set())]; if(!ids.length)return toastSafe('Selecciona cuentas/cupos','bad'); if(!confirm('¿Ocultar '+ids.length+' cuenta(s)/cupo(s)?'))return; await archiveStockV65(ids); state.selectedStockIds=new Set(); state.stockSelectionMode=false;};
+  try{quickDeleteOpsStock=window.quickDeleteOpsStock;deleteSelectedStock=window.deleteSelectedStock}catch(_){ }
+
+  const oldRenderReminders=window.renderReminders;
+  window.renderReminders=function(){
+    const original=state.reminders;
+    state.reminders=(original||[]).filter(r=>!deleteStatusVisible(r));
+    try{return oldRenderReminders&&oldRenderReminders.apply(this,arguments)}finally{state.reminders=original; setTimeout(addRepairButton,0);}
+  };
+  try{renderReminders=window.renderReminders}catch(_){ }
+  const oldRenderPlans=window.renderPlans;
+  if(typeof oldRenderPlans==='function'){
+    window.renderPlans=function(){const r=oldRenderPlans.apply(this,arguments);setTimeout(addRepairButton,0);return r;};
+    try{renderPlans=window.renderPlans}catch(_){ }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(addRepairButton,600)); else setTimeout(addRepairButton,600);
+})();
+</script>
+
+<!-- ================================================================
+   V66 — FIX DEFINITIVO: borrado real, sin auto-recrear y cupos reales
+   - Desactiva creación automática silenciosa de recordatorios faltantes.
+   - Borrado usa RPC V66, verifica si realmente desapareció y usa tumba local si Supabase bloquea.
+   - Cupos descuentan por used_count, historial activo y recordatorios vinculados.
+   ================================================================ -->
+<style id="innov-v66-fix-css">
+  .v66-used-warning{display:block;margin-top:5px;border-left:3px solid var(--warning);background:var(--warning-alpha);color:var(--warning);font-size:.74rem;font-weight:900;border-radius:9px;padding:5px 7px}
+  .v66-linked-list{display:grid;gap:3px;margin-top:5px;color:var(--muted);font-size:.78rem;line-height:1.25}
+  .v66-linked-list b{color:var(--card-ink)}
+  .v66-bulk-note{border-left:3px solid var(--danger);background:var(--danger-alpha);color:var(--danger);font-size:.8rem;font-weight:800;border-radius:10px;padding:7px 9px;margin:8px 0}
+  #v52FixPageReminders{background:var(--warning-alpha)!important;color:var(--warning)!important;border-color:rgba(180,83,9,.25)!important}
+</style>
+<script id="innov-v66-final-delete-stock-fix">
+(function(){
+  'use strict';
+  if(window.__innovV66FinalFix)return;
+  window.__innovV66FinalFix=true;
+
+  const $id=id=>document.getElementById(id);
+  const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const digits=v=>String(v||'').replace(/\D+/g,'');
+  const toastSafe=(m,t='ok')=>{try{toast(m,t)}catch(_){console.log(m)}};
+  const escSafe=s=>{try{return esc(s)}catch(_){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}};
+  const TOMBSTONE_KEY='innov_v66_deleted_payment_reminders';
+
+  function getTombs(){try{return new Set(JSON.parse(localStorage.getItem(TOMBSTONE_KEY)||'[]').map(String))}catch(_){return new Set()}}
+  function saveTombs(set){try{localStorage.setItem(TOMBSTONE_KEY,JSON.stringify([...set].slice(-5000)))}catch(_){}}
+  function addTombs(ids){const s=getTombs();ids.map(String).filter(Boolean).forEach(id=>s.add(id));saveTombs(s)}
+  function isDeletedReminderRow(r){
+    const st=norm(r?.status||'');
+    return getTombs().has(String(r?.id||'')) || /(deleted|delete|eliminado|borrado|cancelled|canceled|cancelado|removed|oculto)/.test(st);
+  }
+  window.v66IsDeletedReminderRow=isDeletedReminderRow;
+
+  // 1) Evitar que el sistema regenere pagos borrados de forma silenciosa.
+  const oldSyncAll=window.innovV52SyncAllPageReminders;
+  window.innovV52SyncAllPageReminders=async function(opts={}){
+    if(opts && opts.silent){return 0;}
+    if(!confirm('Esto creará recordatorios faltantes desde pagos liberados. ¿Deseas continuar?'))return 0;
+    if(typeof oldSyncAll==='function')return await oldSyncAll.call(this,{...opts,silent:false,manual:true});
+    return 0;
+  };
+  window.innovV51SyncPagePaymentReminders=async function(){return 0;};
+  try{innovV52SyncAllPageReminders=window.innovV52SyncAllPageReminders;innovV51SyncPagePaymentReminders=window.innovV51SyncPagePaymentReminders}catch(_){ }
+
+  function decorateFixButton(){
+    const b=$id('v52FixPageReminders');
+    if(b){b.textContent='🔔 Crear faltantes manual';b.title='Solo crea recordatorios si tú confirmas. Ya no se ejecuta automáticamente.';}
+  }
+
+  // 2) Carga de recordatorios siempre filtrando eliminados/ocultos.
+  window.loadReminders=async function(){
+    const r=await db.from('payment_reminders').select('*').order('due_date',{ascending:true}).limit(3000);
+    if(r.error)throw r.error;
+    state.reminders=(r.data||[]).filter(x=>!isDeletedReminderRow(x));
+  };
+  try{loadReminders=window.loadReminders}catch(_){ }
+
+  async function verifyGone(ids){
+    ids=ids.map(String);
+    try{
+      const r=await db.from('payment_reminders').select('id,status').in('id',ids);
+      if(r.error)return {ok:false,error:r.error,remaining:ids};
+      const remaining=(r.data||[]).filter(x=>!isDeletedReminderRow(x)).map(x=>String(x.id));
+      return {ok:remaining.length===0,remaining};
+    }catch(e){return {ok:false,error:e,remaining:ids}}
+  }
+  async function rpcDeleteV66(ids){
+    try{
+      const r=await db.rpc('admin_delete_payment_reminders_v66',{p_ids:ids});
+      if(r.error)return {ok:false,error:r.error,mode:'rpc'};
+      const check=await verifyGone(ids);
+      return {ok:check.ok,error:check.error,remaining:check.remaining,mode:'rpc',data:r.data};
+    }catch(e){return {ok:false,error:e,mode:'rpc'}}
+  }
+  async function rpcDeleteV65(ids){
+    try{
+      const r=await db.rpc('admin_delete_payment_reminders_safe',{p_ids:ids});
+      if(r.error)return {ok:false,error:r.error,mode:'rpc_v65'};
+      const check=await verifyGone(ids);
+      return {ok:check.ok,error:check.error,remaining:check.remaining,mode:'rpc_v65'};
+    }catch(e){return {ok:false,error:e,mode:'rpc_v65'}}
+  }
+  async function directDelete(ids){
+    try{
+      const r=await db.from('payment_reminders').delete().in('id',ids).select('id');
+      if(r.error)return {ok:false,error:r.error,mode:'delete'};
+      const check=await verifyGone(ids);
+      return {ok:check.ok,error:check.error,remaining:check.remaining,mode:'delete'};
+    }catch(e){return {ok:false,error:e,mode:'delete'}}
+  }
+  async function softDelete(ids){
+    const payloads=[{status:'deleted'},{status:'cancelled'},{status:'canceled'}];
+    let last=null;
+    for(const payload of payloads){
+      try{
+        const r=await db.from('payment_reminders').update(payload).in('id',ids).select('id,status');
+        if(r.error){last=r.error;continue;}
+        const check=await verifyGone(ids);
+        if(check.ok)return {ok:true,mode:'soft',payload};
+        last=check.error||('quedan activos: '+(check.remaining||[]).join(','));
+      }catch(e){last=e;}
+    }
+    return {ok:false,error:last,mode:'soft'};
+  }
+
+  async function releaseIfAllowed(ids){
+    try{
+      const rows=(state.reminders||[]).filter(r=>ids.includes(String(r.id)));
+      if(typeof releaseAllowedList==='function')await releaseAllowedList(rows,'eliminado_manual');
+    }catch(e){console.warn('V66 release skipped',e)}
+  }
+
+  async function deleteReminderIdsV66(rawIds,opts={}){
+    const ids=[...new Set((rawIds||[]).map(String).filter(Boolean))];
+    if(!ids.length)return toastSafe('No hay recordatorios seleccionados','bad');
+    document.querySelectorAll('#remindersGrid .reminder-row[data-reminder-id],#remindersMergedGrid .reminder-row[data-reminder-id]').forEach(el=>{
+      if(ids.includes(String(el.getAttribute('data-reminder-id'))))el.classList.add('v63-deleting');
+    });
+
+    if(opts.release!==false)await releaseIfAllowed(ids);
+
+    let res=await rpcDeleteV66(ids);
+    if(!res.ok)res=await rpcDeleteV65(ids);
+    if(!res.ok)res=await directDelete(ids);
+    if(!res.ok)res=await softDelete(ids);
+
+    let localOnly=false;
+    if(!res.ok){
+      // Último recurso: tumba local para que no reaparezca en este admin aunque Supabase esté bloqueando.
+      addTombs(ids); localOnly=true;
+      console.warn('V66: Supabase bloqueó borrado real. Ocultando por tumba local.',res);
+    }
+
+    state.reminders=(state.reminders||[]).filter(r=>!ids.includes(String(r.id)));
+    state.selectedReminderIds=new Set();state.reminderSelectionMode=false;
+    try{await window.loadReminders()}catch(_){ }
+    try{renderKPIs?.();renderClients?.();renderReminders?.();updateReminderBulkBar?.();window.innovV50UpdateBell?.()}catch(_){ }
+    const msg=localOnly?'Supabase sigue bloqueando. Lo oculté en este admin. Ejecuta el SQL V66 para borrado real.':'Recordatorio eliminado definitivamente.';
+    toastSafe(msg,localOnly?'bad':'ok');
+  }
+
+  window.deleteReminderIdsV66=deleteReminderIdsV66;
+  window.deleteReminderIdsV65=deleteReminderIdsV66;
+  window.v63DeleteReminderIds=deleteReminderIdsV66;
+  window.quickDeleteReminder=async function(id){
+    id=String(id||'').trim(); if(!id)return;
+    if(!confirm('¿Borrar este recordatorio definitivamente?'))return;
+    await deleteReminderIdsV66([id]);
+  };
+  window.deleteReminder=async function(){
+    const id=String($id('rId')?.value||'').trim(); if(!id)return;
+    if(!confirm('¿Borrar este recordatorio definitivamente?'))return;
+    await deleteReminderIdsV66([id]);
+    try{closeDialog('dlgReminder')}catch(_){ }
+  };
+  window.deleteSelectedReminders=async function(){
+    const ids=[...(state.selectedReminderIds||new Set())].map(String).filter(Boolean);
+    if(!ids.length)return toastSafe('Selecciona uno o varios recordatorios','bad');
+    if(!confirm('¿Borrar definitivamente '+ids.length+' recordatorio(s)?'))return;
+    await deleteReminderIdsV66(ids);
+  };
+  try{quickDeleteReminder=window.quickDeleteReminder;deleteReminder=window.deleteReminder;deleteSelectedReminders=window.deleteSelectedReminders;deleteReminderIdsV65=window.deleteReminderIdsV65}catch(_){ }
+
+  // 3) Cupos reales: contar used_count + historial activo + recordatorios vinculados.
+  function secret(x){try{return typeof opsSecret==='function'?opsSecret(x):((x&&typeof x.secret_data==='object')?x.secret_data:{})}catch(_){return {}}}
+  function isArchived(x){
+    const d=secret(x); const st=norm(x?.status||'');
+    return d.archived===true||d.deleted===true||d.hidden===true||['archived','deleted','hidden','oculto','eliminado'].includes(st);
+  }
+  function maxUsesReal(x){const d=secret(x);return Math.max(1,Number(d.max_uses||x?.max_uses||1)||1)}
+  function rawUsedReal(x){const d=secret(x);return Math.max(0,Number(d.used_count||x?.used_count||0)||0)}
+  function historyActiveCount(x){
+    const d=secret(x); const hist=Array.isArray(d.history)?d.history:[];
+    return hist.filter(h=>{
+      const st=norm(h.status||h.estado||'');
+      if(/cancel|deleted|elimin|borr|devuelt|liberad|released|ended|finalizado|no renov/.test(st))return false;
+      if(h.deleted_at||h.released_at||h.ended_at||h.cancelled_at)return false;
+      return h.customer_name||h.customer_phone||h.phone||h.customer_id||h.reminder_id||h.order_id||h.order_item_id;
+    }).length;
+  }
+  function customerOfReminder(r){return (state.customers||[]).find(c=>String(c.id)===String(r?.customer_id))||{}}
+  function reminderOpenReal(r){
+    if(!r||isDeletedReminderRow(r))return false;
+    try{return reminderIsOpen(r)}catch(_){return !/(paid|pagado|renew|renov|cancel|deleted|elimin|borr|no_renov|archiv)/.test(norm(r?.status||'pending'))}
+  }
+  function stockEmail(x){const d=secret(x);return norm(d.family_admin_email||d.correo_admin||d.correo||d.email||d.usuario||x?.title||'')}
+  function reminderEmail(r){
+    const snap=(r?.linked_account_snapshot&&typeof r.linked_account_snapshot==='object')?r.linked_account_snapshot:{};
+    return norm(r?.linked_account_email||snap.family_admin_email||snap.correo_admin||snap.correo||snap.email||snap.usuario||'');
+  }
+  function linkedRemindersReal(item){
+    if(!item||isArchived(item))return [];
+    const itemId=String(item.id||''), planId=String(item.plan_id||''), email=stockEmail(item);
+    const d=secret(item); const hist=Array.isArray(d.history)?d.history:[];
+    const phones=new Set(hist.map(h=>digits(h.customer_phone||h.phone||'')).filter(Boolean));
+    const ids=new Set(hist.map(h=>String(h.reminder_id||'')).filter(Boolean));
+    const orderIds=new Set(hist.map(h=>String(h.order_id||'')).filter(Boolean));
+    const orderItemIds=new Set(hist.map(h=>String(h.order_item_id||'')).filter(Boolean));
+    const out=(state.reminders||[]).filter(r=>{
+      if(!reminderOpenReal(r))return false;
+      if(String(r.stock_item_id||'')===itemId)return true;
+      if(planId && r.plan_id && String(r.plan_id)!==planId)return false;
+      if(ids.has(String(r.id||'')))return true;
+      if(orderIds.has(String(r.order_id||'')))return true;
+      if(orderItemIds.has(String(r.order_item_id||'')))return true;
+      const c=customerOfReminder(r); const rp=digits(c.phone_e164||c.phone_raw||r.customer_phone||'');
+      if(rp && phones.has(rp))return true;
+      const re=reminderEmail(r);
+      if(email && re && email===re)return true;
+      return false;
+    });
+    const seen=new Set();
+    return out.filter(r=>{const k=String(r.id||`${r.customer_id}|${r.plan_id}|${r.due_date}|${r.service_name}`);if(seen.has(k))return false;seen.add(k);return true});
+  }
+  function usedReal(x){return isArchived(x)?maxUsesReal(x):Math.min(maxUsesReal(x),Math.max(rawUsedReal(x),historyActiveCount(x),linkedRemindersReal(x).length))}
+  function remainingReal(x){return Math.max(0,maxUsesReal(x)-usedReal(x))}
+  window.linkedRemindersForStockV66=linkedRemindersReal;
+  window.linkedRemindersForStockV65=linkedRemindersReal;
+  window.activeLinkedRemindersForStock=linkedRemindersReal;
+  window.stockUsedCount=function(x){return usedReal(x)};
+  window.stockMaxUses=function(x){return maxUsesReal(x)};
+  window.stockRemainingUses=function(x){return remainingReal(x)};
+  window.opsAvailableStatus=function(x){
+    if(!x||isArchived(x))return 'hidden';
+    const d=secret(x); const raw=norm(x.status||'available');
+    if(remainingReal(x)<=0)return 'used';
+    if(d.reserved_at||d.reserved_for||raw==='reserved')return 'reserved';
+    return 'available';
+  };
+  try{linkedRemindersForStockV65=window.linkedRemindersForStockV65;activeLinkedRemindersForStock=window.activeLinkedRemindersForStock;stockUsedCount=window.stockUsedCount;stockMaxUses=window.stockMaxUses;stockRemainingUses=window.stockRemainingUses;opsAvailableStatus=window.opsAvailableStatus}catch(_){ }
+
+  function miniStatus(x){
+    const used=usedReal(x), max=maxUsesReal(x), left=remainingReal(x), st=window.opsAvailableStatus(x);
+    if(left<=0)return '<span class="ops-mini-chip bad">Usada</span>';
+    if(used>0)return '<span class="ops-mini-chip warn">Con usos</span>';
+    if(st==='reserved')return '<span class="ops-mini-chip warn">Reservada</span>';
+    return '<span class="ops-mini-chip ok">Disponible</span>';
+  }
+  function linkedHtml(x){
+    const active=linkedRemindersReal(x), hist=historyActiveCount(x);
+    const total=Math.max(active.length,hist);
+    if(!total)return '';
+    const lines=active.slice(0,5).map(r=>{const c=customerOfReminder(r);return `<span>• ${escSafe(c.name||r.customer_name||'Cliente')}${c.phone_e164||c.phone_raw?' · '+escSafe(c.phone_e164||c.phone_raw):''}${r.due_date?' · vence '+escSafe(r.due_date):''}</span>`}).join('');
+    return `<div class="v66-linked-list"><b>Clientes activos vinculados (${total}):</b>${lines||'<span>• Detectado por historial de entrega</span>'}</div>`;
+  }
+
+  window.compactHistoryHtml=function(item){
+    const active=linkedRemindersReal(item), hist=historyActiveCount(item), total=Math.max(active.length,hist);
+    if(!total)return '<div class="plan-stock-sub"><b>Clientes activos vinculados:</b> ninguno.</div>';
+    return linkedHtml(item);
+  };
+  try{compactHistoryHtml=window.compactHistoryHtml}catch(_){ }
+
+  window.opsRenderRow=function(x){
+    const d=secret(x), st=window.opsAvailableStatus(x), used=usedReal(x), max=maxUsesReal(x), left=remainingReal(x);
+    const title=x.title||d.correo||d.usuario||d.codigo||'Cuenta';
+    const user=d.family_admin_email||d.correo_admin||d.correo||d.usuario||d.codigo||'—';
+    const pass=d.clave||d.pass||d.family_admin_pass||'';
+    const reserveInfo=d.reserved_for?`Reservada para ${d.reserved_for}${d.reserved_phone?' · '+d.reserved_phone:''}`:'';
+    const warn=(used>rawUsedReal(x)||historyActiveCount(x)>0)?'<span class="v66-used-warning">⚠️ Uso corregido por cliente/historial vinculado</span>':'';
+    return `<div class="ops-list-row ${left<=0?'used':''}">
+      <div class="ops-row-main"><div class="ops-row-title">${escSafe(title)}</div><div class="ops-row-sub">${escSafe(planName(x.plan_id))}${reserveInfo?' · '+escSafe(reserveInfo):''}</div>${linkedHtml(x)}</div>
+      <div class="ops-row-secret"><span class="mono">${escSafe(user)}</span>${pass?`<span class="ops-muted-pass">••••</span>`:''}${stockIsFamilyInvite(x)?`<span class="ops-mini-chip">👨‍👩‍👧 Familiar</span>`:''}${d.perfil?`<span class="ops-mini-chip">P: ${escSafe(d.perfil)}</span>`:''}${d.pin?`<span class="ops-mini-chip">PIN ${escSafe(d.pin)}</span>`:''}</div>
+      <div class="ops-row-meta">${miniStatus(x)}<span class="ops-mini-chip">Usos ${used}/${max}</span><span class="ops-mini-chip ${left>0?'ok':'bad'}">${left} libres</span>${warn}</div>
+      <div class="ops-row-actions">${left>0?`<button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>`:''}<button class="btn" onclick="openOpsReserve('${x.id}')">Reservar</button><button class="btn" onclick="openOpsStockDialog('', '${x.id}')">Modificar</button><button class="btn" onclick="copyTextSafe(opsDeliveryText(state.stock.find(s=>s.id==='${x.id}')))" >Copiar</button><button class="btn" onclick="cycleOpsStatus('${x.id}')">Estado</button><button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button></div>
+    </div>`;
+  };
+  try{opsRenderRow=window.opsRenderRow}catch(_){ }
+
+  const baseRenderOps=window.renderOps;
+  window.renderOps=function(){
+    if(!$id('opsGrid'))return baseRenderOps&&baseRenderOps.apply(this,arguments);
+    try{
+      fillOpsSelects();
+      const q=($id('opsSearch')?.value||'').toLowerCase().trim();
+      const planFilter=$id('opsPlanFilter')?.value||'';
+      const statusFilter=$id('opsStatusFilter')?.value||'';
+      let data=[...(state.stock||[])].filter(x=>!isArchived(x));
+      if(state.opsView==='accounts')data=data.filter(opsIsAccount);
+      if(state.opsView==='codes')data=data.filter(opsIsCode);
+      if(planFilter)data=data.filter(x=>String(x.plan_id)===String(planFilter));
+      if(statusFilter)data=data.filter(x=>window.opsAvailableStatus(x)===statusFilter);
+      if(q)data=data.filter(x=>{const d=secret(x);return (`${x.title||''} ${x.notes||''} ${planName(x.plan_id)} ${d.correo||''} ${d.usuario||''} ${d.codigo||''} ${d.family_admin_email||''} ${d.correo_admin||''} ${d.perfil||''} ${d.pin||''} ${d.reserved_for||''}`).toLowerCase().includes(q)});
+      data.sort((a,b)=>remainingReal(a)-remainingReal(b)||String(b.created_at||'').localeCompare(String(a.created_at||'')));
+      if($id('opsKpiAccounts'))$id('opsKpiAccounts').textContent=(state.stock||[]).filter(x=>!isArchived(x)&&opsIsAccount(x)).reduce((a,x)=>a+remainingReal(x),0);
+      if($id('opsKpiCodes'))$id('opsKpiCodes').textContent=(state.stock||[]).filter(x=>!isArchived(x)&&window.opsAvailableStatus(x)==='reserved').length;
+      if($id('opsKpiUsed'))$id('opsKpiUsed').textContent=(state.stock||[]).filter(x=>!isArchived(x)).reduce((a,x)=>a+usedReal(x),0);
+      if(!data.length){$id('opsGrid').innerHTML='<div class="empty-state"><span class="icon">🔐</span><p>No hay cuentas en esta vista.</p></div>';return;}
+      const groups=new Map();data.forEach(x=>{const k=x.plan_id||'sin-plan';if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)});
+      $id('opsGrid').innerHTML=[...groups.entries()].sort((a,b)=>opsPlanGroupTitle(a[0]).localeCompare(opsPlanGroupTitle(b[0]))).map(([planId,rows])=>{
+        const free=rows.reduce((a,x)=>a+remainingReal(x),0), used=rows.reduce((a,x)=>a+usedReal(x),0), res=rows.filter(x=>window.opsAvailableStatus(x)==='reserved').length;
+        return `<section class="ops-product-group"><div class="ops-product-head"><div class="ops-product-title">📦 ${escSafe(opsPlanGroupTitle(planId))}</div><div class="ops-product-counts"><span class="ops-mini-chip ok">${free} libres</span><span class="ops-mini-chip warn">${res} reservadas</span><span class="ops-mini-chip bad">${used} usadas</span></div></div><div class="ops-list-rows">${rows.map(window.opsRenderRow).join('')}</div></section>`;
+      }).join('');
+    }catch(e){console.warn('V66 renderOps fallback',e);return baseRenderOps&&baseRenderOps.apply(this,arguments)}
+  };
+  try{renderOps=window.renderOps}catch(_){ }
+
+  window.renderPlanStockView=function(){
+    const list=$id('planStockList'); if(!list)return;
+    const planId=$id('planStockPlanId')?.value||'';
+    const rows=(typeof planStockFilteredRows==='function'?planStockFilteredRows():[]).filter(x=>!isArchived(x));
+    if(!rows.length){list.innerHTML='<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas registradas para este plan.</p></div>';return;}
+    const free=rows.reduce((a,x)=>a+remainingReal(x),0), used=rows.reduce((a,x)=>a+usedReal(x),0), res=rows.filter(x=>window.opsAvailableStatus(x)==='reserved').length;
+    list.innerHTML=`<div class="chips" style="margin-bottom:4px"><span class="badge b-ok">${free} cupos libres</span><span class="badge b-warn">${res} reservadas</span><span class="badge b-bad">${used} usados</span><span class="badge">${rows.length} cuentas</span></div>`+rows.map(x=>{
+      const d=secret(x), pass=d.clave||d.pass||'', usedN=usedReal(x), max=maxUsesReal(x), left=remainingReal(x), st=window.opsAvailableStatus(x);
+      const title=x.title||d.correo||d.usuario||'Cuenta';
+      const status=miniStatus(x);
+      const warn=(usedN>rawUsedReal(x)||historyActiveCount(x)>0)?'<div class="v65-warning-line">⚠️ Uso corregido por cliente/historial vinculado</div>':'';
+      return `<div class="plan-stock-row"><div class="plan-stock-main"><div class="plan-stock-title">${escSafe(title)}</div><div class="plan-stock-sub">${status} <span class="badge">Usos ${usedN}/${max}</span> <span class="badge ${left>0?'b-ok':'b-bad'}">${left} libres</span>${stockTotpAccountId(x)?` <span class="badge b-purple">🛡 TOTP</span>`:''}${warn}</div><div class="plan-stock-secret"><span class="mono">📧 ${escSafe(d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${escSafe(pass)}</span>`:''}${d.perfil?`<span class="mono">👤 ${escSafe(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${escSafe(d.pin)}</span>`:''}</div>${linkedHtml(x)}</div><div class="plan-stock-actions">${left>0?`<button class="btn btn-success" onclick="openStockViewDeliver('${x.id}')">Entregar</button>`:''}<button class="btn" onclick="viewStockHistory('${x.id}')">Historial</button>${left<=0||st==='reserved'?`<button class="btn btn-warning" onclick="restoreStockAvailable('${x.id}')">Reponer</button>`:''}<button class="btn btn-danger" onclick="quickDeleteOpsStock('${x.id}')">Eliminar</button></div></div>`;
+    }).join('');
+  };
+  try{renderPlanStockView=window.renderPlanStockView}catch(_){ }
+
+  // Reforzar selección con botón + y doble click tras cada render.
+  const oldRenderReminders=window.renderReminders;
+  window.renderReminders=function(){
+    const original=state.reminders;
+    state.reminders=(original||[]).filter(r=>!isDeletedReminderRow(r));
+    let out; try{out=oldRenderReminders&&oldRenderReminders.apply(this,arguments)}finally{state.reminders=original;setTimeout(()=>{decorateFixButton();try{updateReminderBulkBar?.()}catch(_){ }},0)}
+    return out;
+  };
+  try{renderReminders=window.renderReminders}catch(_){ }
+
+  const oldLoadAll=window.loadAll;
+  if(typeof oldLoadAll==='function'){
+    window.loadAll=async function(){
+      const r=await oldLoadAll.apply(this,arguments);
+      try{state.reminders=(state.reminders||[]).filter(x=>!isDeletedReminderRow(x));}catch(_){ }
+      setTimeout(()=>{decorateFixButton();try{renderReminders?.();renderOps?.();if($id('dlgPlanStockView')?.open)renderPlanStockView?.()}catch(_){ }},50);
+      return r;
+    };
+    try{loadAll=window.loadAll}catch(_){ }
+  }
+
+  document.addEventListener('click',function(ev){
+    if(ev.target?.id==='v52FixPageReminders')decorateFixButton();
+  },true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{decorateFixButton();try{renderReminders?.();renderOps?.()}catch(_){}},800));
+  else setTimeout(()=>{decorateFixButton();try{renderReminders?.();renderOps?.()}catch(_){}},800);
+})();
+</script>
+
+<!-- ================================================================
+   V67 — FIX REAL: frena auto-recreación, bloquea pedidos eliminados,
+   borra definitivo/soft y deja creación desde pagos SOLO manual.
+   ================================================================ -->
+<style id="innov-v67-autorecreate-delete-css">
+  .v67-admin-note{border-left:4px solid var(--warning);background:var(--warning-alpha);color:var(--warning);font-weight:800;border-radius:12px;padding:8px 10px;margin:8px 0;font-size:.8rem}
+  .v67-manual-only{background:var(--warning-alpha)!important;color:var(--warning)!important;border-color:rgba(180,83,9,.28)!important}
+  .v67-toggle{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);background:var(--card);border-radius:999px;padding:6px 10px;font-size:.78rem;font-weight:800;color:var(--muted)}
+  .v67-toggle input{accent-color:var(--primary)}
+  .v67-deleting{opacity:.55;filter:grayscale(.25);pointer-events:none}
+</style>
+<script id="innov-v67-stop-auto-recreate-final">
+(function(){
+  'use strict';
+  if(window.__innovV67StopAutoRecreateFinal)return;
+  window.__innovV67StopAutoRecreateFinal=true;
+
+  const $id=id=>document.getElementById(id);
+  const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const toastSafe=(m,t='ok')=>{try{toast(m,t)}catch(_){console.log(m)}};
+  const escSafe=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const TOMBS='innov_v67_deleted_payment_reminders';
+  const BLOCKS='innov_v67_blocked_order_reminders';
+  const AUTO='innov_v67_auto_order_reminders_enabled';
+
+  function readSet(k){try{return new Set(JSON.parse(localStorage.getItem(k)||'[]').map(String).filter(Boolean))}catch(_){return new Set()}}
+  function saveSet(k,s){try{localStorage.setItem(k,JSON.stringify([...s].slice(-8000)))}catch(_){}}
+  function addToSet(k,arr){const s=readSet(k);(arr||[]).map(String).filter(Boolean).forEach(x=>s.add(x));saveSet(k,s);return s}
+  function blocks(){return readSet(BLOCKS)}
+  function tombs(){return readSet(TOMBS)}
+  function orderKey(id){return id?'order:'+String(id):''}
+  function itemKey(id){return id?'item:'+String(id):''}
+  function reminderKey(id){return id?'rem:'+String(id):''}
+  function autoOrdersEnabled(){return localStorage.getItem(AUTO)==='1'}
+  function setAutoOrdersEnabled(v){localStorage.setItem(AUTO,v?'1':'0');decorateAutoControls()}
+  window.innovV67AutoOrdersEnabled=autoOrdersEnabled;
+  window.innovV67SetAutoOrdersEnabled=setAutoOrdersEnabled;
+
+  function rowDeleted(r){const st=norm(r?.status||'');return tombs().has(String(r?.id||''))||/(deleted|delete|eliminado|borrado|cancelled|canceled|cancelado|removed|oculto)/.test(st)}
+  window.v67IsDeletedReminderRow=rowDeleted;
+  window.v66IsDeletedReminderRow=rowDeleted;
+
+  function rowBlockKeys(r){const out=[]; if(r?.id)out.push(reminderKey(r.id)); if(r?.order_id)out.push(orderKey(r.order_id)); if(r?.order_item_id)out.push(itemKey(r.order_item_id)); return out.filter(Boolean)}
+  function payloadBlocked(p){const b=blocks(); if(!p)return false; return (p.order_id&&b.has(orderKey(p.order_id)))||(p.order_item_id&&b.has(itemKey(p.order_item_id)))||(p.id&&b.has(reminderKey(p.id))) }
+  function rowsFromIds(ids){const set=new Set((ids||[]).map(String));return (state.reminders||[]).filter(r=>set.has(String(r.id)))}
+  function expandIds(ids){
+    const base=rowsFromIds(ids), out=new Set((ids||[]).map(String));
+    const orders=new Set(base.map(r=>String(r.order_id||'')).filter(Boolean));
+    const items=new Set(base.map(r=>String(r.order_item_id||'')).filter(Boolean));
+    (state.reminders||[]).forEach(r=>{if((r.order_id&&orders.has(String(r.order_id)))||(r.order_item_id&&items.has(String(r.order_item_id))))out.add(String(r.id));});
+    return [...out].filter(Boolean);
+  }
+  function addBlocksFromRows(rows){
+    const keys=[];(rows||[]).forEach(r=>keys.push(...rowBlockKeys(r))); if(keys.length)addToSet(BLOCKS,keys);
+    if(rows?.length)saveBlocksRemote(rows).catch(e=>console.warn('V67 remote block skipped',e));
+    return keys;
+  }
+
+  async function loadBlocksRemote(){
+    try{
+      const r=await db.from('admin_payment_reminder_delete_blocks_v67').select('reminder_id,order_id,order_item_id').limit(10000);
+      if(r.error)return;
+      const keys=[];(r.data||[]).forEach(x=>{if(x.reminder_id)keys.push(reminderKey(x.reminder_id));if(x.order_id)keys.push(orderKey(x.order_id));if(x.order_item_id)keys.push(itemKey(x.order_item_id));});
+      if(keys.length)addToSet(BLOCKS,keys);
+    }catch(_){ }
+  }
+  async function saveBlocksRemote(rows){
+    try{
+      const payload=(rows||[]).map(r=>({reminder_id:r.id||null,order_id:r.order_id||null,order_item_id:r.order_item_id||null,customer_id:r.customer_id||null,service_name:r.service_name||null,due_date:r.due_date||null,reason:'deleted_from_admin_v67'}));
+      if(!payload.length)return;
+      const r=await db.from('admin_payment_reminder_delete_blocks_v67').insert(payload);
+      if(r.error)throw r.error;
+    }catch(e){
+      try{await db.rpc('admin_block_payment_reminders_v67',{p_rows:(rows||[]).map(r=>({reminder_id:r.id||null,order_id:r.order_id||null,order_item_id:r.order_item_id||null,customer_id:r.customer_id||null,service_name:r.service_name||null,due_date:r.due_date||null}))})}catch(_){ }
+    }
+  }
+
+  // Bloquea INSERCIONES automáticas de recordatorios provenientes de pedidos.
+  // Las creaciones manuales activan window.__innovV67ManualOrderReminderInsert temporalmente.
+  function installInsertGuard(){
+    if(!window.db||db.__innovV67InsertGuard)return;
+    const oldFrom=db.from.bind(db);
+    db.from=function(table){
+      const builder=oldFrom(table);
+      if(String(table)==='payment_reminders' && builder && typeof builder.insert==='function'){
+        const oldInsert=builder.insert.bind(builder);
+        builder.insert=function(payload){
+          const rows=Array.isArray(payload)?payload:[payload];
+          const orderBased=rows.some(p=>p && (p.order_id||p.order_item_id));
+          const blocked=rows.some(payloadBlocked);
+          const manual=window.__innovV67ManualOrderReminderInsert===true;
+          const allow=manual || (autoOrdersEnabled() && !blocked);
+          if(orderBased && !allow){
+            console.warn('V67 bloqueó creación automática de recordatorio desde pago/pedido',rows);
+            const fake={
+              select(){return {single(){return Promise.resolve({data:null,error:{message:'Creación automática desactivada por V67'}})}}},
+              then(resolve){return Promise.resolve({data:null,error:{message:'Creación automática desactivada por V67'}}).then(resolve)}
+            };
+            return fake;
+          }
+          return oldInsert(payload,...Array.prototype.slice.call(arguments,1));
+        };
+      }
+      return builder;
+    };
+    db.__innovV67InsertGuard=true;
+  }
+  installInsertGuard();
+
+  async function withManualOrderInsert(fn){
+    window.__innovV67ManualOrderReminderInsert=true;
+    try{return await fn()}finally{setTimeout(()=>{window.__innovV67ManualOrderReminderInsert=false},0)}
+  }
+
+  function decorateAutoControls(){
+    const label=autoOrdersEnabled()?'Auto recordatorios: ON':'Auto recordatorios: OFF';
+    document.querySelectorAll('[data-v67-auto-label]').forEach(x=>x.textContent=label);
+    const chk=$id('v67AutoOrderReminders'); if(chk)chk.checked=autoOrdersEnabled();
+    const b=$id('v52FixPageReminders'); if(b){b.classList.add('v67-manual-only');b.textContent='🔔 Crear faltantes manual';b.title='No se ejecuta solo. Crearás recordatorios faltantes solo si confirmas.';}
+  }
+  function addAutoToggle(){
+    const actions=document.querySelector('#tab-orders .admin-toolbar .actions')||document.querySelector('#tab-reminders .admin-toolbar .actions')||document.querySelector('#tab-reminders .admin-toolbar');
+    if(actions&&!$id('v67AutoOrderBox')){
+      actions.insertAdjacentHTML('beforeend',`<label class="v67-toggle" id="v67AutoOrderBox" title="Déjalo apagado para que lo borrado no se vuelva a crear solo"><input id="v67AutoOrderReminders" type="checkbox"> <span data-v67-auto-label>Auto recordatorios: OFF</span></label>`);
+      $id('v67AutoOrderReminders')?.addEventListener('change',e=>{setAutoOrdersEnabled(!!e.target.checked);toastSafe(e.target.checked?'Auto recordatorios desde pagos activado':'Auto recordatorios desde pagos desactivado','ok')});
+    }
+    decorateAutoControls();
+  }
+
+  // Reemplaza creación masiva/manual para que use bandera manual y respete confirmación.
+  const oldOne=window.innovV52CreateOneReminder;
+  window.innovV52CreateOneReminder=async function(orderId){
+    if(!orderId)return;
+    if(blocks().has(orderKey(orderId))&&!confirm('Este pedido fue eliminado de recordatorios antes. ¿Quieres crear el recordatorio otra vez?'))return;
+    return await withManualOrderInsert(async()=>{
+      if(typeof oldOne==='function')return await oldOne.apply(this,arguments);
+      if(window.innovV51EnsureReminderForOrder)return await window.innovV51EnsureReminderForOrder(orderId,{force:true,silent:false});
+    });
+  };
+
+  const oldSync=window.innovV52SyncAllPageReminders;
+  window.innovV52SyncAllPageReminders=async function(opts={}){
+    if(opts&&opts.silent)return 0;
+    if(!confirm('Crear recordatorios faltantes de pagos liberados. Los que ya borraste no se recrearán salvo que los crees uno por uno. ¿Continuar?'))return 0;
+    return await withManualOrderInsert(async()=>{
+      if(typeof oldSync==='function')return await oldSync.call(this,{...opts,silent:false,manual:true});
+      return 0;
+    });
+  };
+  window.innovV51SyncPagePaymentReminders=async function(){return 0};
+  try{innovV52CreateOneReminder=window.innovV52CreateOneReminder;innovV52SyncAllPageReminders=window.innovV52SyncAllPageReminders;innovV51SyncPagePaymentReminders=window.innovV51SyncPagePaymentReminders}catch(_){ }
+
+  // Carga recordatorios filtrando eliminados y cargando bloques remotos si existen.
+  window.loadReminders=async function(){
+    await loadBlocksRemote();
+    const r=await db.from('payment_reminders').select('*').order('due_date',{ascending:true}).limit(5000);
+    if(r.error){console.warn('V67 loadReminders',r.error);state.reminders=[];return;}
+    state.reminders=(r.data||[]).filter(x=>!rowDeleted(x));
+  };
+  try{loadReminders=window.loadReminders}catch(_){ }
+
+  async function verifyGone(ids){
+    try{const r=await db.from('payment_reminders').select('id,status').in('id',ids);if(r.error)return {ok:false,error:r.error};const rem=(r.data||[]).filter(x=>!rowDeleted(x));return {ok:rem.length===0,remaining:rem.map(x=>String(x.id))}}catch(e){return {ok:false,error:e}}
+  }
+  async function tryRpc(name,args){try{const r=await db.rpc(name,args);return r.error?{ok:false,error:r.error,mode:name}:{ok:true,data:r.data,mode:name}}catch(e){return {ok:false,error:e,mode:name}}}
+  async function hardSoftDelete(ids){
+    let r=await tryRpc('admin_delete_payment_reminders_v67',{p_ids:ids}); if(r.ok){const v=await verifyGone(ids); if(v.ok)return {...r,verified:true};}
+    r=await tryRpc('admin_delete_payment_reminders_v66',{p_ids:ids}); if(r.ok){const v=await verifyGone(ids); if(v.ok)return {...r,verified:true};}
+    r=await tryRpc('admin_delete_payment_reminders_safe',{p_ids:ids}); if(r.ok){const v=await verifyGone(ids); if(v.ok)return {...r,verified:true};}
+    try{r=await db.from('payment_reminders').delete().in('id',ids).select('id'); if(!r.error){const v=await verifyGone(ids); if(v.ok)return {ok:true,mode:'direct_delete',verified:true}}}catch(e){r={error:e}}
+    const updates=[{status:'deleted'},{status:'cancelled'},{status:'canceled'}];
+    for(const payload of updates){try{r=await db.from('payment_reminders').update(payload).in('id',ids).select('id,status'); if(!r.error){const v=await verifyGone(ids); if(v.ok)return {ok:true,mode:'soft_'+payload.status,verified:true}}}catch(e){r={error:e}}}
+    return {ok:false,error:r?.error||r};
+  }
+
+  async function releaseIfAllowed(ids){
+    try{const rows=(state.reminders||[]).filter(r=>ids.includes(String(r.id))); if(window.releaseAllowedList)await window.releaseAllowedList(rows,'eliminado_manual')}catch(e){console.warn('V67 release skipped',e)}
+  }
+
+  async function deleteIds(ids,opts={}){
+    ids=[...new Set((ids||[]).map(String).filter(Boolean))]; if(!ids.length)return toastSafe('Selecciona recordatorio(s)','bad');
+    ids=expandIds(ids);
+    const rows=rowsFromIds(ids);
+    addBlocksFromRows(rows);
+    addToSet(TOMBS,ids.map(reminderKey));
+    document.querySelectorAll('[data-reminder-id]').forEach(el=>{if(ids.includes(String(el.getAttribute('data-reminder-id'))))el.classList.add('v67-deleting')});
+    if(opts.release!==false)await releaseIfAllowed(ids);
+    const res=await hardSoftDelete(ids);
+    // aunque Supabase bloquee, queda tumba local + bloque de pedido para que no se recree
+    state.reminders=(state.reminders||[]).filter(r=>!ids.includes(String(r.id))&&!rowDeleted(r));
+    state.selectedReminderIds=new Set(); state.reminderSelectionMode=false;
+    try{await window.loadReminders()}catch(_){ }
+    try{renderReminders?.();renderOrders?.();renderOps?.();updateReminderBulkBar?.();window.innovV50UpdateBell?.()}catch(_){ }
+    if(res.ok)toastSafe('Recordatorio eliminado y bloqueado para que no se recree.','ok');
+    else toastSafe('Supabase bloqueó el borrado real. Lo oculté y bloqueé en este admin. Ejecuta el SQL V67.','bad');
+  }
+  window.innovV67DeleteReminderIds=deleteIds;
+  window.deleteReminderIdsV66=deleteIds;
+  window.deleteReminderIdsV65=deleteIds;
+  window.v63DeleteReminderIds=deleteIds;
+  window.quickDeleteReminder=async function(id){if(!id)return;if(!confirm('¿Borrar este recordatorio y evitar que se vuelva a crear?'))return;await deleteIds([id])};
+  window.deleteReminder=async function(){const id=String($id('rId')?.value||'').trim();if(!id)return;if(!confirm('¿Borrar este recordatorio y evitar que se vuelva a crear?'))return;await deleteIds([id]);try{closeDialog('dlgReminder')}catch(_){ }};
+  window.deleteSelectedReminders=async function(){const ids=[...(state.selectedReminderIds||new Set())].map(String).filter(Boolean);if(!ids.length)return toastSafe('Selecciona uno o varios recordatorios','bad');if(!confirm('¿Borrar '+ids.length+' recordatorio(s) y bloquear su recreación?'))return;await deleteIds(ids)};
+  try{quickDeleteReminder=window.quickDeleteReminder;deleteReminder=window.deleteReminder;deleteSelectedReminders=window.deleteSelectedReminders}catch(_){ }
+
+  // Render filtrado permanente.
+  const oldRenderReminders=window.renderReminders;
+  if(typeof oldRenderReminders==='function'){
+    window.renderReminders=function(){
+      const original=state.reminders;
+      state.reminders=(original||[]).filter(r=>!rowDeleted(r));
+      try{return oldRenderReminders.apply(this,arguments)}finally{state.reminders=original;setTimeout(()=>{addAutoToggle();decorateAutoControls();try{updateReminderBulkBar?.()}catch(_){ }},0)}
+    };
+    try{renderReminders=window.renderReminders}catch(_){ }
+  }
+
+  const oldRenderOrders=window.renderOrders;
+  if(typeof oldRenderOrders==='function'){
+    window.renderOrders=function(){const r=oldRenderOrders.apply(this,arguments);setTimeout(addAutoToggle,0);return r};
+    try{renderOrders=window.renderOrders}catch(_){ }
+  }
+
+  const prevLoadAll=window.loadAll;
+  if(typeof prevLoadAll==='function'){
+    window.loadAll=async function(){
+      installInsertGuard();
+      const r=await prevLoadAll.apply(this,arguments);
+      try{await loadBlocksRemote()}catch(_){ }
+      try{state.reminders=(state.reminders||[]).filter(x=>!rowDeleted(x));}catch(_){ }
+      setTimeout(()=>{addAutoToggle();try{renderReminders?.();renderOrders?.();renderOps?.();window.innovV50UpdateBell?.()}catch(_){ }},80);
+      return r;
+    };
+    try{loadAll=window.loadAll}catch(_){ }
+  }
+
+  document.addEventListener('click',function(e){if(e.target?.id==='v52FixPageReminders')decorateAutoControls()},true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{installInsertGuard();addAutoToggle();decorateAutoControls();loadBlocksRemote();},500));
+  else setTimeout(()=>{installInsertGuard();addAutoToggle();decorateAutoControls();loadBlocksRemote();},500);
+})();
+</script>
+
 </body>
 </html>
+
