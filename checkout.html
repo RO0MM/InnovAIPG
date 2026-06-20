@@ -14,7 +14,7 @@
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Checkout | Innov IA Tienda</title>
+  <title>Checkout A | Innov IA Tienda</title>
   <meta name="theme-color" content="#ffd333">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -69,6 +69,59 @@
 .activation-box.compact-activation textarea,.activation-box.compact-activation .activation-instructions{display:none!important}
 
 
+  
+
+/* =====================================================================
+   CHECKOUT A — Diseño de entrega sólida
+   Estilos centralizados en este archivo. No depende de parches visuales.
+   ===================================================================== */
+:root{--a-navy:#18212d;--a-blue:#2563eb;--a-blue-soft:#eff6ff;--a-amber:#f4b400;--a-green:#15803d;--a-radius:18px;--a-line:#d8dee8}
+body{background-color:#f5f7fb;background-image:radial-gradient(rgba(67,81,103,.12) 1px,transparent 1px);background-size:22px 22px}
+.checkout-wrap{padding-top:24px;padding-bottom:48px}
+.steps{border:1px solid #dbe3ef;border-radius:20px;box-shadow:0 14px 32px rgba(15,23,42,.08);padding:11px 14px;background:rgba(255,255,255,.95)}
+.step-pill{border:1px solid #d5dce6;border-radius:999px;box-shadow:none;background:#f8fafc;padding:7px 11px;color:#475569}
+.step-pill.active{background:var(--a-blue-soft);border-color:#93c5fd;color:#1d4ed8}
+.step-title{margin-left:auto;font-weight:800;color:#64748b}
+.card{border:1px solid #dbe3ef;border-radius:var(--a-radius);box-shadow:0 18px 44px rgba(15,23,42,.09);overflow:visible}
+.card-head{border-radius:var(--a-radius) var(--a-radius) 0 0;padding:14px 16px;background:linear-gradient(135deg,#eff6ff,#f8fbff);border-bottom:1px solid #dbeafe;color:#1e3a8a;font-size:15px}
+.card-body{padding:16px}
+.field input,.field select,.field textarea{border:1.5px solid #cbd5e1;border-radius:12px;background:#fff;transition:border-color .18s,box-shadow .18s,transform .18s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.btn{border:1px solid rgba(15,23,42,.12);border-radius:12px;box-shadow:0 3px 0 rgba(15,23,42,.16);transition:transform .16s,box-shadow .16s,filter .16s}
+.btn:hover{filter:brightness(.99);transform:translateY(-1px);box-shadow:0 5px 0 rgba(15,23,42,.15)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(15,23,42,.15)}
+.btn-primary{background:linear-gradient(135deg,#ffd333,#f4b400);border-color:#dcaa00}
+.btn-success{background:linear-gradient(135deg,#22c55e,#15803d);border-color:#15803d}
+.btn-mid{min-height:46px;font-size:15px}
+.delivery-mode{border-radius:999px;border:1px solid #86efac;background:#f0fdf4;color:#166534}
+.delivery-mode.auto{border-color:#86efac;background:#f0fdf4;color:#166534}
+.delivery-mode.mixed{border-color:#c4b5fd;background:#f5f3ff;color:#6d28d9}
+.delivery-mode.manual{border-color:#fcd34d;background:#fffbeb;color:#92400e}
+.thin-note{width:100%;border-radius:12px;border:1px solid #fde68a;background:#fffbeb;padding:9px 11px}
+.order-id-box{border-radius:14px;border:1px solid #fcd34d;background:#fffbeb;padding:12px;color:#78350f}
+.payment-box{border:1px solid #dbe3ef;border-radius:16px;background:linear-gradient(135deg,#f8fbff,#fff);padding:15px}
+.qr-img{border-radius:16px;border:1px solid #dbe3ef;box-shadow:0 8px 18px rgba(15,23,42,.08)}
+.status-box{border:0;background:transparent;padding:0}
+.order-status-card{border:1px solid #bfdbfe;background:linear-gradient(135deg,#eff6ff,#fff);border-radius:16px;padding:14px;color:#1e3a8a}
+.order-status-card.complete{border-color:#86efac;background:linear-gradient(135deg,#f0fdf4,#fff);color:#166534}
+.status-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:1000;font-size:15px}
+.status-code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;border:1px solid currentColor;border-radius:999px;padding:3px 7px;opacity:.8}
+.status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;font-size:12px;color:#475569}
+.status-grid span{background:rgba(255,255,255,.78);border:1px solid rgba(148,163,184,.3);border-radius:10px;padding:8px}
+.order-progress{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:13px}
+.progress-step{display:grid;justify-items:center;gap:4px;text-align:center;font-size:10.5px;color:#94a3b8;font-weight:800;position:relative}
+.progress-step:not(:last-child):after{content:'';position:absolute;top:14px;left:61%;width:78%;height:2px;background:#dbe3ef;z-index:0}
+.progress-icon{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:#e2e8f0;color:#64748b;z-index:1}
+.progress-step.done,.progress-step.active{color:#1d4ed8}.progress-step.done .progress-icon,.progress-step.active .progress-icon{background:#2563eb;color:#fff}.progress-step.done:after{background:#60a5fa}
+.delivery-ready{margin-top:12px;border:1px solid #86efac;background:#f0fdf4;border-radius:16px;padding:12px}
+.delivery-ready-head{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#166534}.delivery-ready-head span{font-size:11px;border:1px solid #bbf7d0;border-radius:999px;padding:3px 7px;background:#fff}
+.delivery-data{margin-top:10px;border:1px solid #d1fae5;border-radius:12px;background:#fff;padding:12px;line-height:1.55;max-height:420px;overflow:auto}
+.status-note{margin-top:10px;border:1px solid #dbe3ef;background:#f8fafc;border-radius:12px;padding:10px;color:#475569;font-size:12.5px}
+.summary-list{max-height:350px}.item{padding:11px 0}.item-name{color:#172033}.thumb{border-radius:12px;border:1px solid #dbe3ef}.coupon-box,.lookup-panel{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:15px}.lookup-panel{background:#fff;box-shadow:0 10px 22px rgba(15,23,42,.06)}
+.special-box.pay-stage,.activation-box{border:1px solid #bfdbfe;border-radius:16px;background:linear-gradient(135deg,#eff6ff,#fff)}
+.activation-box.compact-activation{border:1px solid #bfdbfe;background:#f8fbff}.activation-grid .field{border:1px solid #dbeafe;border-radius:13px}.activation-grid textarea{display:block!important;min-height:120px!important}.activation-instructions{display:block!important;white-space:pre-wrap;background:#fff;border:1px solid #dbeafe;border-radius:12px;padding:10px;margin:8px 0;font-size:12px;color:#475569}
+@media(max-width:720px){.checkout-wrap{padding-top:12px}.card-body{padding:12px}.steps{border-radius:15px}.step-title{display:none}.status-grid{grid-template-columns:1fr}.order-progress{gap:2px}.progress-step{font-size:9.5px}.progress-step:not(:last-child):after{width:72%;left:64%}.payment-box{padding:12px}.delivery-ready-head{align-items:flex-start;flex-direction:column}.summary-list{max-height:250px}}
+
   </style>
 </head>
 <body>
@@ -102,7 +155,7 @@
       <span class="step-pill active" data-step="2"><i class="fa fa-user"></i> 2) Pago</span>
       <span class="step-pill" data-step="3"><i class="fa fa-qrcode"></i> 3) Generar</span>
       <span class="step-pill" data-step="4"><i class="fa fa-check-circle"></i> 4) Confirmación</span>
-      <span class="step-title"><i class="fa fa-shield-alt"></i> Compra rápida • Entrega digital</span>
+      <span class="step-title"><i class="fa fa-shield-alt"></i> Compra segura • Entrega vinculada a tu pedido</span>
     </div>
 
     <div class="layout">
@@ -136,7 +189,7 @@
                   <div class="yape-number" id="paymentNumber">991564053</div>
                   <div class="mini-muted">Monto exacto:</div>
                   <div class="yape-number" id="orderTotalText">S/ 0.00</div>
-                  <div class="alert-wait" style="margin-top:8px">Después de pagar, coloca el código de operación y envía a revisión.</div><div class="payment-extra-note">Importante: al pagar por Yape/Plin, no escribas nada en notas o descripción del pago. Solo realiza el pago exacto y luego pega tu código de operación aquí.</div>
+                  <div class="alert-wait" style="margin-top:8px"><b>Proceso seguro:</b> paga el monto exacto, registra tu código de operación y espera la validación. La entrega se preparará con la plantilla oficial de tu servicio.</div><div class="payment-extra-note">Importante: al pagar por Yape/Plin, no escribas nada en notas o descripción del pago. Solo realiza el pago exacto y luego pega tu código de operación aquí.</div>
                 </div>
               </div>
               <div id="activationShortcutBox" class="activation-launch hidden">
@@ -160,7 +213,7 @@
                 <button class="btn btn-success" id="btnSendReview"><i class="fa fa-paper-plane"></i> Enviar pago a revisión</button>
               </div>
               <div id="statusBox" class="status-box">
-                <div class="mini-muted">Cuando envíes tu pago, verificaremos automáticamente cada 2 segundos si tu entrega ya está lista.</div>
+                <div class="mini-muted">Tu pedido se actualizará cuando cambie su estado. Mantén esta página abierta o usa “Consultar cuenta entregada”.</div>
               </div>
               <div id="orderChatBox" class="chat-box hidden">
                 <b>💬 Chat del pedido</b>
@@ -217,45 +270,34 @@
     const SUPABASE_URL = "https://rfjvskrimsoqlyofhidj.supabase.co";
     const SUPABASE_KEY = "sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    /* Realtime sin polling: Broadcast entre checkout/admin cuando alguna página escribe en Supabase. */
+    /* Realtime propio del checkout: no modifica window.fetch ni intercepta otras librerías. */
     const REALTIME_BUS_CHANNEL = 'innov-ia-data-events-v1';
-    const REALTIME_CLIENT_ID = (()=>{ try{ let id=sessionStorage.getItem('innov_rt_client_id'); if(!id){ id='chk-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2); sessionStorage.setItem('innov_rt_client_id',id); } return id; }catch(e){ return 'chk-'+Date.now().toString(36); }})();
+    const REALTIME_CLIENT_ID = (() => {
+      try {
+        let id = sessionStorage.getItem('innov_checkout_realtime_id');
+        if (!id) {
+          id = 'checkout-a-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+          sessionStorage.setItem('innov_checkout_realtime_id', id);
+        }
+        return id;
+      } catch (_) {
+        return 'checkout-a-' + Date.now().toString(36);
+      }
+    })();
     let checkoutDataEventChannel = null;
     let checkoutDataEventReady = false;
     let checkoutBroadcastQueue = [];
-    function checkoutTableFromUrl(url){
-      const u=String(url||'');
-      const m=u.match(/\/rest\/v1\/([^?]+)/);
-      if(!m)return u.includes('/rpc/')?'rpc':'supabase';
-      return decodeURIComponent(m[1]||'').replace(/^rpc\//,'rpc:')||'supabase';
-    }
+
     function flushCheckoutBroadcastQueue(){
-      if(!checkoutDataEventChannel||!checkoutDataEventReady||!checkoutBroadcastQueue.length)return;
-      checkoutBroadcastQueue.splice(0,8).forEach(payload=>{try{checkoutDataEventChannel.send({type:'broadcast',event:'data_changed',payload})}catch(e){}});
+      if(!checkoutDataEventChannel || !checkoutDataEventReady || !checkoutBroadcastQueue.length) return;
+      checkoutBroadcastQueue.splice(0, 8).forEach(payload => {
+        try { checkoutDataEventChannel.send({type:'broadcast', event:'data_changed', payload}); } catch (_) {}
+      });
     }
-    function broadcastCheckoutDataChanged(table='change',method='WRITE'){
-      checkoutBroadcastQueue.push({source:REALTIME_CLIENT_ID,origin:'checkout',table,method,at:Date.now()});
-      setTimeout(flushCheckoutBroadcastQueue,120);
+    function broadcastCheckoutDataChanged(table='checkout', method='WRITE'){
+      checkoutBroadcastQueue.push({source:REALTIME_CLIENT_ID, origin:'checkout-a', table, method, at:Date.now()});
+      setTimeout(flushCheckoutBroadcastQueue, 80);
     }
-    function installCheckoutWriteBroadcast(){
-      if(window.__innovCheckoutFetchPatched)return;
-      window.__innovCheckoutFetchPatched=true;
-      const originalFetch=window.fetch.bind(window);
-      window.fetch=async function(input,init){
-        const req=input instanceof Request?input:null;
-        const url=typeof input==='string'?input:(input&&input.url)||'';
-        const method=String((init&&init.method)||req?.method||'GET').toUpperCase();
-        const res=await originalFetch(input,init);
-        try{
-          const isWrite=!['GET','HEAD','OPTIONS'].includes(method);
-          const isSupabase=SUPABASE_URL&&String(url).includes(SUPABASE_URL)&&!String(url).includes('/auth/v1/');
-          if(res&&res.ok&&isWrite&&isSupabase)broadcastCheckoutDataChanged(checkoutTableFromUrl(url),method);
-        }catch(e){}
-        return res;
-      };
-    }
-    installCheckoutWriteBroadcast();
 
     const CART_KEY = 'innov_cart_v1';
     const CURRENT_ORDER_KEY = 'innov_current_checkout_order_v5';
@@ -388,7 +430,6 @@
       }
       return null;
     }
-
     async function loadSpecialRequirements(){
       cart = readCart();
       const ids = [...new Set(cartDbItems().map(x => x.plan_id).filter(Boolean))];
@@ -397,44 +438,45 @@
       specialNotices = [];
       if(!ids.length){ renderSpecialRequirements(); return; }
 
-      const pr = await db.from('product_plans').select('id,name,slug,metadata,product_id').in('id', ids);
-      if(pr.error || !pr.data){ renderSpecialRequirements(); return; }
+      const [plansRes, configsRes] = await Promise.all([
+        db.from('product_plans').select('id,name,slug,metadata,product_id').in('id', ids),
+        db.from('checkout_plan_requirements').select('plan_id,title,notice,instructions,fields,active').in('plan_id', ids).eq('active', true)
+      ]);
+      if(plansRes.error || !plansRes.data){ renderSpecialRequirements(); return; }
 
-      const productIds = [...new Set(pr.data.map(p => p.product_id).filter(Boolean))];
+      const configMap = new Map((configsRes.error ? [] : (configsRes.data || [])).map(row => [row.plan_id, row]));
+      const productIds = [...new Set(plansRes.data.map(p => p.product_id).filter(Boolean))];
       let productsMap = new Map();
       if(productIds.length){
-        const rr = await db.from('products').select('id,name,slug,metadata').in('id', productIds);
-        if(!rr.error && rr.data) productsMap = new Map(rr.data.map(p => [p.id, p]));
+        const productsRes = await db.from('products').select('id,name,slug,metadata').in('id', productIds);
+        if(!productsRes.error && productsRes.data) productsMap = new Map(productsRes.data.map(p => [p.id, p]));
       }
 
-      pr.data.forEach(plan => {
+      plansRes.data.forEach(plan => {
         const product = productsMap.get(plan.product_id) || {};
-        const pReq = Array.isArray(product?.metadata?.requirements) ? product.metadata.requirements : [];
-        const planReq = Array.isArray(plan?.metadata?.requirements) ? plan.metadata.requirements : [];
-        const inferred = inferCheckoutRules(product, plan);
-        const reqs = planReq.length ? planReq : (pReq.length ? pReq : (inferred?.requirements || []));
-        planRequirementMap.set(plan.id, { plan, product, requirements:reqs });
-        const meta = Object.assign({}, product?.metadata || {}, plan?.metadata || {});
-        if(inferred){
-          if(!meta.requirement_title) meta.requirement_title = inferred.title;
-          if(!meta.checkout_notice) meta.checkout_notice = inferred.notice;
-          if(!meta.checkout_instructions) meta.checkout_instructions = inferred.instructions;
-        }
-        const noticeParts = [];
-        if(meta.checkout_notice) noticeParts.push(meta.checkout_notice);
-        if(meta.checkout_instructions) noticeParts.push(meta.checkout_instructions);
-        if(meta.delivery_eta_text) noticeParts.push('Tiempo/estado: ' + meta.delivery_eta_text);
-        if(meta.customer_chat_message) noticeParts.push('Mensaje automático: ' + meta.customer_chat_message);
+        const productMeta = product?.metadata || {};
+        const planMeta = plan?.metadata || {};
+        const config = configMap.get(plan.id) || null;
+        const productFields = Array.isArray(productMeta.requirements) ? productMeta.requirements : [];
+        const planFields = Array.isArray(planMeta.requirements) ? planMeta.requirements : [];
+        const configuredFields = Array.isArray(config?.fields) ? config.fields : [];
+        const requirements = configuredFields.length ? configuredFields : (planFields.length ? planFields : productFields);
+        const title = config?.title || planMeta.requirement_title || productMeta.requirement_title || 'Datos de activación';
+        const notice = config?.notice || planMeta.checkout_notice || productMeta.checkout_notice || '';
+        const instructions = config?.instructions || planMeta.checkout_instructions || productMeta.checkout_instructions || '';
+
+        planRequirementMap.set(plan.id, { plan, product, requirements, title, notice, instructions });
+        const noticeParts = [notice, instructions, planMeta.delivery_eta_text ? 'Tiempo/estado: ' + planMeta.delivery_eta_text : '', planMeta.customer_chat_message ? 'Mensaje automático: ' + planMeta.customer_chat_message : ''].filter(Boolean);
         if(noticeParts.length){
           specialNotices.push({
             plan_id: plan.id,
             product_name: product.name || 'Producto',
             plan_name: plan.name || 'Plan',
-            title: meta.requirement_title || 'Aviso importante',
+            title,
             text: noticeParts.join('\n\n')
           });
         }
-        reqs.forEach(req => {
+        requirements.forEach(req => {
           specialRequirements.push({
             plan_id: plan.id,
             product_name: product.name || 'Producto',
@@ -446,14 +488,15 @@
             placeholder: req.placeholder || '',
             help: req.help || '',
             domain: req.domain || '',
-            min_length: req.min_length || 0,
+            min_length: Number(req.min_length || 0),
             after_payment: req.after_payment !== false,
-            title: plan?.metadata?.requirement_title || product?.metadata?.requirement_title || 'Datos requeridos'
+            title
           });
         });
       });
 
       specialRequirements = uniqueBy(specialRequirements, x => x.plan_id + '::' + x.key);
+      specialNotices = uniqueBy(specialNotices, x => x.plan_id + '::' + x.text);
       renderSpecialRequirements();
     }
 
@@ -500,55 +543,83 @@
       if(!softMode && !ok) toast('Revisa los datos requeridos. Los servicios de activación solicitan Gmail válido y ChatGPT cuenta personal requiere el texto completo.');
       return { ok, data:{ items:inputs }, summary:summaryLines.join('\n') };
     }
+    function activationFieldHtml(req, saved={}){
+      const value = String(saved[req.key] || '');
+      const common = `class="activation-input" data-key="${esc(req.key)}" data-plan="${esc(req.plan_id || '')}" data-label="${esc(req.label)}" data-product="${esc(req.product_name || 'Producto')}" data-plan-name="${esc(req.plan_name || 'Plan')}" data-required="${req.required ? '1' : '0'}" data-domain="${esc(req.domain || '')}" data-min-length="${Number(req.min_length || 0)}"`;
+      const label = `${esc(req.label)}${req.required ? ' *' : ''}`;
+      const help = req.help ? `<small>${esc(req.help)}</small>` : '';
+      if(String(req.type).toLowerCase() === 'textarea'){
+        return `<div class="field"><label>${label}</label><textarea ${common} placeholder="${esc(req.placeholder || '')}">${esc(value)}</textarea>${help}</div>`;
+      }
+      const type = ['email','tel','number','url','text'].includes(String(req.type).toLowerCase()) ? String(req.type).toLowerCase() : 'text';
+      return `<div class="field"><label>${label}</label><input ${common} type="${type}" value="${esc(value)}" placeholder="${esc(req.placeholder || '')}">${help}</div>`;
+    }
 
     function renderActivationBox(show=false){
-      const box=$('activationBox'), fields=$('activationFields'), instructions=$('activationInstructions');
-      if(!box||!fields||!instructions)return;
-      const hasReq=specialRequirements.length>0;
-      const shouldShow=hasReq && !!currentOrder?.order_code;
+      const box = $('activationBox'), fields = $('activationFields'), instructions = $('activationInstructions');
+      if(!box || !fields || !instructions) return;
+      const requirements = specialRequirements.filter(req => req.after_payment !== false);
+      const shouldShow = requirements.length > 0 && !!currentOrder?.order_code;
       $('activationShortcutBox')?.classList.toggle('hidden', !shouldShow);
       if(!shouldShow){
         box.classList.add('hidden');
-        fields.innerHTML='';
+        fields.innerHTML = '';
         instructions.classList.add('hidden');
         return;
       }
-      if(!activationBoxOpen){
+      if(!activationBoxOpen && !show){
         box.classList.add('hidden');
         return;
       }
       box.classList.remove('hidden');
-      instructions.classList.add('hidden');
-
-      const prev = document.querySelector('.activation-input')?.value || '';
-      const first = specialRequirements[0] || {};
-      const planTitle = [first.product_name, first.plan_name].filter(Boolean).join(' — ');
-      fields.innerHTML = `
-        <div class="field">
-          <label>Correo para activación ${planTitle?`<span class="mini-muted">(${esc(planTitle)})</span>`:''} *</label>
-          <input class="activation-input" data-key="activation_email" data-plan="${esc(first.plan_id||'')}" data-label="Correo de activación" data-product="${esc(first.product_name||'Producto')}" data-plan-name="${esc(first.plan_name||'Plan')}" data-required="1" data-domain="" data-min-length="0" value="${esc(prev)}" type="email" placeholder="correo@ejemplo.com">
-          <small>Puede ser Gmail, Hotmail u otro correo válido.</small>
-        </div>`;
-
-      if(currentOrder?._activationSent){
-        $('activationResult').innerHTML='<div class="alert-ok">✅ Correo enviado al administrador.</div>';
+      const saved = currentOrder?._activationData || {};
+      const titles = uniqueBy(requirements, req => req.title).map(req => req.title).filter(Boolean);
+      const notices = uniqueBy(specialNotices, item => item.text).map(item => item.text).filter(Boolean);
+      box.querySelector('h4').textContent = '📩 Datos para activar tu servicio';
+      box.querySelector('.mini-muted').textContent = titles.length ? titles.join(' · ') : 'Completa los datos solicitados para la activación.';
+      if(notices.length){
+        instructions.textContent = notices.join('\n\n');
+        instructions.classList.remove('hidden');
       }else{
-        $('activationResult').innerHTML='';
+        instructions.textContent = '';
+        instructions.classList.add('hidden');
       }
+      fields.innerHTML = requirements.map(req => activationFieldHtml(req, saved)).join('');
+      $('activationResult').innerHTML = currentOrder?._activationSent ? '<div class="alert-ok">✅ Datos enviados correctamente al administrador.</div>' : '';
     }
 
     function collectActivationInputs(){
-      const el=document.querySelector('.activation-input');
-      if(!el){ toast('Presiona Agregar datos de activación.'); return {ok:false,data:{items:[]},summary:''}; }
-      const value=el.value.trim();
-      el.style.borderColor='#cfd5df';
-      if(!value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)){
-        el.style.borderColor='#dc2626';
-        toast('Coloca un correo válido.');
-        return {ok:false,data:{items:[]},summary:''};
-      }
-      const item={plan_id:el.dataset.plan,product_name:el.dataset.product,plan_name:el.dataset.planName,key:'activation_email',label:'Correo de activación',value};
-      return {ok:true,data:{items:[item]},summary:`Correo de activación: ${value}`};
+      const elements = Array.from(document.querySelectorAll('.activation-input'));
+      if(!elements.length) return {ok:true, data:{items:[]}, summary:''};
+      const data = [];
+      let ok = true;
+      elements.forEach(el => {
+        const value = String(el.value || '').trim();
+        const required = el.dataset.required === '1';
+        const domain = String(el.dataset.domain || '').trim().toLowerCase();
+        const minLength = Number(el.dataset.minLength || 0);
+        const type = String(el.type || '').toLowerCase();
+        let valid = true;
+        if(required && !value) valid = false;
+        if(valid && type === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) valid = false;
+        if(valid && domain && value && !value.toLowerCase().endsWith('@' + domain)) valid = false;
+        if(valid && minLength && value.length < minLength) valid = false;
+        el.style.borderColor = valid ? '#cbd5e1' : '#dc2626';
+        if(!valid) ok = false;
+        if(value){
+          data.push({
+            plan_id: el.dataset.plan,
+            product_name: el.dataset.product,
+            plan_name: el.dataset.planName,
+            key: el.dataset.key,
+            label: el.dataset.label,
+            value
+          });
+        }
+      });
+      if(!ok){ toast('Revisa los datos requeridos antes de continuar.'); return {ok:false, data:{items:data}, summary:''}; }
+      const summary = data.map(item => `- ${item.product_name} / ${item.plan_name} / ${item.label}: ${item.value}`).join('\n');
+      return {ok:true, data:{items:data}, summary};
     }
 
     async function sendActivationData(){
@@ -561,8 +632,11 @@
       const r=await db.rpc('update_order_customer_inputs_public',{p_order_code:currentOrder.order_code,p_customer_whatsapp:phone,p_customer_inputs:payload.data,p_requirement_summary:payload.summary});
       btn.disabled=false; btn.innerHTML='<i class="fa fa-paper-plane"></i> Guardar correo';
       if(r.error){toast(r.error.message);return}
-      currentOrder._activationSent=true; persistOrder();
-      $('activationResult').innerHTML='<div class="alert-ok">✅ Correo enviado al administrador.</div>';
+      currentOrder._activationSent = true;
+      currentOrder._activationData = Object.fromEntries((payload.data.items || []).map(item => [item.key, item.value]));
+      persistOrder();
+      $('activationResult').innerHTML='<div class="alert-ok">✅ Datos enviados correctamente al administrador.</div>';
+      broadcastCheckoutDataChanged('order_customer_inputs', 'RPC');
       await notifyTelegram('activation_data', { message: payload.summary });
       await checkStatus({target:'statusBox',silent:true});
     }
@@ -593,6 +667,7 @@
         p_message: msg
       });
       if(r.error){ toast(r.error.message); return; }
+      broadcastCheckoutDataChanged('order_chat_messages', 'RPC');
       $('orderChatInput').value = '';
       await checkStatus({target:'statusBox', silent:true});
       toast('Mensaje enviado al administrador.');
@@ -618,33 +693,42 @@
         }
       }
     }
-
     async function detectDeliveryMode(){
       const ids = [...new Set(cartDbItems().map(x => x.plan_id))];
-      let modes = [];
+      let rows = [];
       if(ids.length){
-        const r = await db.from('product_plans').select('id,stock_mode,delivery_mode').in('id',ids);
-        if(!r.error && r.data?.length){
-          modes = r.data.map(p => (p.stock_mode === 'controlled' || p.delivery_mode === 'auto') ? 'auto' : 'manual');
-        }
+        const response = await db.from('product_plans').select('id,stock_mode,delivery_mode,delivery_eta_minutes').in('id', ids);
+        if(!response.error) rows = response.data || [];
       }
-      if(!modes.length){
-        modes = cart.map(i => {
-          const m = String(i?.meta?.delivery_mode || i.delivery_mode || '').toLowerCase();
-          return m === 'auto' ? 'auto' : 'manual';
-        });
+      if(!rows.length){
+        rows = cart.map(item => ({
+          id: item.plan_id || item.planId || '',
+          stock_mode: item?.meta?.stock_mode || item.stock_mode || '',
+          delivery_mode: item?.meta?.delivery_mode || item.delivery_mode || 'manual',
+          delivery_eta_minutes: item?.meta?.delivery_eta_minutes || item.delivery_eta_minutes || null
+        }));
       }
+      const modes = rows.map(row => (String(row.stock_mode || '').toLowerCase() === 'controlled' || ['auto','automatic'].includes(String(row.delivery_mode || '').toLowerCase())) ? 'auto' : 'manual');
       const unique = [...new Set(modes.filter(Boolean))];
-      if(unique.length === 1 && unique[0] === 'auto') deliverySummary = { type:'auto', label:'Entrega automática', help:'Se entrega automáticamente cuando el pago sea aprobado.' };
-      else if(unique.length > 1) deliverySummary = { type:'mixed', label:'Entrega mixta', help:'Hay productos automáticos y manuales en tu compra.' };
-      else deliverySummary = { type:'manual', label:'Entrega manual', help:'El administrador registrará la cuenta/código luego de validar el pago.' };
+      const eta = Math.max(0, ...rows.map(row => Number(row.delivery_eta_minutes || 0)).filter(Number.isFinite));
+      if(unique.length === 1 && unique[0] === 'auto'){
+        deliverySummary = { type:'auto', label:'Entrega automática', help: eta ? `Se entrega al aprobar el pago. Tiempo estimado: hasta ${eta} min.` : 'Se entrega automáticamente cuando el pago sea aprobado.' };
+      }else if(unique.length > 1){
+        deliverySummary = { type:'mixed', label:'Entrega mixta', help:'Tu compra combina productos automáticos y productos que requieren atención del administrador.' };
+      }else{
+        deliverySummary = { type:'manual', label:'Entrega manual', help:'El administrador registrará la cuenta o activación luego de validar el pago.' };
+      }
       renderDeliveryMode();
     }
 
     function renderDeliveryMode(){
-      const b = $('deliveryModeBadge');
-      b.classList.toggle('manual', deliverySummary.type !== 'auto');
-      b.innerHTML = deliverySummary.type === 'auto' ? '<i class="fa fa-bolt"></i> Entrega automática' : '<i class="fa fa-user-check"></i> ' + deliverySummary.label;
+      const badge = $('deliveryModeBadge');
+      if(!badge) return;
+      badge.classList.toggle('manual', deliverySummary.type === 'manual');
+      badge.classList.toggle('mixed', deliverySummary.type === 'mixed');
+      badge.classList.toggle('auto', deliverySummary.type === 'auto');
+      const icon = deliverySummary.type === 'auto' ? 'fa-bolt' : deliverySummary.type === 'mixed' ? 'fa-random' : 'fa-user-check';
+      badge.innerHTML = `<i class="fa ${icon}"></i> ${esc(deliverySummary.label)}`;
       $('deliveryModeHelp').textContent = deliverySummary.help;
     }
 
@@ -786,6 +870,7 @@
       }catch(e){ console.warn('No se pudo guardar datos especiales de respaldo:', e); }
 
       persistOrder();
+      broadcastCheckoutDataChanged('orders', 'RPC');
       renderCart(currentOrder);
       showGeneratedView(currentOrder);
       try{ sessionStorage.removeItem(CART_KEY); localStorage.removeItem(CART_KEY); }catch(e){}
@@ -800,6 +885,7 @@
       const phone = $('phone').value.trim() || currentOrder._phone || $('lookupPhone').value.trim();
       const r = await db.rpc('public_cancel_order',{p_order_code:currentOrder.order_code,p_customer_whatsapp:phone});
       if(r.error){ toast(r.error.message); return; }
+      broadcastCheckoutDataChanged('orders', 'RPC');
       clearCurrentOrderLocal();
       $('generatedView').classList.add('hidden');
       $('formView').classList.remove('hidden');
@@ -814,6 +900,14 @@ async function sendPaymentReview(){
       if(!operation){ toast('Coloca el código de operación.'); return; }
       const phone = $('phone').value.trim() || currentOrder._phone || $('lookupPhone').value.trim();
       if(!phone){ toast('Falta WhatsApp para validar el pedido.'); return; }
+      const activationRequired = specialRequirements.some(req => req.after_payment !== false && req.required);
+      if(activationRequired && !currentOrder._activationSent){
+        activationBoxOpen = true;
+        renderActivationBox(true);
+        $('activationBox')?.scrollIntoView({behavior:'smooth', block:'center'});
+        toast('Completa primero los datos de activación solicitados.');
+        return;
+      }
 
       const btn=$('btnSendReview');
       btn.disabled=true; btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Enviando...';
@@ -830,6 +924,7 @@ async function sendPaymentReview(){
 
       if(r.error){ toast(r.error.message); return; }
       currentOrder._paymentSent=true; persistOrder();
+      broadcastCheckoutDataChanged('payment_proofs', 'RPC');
       setStep(4);
       $('statusBox').innerHTML = '<div class="alert-wait">Pago enviado a revisión. Se actualizará automáticamente cuando el administrador libere la entrega.</div>';
       startOrderRealtime();
@@ -867,21 +962,22 @@ async function sendPaymentReview(){
       });
       checkoutDataEventChannel = ch;
     }
-
     function startOrderRealtime(){
       const code = getActiveOrderCode();
+      const orderId = String(currentOrder?.id || currentOrder?.order_id || '').trim();
       if(!code || !db?.channel) return;
       stopOrderRealtime();
-      let ch = db.channel('innov-order-realtime-' + code + '-' + Date.now());
+      let channel = db.channel('innov-checkout-a-' + code + '-' + Date.now());
       try{
-        ch = ch.on('postgres_changes', { event:'*', schema:'public', table:'orders', filter:`order_code=eq.${code}` }, () => scheduleOrderRealtimeCheck('orders'));
-        // Estas tablas pueden no tener order_code visible; por eso se escucha el cambio y luego se valida por RPC con ID + WhatsApp.
-        ['payment_proofs','deliveries','order_customer_inputs','order_chat_messages'].forEach(table=>{
-          ch = ch.on('postgres_changes', { event:'*', schema:'public', table }, () => scheduleOrderRealtimeCheck(table));
-        });
-        ch.subscribe();
-        orderRealtimeChannel = ch;
-      }catch(e){ console.warn('No se pudo iniciar realtime del pedido:', e); }
+        channel = channel.on('postgres_changes', { event:'*', schema:'public', table:'orders', filter:`order_code=eq.${code}` }, () => scheduleOrderRealtimeCheck('orders'));
+        if(orderId){
+          ['payment_proofs','deliveries','order_customer_inputs','order_chat_messages'].forEach(table => {
+            channel = channel.on('postgres_changes', { event:'*', schema:'public', table, filter:`order_id=eq.${orderId}` }, () => scheduleOrderRealtimeCheck(table));
+          });
+        }
+        channel.subscribe();
+        orderRealtimeChannel = channel;
+      }catch(error){ console.warn('No se pudo iniciar Realtime del pedido:', error); }
     }
     function stopOrderRealtime(){
       clearTimeout(orderRealtimeTimer);
@@ -904,6 +1000,38 @@ async function sendPaymentReview(){
         scheduleOrderRealtimeCheck('focus');
       }
     });
+    function statusLabel(value){
+      const status = String(value || '').toLowerCase();
+      if(/cancel|reject|recha/.test(status)) return 'Cancelado o rechazado';
+      if(/deliver|entreg|complete|liberad/.test(status)) return 'Entrega completada';
+      if(/approv|aprob|paid|pagad|valid/.test(status)) return 'Pago aprobado';
+      if(/review|revision|proof|report/.test(status)) return 'Pago en revisión';
+      if(/pending/.test(status)) return 'Pendiente de pago';
+      return value || 'En proceso';
+    }
+
+    function currentOrderStage(info, delivered){
+      const text = `${info?.status || ''} ${info?.delivery_status || ''}`.toLowerCase();
+      if(delivered || /deliver|entreg|complete|liberad/.test(text)) return 4;
+      if(/approv|aprob|paid|pagad|valid/.test(text)) return 3;
+      if(/review|revision|proof|report/.test(text)) return 2;
+      return 1;
+    }
+
+    function orderProgressHtml(info, delivered){
+      const stage = currentOrderStage(info, delivered);
+      const steps = [
+        ['Pedido generado', 'fa-receipt'],
+        ['Pago enviado', 'fa-credit-card'],
+        ['Validación', 'fa-shield-alt'],
+        ['Entrega lista', 'fa-check-circle']
+      ];
+      return `<div class="order-progress" aria-label="Estado del pedido">${steps.map((step, index) => {
+        const number = index + 1;
+        const css = number < stage ? 'done' : number === stage ? 'active' : '';
+        return `<div class="progress-step ${css}"><span class="progress-icon"><i class="fa ${step[1]}"></i></span><span>${step[0]}</span></div>`;
+      }).join('')}</div>`;
+    }
 
     async function checkStatus(opts={}){
       if(!opts.silent) chatMinimized = false;
@@ -913,29 +1041,33 @@ async function sendPaymentReview(){
       if(!orderCode || !phone){ if(!opts.silent) toast('Coloca ID de pedido y WhatsApp.'); return; }
       const box = $(target);
       if(!opts.silent) box.innerHTML = '<div class="mini-muted">Consultando pedido...</div>';
-      const r = await db.rpc('get_public_order_status_v2', { p_order_code:orderCode, p_customer_whatsapp:phone });
-      if(r.error){ if(!opts.silent) box.innerHTML = '<div class="alert-wait">' + esc(r.error.message) + '</div>'; return; }
-      const info = r.data?.[0];
+      const response = await db.rpc('get_public_order_status_v2', { p_order_code:orderCode, p_customer_whatsapp:phone });
+      if(response.error){ if(!opts.silent) box.innerHTML = '<div class="alert-wait">' + esc(response.error.message) + '</div>'; return; }
+      const info = response.data?.[0];
       if(!info){ box.innerHTML = '<div class="alert-wait">No se encontró información.</div>'; return; }
-      if(info.status && info.status !== 'pending_payment'){ currentOrder = {...(currentOrder||{}), _paymentSent:true}; persistOrder(); renderActivationBox(true); }
-      const delivered = Array.isArray(info.deliveries) && info.deliveries.length;
-      let content = `<div class="${delivered?'alert-ok':'alert-wait'}"><b>ID:</b> ${esc(orderCode)}<br><b>Estado:</b> ${esc(info.status)} / ${esc(info.delivery_status)}<br><b>Total:</b> ${money(info.total)}</div>`;
+      currentOrder = {...(currentOrder || {}), ...info, order_code: orderCode, _phone: phone};
+      if(info.status && info.status !== 'pending_payment') currentOrder._paymentSent = true;
+      persistOrder();
+      renderActivationBox(true);
+      const delivered = Array.isArray(info.deliveries) && info.deliveries.length > 0;
+      let content = `<div class="order-status-card ${delivered ? 'complete' : ''}"><div class="status-title"><span><i class="fa ${delivered ? 'fa-check-circle' : 'fa-clock'}"></i> ${delivered ? 'Entrega disponible' : statusLabel(info.status || info.delivery_status)}</span><span class="status-code">${esc(orderCode)}</span></div><div class="status-grid"><span><b>Pago:</b> ${esc(statusLabel(info.status))}</span><span><b>Entrega:</b> ${esc(statusLabel(info.delivery_status))}</span><span><b>Total:</b> ${money(info.total)}</span></div>${orderProgressHtml(info, delivered)}</div>`;
       renderChat(info.chat_messages || []);
       if(info.requirement_summary){
-        content += `<div class="special-box" style="margin-top:8px"><b>📌 Datos enviados al administrador</b><div style="white-space:pre-wrap;margin-top:5px">${esc(info.requirement_summary)}</div></div>`;
+        content += `<div class="special-box" style="margin-top:10px"><b>📌 Datos registrados para activación</b><div style="white-space:pre-wrap;margin-top:5px">${esc(info.requirement_summary)}</div></div>`;
       }
-      if(['rejected','cancelled'].includes(String(info.status)) || ['cancelled'].includes(String(info.delivery_status))){
-        content += `<div class="alert-wait" style="margin-top:8px"><b>❌ Pedido ${esc(info.status)}</b><br>Este pedido fue rechazado o cancelado. Si crees que es un error, genera un nuevo pedido.</div>`;
+      const stateText = `${info.status || ''} ${info.delivery_status || ''}`.toLowerCase();
+      if(/rejected|cancelled/.test(stateText)){
+        content += '<div class="alert-wait" style="margin-top:10px"><b>❌ Pedido no disponible</b><br>El pedido fue rechazado o cancelado. Si necesitas ayuda, utiliza el soporte de pedido.</div>';
         stopOrderRealtime();
         clearCurrentOrderLocal();
-      } else if(delivered){
+      }else if(delivered){
         const deliveryText = buildDeliveryText(info, orderCode);
-        content += '<div style="margin-top:8px"><b>✅ Cuenta / datos entregados:</b></div>';
+        content += '<div class="delivery-ready"><div class="delivery-ready-head"><b>✅ Entrega de tu servicio</b><span>Plantilla oficial del servicio</span></div>';
         content += `<div class="delivery-data">${esc(deliveryText)}</div>`;
-        content += `<div class="download-row"><button class="btn btn-primary btn-small" onclick="downloadDeliveryTxt('${esc(orderCode)}')"><i class="fa fa-download"></i> Descargar bloc de notas</button></div>`;
-        stopOrderRealtime(); clearCart(); renderCart(); clearCurrentOrderLocal(); try{sessionStorage.removeItem(APPLIED_COUPON_KEY);}catch(e){} setStep(4);
-      } else {
-        content += '<div class="mini-muted" style="margin-top:8px">Aún no hay entrega registrada. Si ya enviaste el pago, espera aprobación del administrador.</div>';
+        content += `<div class="download-row"><button class="btn btn-primary btn-small" onclick="downloadDeliveryTxt('${esc(orderCode)}')"><i class="fa fa-download"></i> Guardar entrega</button></div></div>`;
+        stopOrderRealtime(); clearCart(); renderCart(); clearCurrentOrderLocal(); try{sessionStorage.removeItem(APPLIED_COUPON_KEY);}catch(_){} setStep(4);
+      }else{
+        content += `<div class="status-note"><i class="fa fa-info-circle"></i> ${esc(deliverySummary.help || 'Tu pedido se actualizará cuando se valide el pago.')}</div>`;
       }
       box.innerHTML = content;
     }
@@ -944,9 +1076,9 @@ async function sendPaymentReview(){
       const name = $('fullName').value.trim() || info.customer_name || '';
       const phone = $('phone').value.trim() || $('lookupPhone').value.trim() || '';
       const date = new Date().toLocaleString();
-      const items = cart.map(i => `- ${i.nombre || 'Producto'} ${i.plan_name ? '('+i.plan_name+')' : ''} x${i.qty||1}`).join('\n') || '- Producto comprado';
-      const deliveries = (info.deliveries || []).map(d => d.message || '').join('\n\n---\n\n');
-      return `INNOV IA TIENDA\nID del pedido: ${code}\nFecha de consulta: ${date}\nCliente: ${name}\nWhatsApp: ${phone}\nTotal: ${money(info.total)}\n\nProductos:\n${items}\n\nDatos enviados por el cliente:\n${info.requirement_summary || 'Sin datos especiales'}\n\nDatos de entrega:\n${deliveries}`;
+      const items = cart.map(item => `- ${item.nombre || 'Producto'} ${item.plan_name ? '(' + item.plan_name + ')' : ''} x${item.qty || 1}`).join('\n') || '- Producto comprado';
+      const deliveries = (info.deliveries || []).map(delivery => delivery.message || delivery.delivered_message || '').filter(Boolean).join('\n\n────────────────────\n\n');
+      return `INNOV IA TIENDA\nID del pedido: ${code}\nFecha de consulta: ${date}\nCliente: ${name}\nWhatsApp: ${phone}\nTotal: ${money(info.total)}\n\nProductos:\n${items}\n\nDatos de entrega:\n${deliveries || 'La entrega está siendo preparada.'}`;
     }
 
     window.downloadDeliveryTxt = function(code){
@@ -1042,4 +1174,5 @@ async function sendPaymentReview(){
   </script>
 </body>
 </html>
+
 
