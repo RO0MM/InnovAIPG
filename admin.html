@@ -2295,28 +2295,25 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
             <label class="settings-check"><input type="checkbox" id="setNotifyStock"> <span><b>Notificar cupos agotados</b><br><span class="help">Alerta cuando un plan llega a 0 cupos disponibles.</span></span></label>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
               <button class="btn btn-primary" id="btnTestNotification" type="button">🔊 Probar notificación</button>
-              <button class="btn btn-success" id="btnSaveAdminLocalSettings" type="button">Guardar ajustes</button>
+              <button class="btn btn-success" id="btnSaveAdminBehaviorSettings" type="button">Guardar ajustes globales</button>
             </div>
           </div>
-          <div class="card" style="border-left:4px solid var(--warning)">
-            <strong style="display:block;margin-bottom:10px">🔐 Control de cupos al borrar</strong>
-            <p class="help" style="margin:0 0 10px">Elige en qué servicios se libera cupo automáticamente cuando borras un cliente o recordatorio. Al borrar una cuenta desde <b>Cupos</b>, el recordatorio no se elimina ni se desvincula: solo se oculta la cuenta del stock.</p>
-            <label class="settings-check"><input type="checkbox" id="setReleaseCupoMaster"> <span><b>Activar liberación automática al borrar cliente/recordatorio</b><br><span class="help">Si está apagado, borrar pagos o clientes no toca ningún cupo.</span></span></label>
-            <div class="checkchips" id="releaseCupoServicesBox" style="margin-top:8px">
-              <div class="help" style="margin-bottom:6px"><b>Servicios permitidos</b></div>
-              <div class="chiprow">
-                <label class="chip check"><input type="checkbox" data-release-service="chatgpt"> ChatGPT</label>
-                <label class="chip check"><input type="checkbox" data-release-service="gemini"> Gemini</label>
-                <label class="chip check"><input type="checkbox" data-release-service="google_one"> Google One</label>
-                <label class="chip check"><input type="checkbox" data-release-service="canva"> Canva / Canvas</label>
-                <label class="chip check"><input type="checkbox" data-release-service="autodesk"> Autodesk</label>
+          <div id="coreRulesPanel" class="card core-rules-panel full" aria-labelledby="coreRulesTitle">
+            <div class="core-rules-title">
+              <div>
+                <strong id="coreRulesTitle">🔒 Reglas globales de servicios y cupos</strong>
+                <p class="help">Configuración central en Supabase. Se mantiene igual desde cualquier dispositivo.</p>
               </div>
+              <span class="badge b-purple">Admin A</span>
             </div>
-            <div class="sync-note" style="margin-top:10px"><b>Regla segura:</b> borrar desde Cupos nunca borra recordatorios. Borrar recordatorios solo libera cupo si el servicio está activado arriba.</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-              <button class="btn btn-success" id="btnSaveReleaseCupoSettings" type="button">Guardar control de cupos</button>
-              <button class="btn" id="btnResetReleaseCupoSettings" type="button">Restaurar recomendado</button>
+            <div id="adminLiveStatus" class="core-live-status is-connecting" role="status" aria-live="polite">
+              <span class="core-live-dot" aria-hidden="true"></span>
+              <span id="adminLiveText">Conectando a sincronización en vivo…</span>
             </div>
+            <div class="core-rules-note">
+              La liberación de cupo se define por cada plan y solo se ejecuta al cancelar un servicio asignado. Eliminar un recordatorio no libera cupos automáticamente.
+            </div>
+            <div id="coreRulesList" class="core-rules-list"></div>
           </div>
         </div>
       </section>
@@ -2954,47 +2951,66 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 
 
-/* ---- Realtime sin polling: bus de eventos entre admin/web ---- */
+/* ---- Sincronización reactiva: eventos reales, sin polling ni interceptores globales ---- */
 const REALTIME_BUS_CHANNEL='innov-ia-data-events-v1';
-const REALTIME_CLIENT_ID=(()=>{try{let id=sessionStorage.getItem('innov_rt_client_id');if(!id){id='adm-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);sessionStorage.setItem('innov_rt_client_id',id)}return id}catch(_){return 'adm-'+Date.now().toString(36)}})();
+const REALTIME_CLIENT_ID=(()=>{
+  try{
+    let id=sessionStorage.getItem('innov_rt_client_id');
+    if(!id){
+      id='adm-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+      sessionStorage.setItem('innov_rt_client_id',id);
+    }
+    return id;
+  }catch(_){
+    return 'adm-'+Date.now().toString(36);
+  }
+})();
 let adminDataEventChannel=null;
 let adminDataEventReady=false;
-let adminBroadcastQueue=[];
-function supabaseWriteTableFromUrl(url){
-  const u=String(url||'');
-  const m=u.match(/\/rest\/v1\/([^?]+)/);
-  if(!m)return u.includes('/rpc/')?'rpc':'supabase';
-  const name=decodeURIComponent(m[1]||'').replace(/^rpc\//,'rpc:');
-  return name||'supabase';
-}
-function flushAdminBroadcastQueue(){
-  if(!adminDataEventChannel||!adminDataEventReady||!adminBroadcastQueue.length)return;
-  const q=adminBroadcastQueue.splice(0,8);
-  q.forEach(payload=>{try{adminDataEventChannel.send({type:'broadcast',event:'data_changed',payload})}catch(_){}});
-}
-function broadcastAdminDataChanged(table='change',method='WRITE'){
-  const payload={source:REALTIME_CLIENT_ID,origin:'admin',table,method,at:Date.now()};
-  adminBroadcastQueue.push(payload);
-  setTimeout(flushAdminBroadcastQueue,120);
-}
-function installAdminWriteBroadcast(){
-  if(window.__innovAdminFetchPatched)return;
-  window.__innovAdminFetchPatched=true;
-  const originalFetch=window.fetch.bind(window);
-  window.fetch=async function(input,init){
-    const req=input instanceof Request?input:null;
-    const url=typeof input==='string'?input:(input&&input.url)||'';
-    const method=String((init&&init.method)||req?.method||'GET').toUpperCase();
-    const res=await originalFetch(input,init);
+let adminPendingBroadcasts=[];
+
+/* Solo se emiten eventos explícitos del núcleo. No se modifica window.fetch. */
+function flushAdminBroadcasts(){
+  if(!adminDataEventChannel || !adminDataEventReady || !adminPendingBroadcasts.length) return;
+  const pending=adminPendingBroadcasts.splice(0,12);
+  pending.forEach(payload=>{
     try{
-      const isWrite=!['GET','HEAD','OPTIONS'].includes(method);
-      const isSupabase=SUPABASE_URL&&String(url).includes(SUPABASE_URL)&&!String(url).includes('/auth/v1/');
-      if(res&&res.ok&&isWrite&&isSupabase)broadcastAdminDataChanged(supabaseWriteTableFromUrl(url),method);
-    }catch(_){ }
-    return res;
-  };
+      adminDataEventChannel.send({type:'broadcast',event:'data_changed',payload});
+    }catch(_){
+      adminPendingBroadcasts.push(payload);
+    }
+  });
 }
-installAdminWriteBroadcast();
+function publishAdminChange(table='change',method='WRITE',meta={}){
+  const payload={
+    source:REALTIME_CLIENT_ID,
+    origin:'admin',
+    table:String(table||'change'),
+    method:String(method||'WRITE'),
+    meta:(meta && typeof meta==='object')?meta:{},
+    at:Date.now()
+  };
+  adminPendingBroadcasts.push(payload);
+  setTimeout(flushAdminBroadcasts,80);
+}
+
+function setAdminLiveStatus(message,mode='connecting'){
+  const box=$('adminLiveStatus');
+  const text=$('adminLiveText');
+  if(!box || !text) return;
+  box.classList.remove('is-connecting','is-live','is-updated','is-offline');
+  box.classList.add('is-'+mode);
+  text.textContent=message;
+}
+function pulseAdminLiveStatus(message='Actualizado en vivo'){
+  const box=$('adminLiveStatus');
+  if(!box) return;
+  setAdminLiveStatus(message,'updated');
+  clearTimeout(window.__innovAdminLivePulseTimer);
+  window.__innovAdminLivePulseTimer=setTimeout(()=>{
+    setAdminLiveStatus('En vivo · se actualiza solo cuando hay cambios','live');
+  },1800);
+}
 
 /* ---- State ---- */
 let state={
@@ -4087,13 +4103,24 @@ function renderCoupons(){
   </div>`).join('')||'<div class="empty-state"><span class="icon">🎟️</span><p>Sin cupones.</p></div>';
 }
 
-function getAdminLocalSettings(){
-  try{return {...{autoOpenWaDue:false,notifyDue:true,notifyStock:true},...JSON.parse(localStorage.getItem('innov_admin_local_settings')||'{}')}}catch(_){return{autoOpenWaDue:false,notifyDue:true,notifyStock:true}}
+const ADMIN_BEHAVIOR_DEFAULTS=Object.freeze({autoOpenWaDue:false,notifyDue:true,notifyStock:true});
+function getAdminBehaviorSettings(){
+  const stored=state.settings.find(s=>s.key==='admin_behavior')?.value;
+  const safe=(stored && typeof stored==='object' && !Array.isArray(stored))?stored:{};
+  return {...ADMIN_BEHAVIOR_DEFAULTS,...safe};
 }
-function saveAdminLocalSettings(){
-  const cfg={autoOpenWaDue:!!$('setAutoOpenWaDue')?.checked,notifyDue:!!$('setNotifyDue')?.checked,notifyStock:!!$('setNotifyStock')?.checked};
-  localStorage.setItem('innov_admin_local_settings',JSON.stringify(cfg));
-  toast('Ajustes de notificaciones guardados','ok');
+async function saveAdminBehaviorSettings(){
+  const cfg={
+    autoOpenWaDue:!!$('setAutoOpenWaDue')?.checked,
+    notifyDue:!!$('setNotifyDue')?.checked,
+    notifyStock:!!$('setNotifyStock')?.checked
+  };
+  const r=await db.from('app_settings').upsert({key:'admin_behavior',value:cfg},{onConflict:'key'});
+  if(r.error)return toast('No se guardaron los ajustes: '+r.error.message,'bad');
+  const rest=state.settings.filter(s=>s.key!=='admin_behavior');
+  state.settings=[...rest,{key:'admin_behavior',value:cfg}];
+  publishAdminChange('app_settings','UPSERT',{key:'admin_behavior'});
+  toast('Ajustes globales guardados en Supabase','ok');
 }
 function renderSettings(){
   const pay=getPaymentSettings();
@@ -4101,7 +4128,7 @@ function renderSettings(){
   $('setQr').value=pay.yape_qr_url||'img/yape-qr.png';
   if($('setWaGroup'))$('setWaGroup').value=pay.whatsapp_group_url||pay.grupo_whatsapp||'';
   $('qrPreview').src=$('setQr').value||'img/yape-qr.png';
-  const cfg=getAdminLocalSettings();
+  const cfg=getAdminBehaviorSettings();
   if($('setAutoOpenWaDue'))$('setAutoOpenWaDue').checked=!!cfg.autoOpenWaDue;
   if($('setNotifyDue'))$('setNotifyDue').checked=cfg.notifyDue!==false;
   if($('setNotifyStock'))$('setNotifyStock').checked=cfg.notifyStock!==false;
@@ -4121,6 +4148,9 @@ function switchTab(tab){
   // Scroll tabs into view on desktop
   const activeTab=document.querySelector('.admin-tabs .nav-btn[aria-pressed="true"]');
   if(activeTab)activeTab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
+  if(tab==='settings'){
+    try{renderSettings();window.INNOV_ADMIN_CORE?.refresh?.rules?.();}catch(_){}
+  }
   if(window.innerWidth<=800)window.scrollTo({top:0,behavior:'auto'});
 }
 
@@ -4805,7 +4835,7 @@ async function markReminderPaid(id){
   state.reminders=state.reminders.map(x=>x.id===id?{...x,...(r.data||payload),due_date:nextDue,status:'pending',last_sent_at:null}:x);
   renderKPIs();renderClients();renderReminders();
   toast('Pago registrado. Servicio renovado desde hoy.','ok');
-  broadcastAdminDataChanged('payment_reminders','PATCH');
+  publishAdminChange('payment_reminders','PATCH',{action:'renew_reminder'});
   await loadReminders().catch(()=>{});
   renderKPIs();renderClients();renderReminders();
 }
@@ -6093,7 +6123,7 @@ function showActionToast(title,body,actionText,action){
 }
 function detectNewActivity(prevOrders=[],prevChats=[]){
   if(!state.seenOrderIds||!state.seenChatIds)return seedNotificationMemory();
-  const cfg=getAdminLocalSettings();
+  const cfg=getAdminBehaviorSettings();
   const newOrders=(state.orders||[]).filter(o=>!state.seenOrderIds.has(o.id));
   const newChats=(state.orderChats||[]).filter(c=>!state.seenChatIds.has(c.id));
   newOrders.forEach(o=>notifyWeb('Nuevo pedido recibido',`${o.order_code||'Pedido'} · ${o.customer_name||'Cliente'} · ${money(o.total||o.total_amount)}`));
@@ -6145,11 +6175,12 @@ function scheduleAdminRefresh(reason='change'){
 function initAdminRealtime(){
   if(state.adminRealtimeStarted||!db?.channel)return;
   state.adminRealtimeStarted=true;
-  // Escucha cambios reales de Supabase y además un bus Broadcast entre admin/checkout/shop. No hay polling.
-  const tables=['orders','order_items','payment_proofs','deliveries','order_customer_inputs','order_chat_messages','crm_customers','payment_reminders','stock_items','product_plans','products','coupons','payment_message_templates','delivery_message_templates','totp_accounts','totp_access_codes','totp_access_events','app_settings'];
+  // Escucha cambios reales de Supabase y el canal Broadcast compartido con checkout/shop. No hay polling.
+  const tables=['orders','order_items','payment_proofs','deliveries','order_customer_inputs','order_chat_messages','crm_customers','payment_reminders','stock_items','product_plans','products','coupons','payment_message_templates','delivery_message_templates','totp_accounts','totp_access_codes','totp_access_events','app_settings','service_assignments','service_plan_rules'];
   let ch=db.channel(REALTIME_BUS_CHANNEL);
   ch=ch.on('broadcast',{event:'data_changed'},msg=>{
     const p=msg?.payload||{};
+    if(p.source===REALTIME_CLIENT_ID) return;
     const table=p.table||'broadcast';
     if(document.hidden){state.adminRefreshPending=true;adminRefreshReasons.add(table);return;}
     scheduleAdminRefresh(table);
@@ -6165,8 +6196,13 @@ function initAdminRealtime(){
     adminDataEventReady=status==='SUBSCRIBED';
     adminDataEventChannel=ch;
     if(status==='SUBSCRIBED'){
-      if($('connText'))$('connText').textContent='Supabase activo';
-      flushAdminBroadcastQueue();
+      if($('connText'))$('connText').textContent='Supabase activo · En vivo';
+      setAdminLiveStatus('En vivo · se actualiza solo cuando hay cambios','live');
+      flushAdminBroadcasts();
+    }else if(['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(String(status))){
+      setAdminLiveStatus('Sin conexión en vivo · usa Sincronizar ahora si es necesario','offline');
+    }else{
+      setAdminLiveStatus('Conectando a sincronización en vivo…','connecting');
     }
   });
   adminDataEventChannel=ch;
@@ -6196,6 +6232,8 @@ async function adminAutoRefresh(){
     if(has('payment_reminders'))jobs.push(loadReminders());
     if(has('stock_items'))jobs.push(loadStock(),loadSummary().catch(()=>{}));
     if(has('product_plans','products'))jobs.push(loadProducts(),loadPlans(),loadSummary().catch(()=>{}));
+    if(has('service_assignments','service_plan_rules') && typeof window.loadAdminCoreData==='function')jobs.push(window.loadAdminCoreData());
+    if(has('service_assignments'))jobs.push(loadReminders(),loadStock(),loadCustomers(),loadSummary().catch(()=>{}));
     if(has('coupons'))jobs.push(loadCoupons());
     if(has('payment_message_templates'))jobs.push(loadTemplates());
     if(has('delivery_message_templates'))jobs.push(loadDeliveryTemplates());
@@ -6218,7 +6256,10 @@ async function adminAutoRefresh(){
     if(state.tab==='coupons')renderCoupons();
     if(state.tab==='templates'){renderTemplates();renderDeliveryTemplates();}
     if(state.tab==='totp')renderTotp();
+    if(state.tab==='settings')renderSettings();
+    try{window.INNOV_ADMIN_CORE?.refresh?.rules?.();window.INNOV_ADMIN_CORE?.refresh?.health?.();}catch(_){}
     if($('dlgOrderChat')?.open&&$('chatOrderId').value)renderOrderChatThread($('chatOrderId').value);
+    pulseAdminLiveStatus('Actualizado en vivo');
   }catch(e){console.warn('Realtime refresh',e);}
   finally{adminAutoRefreshBusy=false;}
 }
@@ -6308,7 +6349,7 @@ $('rService')?.addEventListener('input',()=>{autoFillReminderFromService(false)}
 $('rCustomer').onchange=applySelectedTemplate;
 $('btnUploadQr').onclick=uploadQr;
 $('btnSavePayment').onclick=savePayment;
-if($('btnSaveAdminLocalSettings'))$('btnSaveAdminLocalSettings').onclick=saveAdminLocalSettings;
+if($('btnSaveAdminBehaviorSettings'))$('btnSaveAdminBehaviorSettings').onclick=saveAdminBehaviorSettings;
 if($('btnTestNotification'))$('btnTestNotification').onclick=()=>{enableWebNotifications();notifyWeb('Prueba Innov IA','Notificación, sonido y alerta funcionando.',true)};
 $('btnExportBackup').onclick=exportBackup;
 if($('btnImportBackup'))$('btnImportBackup').onclick=()=>$('backupImportFile')?.click();
@@ -11076,138 +11117,673 @@ INNOV IA V62 - TOTP original + selección real
 
 
 <!-- ================================================================
-   V71 — FLUJO LIMPIO DE RECORDATORIOS
-   - Sin guardia V67 ni ocultamiento local.
-   - Borra solo cuando Supabase confirma el borrado físico por RPC.
-   - Libera cupo únicamente después de que el borrado sea confirmado.
+   ADMIN A — NÚCLEO OFICIAL
+   Flujo unificado de clientes, servicios, recordatorios y cupos.
    ================================================================ -->
-<script id="innov-v71-reminders-clean-flow">
-(function(){
-  'use strict';
-  const RPC='admin_delete_payment_reminders_physical';
-  const toId=v=>String(v==null?'':v).trim();
-  const say=(message,type='ok')=>{ try{ toast(message,type); }catch(_){ console[type==='bad'?'error':'log'](message); } };
+<style id="innov-admin-a-core-style">
+/* =====================================================================
+   INNOV IA ADMIN A — estilos del núcleo estable
+   ===================================================================== */
+.core-rules-panel{margin:0 0 14px;border-left:4px solid var(--primary)}
+.core-rules-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap}
+.core-rules-title p{margin:4px 0 0}
+.core-rules-list{display:grid;gap:8px;max-height:420px;overflow:auto;padding-right:2px}
+.core-rule-row{display:grid;grid-template-columns:minmax(190px,1.25fr) minmax(160px,.8fr) minmax(180px,.85fr) minmax(200px,1fr) auto;gap:8px;align-items:center;border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--card2)}
+.core-rule-name{min-width:0}.core-rule-name b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--card-ink)}
+.core-rule-name span{display:block;font-size:.76rem;color:var(--muted);margin-top:2px}
+.core-check{display:flex;gap:6px;align-items:center;color:var(--text);font-size:.8rem;font-weight:650;line-height:1.25}.core-check input{accent-color:var(--primary)}
+.core-health-note{margin:0 0 12px;padding:10px 12px;border:1px solid var(--border);border-left:4px solid var(--success);border-radius:12px;background:var(--success-alpha);font-size:.84rem;color:var(--text)}
+#tab-settings .core-rules-panel{margin:0;box-shadow:var(--shadow)}
+.core-rules-note{margin:0 0 10px;padding:9px 11px;border:1px solid var(--border);border-radius:11px;background:var(--primary-alpha2);font-size:.82rem;color:var(--muted)}
+.core-live-status{display:inline-flex;align-items:center;gap:7px;min-height:30px;margin:0 0 10px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:var(--card2);font-size:.78rem;font-weight:700;color:var(--muted)}
+.core-live-dot{width:8px;height:8px;border-radius:50%;background:var(--warning);box-shadow:0 0 0 0 rgba(245,158,11,.35)}
+.core-live-status.is-live{border-color:rgba(21,128,61,.25);background:var(--success-alpha);color:var(--success)}
+.core-live-status.is-live .core-live-dot{background:var(--success);animation:coreLivePulse 2s infinite}
+.core-live-status.is-updated{border-color:rgba(30,64,175,.25);background:var(--primary-alpha);color:var(--primary)}
+.core-live-status.is-updated .core-live-dot{background:var(--primary);animation:coreLivePulse .8s 2}
+.core-live-status.is-offline{border-color:rgba(185,28,28,.25);background:var(--danger-alpha);color:var(--danger)}
+.core-live-status.is-offline .core-live-dot{background:var(--danger)}
+@keyframes coreLivePulse{0%{box-shadow:0 0 0 0 currentColor}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.core-reminder-section{margin:0 0 12px}.core-reminder-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px;padding:10px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--border)}
+.core-reminder-head strong{display:block;color:var(--card-ink)}.core-reminder-head span:not(.badge){font-size:.76rem;color:var(--muted);display:block;margin-top:2px}.core-empty{padding:14px;color:var(--muted);border:1px dashed var(--border);border-radius:12px;text-align:center;background:var(--card)}
+@media(max-width:900px){.core-rule-row{grid-template-columns:1fr 1fr}.core-rule-name{grid-column:1/-1}.core-rule-save{width:100%}}
+@media(max-width:560px){.core-rule-row{grid-template-columns:1fr}.core-rule-save{width:100%}.core-reminder-head{align-items:flex-start}}
 
-  async function deleteReminderIdsV71(rawIds,{closeModal=false}={}){
-    const ids=[...new Set((rawIds||[]).map(toId).filter(Boolean))];
-    if(!ids.length){ say('No hay recordatorios seleccionados.','bad'); return false; }
-
-    const rows=(state.reminders||[]).filter(r=>ids.includes(toId(r.id)));
-    const result=await db.rpc(RPC,{p_ids:ids});
-    if(result.error){
-      say('No se eliminó nada. Ejecuta el SQL V71 en Supabase. Detalle: '+(result.error.message||result.error),'bad');
-      return false;
-    }
-
-    const confirmed=new Set((result.data||[]).map(x=>toId(x.deleted_id||x.id)).filter(Boolean));
-    if(confirmed.size!==ids.length){
-      try{ await loadAll(); }catch(_){ }
-      say('Supabase no confirmó todos los borrados. La página se recargó sin ocultar registros.','bad');
-      return false;
-    }
-
-    let released=0;
-    for(const row of rows){
-      try{
-        if(typeof releaseStockForReminder==='function'){
-          const release=await releaseStockForReminder(row,'eliminado_manual');
-          if(release?.ok && release.stock_id)released++;
-        }
-      }catch(error){ console.warn('V71: no se pudo liberar cupo después del borrado',error); }
-    }
-
-    state.selectedReminderIds=new Set();
-    state.reminderSelectionMode=false;
-    try{ await loadAll(); }catch(error){
-      console.warn('V71: borrado confirmado, pero no se pudo recargar todo',error);
-      state.reminders=(state.reminders||[]).filter(r=>!confirmed.has(toId(r.id)));
-      try{ renderReminders?.(); }catch(_){ }
-    }
-    if(closeModal){ try{ closeDialog('dlgReminder'); }catch(_){ } }
-    say(`Recordatorio${ids.length===1?'':'s'} eliminado${ids.length===1?'':'s'} físicamente.${released?` ${released} cupo(s) liberado(s).`:''}`,'ok');
-    return true;
-  }
-
-  window.deleteReminderIdsV71=deleteReminderIdsV71;
-  window.quickDeleteReminder=async function(id){
-    if(!id)return;
-    if(!confirm('¿Eliminar este recordatorio definitivamente?'))return;
-    await deleteReminderIdsV71([id]);
-  };
-  window.deleteReminder=async function(){
-    const id=toId(document.getElementById('rId')?.value);
-    if(!id)return;
-    if(!confirm('¿Eliminar este recordatorio definitivamente?'))return;
-    await deleteReminderIdsV71([id],{closeModal:true});
-  };
-  window.deleteSelectedReminders=async function(){
-    const ids=[...(state.selectedReminderIds||new Set())].map(toId).filter(Boolean);
-    if(!ids.length){ say('Selecciona uno o varios recordatorios.','bad'); return; }
-    if(!confirm(`¿Eliminar definitivamente ${ids.length} recordatorio(s)?`))return;
-    await deleteReminderIdsV71(ids);
-  };
-  try{
-    quickDeleteReminder=window.quickDeleteReminder;
-    deleteReminder=window.deleteReminder;
-    deleteSelectedReminders=window.deleteSelectedReminders;
-  }catch(_){ }
-})();
-</script>
-
-
-<!-- ================================================================
-   V72 — VISUALIZACIÓN COMPLETA DE RECORDATORIOS
-   Esta capa NO modifica insert, delete, CRM ni stock.
-   Solo aclara que la lista muestra todos los registros cargados.
-   Cualquier futuro cambio debe conservar el uso de payment_reminders y
-   crm_customers.customer_id; no reemplazar por almacenamiento local.
-   ================================================================ -->
-<style id="innov-v72-full-reminder-visibility-style">
-  .v72-full-list-note{
-    display:flex;align-items:center;gap:7px;flex-wrap:wrap;
-    margin:8px 0 10px;padding:8px 10px;
-    border:1px solid var(--border);border-left:4px solid var(--success);
-    border-radius:12px;background:var(--success-alpha);
-    color:var(--success);font-size:.78rem;font-weight:850;
-  }
 </style>
-<script id="innov-v72-full-reminder-visibility">
-(function(){
+<script id="innov-admin-a-core">
+/* =====================================================================
+   INNOV IA ADMIN A — NÚCLEO OFICIAL DE SERVICIOS Y CUPOS
+
+   CONTRATO INALTERABLE
+   crm_customers → service_assignments → payment_reminders / stock_items
+
+   No crear, borrar, descontar ni liberar cupos directamente desde el HTML.
+   Todos los cambios críticos pasan por funciones RPC oficiales de Supabase.
+   ===================================================================== */
+(function () {
   'use strict';
-  if(window.__innovV72FullReminderVisibility) return;
-  window.__innovV72FullReminderVisibility = true;
+  if (window.__innovAdminCoreLoaded) return;
+  window.__innovAdminCoreLoaded = true;
 
-  function addFullListNote(){
-    try{
-      const grids=[document.getElementById('remindersGrid'),document.getElementById('remindersMergedGrid')].filter(Boolean);
-      const total=(window.state && Array.isArray(state.reminders)) ? state.reminders.length : 0;
-      grids.forEach(grid=>{
-        const current=grid.querySelector(':scope > .v72-full-list-note');
-        if(current) current.remove();
-        if(!grid.children.length) return;
-        const note=document.createElement('div');
-        note.className='v72-full-list-note';
-        note.setAttribute('role','status');
-        note.textContent='✓ Vista completa: no se recortan los recordatorios por cantidad. Registros cargados: '+total+'.';
-        grid.insertBefore(note,grid.firstChild);
-      });
-    }catch(error){ console.warn('V72 visibility note',error); }
+  const CORE_VERSION = '1.0.0';
+  const RPC = Object.freeze({
+    create: 'admin_v73_create_assignment',
+    deliverOrder: 'admin_v73_deliver_order_and_assign',
+    renew: 'admin_v73_renew_assignment',
+    cancel: 'admin_v73_cancel_assignment',
+    deleteLegacyReminder: 'admin_v73_delete_legacy_reminder',
+    saveRule: 'admin_v73_upsert_plan_rule'
+  });
+
+  window.INNOV_ADMIN_CORE = Object.freeze({
+    version: CORE_VERSION,
+    contract: 'crm_customers → service_assignments → payment_reminders / stock_items',
+    rpc: RPC,
+    refresh: Object.freeze({
+      data: loadCoreData,
+      rules: coreRenderRules,
+      health: coreRenderHealth
+    })
+  });
+
+  const byId = id => document.getElementById(id);
+  const text = value => String(value == null ? '' : value).trim();
+  const id = value => String(value == null ? '' : value).trim();
+  const list = value => Array.isArray(value) ? value : [];
+  const nowIso = () => new Date().toISOString();
+  const coreToast = (message, type = 'ok') => {
+    try { toast(message, type); } catch (_) { console[type === 'bad' ? 'error' : 'log'](message); }
+  };
+  const coreError = error => text(error?.message || error || 'Error inesperado');
+  const coreCall = async (name, args) => {
+    const response = await db.rpc(name, args);
+    if (response.error) throw response.error;
+    return Array.isArray(response.data) ? response.data[0] : response.data;
+  };
+  const safeDate = value => text(value).slice(0, 10);
+  const currentDate = () => (typeof todayISO === 'function' ? todayISO() : new Date().toISOString().slice(0, 10));
+  const addMonths = (base, count = 1) => {
+    if (typeof addMonthsInput === 'function') return addMonthsInput(base || currentDate(), count);
+    const date = new Date((base || currentDate()) + 'T00:00:00');
+    date.setMonth(date.getMonth() + Number(count || 1));
+    return date.toISOString().slice(0, 10);
+  };
+
+  state.assignments = state.assignments || [];
+  state.serviceRules = state.serviceRules || [];
+
+  function assignmentById(value) {
+    return list(state.assignments).find(row => id(row.id) === id(value)) || null;
   }
-
-  const previous=window.renderReminders;
-  if(typeof previous==='function'){
-    window.renderReminders=function(){
-      const result=previous.apply(this,arguments);
-      setTimeout(addFullListNote,0);
-      return result;
+  function assignmentForReminder(reminder) {
+    if (!reminder) return null;
+    if (reminder.assignment_id) return assignmentById(reminder.assignment_id);
+    return list(state.assignments).find(row => id(row.reminder_id) === id(reminder.id)) || null;
+  }
+  function ruleForPlan(planId) {
+    return list(state.serviceRules).find(row => id(row.plan_id) === id(planId)) || {
+      plan_id: planId,
+      allocation_mode: 'none',
+      release_stock_on_cancel: false,
+      auto_create_reminder: true,
+      allow_multiple_assignments: true,
+      active: true
     };
-    try{ renderReminders=window.renderReminders; }catch(_){}
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(addFullListNote,500));
-  else setTimeout(addFullListNote,500);
-})();
-</script>
+  function planForId(planId) {
+    return typeof plan === 'function' ? plan(planId) : list(state.plans).find(row => id(row.id) === id(planId));
+  }
+  function customerForReminder(reminder) {
+    return list(state.customers).find(row => id(row.id) === id(reminder?.customer_id)) || {};
+  }
+  function activeReminder(reminder) {
+    const closed = ['cancelled', 'canceled', 'deleted', 'no_renovo', 'expired', 'completed'];
+    return !closed.includes(text(reminder?.status).toLowerCase());
+  }
+  function assignmentIsActive(assignment) {
+    return text(assignment?.status).toLowerCase() === 'active';
+  }
+  function reminderDiff(reminder) {
+    if (typeof localCalendarDiffFromToday === 'function') return Number(localCalendarDiffFromToday(reminder?.due_date));
+    const date = new Date(safeDate(reminder?.due_date) + 'T00:00:00');
+    const now = new Date(currentDate() + 'T00:00:00');
+    return Math.round((date - now) / 86400000);
+  }
+  function reminderMatches(reminder, query) {
+    if (!query) return true;
+    const customer = customerForReminder(reminder);
+    const assignment = assignmentForReminder(reminder);
+    const stock = list(state.stock).find(row => id(row.id) === id(assignment?.stock_item_id || reminder?.stock_item_id)) || {};
+    const raw = [
+      reminder.service_name, reminder.status, reminder.due_date, reminder.amount,
+      customer.name, customer.phone_e164, customer.phone_raw, customer.email,
+      assignment?.status, assignment?.source,
+      stock.title, stock.secret_data?.correo, stock.secret_data?.email
+    ].join(' ').toLowerCase();
+    return raw.includes(query.toLowerCase());
+  }
 
+  async function loadRemindersCore() {
+    const response = await db.from('payment_reminders').select('*').order('due_date', { ascending: true }).limit(5000);
+    if (response.error) throw response.error;
+    state.reminders = response.data || [];
+  }
+  window.loadReminders = loadReminders = loadRemindersCore;
+
+  async function loadCoreData() {
+    const [assignments, rules] = await Promise.all([
+      db.from('service_assignments').select('*').order('created_at', { ascending: false }).limit(5000),
+      db.from('service_plan_rules').select('*').order('updated_at', { ascending: false })
+    ]);
+    if (assignments.error) throw assignments.error;
+    if (rules.error) throw rules.error;
+    state.assignments = assignments.data || [];
+    state.serviceRules = rules.data || [];
+  }
+
+  async function loadAllCore() {
+    showLoading();
+    try {
+      await Promise.all([
+        loadProducts(), loadPlans(), loadStock(), loadOrders(), loadCoupons(), loadSettings(),
+        loadSummary(), loadCustomers(), loadReminders(), loadTemplates(), loadDeliveryTemplates(),
+        loadTotpAccounts(), loadTotpCodes(), loadTotpEvents(), loadCoreData()
+      ]);
+      fillProductSelects();
+      renderAll();
+      coreRenderRules();
+      coreRenderHealth();
+      if (!state.notifSeeded && typeof seedNotificationMemory === 'function') {
+        seedNotificationMemory();
+        state.notifSeeded = true;
+      }
+      if (typeof updateNotifButton === 'function') updateNotifButton();
+      if (byId('syncStatus')) byId('syncStatus').textContent = 'Última sincronización: ' + new Date().toLocaleString();
+      if (byId('connText')) byId('connText').textContent = 'Supabase activo · Core ' + CORE_VERSION;
+    } catch (error) {
+      coreToast('Error cargando núcleo: ' + coreError(error), 'bad');
+    } finally {
+      hideLoading();
+    }
+  }
+
+  window.loadAll = loadAll = loadAllCore;
+  window.loadAdminCoreData = loadCoreData;
+
+  function ensureRulesPanel() {
+    /* El panel es parte fija de Ajustes; no se inserta ni se mueve con JavaScript. */
+    return !!byId('coreRulesPanel') && !!byId('coreRulesList');
+  }
+
+  function ruleModeLabel(value) {
+    return {
+      none: 'No usa cupo',
+      stock_item: 'Cuenta / cupo real',
+      manual_counter: 'Contador manual'
+    }[value] || value;
+  }
+
+  function coreRenderRules() {
+    ensureRulesPanel();
+    const host = byId('coreRulesList');
+    if (!host) return;
+    const plans = list(state.plans).filter(row => row.active !== false);
+    host.innerHTML = plans.map(planRow => {
+      const rule = ruleForPlan(planRow.id);
+      const productName = typeof prodName === 'function' ? prodName(planRow.product_id) : 'Producto';
+      return `<div class="core-rule-row" data-plan-id="${id(planRow.id)}">
+        <div class="core-rule-name"><b>${esc(productName)} — ${esc(planRow.name || 'Plan')}</b><span>${esc(ruleModeLabel(rule.allocation_mode))}</span></div>
+        <select class="input core-rule-mode" aria-label="Modo de cupo">
+          <option value="none" ${rule.allocation_mode === 'none' ? 'selected' : ''}>Sin cupos</option>
+          <option value="stock_item" ${rule.allocation_mode === 'stock_item' ? 'selected' : ''}>Cuenta / cupo real</option>
+          <option value="manual_counter" ${rule.allocation_mode === 'manual_counter' ? 'selected' : ''}>Contador manual</option>
+        </select>
+        <label class="core-check"><input type="checkbox" class="core-rule-release" ${rule.release_stock_on_cancel ? 'checked' : ''}> Liberar cupo al cancelar</label>
+        <label class="core-check"><input type="checkbox" class="core-rule-multi" ${rule.allow_multiple_assignments !== false ? 'checked' : ''}> Permitir varios servicios por cliente</label>
+        <button class="btn btn-sm btn-primary core-rule-save" type="button">Guardar</button>
+      </div>`;
+    }).join('') || '<div class="empty-state"><span class="icon">⚙️</span><p>No hay planes activos.</p></div>';
+
+    host.querySelectorAll('.core-rule-save').forEach(button => {
+      button.addEventListener('click', async () => {
+        const row = button.closest('.core-rule-row');
+        const planId = row?.dataset.planId || '';
+        const mode = row?.querySelector('.core-rule-mode')?.value || 'none';
+        const release = !!row?.querySelector('.core-rule-release')?.checked;
+        const multiple = !!row?.querySelector('.core-rule-multi')?.checked;
+        button.disabled = true;
+        try {
+          await coreCall(RPC.saveRule, {
+            p_plan_id: planId,
+            p_allocation_mode: mode,
+            p_release_stock_on_cancel: release,
+            p_auto_create_reminder: true,
+            p_allow_multiple_assignments: multiple,
+            p_active: true
+          });
+          publishAdminChange('service_plan_rules','UPSERT',{plan_id:planId});
+          coreToast('Regla global guardada en Supabase', 'ok');
+          await loadCoreData();
+          coreRenderRules();
+        } catch (error) {
+          coreToast('No se guardó la regla: ' + coreError(error), 'bad');
+        } finally {
+          button.disabled = false;
+        }
+      });
+    });
+  }
+
+  function coreRenderHealth() {
+    let health = byId('coreHealthNote');
+    if (!health) {
+      health = document.createElement('div');
+      health.id = 'coreHealthNote';
+      health.className = 'core-health-note';
+      const target = byId('tab-reminders');
+      const toolbar = target?.querySelector('.admin-toolbar');
+      if (toolbar) toolbar.insertAdjacentElement('afterend', health);
+    }
+    if (!health) return;
+    const activeAssignments = list(state.assignments).filter(assignmentIsActive).length;
+    const linked = list(state.reminders).filter(row => !!row.assignment_id).length;
+    const legacy = list(state.reminders).filter(row => !row.assignment_id).length;
+    health.innerHTML = `<b>🔒 Núcleo activo</b> · ${activeAssignments} servicios activos · ${linked} recordatorios vinculados${legacy ? ` · ${legacy} recordatorio(s) antiguo(s) sin asignación` : ''}.`;
+  }
+
+  function coreSection(title, subtitle, rows, klass) {
+    return `<div class="core-reminder-section">
+      <div class="core-reminder-head"><div><strong>${title}</strong><span>${subtitle}</span></div><span class="badge ${klass || ''}">${rows.length}</span></div>
+      ${rows.length ? (window.reminderRowsHtml ? window.reminderRowsHtml(rows) : '') : '<div class="core-empty">Sin registros.</div>'}
+    </div>`;
+  }
+
+  function coreRenderReminders() {
+    const search = text(byId('reminderSearch')?.value || byId('clientSearch')?.value).toLowerCase();
+    const all = list(state.reminders)
+      .filter(activeReminder)
+      .filter(row => reminderMatches(row, search))
+      .sort((a, b) => reminderDiff(a) - reminderDiff(b) || safeDate(a.due_date).localeCompare(safeDate(b.due_date)));
+    const due = all.filter(row => reminderDiff(row) < 0);
+    const today = all.filter(row => reminderDiff(row) === 0);
+    const next7 = all.filter(row => reminderDiff(row) >= 1 && reminderDiff(row) <= 7);
+    const later = all.filter(row => reminderDiff(row) > 7);
+    const selectedDue = state.onlyDue || state.onlyDueClients;
+    const displayed = selectedDue ? due : all;
+    const content = selectedDue
+      ? coreSection('🚨 Vencidos', 'requieren seguimiento', due, 'b-bad')
+      : [
+          coreSection('🚨 Vencidos', 'requieren seguimiento', due, 'b-bad'),
+          coreSection('⏰ Vencen hoy', 'por cobrar hoy', today, 'b-warn'),
+          coreSection('📆 Próximos 7 días', 'seguimiento cercano', next7, 'b-ok'),
+          coreSection('🗓 Más adelante', 'vista completa sin límites', later, 'b-purple')
+        ].join('');
+    const fallback = displayed.length ? content : '<div class="empty-state"><span class="icon">🔔</span><p>No hay recordatorios para este filtro.</p></div>';
+    if (byId('remindersGrid')) byId('remindersGrid').innerHTML = fallback;
+    if (byId('remindersMergedGrid')) byId('remindersMergedGrid').innerHTML = fallback;
+    try { updateReminderBulkBar(); } catch (_) { }
+  }
+
+  window.renderReminders = renderReminders = coreRenderReminders;
+
+  function selectedStockId(mode) {
+    const ids = mode === 'ops'
+      ? ['opsDeliverStockSelect', 'opsDeliverStockId']
+      : mode === 'order'
+        ? ['manualStockSelect', 'manualStockId']
+        : ['rStockSelect', 'rLinkedStockId', 'rStockItemId'];
+    for (const elementId of ids) {
+      const value = text(byId(elementId)?.value);
+      if (value) return value;
+    }
+    return '';
+  }
+
+  function selectedStock(planId, mode) {
+    const explicit = selectedStockId(mode);
+    if (explicit) return list(state.stock).find(row => id(row.id) === explicit) || null;
+    const rule = ruleForPlan(planId);
+    if (rule.allocation_mode !== 'stock_item') return null;
+    try { return typeof firstAvailableStockForPlan === 'function' ? firstAvailableStockForPlan(planId) : null; } catch (_) { return null; }
+  }
+
+  function createIdempotency(prefix, values) {
+    const key = prefix + ':' + values.map(value => id(value) || 'none').join(':');
+    return key;
+  }
+
+  async function cleanupIssuedTotp(made) {
+    if (!made?.id) return;
+    try { await db.from('totp_access_codes').delete().eq('id', made.id); } catch (_) { }
+  }
+
+  async function linkIssuedTotp(made, reminderId) {
+    if (!made?.id || !reminderId) return;
+    try { await db.from('totp_access_codes').update({ reminder_id: reminderId }).eq('id', made.id); } catch (_) { }
+  }
+
+  async function coreIssueTotp(stockItem, planId, customerName, customerPhone, service) {
+    if (!stockItem) return { ok: true, skipped: true, code: '' };
+    let accountId = '';
+    try { accountId = typeof stockTotpAccountId === 'function' ? stockTotpAccountId(stockItem, planId) : ''; } catch (_) { }
+    if (!accountId || typeof createTotpCodeForDelivery !== 'function') return { ok: true, skipped: true, code: '' };
+    const made = await createTotpCodeForDelivery(accountId, '', customerName, customerPhone, service);
+    if (!made?.ok) throw new Error(made?.error || 'No se pudo crear el código TOTP');
+    return made;
+  }
+
+  function opsData() {
+    const planId = text(byId('opsDeliverPlanId')?.value) || text(selectedStockId('ops') && list(state.stock).find(row => id(row.id) === selectedStockId('ops'))?.plan_id);
+    const stock = selectedStock(planId, 'ops');
+    const name = text(byId('opsDeliverName')?.value);
+    const phoneInput = text(byId('opsDeliverPhone')?.value);
+    const phone = typeof normalizePhone === 'function' ? normalizePhone(phoneInput) : { ok: !!phoneInput, e164: phoneInput };
+    const service = text(byId('opsDeliverService')?.value) || (typeof planName === 'function' ? planName(planId) : 'Servicio');
+    const amountRaw = byId('opsDeliverAmount')?.value;
+    const amount = amountRaw === '' || amountRaw == null ? null : Number(amountRaw);
+    const due = text(byId('opsDeliverDue')?.value) || (typeof planRenewalDue === 'function' ? planRenewalDue(planId) : addMonths(currentDate(), 1));
+    return {
+      planId, stock, name, phoneInput, phone, service, amount, due,
+      start: text(byId('opsDeliverStart')?.value) || currentDate(),
+      email: text(byId('opsDeliverClientEmail')?.value)
+    };
+  }
+
+  async function saveOpsDeliverCore() {
+    const data = opsData();
+    if (!data.planId) return coreToast('Selecciona un plan para entregar', 'bad');
+    if (!data.name) return coreToast('Ingresa el nombre del cliente', 'bad');
+    if (!data.phone?.ok) return coreToast(data.phone?.error || 'WhatsApp inválido', 'bad');
+    const rule = ruleForPlan(data.planId);
+    if (rule.allocation_mode === 'stock_item' && !data.stock) return coreToast('Selecciona una cuenta con cupos libres', 'bad');
+    if (rule.allocation_mode === 'none' && data.stock) return coreToast('Este plan está configurado sin cupos', 'bad');
+
+    const secret = data.stock && typeof opsSecret === 'function' ? opsSecret(data.stock) : {};
+    let made = null;
+    try {
+      made = await coreIssueTotp(data.stock, data.planId, data.name, data.phone.e164 || data.phoneInput, data.service);
+      if (made?.code && byId('opsDeliverTotpCode')) byId('opsDeliverTotpCode').value = made.code;
+      if (typeof refreshOpsDeliverMessage === 'function') refreshOpsDeliverMessage();
+      const message = text(byId('opsDeliverText')?.value) || (typeof opsDeliveryTextFromPlan === 'function'
+        ? opsDeliveryTextFromPlan(data.planId, { cliente: data.name, telefono: data.phone.e164 || data.phoneInput, monto: data.amount, fecha_inicio: data.start, fecha_vencimiento: data.due, correo: secret.correo || '', contraseña: secret.clave || '', perfil: secret.perfil || '', pin: secret.pin || '', grupo: secret.grupo || '', codigo: made?.code || '' })
+        : '');
+      const key = createIdempotency('ops', [data.name.toLowerCase(), data.phone.e164 || data.phoneInput, data.planId, data.stock?.id || 'manual', data.start]);
+      const result = await coreCall(RPC.create, {
+        p_customer_name: data.name,
+        p_customer_phone: data.phone.e164 || data.phoneInput,
+        p_customer_email: data.email || null,
+        p_plan_id: data.planId,
+        p_service_name: data.service,
+        p_amount: data.amount,
+        p_due_date: data.due,
+        p_start_date: data.start,
+        p_stock_item_id: data.stock?.id || null,
+        p_source: 'manual',
+        p_order_id: null,
+        p_order_item_id: null,
+        p_message: message || null,
+        p_metadata: { delivery_channel: 'ops', totp_code: made?.code || null, created_at: nowIso() },
+        p_idempotency_key: key
+      });
+      await linkIssuedTotp(made, result?.reminder_id);
+      if (typeof copyTextSafe === 'function' && message) copyTextSafe(message);
+      try { closeDialog('dlgOpsDeliver'); } catch (_) { }
+      coreToast(result?.reused ? 'La entrega ya estaba registrada; no se duplicó.' : 'Entrega, recordatorio y cupo registrados correctamente', 'ok');
+      if (byId('opsDeliverOpenWa')?.checked && typeof waLink === 'function') {
+        const url = waLink(data.phone.e164 || data.phoneInput, message);
+        if (url && url !== '#') window.open(url, '_blank', 'noopener,noreferrer');
+      }
+      await loadAllCore();
+      if (typeof switchTab === 'function') switchTab('inventory');
+    } catch (error) {
+      await cleanupIssuedTotp(made);
+      coreToast('No se registró nada: ' + coreError(error), 'bad');
+    }
+  }
+
+  function manualOrderData() {
+    const orderId = text(byId('manualOrderId')?.value);
+    const order = list(state.orders).find(row => id(row.id) === orderId) || {};
+    const planId = text(byId('manualPlan')?.value);
+    const stock = selectedStock(planId, 'order');
+    const phone = typeof normalizePhone === 'function' ? normalizePhone(order.customer_whatsapp || '') : { ok: !!order.customer_whatsapp, e164: order.customer_whatsapp };
+    const data = {};
+    const fields = [
+      ['manualUser', 'correo'], ['manualPass', 'clave'], ['manualProfile', 'perfil'], ['manualPin', 'pin'],
+      ['manualGroup', 'grupo'], ['manualUrl', 'url'], ['manualCode', 'codigo'], ['manualNote', 'nota']
+    ];
+    fields.forEach(([elementId, key]) => { const value = text(byId(elementId)?.value); if (value) data[key] = value; });
+    if (stock) data.stock_id = stock.id;
+    if (text(byId('manualStartDate')?.value)) data.fecha_inicio = typeof displayDateFromInput === 'function' ? displayDateFromInput(byId('manualStartDate').value) : byId('manualStartDate').value;
+    if (text(byId('manualRestrictions')?.value)) data.restricciones = text(byId('manualRestrictions').value);
+    const template = typeof getDeliveryTemplate === 'function' ? getDeliveryTemplate() : null;
+    if (template?.template_key) data.template_key = template.template_key;
+    return { orderId, order, planId, stock, phone, data };
+  }
+
+  async function saveManualDeliveryCore() {
+    try { if (typeof renderDeliveryMessage === 'function') renderDeliveryMessage(); } catch (_) { }
+    const payload = manualOrderData();
+    if (!payload.orderId || !payload.planId) return coreToast('Selecciona pedido y plan', 'bad');
+    const rule = ruleForPlan(payload.planId);
+    if (rule.allocation_mode === 'stock_item' && !payload.stock) return coreToast('Selecciona la cuenta exacta con cupo libre', 'bad');
+    if (!payload.phone?.ok) return coreToast('El pedido no tiene un WhatsApp válido', 'bad');
+    if (!Object.keys(payload.data).some(key => !['fecha_inicio', 'restricciones', 'template_key'].includes(key))) return coreToast('Ingresa datos reales para la entrega', 'bad');
+
+    let made = null;
+    try {
+      const service = typeof planName === 'function' ? planName(payload.planId) : 'Servicio';
+      made = await coreIssueTotp(payload.stock, payload.planId, payload.order.customer_name || 'Cliente', payload.phone.e164 || payload.order.customer_whatsapp, service);
+      if (made?.code) {
+        payload.data.codigo = made.code;
+        if (byId('manualCode')) byId('manualCode').value = made.code;
+        if (typeof renderDeliveryMessage === 'function') renderDeliveryMessage();
+      }
+      const due = typeof planRenewalDue === 'function' ? planRenewalDue(payload.planId) : addMonths(currentDate(), 1);
+      const key = createIdempotency('order', [payload.orderId, payload.planId, payload.stock?.id || rule.allocation_mode, payload.order.customer_whatsapp]);
+      const result = await coreCall(RPC.deliverOrder, {
+        p_order_id: payload.orderId,
+        p_plan_id: payload.planId,
+        p_stock_item_id: payload.stock?.id || null,
+        p_delivery_data: payload.data,
+        p_delivery_message: text(byId('manualMessage')?.value),
+        p_due_date: due,
+        p_idempotency_key: key
+      });
+      await linkIssuedTotp(made, result?.reminder_id);
+      try { closeDialog('dlgManual'); } catch (_) { }
+      coreToast(result?.reused ? 'La entrega ya estaba registrada; no se duplicó.' : 'Entrega, recordatorio y cupo registrados correctamente', 'ok');
+      await loadAllCore();
+      try { if (typeof openDeliveredOrderWhatsApp === 'function') openDeliveredOrderWhatsApp(payload.orderId); } catch (_) { }
+    } catch (error) {
+      await cleanupIssuedTotp(made);
+      coreToast('No se registró nada: ' + coreError(error), 'bad');
+    }
+  }
+
+  async function saveReminderCore(event, silent = false) {
+    if (event?.preventDefault) event.preventDefault();
+    const reminderId = text(byId('rId')?.value);
+    const selectedPlanId = text(byId('rPlan')?.value);
+    const existing = reminderId ? list(state.reminders).find(row => id(row.id) === reminderId) : null;
+    const assigned = assignmentForReminder(existing);
+
+    if (reminderId && assigned) {
+      const due = text(byId('rDue')?.value) || assigned.next_due_date;
+      const amountRaw = byId('rAmount')?.value;
+      const amount = amountRaw === '' || amountRaw == null ? null : Number(amountRaw);
+      try {
+        await coreCall(RPC.renew, {
+          p_assignment_id: assigned.id,
+          p_next_due_date: due,
+          p_amount: amount
+        });
+        const message = text(byId('rMsg')?.value);
+        if (message) await db.from('payment_reminders').update({ whatsapp_message: message }).eq('id', reminderId);
+        if (!silent) { closeDialog('dlgReminder'); coreToast('Servicio actualizado sin ocupar otro cupo', 'ok'); }
+        await loadAllCore();
+        return;
+      } catch (error) {
+        coreToast('No se actualizó: ' + coreError(error), 'bad');
+        return;
+      }
+    }
+
+    const up = await upsertReminderCustomerFromFields();
+    if (up?.error) return coreToast(up.error, 'bad');
+    const customer = up.customer;
+    const service = text(byId('rService')?.value) || 'Servicio';
+    const amountRaw = byId('rAmount')?.value;
+    const amount = amountRaw === '' || amountRaw == null ? null : Number(amountRaw);
+    const due = text(byId('rDue')?.value) || (selectedPlanId && typeof planRenewalDue === 'function' ? planRenewalDue(selectedPlanId) : addMonths(currentDate(), 1));
+    const message = text(byId('rMsg')?.value) || (typeof buildTemplateMessage === 'function' ? buildTemplateMessage(getDefaultTemplate(), customer, { service_name: service, amount, due_date: due, plan_id: selectedPlanId || null }) : null);
+
+    if (!selectedPlanId) {
+      const direct = await db.from('payment_reminders').insert({
+        customer_id: customer.id,
+        product_id: text(byId('rProduct')?.value) || null,
+        plan_id: null,
+        service_name: service,
+        amount,
+        currency: 'PEN',
+        due_date: due,
+        status: 'pending',
+        whatsapp_message: message,
+        source: 'manual'
+      });
+      if (direct.error) return coreToast(direct.error.message, 'bad');
+      if (!silent) { closeDialog('dlgReminder'); coreToast('Recordatorio sin cupo guardado', 'ok'); }
+      await loadAllCore();
+      return;
+    }
+
+    const rule = ruleForPlan(selectedPlanId);
+    const stock = selectedStock(selectedPlanId, 'reminder');
+    if (rule.allocation_mode === 'stock_item' && !stock) return coreToast('Este plan requiere seleccionar una cuenta con cupo', 'bad');
+    const key = createIdempotency('reminder', [customer.id, selectedPlanId, stock?.id || rule.allocation_mode, due, service]);
+    try {
+      await coreCall(RPC.create, {
+        p_customer_name: customer.name,
+        p_customer_phone: customer.phone_e164 || customer.phone_raw,
+        p_customer_email: customer.email || null,
+        p_plan_id: selectedPlanId,
+        p_service_name: service,
+        p_amount: amount,
+        p_due_date: due,
+        p_start_date: currentDate(),
+        p_stock_item_id: stock?.id || null,
+        p_source: 'manual',
+        p_order_id: null,
+        p_order_item_id: null,
+        p_message: message,
+        p_metadata: { entry: 'reminder_form', created_at: nowIso() },
+        p_idempotency_key: key
+      });
+      if (!silent) { closeDialog('dlgReminder'); coreToast('Servicio, recordatorio y cupo registrados', 'ok'); }
+      await loadAllCore();
+    } catch (error) {
+      coreToast('No se registró nada: ' + coreError(error), 'bad');
+    }
+  }
+
+  async function cancelOrDeleteReminder(reminderId, { closeModal = false } = {}) {
+    const reminder = list(state.reminders).find(row => id(row.id) === id(reminderId));
+    if (!reminder) return;
+    const assignment = assignmentForReminder(reminder);
+    try {
+      if (assignment) {
+        const rule = ruleForPlan(assignment.plan_id);
+        const action = rule.release_stock_on_cancel ? 'Se cancelará el servicio y se liberará su cupo.' : 'Se cancelará el servicio. Este plan está configurado para no liberar cupo.';
+        if (!confirm(`${action}\n\nServicio: ${reminder.service_name || 'Servicio'}`)) return;
+        const result = await coreCall(RPC.cancel, {
+          p_assignment_id: assignment.id,
+          p_reason: 'cancelado_desde_recordatorio'
+        });
+        coreToast(result?.released ? 'Servicio cancelado y cupo liberado' : 'Servicio cancelado sin liberar cupo', 'ok');
+      } else {
+        if (!confirm('¿Eliminar este recordatorio creado por error? No libera cupos.')) return;
+        await coreCall(RPC.deleteLegacyReminder, { p_reminder_id: reminder.id });
+        coreToast('Recordatorio eliminado', 'ok');
+      }
+      if (closeModal) closeDialog('dlgReminder');
+      await loadAllCore();
+    } catch (error) {
+      coreToast('No se pudo completar: ' + coreError(error), 'bad');
+    }
+  }
+
+  async function markReminderPaidCore(reminderId) {
+    const reminder = list(state.reminders).find(row => id(row.id) === id(reminderId));
+    const assignment = assignmentForReminder(reminder);
+    if (!reminder) return;
+    if (!assignment) {
+      const due = reminder.plan_id && typeof planRenewalDue === 'function' ? planRenewalDue(reminder.plan_id, currentDate()) : addMonths(currentDate(), 1);
+      const response = await db.from('payment_reminders').update({ due_date: due, status: 'pending', last_sent_at: null }).eq('id', reminder.id);
+      if (response.error) return coreToast(response.error.message, 'bad');
+      coreToast('Recordatorio renovado', 'ok');
+      await loadAllCore();
+      return;
+    }
+    const nextDue = assignment.plan_id && typeof planRenewalDue === 'function' ? planRenewalDue(assignment.plan_id, currentDate()) : addMonths(currentDate(), 1);
+    try {
+      await coreCall(RPC.renew, { p_assignment_id: assignment.id, p_next_due_date: nextDue, p_amount: null });
+      coreToast('Renovación registrada. El cupo se mantiene ocupado.', 'ok');
+      await loadAllCore();
+    } catch (error) {
+      coreToast('No se pudo renovar: ' + coreError(error), 'bad');
+    }
+  }
+
+  async function bulkCancelSelected() {
+    const ids = [...(state.selectedReminderIds || new Set())];
+    if (!ids.length) return coreToast('No hay recordatorios seleccionados', 'bad');
+    if (!confirm(`¿Procesar ${ids.length} registro(s)? Los servicios se cancelarán según las reglas globales de cada plan.`)) return;
+    for (const reminderId of ids) {
+      await cancelOrDeleteReminder(reminderId, { closeModal: false });
+    }
+    state.selectedReminderIds = new Set();
+    state.reminderSelectionMode = false;
+    await loadAllCore();
+  }
+
+  /* Sobrescribir únicamente los puntos críticos del flujo. */
+  window.saveOpsDeliver = saveOpsDeliver = saveOpsDeliverCore;
+  window.saveManualDelivery = saveManualDelivery = saveManualDeliveryCore;
+  window.saveReminder = saveReminder = saveReminderCore;
+  window.deleteReminder = deleteReminder = () => cancelOrDeleteReminder(text(byId('rId')?.value), { closeModal: true });
+  window.quickDeleteReminder = quickDeleteReminder = reminderId => cancelOrDeleteReminder(reminderId);
+  window.deleteSelectedReminders = deleteSelectedReminders = bulkCancelSelected;
+  window.markReminderPaid = markReminderPaid = markReminderPaidCore;
+  window.cleanupExpiredReofferReminders = cleanupExpiredReofferReminders = async () => undefined;
+  window.shouldAutoDeleteReminder = shouldAutoDeleteReminder = () => false;
+
+  function rebindCriticalEvents() {
+    if (byId('btnSaveManualDelivery')) byId('btnSaveManualDelivery').onclick = saveManualDeliveryCore;
+    if (byId('btnDeleteReminder')) byId('btnDeleteReminder').onclick = () => window.deleteReminder();
+    if (byId('btnDeleteSelectedReminders')) byId('btnDeleteSelectedReminders').onclick = bulkCancelSelected;
+    if (byId('reminderForm')) byId('reminderForm').onsubmit = saveReminderCore;
+  }
+
+  function coreProtectOrderReminderCreation() {
+    /* El recordatorio de un pedido manual lo crea admin_v73_deliver_order_and_assign.
+       Esta función reemplaza la autocreación heredada para impedir duplicados. */
+    window.createRemindersFromOrder = createRemindersFromOrder = async () => ({ created: 0, skipped: true, reason: 'admin_core_owns_manual_delivery' });
+  }
+
+  function startup() {
+    rebindCriticalEvents();
+    coreProtectOrderReminderCreation();
+    ensureRulesPanel();
+    setTimeout(async () => {
+      if (!byId('app')?.classList.contains('hidden')) await loadAllCore();
+    }, 700);
+  }
+
+  document.addEventListener('DOMContentLoaded', startup, { once: true });
+  if (document.readyState !== 'loading') startup();
+})();
+
+</script>
 </body>
 </html>
 
