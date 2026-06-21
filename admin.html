@@ -2096,6 +2096,20 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
             <button class="btn chip" id="btnOnlySupport" type="button" aria-pressed="false">Soporte / chat</button>
           </div>
         </div>
+        <!-- Centro Operativo C: cola oficial por unidad de entrega manual -->
+        <div class="card control-c-queue" id="controlCManualQueue">
+          <div class="control-c-queue-head">
+            <div>
+              <strong>📦 Cola de entregas manuales</strong>
+              <div class="help">Cada fila representa una unidad pendiente. Al completar la entrega, el núcleo crea el servicio, el cupo, la plantilla y su recordatorio en una sola operación.</div>
+            </div>
+            <div class="control-c-queue-actions">
+              <span class="badge b-warn" id="controlCQueueCount">0 pendientes</span>
+              <button class="btn btn-sm" id="btnControlCQueueRefresh" type="button">↻ Actualizar</button>
+            </div>
+          </div>
+          <div class="control-c-queue-list" id="controlCQueueList"><div class="help">Cargando cola segura…</div></div>
+        </div>
         <div class="line-list orders-line-list" id="ordersGrid"></div>
       </section>
 
@@ -2484,6 +2498,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
   </div>
   <div class="dlg-body">
     <input type="hidden" id="manualOrderId">
+    <input type="hidden" id="manualFulfillmentId">
     <input type="hidden" id="manualStockId">
     <input type="hidden" id="manualTotpAccountId">
     <input type="hidden" id="manualTotpCode">
@@ -11784,6 +11799,388 @@ INNOV IA V62 - TOTP original + selección real
 })();
 
 </script>
+
+
+<!-- ===================================================================
+     INNOV IA · CONTROL C
+     Módulo oficial de cola por unidad para pedidos web manuales.
+     No crea recordatorios ni descuenta cupos desde la vista: usa el
+     núcleo V73 / Admin A existente y solo guía al operador al flujo seguro.
+     =================================================================== -->
+<style id="innov-control-c-queue-css">
+  .control-c-queue{margin:0 0 12px;border-left:3px solid var(--primary);padding:14px}
+  .control-c-queue-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .control-c-queue-head strong{font-size:1rem;color:var(--card-ink)}
+  .control-c-queue-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .control-c-queue-list{display:grid;gap:8px}
+  .control-c-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;background:var(--card2);padding:10px}
+  .control-c-row-title{font-weight:850;color:var(--card-ink);line-height:1.25}
+  .control-c-row-meta{font-size:.79rem;color:var(--muted);margin-top:3px;line-height:1.35}
+  .control-c-row .btn{white-space:nowrap}
+  .control-c-queue-empty{padding:12px;border:1px dashed var(--border);border-radius:12px;background:var(--card2);font-size:.85rem;color:var(--muted)}
+  .control-c-context{margin-top:8px;border:1px dashed var(--primary);border-radius:10px;background:var(--primary-alpha2);padding:8px 10px;color:var(--primary);font-size:.8rem;font-weight:700}
+  @media(max-width:800px){
+    .control-c-queue{padding:11px}
+    .control-c-queue-head{display:grid;grid-template-columns:1fr}
+    .control-c-queue-actions{justify-content:flex-start}
+    .control-c-row{grid-template-columns:1fr}
+    .control-c-row .btn{width:100%}
+  }
+</style>
+<script id="innov-control-c-queue-module">
+(function(){
+  'use strict';
+  const byId=id=>document.getElementById(id);
+  const escC=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  const textC=v=>String(v??'').trim();
+  let queueRows=[];
+  let queueChannel=null;
+  let queueTimer=null;
+  let deepLinkConsumed=false;
+
+  function orderForC(id){ return (window.state?.orders||[]).find(o=>String(o.id)===String(id))||null; }
+  function planNameC(id){ try{return typeof window.planName==='function'?window.planName(id):((window.state?.plans||[]).find(p=>String(p.id)===String(id))?.name||'Plan');}catch(_){return 'Plan';} }
+  function fmtDateC(value){const raw=textC(value).slice(0,10);if(!raw)return '—';const p=raw.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:raw;}
+  function pendingRows(){return queueRows.filter(r=>r.fulfillment_status==='waiting_manual_delivery');}
+
+  function renderControlCQueue(){
+    const list=byId('controlCQueueList'); const count=byId('controlCQueueCount');
+    if(!list||!count)return;
+    const rows=pendingRows();
+    count.textContent=`${rows.length} pendiente${rows.length===1?'':'s'}`;
+    if(!rows.length){
+      list.innerHTML='<div class="control-c-queue-empty">✅ No hay entregas manuales pendientes. Los pedidos aprobados aparecerán aquí por cada producto o unidad.</div>';
+      return;
+    }
+    list.innerHTML=rows.map(r=>{
+      const order=orderForC(r.order_id)||{};
+      const orderCode=order.order_code||'Pedido';
+      const customer=order.customer_name||'Cliente';
+      const phone=order.customer_whatsapp||'';
+      const unit=`Unidad ${Number(r.unit_no||1)}`;
+      return `<div class="control-c-row">
+        <div>
+          <div class="control-c-row-title">${escC(orderCode)} · ${escC(planNameC(r.plan_id))}</div>
+          <div class="control-c-row-meta">👤 ${escC(customer)}${phone?` · 📱 ${escC(phone)}`:''}<br>📌 ${escC(unit)} · pago aprobado · pendiente desde ${fmtDateC(r.created_at)}</div>
+        </div>
+        <button class="btn btn-primary btn-sm" type="button" onclick="openControlCManualFulfillment('${escC(r.id)}')">📦 Entregar siguiente</button>
+      </div>`;
+    }).join('');
+  }
+
+  async function loadControlCQueue(){
+    if(!window.db?.from)return;
+    const list=byId('controlCQueueList');
+    try{
+      const r=await window.db.from('order_item_fulfillments')
+        .select('id,order_id,order_item_id,unit_no,plan_id,delivery_mode,payment_state,fulfillment_status,created_at')
+        .eq('fulfillment_status','waiting_manual_delivery')
+        .order('created_at',{ascending:true})
+        .order('unit_no',{ascending:true})
+        .limit(150);
+      if(r.error)throw r.error;
+      queueRows=Array.isArray(r.data)?r.data:[];
+      renderControlCQueue();
+      consumeControlCDeepLink();
+    }catch(error){
+      if(list)list.innerHTML=`<div class="control-c-queue-empty">⚠️ No se pudo cargar la cola: ${escC(error?.message||error)}</div>`;
+    }
+  }
+
+  function queueRefreshSoon(){
+    clearTimeout(queueTimer);
+    queueTimer=setTimeout(loadControlCQueue,420);
+  }
+
+  function ensureManualContext(message){
+    const body=byId('dlgManual')?.querySelector('.dlg-body');
+    if(!body)return;
+    let el=byId('controlCManualContext');
+    if(!el){el=document.createElement('div');el.id='controlCManualContext';el.className='control-c-context';body.insertBefore(el,body.firstChild?.nextSibling||body.firstChild);}
+    el.textContent=message;
+  }
+
+  window.openControlCManualFulfillment=async function(fulfillmentId){
+    let row=queueRows.find(r=>String(r.id)===String(fulfillmentId));
+    if(!row){await loadControlCQueue();row=queueRows.find(r=>String(r.id)===String(fulfillmentId));}
+    if(!row){return window.toast?.('Esta unidad ya no está pendiente. La cola se actualizó.','bad');}
+    let order=orderForC(row.order_id);
+    if(!order && typeof window.loadOrders==='function'){
+      try{await window.loadOrders();}catch(_){ }
+      order=orderForC(row.order_id);
+    }
+    if(!order){return window.toast?.('No se pudo cargar el pedido de esta unidad.','bad');}
+    if(typeof window.openManualDelivery!=='function')return window.toast?.('No está disponible el formulario de entrega manual.','bad');
+    window.openManualDelivery(row.order_id);
+    setTimeout(()=>{
+      const select=byId('manualPlan');
+      if(select){
+        select.value=String(row.plan_id);
+        select.dispatchEvent(new Event('change',{bubbles:true}));
+      }
+      if(byId('manualFulfillmentId'))byId('manualFulfillmentId').value=String(row.id);
+      ensureManualContext(`Control C · Se entregará la siguiente unidad pendiente de ${planNameC(row.plan_id)} para ${order.customer_name||'este cliente'}. Al guardar, el núcleo vincula el servicio, cupo, plantilla y recordatorio sin duplicarlos.`);
+    },170);
+  };
+
+  function consumeControlCDeepLink(){
+    if(deepLinkConsumed)return;
+    const params=new URLSearchParams(window.location.search||'');
+    const fid=textC(params.get('fulfillment_id'));
+    const oid=textC(params.get('order_id'));
+    if(fid){deepLinkConsumed=true;setTimeout(()=>window.openControlCManualFulfillment(fid),120);return;}
+    if(oid){
+      const row=pendingRows().find(r=>String(r.order_id)===oid);
+      if(row){deepLinkConsumed=true;setTimeout(()=>window.openControlCManualFulfillment(row.id),120);}
+    }
+  }
+
+  function startControlCRealtime(){
+    if(queueChannel||!window.db?.channel)return;
+    try{
+      queueChannel=window.db.channel('innov-control-c-manual-queue-'+Date.now())
+        .on('postgres_changes',{event:'*',schema:'public',table:'order_item_fulfillments'},queueRefreshSoon)
+        .subscribe();
+    }catch(_){ }
+  }
+
+  function start(){
+    byId('btnControlCQueueRefresh')?.addEventListener('click',loadControlCQueue);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueRefreshSoon();});
+    document.addEventListener('click',ev=>{if(ev.target?.closest?.('[data-tab="orders"]'))queueRefreshSoon();});
+    setTimeout(()=>{loadControlCQueue();startControlCRealtime();},1100);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script>
+
+<!-- ===================================================================
+     INNOV IA · CORE 1.0 — MÓDULO NATIVO DE CUENTAS Y CUPOS
+     Reemplaza la vista heredada de cuentas por una interfaz que lee
+     cupos reales desde service_assignments + stock_access_slots.
+     =================================================================== -->
+<style id="innov-core1-accounts-style">
+  .core1-account-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+  .core1-account-top h3{margin:0;color:var(--card-ink);font-size:1.04rem}
+  .core1-account-top p{margin:3px 0 0;color:var(--muted);font-size:.82rem}
+  .core1-account-kpis{display:flex;gap:8px;flex-wrap:wrap}
+  .core1-account-kpi{border:1px solid var(--border);border-radius:999px;padding:5px 10px;background:var(--card2);font-size:.78rem;font-weight:800}
+  .core1-account-kpi.good{background:var(--success-alpha);border-color:rgba(21,128,61,.22);color:var(--success)}
+  .core1-account-kpi.warn{background:var(--warning-alpha);border-color:rgba(180,83,9,.22);color:var(--warning)}
+  .core1-account-kpi.bad{background:var(--danger-alpha);border-color:rgba(185,28,28,.22);color:var(--danger)}
+  .core1-account-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;margin-bottom:12px}
+  .core1-account-grid{display:grid;gap:10px;max-height:56vh;overflow:auto;padding-right:2px}
+  .core1-account-card{border:1px solid var(--border);border-radius:15px;background:var(--card);padding:13px;box-shadow:var(--shadow-xs)}
+  .core1-account-card.is-maintenance{border-left:4px solid var(--warning)}
+  .core1-account-card.is-suspended{border-left:4px solid var(--danger);opacity:.88}
+  .core1-account-card.is-full{border-left:4px solid var(--primary)}
+  .core1-account-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+  .core1-account-name{font-weight:900;color:var(--card-ink);font-size:.95rem}
+  .core1-account-meta{color:var(--muted);font-size:.78rem;margin-top:2px;word-break:break-word}
+  .core1-account-badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .core1-account-slots{display:grid;gap:6px;margin:10px 0}
+  .core1-slot-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px dashed var(--border);background:var(--card2);border-radius:10px;padding:7px 9px;font-size:.8rem}
+  .core1-slot-left,.core1-slot-right{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .core1-client-list{border-top:1px dashed var(--border);padding-top:8px;display:grid;gap:5px;margin-top:8px}
+  .core1-client-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.8rem}
+  .core1-client-row b{color:var(--card-ink)}
+  .core1-account-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .core1-account-actions .btn{padding:6px 10px;font-size:.78rem}
+  .core1-plan-rule{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:end;border:1px dashed var(--border);background:var(--primary-alpha2);border-radius:12px;padding:10px;margin-bottom:10px}
+  .core1-plan-rule .field{margin:0}
+  .core1-edit-note{padding:9px 10px;background:var(--primary-alpha2);border:1px dashed var(--border);border-radius:10px;color:var(--muted);font-size:.8rem;margin-bottom:12px}
+  .core1-slot-editor{display:grid;gap:7px;margin:8px 0}
+  .core1-slot-edit-row{display:grid;grid-template-columns:1.1fr .8fr .55fr auto;gap:7px;align-items:end;border:1px solid var(--border);border-radius:12px;padding:9px;background:var(--card2)}
+  .core1-hidden{display:none!important}
+  .core1-state-select{width:auto;min-width:130px}
+  .core1-inline-help{font-size:.78rem;color:var(--muted);margin:4px 0 0}
+  @media(max-width:720px){
+    .core1-account-toolbar{grid-template-columns:1fr 1fr}.core1-account-toolbar input{grid-column:1/-1}
+    .core1-account-toolbar .btn{width:100%}
+    .core1-slot-edit-row{grid-template-columns:1fr 1fr}.core1-slot-edit-row .core1-remove-slot{grid-column:1/-1;width:100%}
+    .core1-plan-rule{grid-template-columns:1fr}.core1-plan-rule .btn{width:100%}
+  }
+</style>
+
+<dialog id="dlgCore1Accounts">
+  <div class="modal-header">
+    <strong id="core1AccountsTitle">Cuentas y cupos</strong>
+    <button class="btn btn-ghost btn-icon" type="button" data-close="dlgCore1Accounts">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div class="core1-account-top">
+      <div><h3 id="core1PlanName">Plan</h3><p>Los cupos se calculan desde servicios activos; no se editan manualmente.</p></div>
+      <div class="core1-account-kpis" id="core1PlanKpis"></div>
+    </div>
+    <div class="core1-plan-rule">
+      <div class="field"><label class="subtle">Tipo de acceso global del plan</label><select class="input" id="core1AccessMode"></select><div class="core1-inline-help">Define qué datos pide el formulario al agregar una cuenta.</div></div>
+      <button class="btn btn-primary" id="btnCore1SavePlanRule" type="button">Guardar tipo</button>
+    </div>
+    <div class="core1-account-toolbar">
+      <input class="input" id="core1AccountSearch" type="search" placeholder="Buscar alias, correo, perfil, PIN o cliente...">
+      <button class="btn" id="btnCore1Refresh" type="button">↻ Actualizar</button>
+      <button class="btn btn-primary" id="btnCore1AddAccount" type="button">＋ Agregar cuenta</button>
+    </div>
+    <div class="core1-account-grid" id="core1AccountsList"></div>
+  </div>
+</dialog>
+
+<dialog id="dlgCore1AccountEditor">
+  <div class="modal-header">
+    <strong id="core1EditorTitle">Agregar cuenta</strong>
+    <button class="btn btn-ghost btn-icon" type="button" data-close="dlgCore1AccountEditor">✕</button>
+  </div>
+  <form id="core1AccountForm">
+    <input type="hidden" id="core1StockItemId">
+    <input type="hidden" id="core1PlanId">
+    <div class="core1-edit-note" id="core1EditorHelp"></div>
+    <div class="grid grid-2">
+      <div class="full"><label class="subtle">Alias operativo *</label><input class="input" id="core1Alias" required placeholder="Ej.: Netflix 02, Gemini Familia Norte, ChatGPT TOTP 03"><p class="core1-inline-help">Se usa para buscar y elegir la cuenta al entregar. No se envía al cliente.</p></div>
+      <div id="core1UserWrap"><label class="subtle" id="core1UserLabel">Correo / usuario *</label><input class="input" id="core1Username" autocomplete="off" placeholder="correo@gmail.com"></div>
+      <div id="core1PassWrap"><label class="subtle">Contraseña</label><input class="input" id="core1Password" type="password" autocomplete="new-password" placeholder="Contraseña o clave"></div>
+      <div id="core1GroupWrap" class="full core1-hidden"><label class="subtle">Grupo / invitación / URL</label><input class="input" id="core1GroupUrl" placeholder="https://..."><p class="core1-inline-help">Para servicios por invitación, grupo familiar o enlace.</p></div>
+      <div id="core1TotpWrap" class="full core1-hidden"><label class="subtle">Cuenta TOTP vinculada</label><select class="input" id="core1TotpAccount"></select><p class="core1-inline-help">Solo para planes que entregan acceso TOTP o códigos de autenticación.</p></div>
+      <div id="core1CapacityWrap"><label class="subtle" id="core1CapacityLabel">Cupos totales</label><input class="input" id="core1Capacity" type="number" min="1" max="1000" value="1"><p class="core1-inline-help">Nunca se puede bajar por debajo de los servicios activos.</p></div>
+      <div><label class="subtle">Estado operativo</label><select class="input" id="core1AccountState"><option value="active">Activa y disponible</option><option value="maintenance">En mantenimiento</option><option value="suspended">Suspendida</option></select></div>
+      <div id="core1SlotsWrap" class="full core1-hidden">
+        <label class="subtle" id="core1SlotsLabel">Perfiles / cupos</label>
+        <div id="core1SlotsEditor" class="core1-slot-editor"></div>
+        <button class="btn btn-sm" id="btnCore1AddSlot" type="button">＋ Agregar perfil</button>
+        <p class="core1-inline-help">Cada perfil ocupado bloquea solo ese perfil. No se usa una caja de texto por lote.</p>
+      </div>
+    </div>
+  </form>
+  <div class="modal-actions">
+    <button class="btn btn-danger core1-hidden" id="btnCore1ArchiveAccount" type="button">Archivar cuenta</button>
+    <button class="btn" type="button" data-close="dlgCore1AccountEditor">Cancelar</button>
+    <button class="btn btn-primary" type="submit" form="core1AccountForm">Guardar cuenta</button>
+  </div>
+</dialog>
+
+<dialog id="dlgCore1MoveService">
+  <div class="modal-header"><strong>Mover servicio a otra cuenta/perfil</strong><button class="btn btn-ghost btn-icon" type="button" data-close="dlgCore1MoveService">✕</button></div>
+  <form id="core1MoveForm">
+    <input type="hidden" id="core1MoveAssignmentId">
+    <div class="core1-edit-note" id="core1MoveSummary"></div>
+    <div class="grid grid-2">
+      <div class="full"><label class="subtle">Cuenta / perfil destino *</label><select class="input" id="core1MoveTarget"></select><p class="core1-inline-help">Solo se muestran cupos activos con espacio disponible.</p></div>
+    </div>
+  </form>
+  <div class="modal-actions"><button class="btn" type="button" data-close="dlgCore1MoveService">Cancelar</button><button class="btn btn-primary" type="submit" form="core1MoveForm">Mover sin cambiar vencimiento</button></div>
+</dialog>
+
+<script id="innov-core1-accounts-module">
+(function(){
+  'use strict';
+  if(window.__innovCore1AccountsLoaded)return;
+  window.__innovCore1AccountsLoaded=true;
+
+  const $=id=>document.getElementById(id);
+  const safe=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  const text=v=>String(v??'').trim();
+  const list=v=>Array.isArray(v)?v:[];
+  const toastC=(m,t='ok')=>{try{toast(m,t)}catch(_){alert(m)}};
+  const modeLabels={credential:'Cuenta con correo y contraseña',profile:'Streaming por perfiles',invite:'Invitación / grupo / enlace',totp:'Cuenta con TOTP',code:'Código o acceso único',none:'Sin cuentas / cupos'};
+  const stateC={planId:'',model:null,channel:null,refreshTimer:null,slots:[]};
+
+  function show(id){const d=$(id);if(!d)return;try{if(!d.open)d.showModal()}catch(_){d.setAttribute('open','')}}
+  function close(id){const d=$(id);if(!d)return;try{if(d.open)d.close()}catch(_){d.removeAttribute('open')}}
+  async function rpc(name,args){const r=await db.rpc(name,args);if(r.error)throw r.error;return r.data}
+  function planName(id){const p=(window.state?.plans||[]).find(x=>String(x.id)===String(id));return p?.name||'Plan'}
+  function accountById(id){return list(stateC.model?.accounts).find(a=>String(a.stock_item_id)===String(id))||null}
+  function openDialogByDataClose(){document.querySelectorAll('[data-close="dlgCore1Accounts"]').forEach(b=>b.onclick=()=>close('dlgCore1Accounts'));document.querySelectorAll('[data-close="dlgCore1AccountEditor"]').forEach(b=>b.onclick=()=>close('dlgCore1AccountEditor'));document.querySelectorAll('[data-close="dlgCore1MoveService"]').forEach(b=>b.onclick=()=>close('dlgCore1MoveService'));}
+
+  function badge(label,kind=''){return `<span class="badge ${kind}">${safe(label)}</span>`}
+  function accountClass(a){return `core1-account-card ${a.core_state==='maintenance'?'is-maintenance':''} ${a.core_state==='suspended'?'is-suspended':''} ${a.availability==='full'?'is-full':''}`}
+  function clientLine(c){return `<div class="core1-client-row"><span><b>${safe(c.customer_name||'Cliente')}</b> · ${safe(c.phone||'—')} · vence ${safe(String(c.next_due_date||'—').slice(0,10))}${c.slot_label?` · ${safe(c.slot_label)}`:''}</span><button class="btn btn-sm" type="button" onclick="window.INNOV_CORE1_ACCOUNTS.move('${safe(c.assignment_id)}')">Mover</button></div>`}
+
+  function render(){
+    const model=stateC.model; if(!model)return;
+    $('core1AccountsTitle').textContent='Cuentas y cupos · '+(model.plan_name||'Plan');
+    $('core1PlanName').textContent=model.plan_name||'Plan';
+    const rule=model.rule||{};
+    $('core1AccessMode').innerHTML=Object.entries(modeLabels).map(([v,l])=>`<option value="${v}" ${rule.access_mode===v?'selected':''}>${safe(l)}</option>`).join('');
+    const accounts=list(model.accounts);
+    const cap=accounts.reduce((n,a)=>n+Number(a.capacity||0),0), used=accounts.reduce((n,a)=>n+Number(a.used_count||0),0), free=accounts.reduce((n,a)=>n+Number(a.free_count||0),0);
+    $('core1PlanKpis').innerHTML=[`<span class="core1-account-kpi good">${free} libres</span>`,`<span class="core1-account-kpi bad">${used} usados</span>`,`<span class="core1-account-kpi">${cap} cupos reales</span>`].join('');
+    const q=text($('core1AccountSearch').value).toLowerCase();
+    const visible=accounts.filter(a=>JSON.stringify(a).toLowerCase().includes(q));
+    $('core1AccountsList').innerHTML=visible.map(a=>{
+      const slots=list(a.slots).map(s=>`<div class="core1-slot-row"><div class="core1-slot-left"><b>${safe(s.label)}</b>${s.pin?badge('PIN '+s.pin):''}${badge(s.kind||'slot')}</div><div class="core1-slot-right">${badge(`${s.used_count||0}/${s.capacity||0} usados`,Number(s.free_count||0)>0?'b-ok':'b-bad')}${badge(`${s.free_count||0} libres`,Number(s.free_count||0)>0?'b-ok':'b-bad')}</div></div>`).join('')||'<div class="help">Sin slots configurados.</div>';
+      const clients=list(a.clients); const clientsHtml=clients.length?`<div class="core1-client-list"><b class="help">Servicios activos vinculados (${clients.length})</b>${clients.map(clientLine).join('')}</div>`:'<div class="core1-client-list help">Sin servicios activos vinculados.</div>';
+      const availability=a.core_state!=='active'?a.core_state:(a.availability==='full'?'Cuenta llena':'Disponible');
+      return `<article class="${accountClass(a)}"><div class="core1-account-head"><div><div class="core1-account-name">${safe(a.alias||'Cuenta')}</div><div class="core1-account-meta">${safe(a.secret_data?.correo||a.secret_data?.email||a.secret_data?.usuario||'Sin correo/usuario')}</div></div><div class="core1-account-badges">${badge(availability,a.availability==='full'?'b-bad':a.core_state==='active'?'b-ok':'b-warn')}${badge(`${a.used_count||0}/${a.capacity||0} usos`,Number(a.free_count||0)>0?'b-ok':'b-bad')}${badge(`${a.free_count||0} libres`,Number(a.free_count||0)>0?'b-ok':'b-bad')}</div></div><div class="core1-account-slots">${slots}</div>${clientsHtml}<div class="core1-account-actions"><button class="btn" type="button" onclick="window.INNOV_CORE1_ACCOUNTS.edit('${safe(a.stock_item_id)}')">✏️ Editar</button><button class="btn" type="button" onclick="window.INNOV_CORE1_ACCOUNTS.changeState('${safe(a.stock_item_id)}','maintenance')">🛠 Mantenimiento</button><button class="btn ${a.core_state==='active'?'btn-warning':'btn-success'}" type="button" onclick="window.INNOV_CORE1_ACCOUNTS.changeState('${safe(a.stock_item_id)}','${a.core_state==='active'?'suspended':'active'}')">${a.core_state==='active'?'⏸ Suspender':'▶ Activar'}</button></div></article>`;
+    }).join('')||'<div class="empty-state"><span class="icon">📦</span><p>No hay cuentas que coincidan. Agrega una cuenta o ajusta la búsqueda.</p></div>';
+  }
+
+  async function load(planId,open=true){
+    if(!planId)return toastC('Selecciona un plan','bad');
+    stateC.planId=planId;
+    const res=await rpc('core1_plan_accounts',{p_plan_id:planId});
+    stateC.model=res;
+    render(); if(open)show('dlgCore1Accounts'); subscribe();
+  }
+  function schedule(){clearTimeout(stateC.refreshTimer);stateC.refreshTimer=setTimeout(()=>load(stateC.planId,false).catch(e=>console.warn(e)),450)}
+  function subscribe(){
+    if(stateC.channel){try{db.removeChannel(stateC.channel)}catch(_){}}
+    stateC.channel=db.channel('core1-accounts-'+stateC.planId)
+      .on('postgres_changes',{event:'*',schema:'public',table:'stock_items',filter:`plan_id=eq.${stateC.planId}`},schedule)
+      .on('postgres_changes',{event:'*',schema:'public',table:'stock_access_slots'},schedule)
+      .on('postgres_changes',{event:'*',schema:'public',table:'service_assignments'},schedule)
+      .subscribe();
+  }
+
+  async function loadTotp(selected=''){
+    let rows=[];try{const r=await db.from('totp_accounts').select('id,label,issuer,active').eq('active',true).order('label');if(!r.error)rows=r.data||[];}catch(_){}
+    $('core1TotpAccount').innerHTML='<option value="">Sin TOTP vinculado</option>'+rows.map(r=>`<option value="${safe(r.id)}" ${String(r.id)===String(selected)?'selected':''}>${safe(r.label||r.issuer||'Cuenta TOTP')}</option>`).join('');
+  }
+  function slotRow(data={}){const i=stateC.slots.length;stateC.slots.push({id:data.id||'',label:data.label||'',pin:data.pin||'',capacity:Number(data.capacity||1),active:data.active!==false,sort_order:Number(data.sort_order||i)});renderSlots()}
+  function renderSlots(){
+    $('core1SlotsEditor').innerHTML=stateC.slots.map((s,i)=>`<div class="core1-slot-edit-row"><div><label class="subtle">${(stateC.model?.rule?.access_mode||'')==='profile'?'Perfil':'Cupo / acceso'}</label><input class="input" data-c1="label" data-i="${i}" value="${safe(s.label)}" placeholder="Ej.: Perfil 1"></div><div><label class="subtle">PIN</label><input class="input" data-c1="pin" data-i="${i}" value="${safe(s.pin)}" placeholder="Opcional"></div><div class="${(stateC.model?.rule?.access_mode||'')==='profile'?'core1-hidden':''}"><label class="subtle">Capacidad</label><input class="input" data-c1="capacity" data-i="${i}" type="number" min="1" value="${Number(s.capacity||1)}"></div><button class="btn btn-danger core1-remove-slot" data-c1="remove" data-i="${i}" type="button">Quitar</button></div>`).join('');
+    document.querySelectorAll('[data-c1="label"]').forEach(el=>el.oninput=e=>stateC.slots[Number(e.target.dataset.i)].label=e.target.value);
+    document.querySelectorAll('[data-c1="pin"]').forEach(el=>el.oninput=e=>stateC.slots[Number(e.target.dataset.i)].pin=e.target.value);
+    document.querySelectorAll('[data-c1="capacity"]').forEach(el=>el.oninput=e=>stateC.slots[Number(e.target.dataset.i)].capacity=Number(e.target.value||1));
+    document.querySelectorAll('[data-c1="remove"]').forEach(el=>el.onclick=e=>{stateC.slots.splice(Number(e.currentTarget.dataset.i),1);renderSlots()});
+  }
+  function applyMode(mode){
+    const profile=mode==='profile', invite=mode==='invite', totp=mode==='totp', code=mode==='code';
+    $('core1UserWrap').classList.toggle('core1-hidden',mode==='none');$('core1PassWrap').classList.toggle('core1-hidden',invite||code||mode==='none');
+    $('core1GroupWrap').classList.toggle('core1-hidden',!invite);$('core1TotpWrap').classList.toggle('core1-hidden',!totp);
+    $('core1SlotsWrap').classList.toggle('core1-hidden',!profile);$('core1CapacityWrap').classList.toggle('core1-hidden',profile||mode==='none');
+    $('core1UserLabel').textContent=code?'Código / dato de acceso':invite?'Correo administrador (opcional)':'Correo / usuario *';
+    $('core1CapacityLabel').textContent=invite?'Miembros / cupos totales':'Cupos totales';
+    $('core1SlotsLabel').textContent=profile?'Perfiles reales':'Cupos';
+    $('core1EditorHelp').textContent=modeLabels[mode]||'Tipo de acceso';
+    if(profile&&!stateC.slots.length)slotRow({label:'Perfil 1',capacity:1});
+  }
+  async function openEditor(stockId=''){
+    const account=stockId?accountById(stockId):null; const mode=stateC.model?.rule?.access_mode||'credential'; const sec=account?.secret_data||{};
+    $('core1StockItemId').value=account?.stock_item_id||'';$('core1PlanId').value=stateC.planId;$('core1Alias').value=account?.alias||'';$('core1Username').value=sec.correo||sec.email||sec.usuario||'';$('core1Password').value=sec.clave||sec.password||sec.pass||'';$('core1GroupUrl').value=sec.grupo||sec.url||'';$('core1Capacity').value=String(account?.capacity||1);$('core1AccountState').value=account?.core_state||'active';
+    stateC.slots=list(account?.slots).map((s,i)=>({id:s.id,label:s.label,pin:s.pin||'',capacity:Number(s.capacity||1),active:s.active!==false,sort_order:i}));
+    $('core1EditorTitle').textContent=account?'Editar cuenta / cupo':'Agregar cuenta / cupo';$('btnCore1ArchiveAccount').classList.toggle('core1-hidden',!account);
+    await loadTotp(sec.totp_account_id||''); applyMode(mode); renderSlots(); show('dlgCore1AccountEditor');
+  }
+  async function saveAccount(e){e.preventDefault();const mode=stateC.model?.rule?.access_mode||'credential';const alias=text($('core1Alias').value);if(!alias)return toastC('Escribe un alias operativo','bad');if(mode==='profile'&&!stateC.slots.length)return toastC('Agrega al menos un perfil','bad');
+    try{await rpc('core1_upsert_account',{p_stock_item_id:text($('core1StockItemId').value)||null,p_plan_id:stateC.planId,p_alias:alias,p_username:text($('core1Username').value)||null,p_password:mode==='invite'||mode==='code'?null:$('core1Password').value,p_group_url:text($('core1GroupUrl').value)||null,p_totp_account_id:text($('core1TotpAccount').value)||null,p_state:$('core1AccountState').value,p_capacity:Number($('core1Capacity').value||1),p_slots:mode==='profile'?stateC.slots:[]});close('dlgCore1AccountEditor');toastC('Cuenta guardada. Los cupos se recalcularon desde servicios activos.','ok');await load(stateC.planId,false);}catch(err){toastC(err.message||String(err),'bad')}}
+  async function savePlanMode(){const mode=$('core1AccessMode').value; if(!confirm('Cambiar el tipo de acceso es global para este plan. Las cuentas actuales se conservarán. ¿Continuar?'))return;try{await rpc('core1_set_plan_access_mode',{p_plan_id:stateC.planId,p_access_mode:mode,p_release_stock_on_cancel:null,p_renewal_options:null});toastC('Tipo de acceso guardado','ok');await load(stateC.planId,false)}catch(e){toastC(e.message||String(e),'bad')}}
+  async function changeState(id,state){try{await rpc('core1_set_account_state',{p_stock_item_id:id,p_state:state});toastC('Estado actualizado','ok');await load(stateC.planId,false)}catch(e){toastC(e.message||String(e),'bad')}}
+  async function archive(){const id=text($('core1StockItemId').value);if(!id)return;if(!confirm('Archivar esta cuenta? Solo se permite cuando no tiene servicios activos.'))return;try{await rpc('core1_archive_account',{p_stock_item_id:id});close('dlgCore1AccountEditor');toastC('Cuenta archivada','ok');await load(stateC.planId,false)}catch(e){toastC(e.message||String(e),'bad')}}
+  function move(assignmentId){const account=list(stateC.model?.accounts).find(a=>list(a.clients).some(c=>String(c.assignment_id)===String(assignmentId)));const client=list(account?.clients).find(c=>String(c.assignment_id)===String(assignmentId));$('core1MoveAssignmentId').value=assignmentId;$('core1MoveSummary').textContent=`Mover a ${client?.customer_name||'cliente'} sin alterar su vencimiento ni recordatorio.`;const opts=[];list(stateC.model?.accounts).forEach(a=>list(a.slots).filter(s=>Number(s.free_count||0)>0&&a.core_state==='active').forEach(s=>opts.push(`<option value="${safe(a.stock_item_id)}|${safe(s.id)}">${safe(a.alias)} · ${safe(s.label)} (${s.free_count} libre${Number(s.free_count)===1?'':'s'})</option>`)));$('core1MoveTarget').innerHTML=opts.join('')||'<option value="">Sin cupos disponibles</option>';show('dlgCore1MoveService')}
+  async function saveMove(e){e.preventDefault();const [item,slot]=text($('core1MoveTarget').value).split('|');if(!item||!slot)return toastC('No hay destino disponible','bad');try{await rpc('core1_move_assignment',{p_assignment_id:text($('core1MoveAssignmentId').value),p_target_stock_item_id:item,p_target_slot_id:slot});close('dlgCore1MoveService');toastC('Servicio movido. Cliente, vencimiento y recordatorio se conservaron.','ok');await load(stateC.planId,false)}catch(err){toastC(err.message||String(err),'bad')}}
+
+  async function reconcile(){try{const r=await rpc('core1_reconcile_all',{});toastC(`Reconciliación lista: ${r.accounts_synced||0} cuenta(s) sincronizada(s).`,'ok');await load(stateC.planId,false)}catch(e){toastC(e.message||String(e),'bad')}}
+
+  function bind(){
+    openDialogByDataClose();
+    $('core1AccountSearch').oninput=render;$('btnCore1Refresh').onclick=()=>load(stateC.planId,false);$('btnCore1AddAccount').onclick=()=>openEditor();$('btnCore1SavePlanRule').onclick=savePlanMode;$('btnCore1AddSlot').onclick=()=>slotRow({label:'Perfil '+(stateC.slots.length+1),capacity:1});$('core1AccountForm').onsubmit=saveAccount;$('btnCore1ArchiveAccount').onclick=archive;$('core1MoveForm').onsubmit=saveMove;
+    window.openPlanStockView=(planId)=>load(planId,true);window.openPlanAccounts=window.openPlanStockView;window.openOpsStockDialog=(type='account',id='')=>{let p=stateC.planId;if(id){const x=(window.state?.stock||[]).find(r=>String(r.id)===String(id));p=x?.plan_id||p}if(!p){p=(window.state?.plans||[])[0]?.id||''}load(p,false).then(()=>openEditor(id));};window.openStockViewEdit=(id)=>window.openOpsStockDialog('account',id);window.openAddStockFromPlanView=()=>openEditor();window.addStockForPlan=(planId)=>load(planId,false).then(()=>openEditor());
+    window.INNOV_CORE1_ACCOUNTS=Object.freeze({open:load,edit:openEditor,move,changeState,reconcile});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,900),{once:true});else setTimeout(bind,900);
+})();
+</script>
+
 </body>
 </html>
+
 
