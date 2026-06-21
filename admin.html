@@ -12701,6 +12701,365 @@ INNOV IA V62 - TOTP original + selección real
 })();
 </script>
 
+<script id="innov-core113-authoritative-delivery">
+/*
+  Core 1.1.3 · Entrega autoritativa
+  Una sola fuente para elegir cuenta/perfil: core11_delivery_options + core11_delivery_context.
+  No usa serviceRules en memoria para decidir si debe mandar stock al RPC.
+*/
+(function(){
+  'use strict';
+  if (window.__innovCore113AuthoritativeDelivery) return;
+  window.__innovCore113AuthoritativeDelivery = true;
+
+  const $ = id => document.getElementById(id);
+  const text = value => String(value == null ? '' : value).trim();
+  const list = value => Array.isArray(value) ? value : [];
+  const id = value => text(value);
+  const same = (a,b) => id(a) === id(b);
+  const toNumber = value => { const n = Number(value); return Number.isFinite(n) ? n : 0; };
+  const notice = (message,type='bad') => {
+    try { if (typeof window.coreToast === 'function') return window.coreToast(message,type); } catch (_) {}
+    try { if (typeof window.toast === 'function') return window.toast(message,type); } catch (_) {}
+    console[type === 'bad' ? 'error' : 'log'](message);
+  };
+  const errText = error => text(error?.message || error?.error_description || error?.details || error || 'Error desconocido');
+  const set = (elementId,value) => { const element=$(elementId); if (element) element.value=value == null ? '' : String(value); };
+  const value = elementId => text($(elementId)?.value);
+
+  function client(){
+    let c = window.db || window.INNOV_SUPABASE_CLIENT || null;
+    try { if (!c && typeof db !== 'undefined') c = db; } catch (_) {}
+    if (c && typeof c.rpc === 'function') {
+      window.db = c;
+      window.INNOV_SUPABASE_CLIENT = c;
+      return c;
+    }
+    return null;
+  }
+
+  async function rpc(name,args){
+    const c = client();
+    if (!c) throw new Error('La conexión con Supabase no está lista. Recarga el administrador.');
+    const result = await c.rpc(name,args);
+    if (result?.error) throw result.error;
+    return result?.data;
+  }
+
+  function phoneInfo(raw){
+    try { if (typeof window.normalizePhone === 'function') return window.normalizePhone(raw); } catch (_) {}
+    const digits=String(raw||'').replace(/\D/g,'');
+    return digits.length >= 8 ? {ok:true,e164:digits} : {ok:false,error:'WhatsApp inválido'};
+  }
+
+  function today(){
+    try { if (typeof window.todayISO === 'function') return window.todayISO(); } catch (_) {}
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function dueForPlan(planId){
+    try { if (typeof window.planRenewalDue === 'function') return window.planRenewalDue(planId,today()) || window.planRenewalDue(planId); } catch (_) {}
+    const d=new Date(today()+'T00:00:00'); d.setMonth(d.getMonth()+1); return d.toISOString().slice(0,10);
+  }
+
+  function planName(planId){
+    try { if (typeof window.planName === 'function') return window.planName(planId) || 'Servicio'; } catch (_) {}
+    return list(window.state?.plans).find(row => same(row.id,planId))?.name || 'Servicio';
+  }
+
+  function productIdForPlan(planId){
+    return list(window.state?.plans).find(row => same(row.id,planId))?.product_id || null;
+  }
+
+  function activeAccounts(model){
+    return list(model?.accounts).filter(account => account?.eligible !== false && usableSlots(account).length > 0);
+  }
+
+  function usableSlots(account){
+    return list(account?.slots).filter(slot => slot?.eligible !== false && toNumber(slot?.free_count) > 0 && id(slot?.stock_slot_id));
+  }
+
+  function accountLabel(account){
+    const login=text(account?.login) || 'Cuenta';
+    const used=toNumber(account?.used_count);
+    const cap=Math.max(0,toNumber(account?.capacity));
+    const free=Math.max(0,toNumber(account?.free_count));
+    const slots=usableSlots(account);
+    const slot=slots.length===1 ? slots[0] : null;
+    const detail=slot?.label ? ` · ${slot.label}` : '';
+    return `${login} — ${used}/${cap} usados · ${free} libres${detail}`;
+  }
+
+  function selectorConfig(mode){
+    if(mode==='manual') return {
+      plan:()=>value('manualPlan'), stock:'manualStockSelect', hidden:'manualStockId', slot:'manualStockSlotSelect', slotWrap:'manualStockSlotWrap', hint:'manualStockPickHint'
+    };
+    return {
+      plan:()=>value('opsDeliverPlanId') || planFromStock(value('opsDeliverStockId')) || planFromStock(value('opsDeliverStockSelect')),
+      stock:'opsDeliverStockSelect', hidden:'opsDeliverStockId', slot:'opsDeliverSlotSelect', slotWrap:'opsDeliverSlotWrap', hint:'opsDeliverStockHint'
+    };
+  }
+
+  function planFromStock(stockId){
+    return list(window.state?.stock).find(row => same(row.id,stockId))?.plan_id || '';
+  }
+
+  function ensureSlotSelect(mode){
+    const cfg=selectorConfig(mode);
+    let select=$(cfg.slot);
+    if(select) return select;
+    const accountSelect=$(cfg.stock);
+    if(!accountSelect) return null;
+    const wrap=document.createElement('div');
+    wrap.id=cfg.slotWrap;
+    wrap.className='full hidden';
+    wrap.innerHTML='<label class="subtle">Perfil / cupo a entregar</label><select class="input" id="'+cfg.slot+'"></select><p class="help">Se asigna exactamente este perfil o cupo.</p>';
+    const target=accountSelect.closest('.full') || accountSelect.parentElement;
+    target?.insertAdjacentElement('afterend',wrap);
+    select=$(cfg.slot);
+    if(select && !select.dataset.core113Bound){
+      select.dataset.core113Bound='1';
+      select.addEventListener('change',()=>hydrate(mode,true).catch(error=>notice(errText(error),'bad')));
+    }
+    return select;
+  }
+
+  function setHint(mode,message){ const hint=$(selectorConfig(mode).hint); if(hint) hint.textContent=message; }
+
+  function setSelectOptions(select,items,selected,makeLabel){
+    if(!select) return;
+    select.replaceChildren();
+    const blank=document.createElement('option'); blank.value=''; blank.textContent='Selecciona una cuenta'; select.appendChild(blank);
+    items.forEach(item=>{
+      const opt=document.createElement('option'); opt.value=id(item.stock_item_id); opt.textContent=makeLabel(item); opt.selected=same(opt.value,selected); select.appendChild(opt);
+    });
+    select.value=selected || '';
+  }
+
+  function setSlotOptions(mode,account,requestedSlotId=''){
+    const cfg=selectorConfig(mode);
+    const select=ensureSlotSelect(mode);
+    const wrap=$(cfg.slotWrap);
+    const slots=usableSlots(account);
+    if(!select){ return ''; }
+    if(!slots.length){ select.replaceChildren(); if(wrap) wrap.classList.add('hidden'); return ''; }
+    const selected=slots.some(slot=>same(slot.stock_slot_id,requestedSlotId)) ? requestedSlotId : id(slots[0].stock_slot_id);
+    select.replaceChildren();
+    slots.forEach(slot=>{
+      const opt=document.createElement('option'); opt.value=id(slot.stock_slot_id);
+      const pin=text(slot.pin); opt.textContent=`${text(slot.label)||'Cupo'} · ${toNumber(slot.used_count)}/${toNumber(slot.capacity)} usados${pin?' · PIN '+pin:''}`;
+      opt.selected=same(opt.value,selected); select.appendChild(opt);
+    });
+    select.value=selected;
+    if(wrap) wrap.classList.toggle('hidden',slots.length<=1);
+    return selected;
+  }
+
+  async function deliveryOptions(planId,force=true){
+    if(!planId) return {ok:true,requires_stock:false,accounts:[]};
+    const core=window.INNOV_CORE11;
+    if(force) { try { core?.options?.delete?.(id(planId)); } catch (_) {} }
+    const model=await rpc('core11_delivery_options',{p_plan_id:id(planId)});
+    return model || {ok:true,requires_stock:false,accounts:[]};
+  }
+
+  async function resolve(mode,{force=true}={}){
+    const cfg=selectorConfig(mode);
+    const planId=cfg.plan();
+    if(!planId) throw new Error('Selecciona un plan para entregar');
+    const model=await deliveryOptions(planId,force);
+    const requires=!!model?.requires_stock;
+    if(!requires) return {planId,model,requiresStock:false,stock_item_id:null,stock_slot_id:null,ok:true};
+
+    const accounts=activeAccounts(model);
+    const select=$(cfg.stock);
+    let chosen=value(cfg.stock) || value(cfg.hidden);
+    if(!accounts.some(account=>same(account.stock_item_id,chosen))) chosen=id(accounts[0]?.stock_item_id);
+    setSelectOptions(select,accounts,chosen,accountLabel);
+    if($(cfg.hidden)) set(cfg.hidden,chosen);
+    if(!accounts.length || !chosen){
+      setHint(mode,'No hay cuentas con perfil/cupo libre para este plan.');
+      throw new Error('Selecciona una cuenta disponible');
+    }
+    const account=accounts.find(row=>same(row.stock_item_id,chosen));
+    const slotSelect=$(cfg.slot);
+    const requestedSlot=value(cfg.slot);
+    const slotId=setSlotOptions(mode,account,requestedSlot);
+    if(!slotId) throw new Error('La cuenta no tiene un perfil/cupo libre');
+
+    const ctx=await rpc('core11_delivery_context',{
+      p_plan_id:id(planId),
+      p_stock_item_id:id(chosen),
+      p_stock_slot_id:id(slotId)
+    });
+    if(!ctx?.ok || !ctx?.stock_item_id || !ctx?.stock_slot_id) throw new Error(ctx?.error || 'No se pudo validar la cuenta y el perfil/cupo');
+    if($(cfg.hidden)) set(cfg.hidden,ctx.stock_item_id);
+    setHint(mode,`✅ Cuenta validada por el núcleo · ${Number(ctx.used_count||0)}/${Number(ctx.capacity||0)} usados · ${Number(ctx.free_count||0)} libres.`);
+    try { window.INNOV_CORE11?.contexts?.set?.(mode,ctx); } catch (_) {}
+    applyContext(mode,ctx);
+    return {...ctx,planId,model,requiresStock:true};
+  }
+
+  function applyContext(mode,ctx){
+    if(mode==='manual'){
+      set('manualUser',ctx.login||''); set('manualPass',ctx.password||'');
+      set('manualProfile',ctx.profile||''); set('manualPin',ctx.pin||'');
+      set('manualGroup',ctx.group_url||''); set('manualUrl',ctx.group_url||'');
+      try { window.renderDeliveryMessage?.(); } catch (_) {}
+      return;
+    }
+    set('opsDeliverStockId',ctx.stock_item_id||'');
+    renderOpsMessage(ctx).catch(error=>console.warn('Core 1.1.3 message',error));
+  }
+
+  async function hydrate(mode,force=true){ return resolve(mode,{force}); }
+
+  async function renderOpsMessage(ctx=null,totpCode=''){
+    const planId=selectorConfig('ops').plan();
+    const current=ctx || await resolve('ops',{force:false});
+    const rawPhone=value('opsDeliverPhone'); const phone=phoneInfo(rawPhone);
+    const payload={
+      pedido:value('opsDeliverPedido'),cliente:value('opsDeliverName'),telefono:phone.ok?(phone.e164||rawPhone):rawPhone,
+      monto:value('opsDeliverAmount'),fecha_inicio:value('opsDeliverStart')||today(),fecha_pago:value('opsDeliverPayDate')||today(),fecha_vencimiento:value('opsDeliverDue')||dueForPlan(planId),
+      correo:current.login||'',contraseña:current.password||'',perfil:current.profile||'',pin:current.pin||'',grupo:current.group_url||'',url:current.group_url||'',codigo:totpCode||value('opsDeliverTotpCode')||'',codigo_2fa:current.twofa_code||''
+    };
+    let message='';
+    try { if(typeof window.opsDeliveryTextFromPlan==='function') message=window.opsDeliveryTextFromPlan(planId,payload)||''; } catch (_) {}
+    if(!message && typeof window.buildTemplateMessage==='function'){
+      try { message=window.buildTemplateMessage(window.getDefaultTemplate?.(),{name:payload.cliente,phone_e164:payload.telefono},{service_name:value('opsDeliverService')||planName(planId),amount:payload.monto,due_date:payload.fecha_vencimiento,plan_id:planId,...payload})||''; } catch (_) {}
+    }
+    if($('opsDeliverText')) set('opsDeliverText',message);
+    return message;
+  }
+
+  async function issueTotp(ctx,name,phone,service){
+    if(!ctx?.totp_account_id || typeof window.createTotpCodeForDelivery!=='function') return null;
+    const made=await window.createTotpCodeForDelivery(ctx.totp_account_id,'',name,phone,service);
+    if(!made?.ok) throw new Error(made?.error || 'No se pudo crear el código Access TOTP');
+    if(made.code) set('opsDeliverTotpCode',made.code);
+    return made;
+  }
+  async function cleanupTotp(made){ if(made?.id) { try { await client()?.from('totp_access_codes').delete().eq('id',made.id); } catch (_){} } }
+  async function linkTotp(made,reminderId){ if(made?.id && reminderId) { try { await client()?.from('totp_access_codes').update({reminder_id:reminderId}).eq('id',made.id); } catch (_){} } }
+  function idempotency(prefix,parts){return `${prefix}:${parts.map(part=>id(part)||'none').join(':')}`;}
+
+  async function saveOpsDeliverAuthoritative(){
+    let made=null;
+    try {
+      const name=value('opsDeliverName'); const rawPhone=value('opsDeliverPhone'); const phone=phoneInfo(rawPhone);
+      if(!name) throw new Error('Ingresa el nombre del cliente');
+      if(!phone?.ok) throw new Error(phone?.error||'WhatsApp inválido');
+      const ctx=await resolve('ops',{force:true});
+      const planId=ctx.planId; const service=value('opsDeliverService')||planName(planId);
+      const amountRaw=value('opsDeliverAmount'); const amount=amountRaw===''?null:Number(amountRaw);
+      const due=value('opsDeliverDue')||dueForPlan(planId); const start=value('opsDeliverStart')||today();
+      made=await issueTotp(ctx,name,phone.e164||rawPhone,service);
+      const message=await renderOpsMessage(ctx,made?.code||'');
+      const metadata={
+        delivery_channel:'ops',
+        stock_slot_id:ctx.stock_slot_id,
+        access_context:{login:ctx.login||null,profile:ctx.profile||null,pin:ctx.pin||null,group_url:ctx.group_url||null},
+        totp_code:made?.code||null
+      };
+      const result=await rpc('admin_v73_create_assignment',{
+        p_customer_name:name,p_customer_phone:phone.e164||rawPhone,p_customer_email:value('opsDeliverClientEmail')||null,
+        p_plan_id:planId,p_service_name:service,p_amount:Number.isFinite(amount)?amount:null,p_due_date:due,p_start_date:start,
+        p_stock_item_id:ctx.stock_item_id,p_source:'manual',p_order_id:null,p_order_item_id:null,p_message:message||null,p_metadata:metadata,
+        p_idempotency_key:idempotency('core113-ops',[name.toLowerCase(),phone.e164||rawPhone,planId,ctx.stock_item_id,ctx.stock_slot_id,start])
+      });
+      await linkTotp(made,result?.reminder_id);
+      try { if(message) window.copyTextSafe?.(message); } catch (_){}
+      try { window.closeDialog?.('dlgOpsDeliver'); } catch (_){}
+      notice(result?.reused?'La entrega ya existía; no se duplicó.':'Entrega, perfil/cupo y recordatorio registrados correctamente.','ok');
+      if($('opsDeliverOpenWa')?.checked && typeof window.waLink==='function'){
+        const url=window.waLink(phone.e164||rawPhone,message); if(url&&url!=='#') window.open(url,'_blank','noopener,noreferrer');
+      }
+      try { await window.loadAll?.(); } catch (_){}
+      try { window.switchTab?.('inventory'); } catch (_){}
+    } catch(error){
+      await cleanupTotp(made);
+      notice('No se registró nada: '+errText(error),'bad');
+    }
+  }
+
+  async function saveManualDeliveryAuthoritative(){
+    let made=null;
+    try {
+      const orderId=value('manualOrderId'); const planId=value('manualPlan');
+      if(!orderId||!planId) throw new Error('Selecciona pedido y plan');
+      const order=list(window.state?.orders).find(row=>same(row.id,orderId))||{};
+      const phone=phoneInfo(order.customer_whatsapp||''); if(!phone?.ok) throw new Error('El pedido no tiene un WhatsApp válido');
+      const ctx=await resolve('manual',{force:true});
+      const service=planName(planId);
+      made=await issueTotp(ctx,order.customer_name||'Cliente',phone.e164||order.customer_whatsapp,service);
+      const data={
+        correo:value('manualUser')||ctx.login||'',clave:value('manualPass')||ctx.password||'',perfil:value('manualProfile')||ctx.profile||'',pin:value('manualPin')||ctx.pin||'',
+        grupo:value('manualGroup')||ctx.group_url||'',url:value('manualUrl')||ctx.group_url||'',codigo:value('manualCode')||made?.code||'',nota:value('manualNote')||'',
+        stock_id:ctx.stock_item_id,stock_slot_id:ctx.stock_slot_id,fecha_inicio:value('manualStartDate')||today(),restricciones:value('manualRestrictions')||''
+      };
+      Object.keys(data).forEach(key=>{if(data[key]===''||data[key]==null) delete data[key];});
+      try { window.renderDeliveryMessage?.(); } catch (_){}
+      const result=await rpc('admin_v73_deliver_order_and_assign',{
+        p_order_id:orderId,p_plan_id:planId,p_stock_item_id:ctx.stock_item_id,p_delivery_data:data,p_delivery_message:value('manualMessage'),p_due_date:dueForPlan(planId),
+        p_idempotency_key:idempotency('core113-order',[orderId,planId,ctx.stock_item_id,ctx.stock_slot_id,phone.e164||order.customer_whatsapp])
+      });
+      await linkTotp(made,result?.reminder_id);
+      try { window.closeDialog?.('dlgManual'); } catch (_){}
+      notice(result?.reused?'La entrega ya existía; no se duplicó.':'Entrega, perfil/cupo y recordatorio registrados correctamente.','ok');
+      try { await window.loadAll?.(); } catch (_){}
+      try { window.openDeliveredOrderWhatsApp?.(orderId); } catch (_){}
+    } catch(error){
+      await cleanupTotp(made);
+      notice('No se registró nada: '+errText(error),'bad');
+    }
+  }
+
+  function bindButton(elementId,handler){
+    const old=$(elementId); if(!old || old.dataset.core113Bound==='1') return;
+    const fresh=old.cloneNode(true); fresh.dataset.core113Bound='1'; old.replaceWith(fresh);
+    fresh.addEventListener('click',async event=>{event.preventDefault();event.stopImmediatePropagation();fresh.disabled=true;try{await handler();}finally{setTimeout(()=>{if(document.contains(fresh))fresh.disabled=false;},300)}},true);
+  }
+
+  function bindEvents(){
+    document.addEventListener('change',event=>{
+      const target=event.target; const targetId=target?.id||'';
+      if(targetId==='opsDeliverStockSelect') { set('opsDeliverStockId',target.value||''); resolve('ops',{force:false}).catch(error=>notice(errText(error),'bad')); }
+      if(targetId==='opsDeliverSlotSelect') { resolve('ops',{force:false}).catch(error=>notice(errText(error),'bad')); }
+      if(targetId==='manualStockSelect') { set('manualStockId',target.value||''); resolve('manual',{force:false}).catch(error=>notice(errText(error),'bad')); }
+      if(targetId==='manualStockSlotSelect') { resolve('manual',{force:false}).catch(error=>notice(errText(error),'bad')); }
+    },true);
+    ['opsDeliverName','opsDeliverPhone','opsDeliverAmount','opsDeliverStart','opsDeliverDue','opsDeliverService'].forEach(elementId=>$(elementId)?.addEventListener('input',()=>renderOpsMessage().catch(()=>{})));
+  }
+
+  function wrapOpeners(){
+    const priorOps=window.openOpsDeliver;
+    if(typeof priorOps==='function' && !priorOps.__core113Wrapped){
+      const wrapped=function(){const result=priorOps.apply(this,arguments);setTimeout(()=>resolve('ops',{force:true}).catch(error=>console.warn('Core 1.1.3 selector',error)),260);return result;};
+      wrapped.__core113Wrapped=true; window.openOpsDeliver=wrapped; try{openOpsDeliver=wrapped;}catch(_){}
+    }
+    const priorManual=window.openManualDelivery;
+    if(typeof priorManual==='function' && !priorManual.__core113Wrapped){
+      const wrapped=function(){const result=priorManual.apply(this,arguments);setTimeout(()=>resolve('manual',{force:true}).catch(error=>console.warn('Core 1.1.3 selector',error)),320);return result;};
+      wrapped.__core113Wrapped=true; window.openManualDelivery=wrapped; try{openManualDelivery=wrapped;}catch(_){}
+    }
+  }
+
+  function install(attempt=0){
+    if(!client()){if(attempt<12) setTimeout(()=>install(attempt+1),180);return;}
+    window.saveOpsDeliver=saveOpsDeliverAuthoritative;
+    window.saveManualDelivery=saveManualDeliveryAuthoritative;
+    try{saveOpsDeliver=saveOpsDeliverAuthoritative;saveManualDelivery=saveManualDeliveryAuthoritative;}catch(_){}
+    bindButton('btnOpsSaveDeliver',saveOpsDeliverAuthoritative);
+    bindButton('btnSaveManualDelivery',saveManualDeliveryAuthoritative);
+    bindEvents();wrapOpeners();
+    window.INNOV_CORE113={resolve,refresh:mode=>resolve(mode,{force:true}),saveOps:saveOpsDeliverAuthoritative,saveManual:saveManualDeliveryAuthoritative};
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>install(),1650),{once:true});
+  else setTimeout(()=>install(),1650);
+})();
+</script>
+
 </body>
 </html>
+
 
