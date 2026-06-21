@@ -2638,7 +2638,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
       <input type="hidden" id="rCustomer">
       <input type="hidden" id="rStatus" value="pending">
       <div class="reminder-client-note">
-        <b>Recordatorio libre:</b> escribe cualquier nombre y número. Si el cliente no existe, se crea automáticamente.
+        <b>Registro manual de recordatorio:</b> crea o actualiza al cliente y guarda solo el cobro. No ocupa ni libera cupos. Para entregar un servicio con cuenta, perfil o cupo usa <b>Entregar</b>.
       </div>
       <div><label class="subtle">Nombre cliente *</label><input class="input" id="rCustomerName" placeholder="Nombre del cliente" required></div>
       <div><label class="subtle">WhatsApp / celular *</label><input class="input" id="rCustomerPhone" placeholder="991564053 o +51991564053" required></div>
@@ -11180,7 +11180,7 @@ INNOV IA V62 - TOTP original + selección real
   if (window.__innovAdminCoreLoaded) return;
   window.__innovAdminCoreLoaded = true;
 
-  const CORE_VERSION = '1.0.0';
+  const CORE_VERSION = '1.0.4.2';
   const RPC = Object.freeze({
     create: 'admin_v73_create_assignment',
     deliverOrder: 'admin_v73_deliver_order_and_assign',
@@ -11618,86 +11618,95 @@ INNOV IA V62 - TOTP original + selección real
 
   async function saveReminderCore(event, silent = false) {
     if (event?.preventDefault) event.preventDefault();
+
     const reminderId = text(byId('rId')?.value);
-    const selectedPlanId = text(byId('rPlan')?.value);
+    const selectedPlanId = text(byId('rPlan')?.value) || null;
+    const selectedProductId = text(byId('rProduct')?.value) || null;
     const existing = reminderId ? list(state.reminders).find(row => id(row.id) === reminderId) : null;
     const assigned = assignmentForReminder(existing);
 
-    if (reminderId && assigned) {
-      const due = text(byId('rDue')?.value) || assigned.next_due_date;
-      const amountRaw = byId('rAmount')?.value;
-      const amount = amountRaw === '' || amountRaw == null ? null : Number(amountRaw);
-      try {
-        await coreCall(RPC.renew, {
-          p_assignment_id: assigned.id,
-          p_next_due_date: due,
-          p_amount: amount
-        });
-        const message = text(byId('rMsg')?.value);
-        if (message) await db.from('payment_reminders').update({ whatsapp_message: message }).eq('id', reminderId);
-        if (!silent) { closeDialog('dlgReminder'); coreToast('Servicio actualizado sin ocupar otro cupo', 'ok'); }
-        await loadAllCore();
-        return;
-      } catch (error) {
-        coreToast('No se actualizó: ' + coreError(error), 'bad');
-        return;
-      }
-    }
-
-    const up = await upsertReminderCustomerFromFields();
-    if (up?.error) return coreToast(up.error, 'bad');
-    const customer = up.customer;
+    const customerName = text(byId('rCustomerName')?.value);
+    const customerPhone = text(byId('rCustomerPhone')?.value);
+    const customerEmail = text(byId('rCustomerEmail')?.value) || null;
     const service = text(byId('rService')?.value) || 'Servicio';
     const amountRaw = byId('rAmount')?.value;
     const amount = amountRaw === '' || amountRaw == null ? null : Number(amountRaw);
     const due = text(byId('rDue')?.value) || (selectedPlanId && typeof planRenewalDue === 'function' ? planRenewalDue(selectedPlanId) : addMonths(currentDate(), 1));
-    const message = text(byId('rMsg')?.value) || (typeof buildTemplateMessage === 'function' ? buildTemplateMessage(getDefaultTemplate(), customer, { service_name: service, amount, due_date: due, plan_id: selectedPlanId || null }) : null);
 
-    if (!selectedPlanId) {
-      const direct = await db.from('payment_reminders').insert({
-        customer_id: customer.id,
-        product_id: text(byId('rProduct')?.value) || null,
-        plan_id: null,
-        service_name: service,
-        amount,
-        currency: 'PEN',
-        due_date: due,
-        status: 'pending',
-        whatsapp_message: message,
-        source: 'manual'
-      });
-      if (direct.error) return coreToast(direct.error.message, 'bad');
-      if (!silent) { closeDialog('dlgReminder'); coreToast('Recordatorio sin cupo guardado', 'ok'); }
-      await loadAllCore();
-      return;
+    if (!customerName) return coreToast('Escribe el nombre del cliente', 'bad');
+    if (!customerPhone) return coreToast('Escribe el WhatsApp del cliente', 'bad');
+    if (!due) return coreToast('Selecciona la fecha de vencimiento', 'bad');
+
+    const customerDraft = {
+      name: customerName,
+      phone_e164: customerPhone,
+      phone_raw: customerPhone,
+      email: customerEmail
+    };
+    const message = text(byId('rMsg')?.value) || (
+      typeof buildTemplateMessage === 'function'
+        ? buildTemplateMessage(getDefaultTemplate(), customerDraft, {
+            service_name: service,
+            amount,
+            due_date: due,
+            plan_id: selectedPlanId
+          })
+        : null
+    );
+
+    /*
+      Un recordatorio creado desde esta ventana es un registro manual de cobro.
+      No crea service_assignment ni toca stock/cupos. Las entregas que ocupan
+      cuenta, perfil o cupo usan el flujo oficial de Entregar.
+    */
+    if (reminderId && assigned) {
+      const nextDue = due || assigned.next_due_date;
+      try {
+        await coreCall(RPC.renew, {
+          p_assignment_id: assigned.id,
+          p_next_due_date: nextDue,
+          p_amount: amount
+        });
+        if (message) await db.from('payment_reminders').update({ whatsapp_message: message }).eq('id', reminderId);
+        if (!silent) {
+          closeDialog('dlgReminder');
+          coreToast('Servicio actualizado sin ocupar otro cupo', 'ok');
+        }
+        await loadAllCore();
+        return { reminder_id: reminderId, assignment_id: assigned.id };
+      } catch (error) {
+        coreToast('No se actualizó: ' + coreError(error), 'bad');
+        return null;
+      }
     }
 
-    const rule = ruleForPlan(selectedPlanId);
-    const stock = selectedStock(selectedPlanId, 'reminder');
-    if (rule.allocation_mode === 'stock_item' && !stock) return coreToast('Este plan requiere seleccionar una cuenta con cupo', 'bad');
-    const key = createIdempotency('reminder', [customer.id, selectedPlanId, stock?.id || rule.allocation_mode, due, service]);
+    const rpcName = reminderId ? 'admin_core_manual_update_reminder' : 'admin_core_manual_register_reminder';
+    const args = {
+      p_customer_name: customerName,
+      p_customer_phone: customerPhone,
+      p_customer_email: customerEmail,
+      p_product_id: selectedProductId,
+      p_plan_id: selectedPlanId,
+      p_service_name: service,
+      p_amount: amount,
+      p_due_date: due,
+      p_whatsapp_message: message
+    };
+    if (reminderId) args.p_reminder_id = reminderId;
+
     try {
-      await coreCall(RPC.create, {
-        p_customer_name: customer.name,
-        p_customer_phone: customer.phone_e164 || customer.phone_raw,
-        p_customer_email: customer.email || null,
-        p_plan_id: selectedPlanId,
-        p_service_name: service,
-        p_amount: amount,
-        p_due_date: due,
-        p_start_date: currentDate(),
-        p_stock_item_id: stock?.id || null,
-        p_source: 'manual',
-        p_order_id: null,
-        p_order_item_id: null,
-        p_message: message,
-        p_metadata: { entry: 'reminder_form', created_at: nowIso() },
-        p_idempotency_key: key
-      });
-      if (!silent) { closeDialog('dlgReminder'); coreToast('Servicio, recordatorio y cupo registrados', 'ok'); }
+      const result = await coreCall(rpcName, args);
+      if (!silent) {
+        closeDialog('dlgReminder');
+        coreToast(result?.reused
+          ? 'El recordatorio ya existía; se evitó un duplicado'
+          : 'Cliente y recordatorio manual guardados. No se modificó ningún cupo.', 'ok');
+      }
       await loadAllCore();
+      return result;
     } catch (error) {
-      coreToast('No se registró nada: ' + coreError(error), 'bad');
+      coreToast('No se registró: ' + coreError(error), 'bad');
+      return null;
     }
   }
 
@@ -11979,14 +11988,14 @@ INNOV IA V62 - TOTP original + selección real
   .c103-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.c103-actions .btn{padding:5px 9px;font-size:.74rem}
   .c103-help{font-size:.77rem;color:var(--muted);padding:8px 10px;border:1px dashed var(--border);border-radius:10px;background:var(--card2);margin-bottom:9px}
   .c103-slots-editor{display:grid;gap:6px;margin-top:8px}.c103-slot-edit{display:grid;grid-template-columns:minmax(0,1fr) .8fr auto;gap:6px;align-items:end;border:1px solid var(--border);border-radius:10px;padding:7px;background:var(--card2)}
-  .c103-profile{font-size:.76rem;color:var(--muted);margin-top:2px}.c103-hidden{display:none!important}.c103-history-list{display:grid;gap:6px;max-height:50vh;overflow:auto}.c103-history-item{border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:var(--card2);font-size:.78rem}.c103-history-item b{color:var(--card-ink)}.c103-section{font-size:.8rem;font-weight:900;margin:10px 0 5px;color:var(--card-ink)}
+  .c103-hidden{display:none!important}.c103-history-list{display:grid;gap:6px;max-height:50vh;overflow:auto}.c103-history-item{border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:var(--card2);font-size:.78rem}.c103-history-item b{color:var(--card-ink)}.c103-section{font-size:.8rem;font-weight:900;margin:10px 0 5px;color:var(--card-ink)}
   @media(max-width:680px){.c103-toolbar{grid-template-columns:1fr 1fr}.c103-toolbar input{grid-column:1/-1}.c103-toolbar .btn{width:100%}.c103-slot-edit{grid-template-columns:1fr 1fr}.c103-slot-edit button{grid-column:1/-1;width:100%}}
 </style>
 
 <dialog id="dlgCore1Accounts">
   <div class="modal-header"><strong id="c103Title">Cuentas y cupos</strong><button class="btn btn-ghost btn-icon" type="button" data-c103-close="dlgCore1Accounts">✕</button></div>
   <div class="dlg-body">
-    <div class="c103-summary"><div><h3 id="c103PlanName">Plan</h3><p>Cupos calculados desde asignaciones actuales y vínculos heredados vigentes.</p></div><div class="c103-kpis" id="c103Kpis"></div></div>
+    <div class="c103-summary"><div><h3 id="c103PlanName">Plan</h3><p>Cupos calculados desde vínculos actuales y reservas heredadas seguras.</p></div><div class="c103-kpis" id="c103Kpis"></div></div>
     <div class="c103-toolbar"><input class="input" id="c103Search" type="search" placeholder="Buscar correo, perfil o cliente"><button class="btn" type="button" id="c103Refresh">↻ Actualizar</button><button class="btn btn-primary" type="button" id="c103Add">＋ Agregar</button></div>
     <div class="c103-list" id="c103List"></div>
   </div>
@@ -12029,14 +12038,14 @@ INNOV IA V62 - TOTP original + selección real
   async function rpc(name,args){const r=await db.rpc(name,args);if(r.error)throw r.error;return r.data}
   const mode=()=>M.model?.rule?.access_mode||'credential'; const account=id=>arr(M.model?.accounts).find(a=>String(a.stock_item_id)===String(id))||null;
   const login=a=>txt(a?.login)||txt(a?.secret_data?.correo)||txt(a?.secret_data?.email)||txt(a?.secret_data?.usuario)||txt(a?.alias)||'Cuenta';
-  function clientText(a){return arr(a.clients).map(c=>`${c.customer_name||'Cliente'}${c.slot_label?` (${c.slot_label})`:''}${c.source==='legacy_current'?' · heredado vigente':(c.source==='reserved_legacy'?' · reservado':'')}`).join(' · ')}
+  function clientText(a){return arr(a.clients).map(c=>`${c.customer_name||'Cliente'}${c.slot_label?` (${c.slot_label})`:''}${c.source==='reserved_legacy'?' · reservado':''}`).join(' · ')}
   function render(){
     const m=M.model;if(!m)return;const as=arr(m.accounts),used=as.reduce((n,a)=>n+Number(a.used_count||0),0),free=as.reduce((n,a)=>n+Number(a.free_count||0),0),cap=as.reduce((n,a)=>n+Number(a.capacity||0),0),res=as.reduce((n,a)=>n+Number(a.reservation_count||0),0);
     $('c103Title').textContent='Cuentas y cupos · '+(m.plan_name||'Plan');$('c103PlanName').textContent=m.plan_name||'Plan';$('c103Kpis').innerHTML=chip(`${free} libres`,'ok')+chip(`${used} usados`,'bad')+chip(`${cap} cupos`)+(res?chip(`${res} reservados`,'warn'):'');
     const q=txt($('c103Search').value).toLowerCase(), show=as.filter(a=>JSON.stringify(a).toLowerCase().includes(q));
     $('c103List').innerHTML=show.length?show.map(a=>{
-      const hasRes=Number(a.reservation_count||0)>0, used=Number(a.used_count||0), free=Number(a.free_count||0), full=free<=0||String(a.availability)==='full'||String(a.availability)==='review', maint=a.core_state!=='active';const state=maint?(a.core_state==='maintenance'?'Mantenimiento':'Suspendida'):(full?'En uso':(used>0?'En uso':'Disponible'));const k=maint||full?'bad':used>0?'warn':'ok';const cli=clientText(a);const profiles=arr(a.slots).map(s=>txt(s.label)).filter(Boolean).filter((v,i,x)=>x.indexOf(v)===i);const profileLine=profiles.length?`<div class="c103-profile">${esc(profiles.join(' · '))}</div>`:'';
-      return `<article class="c103-card ${full?'full':''} ${hasRes?'reserved':''} ${maint?'maintenance':''}"><div class="c103-row"><div><div class="c103-email">${esc(login(a))}</div>${profileLine}<div class="c103-meta">${chip(state,k)}${chip(`${used}/${Number(a.capacity||0)} usos`,full?'bad':used>0?'warn':'ok')}${chip(`${free} libres`,free>0?'ok':'bad')}</div></div></div>${cli?`<div class="c103-clients">Clientes vinculados: ${esc(cli)}</div>`:''}<div class="c103-actions"><button class="btn" type="button" data-c103-history="${esc(a.stock_item_id)}">Historial</button><button class="btn" type="button" data-c103-edit="${esc(a.stock_item_id)}">✏️ Editar</button><button class="btn btn-danger" type="button" data-c103-delete="${esc(a.stock_item_id)}">Eliminar</button></div></article>`;
+      const hasRes=Number(a.reservation_count||0)>0, full=String(a.availability)==='full', maint=a.core_state!=='active';const state=maint?(a.core_state==='maintenance'?'Mantenimiento':'Suspendida'):(hasRes?'Reservada':(full?'Completa':'Disponible'));const k=maint||full?'bad':hasRes?'warn':'ok';const cli=clientText(a);
+      return `<article class="c103-card ${full?'full':''} ${hasRes?'reserved':''} ${maint?'maintenance':''}"><div class="c103-row"><div><div class="c103-email">${esc(login(a))}</div><div class="c103-meta">${chip(state,k)}${chip(`${Number(a.used_count||0)}/${Number(a.capacity||0)} usos`,full||hasRes?'bad':'ok')}${chip(`${Number(a.free_count||0)} libres`,Number(a.free_count||0)>0&&!hasRes?'ok':'bad')}</div></div></div>${cli?`<div class="c103-clients">Clientes vinculados: ${esc(cli)}</div>`:''}<div class="c103-actions"><button class="btn" type="button" data-c103-history="${esc(a.stock_item_id)}">Historial</button><button class="btn" type="button" data-c103-edit="${esc(a.stock_item_id)}">✏️ Editar</button><button class="btn btn-danger" type="button" data-c103-delete="${esc(a.stock_item_id)}">Eliminar</button></div></article>`;
     }).join(''):'<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas para este plan.</p></div>';
     document.querySelectorAll('[data-c103-history]').forEach(b=>b.onclick=()=>history(b.dataset.c103History));document.querySelectorAll('[data-c103-edit]').forEach(b=>b.onclick=()=>editor(b.dataset.c103Edit));document.querySelectorAll('[data-c103-delete]').forEach(b=>b.onclick=()=>remove(b.dataset.c103Delete));
   }
