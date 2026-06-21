@@ -11959,228 +11959,143 @@ INNOV IA V62 - TOTP original + selección real
      Reemplaza la vista heredada de cuentas por una interfaz que lee
      cupos reales desde service_assignments + stock_access_slots.
      =================================================================== -->
-<style id="innov-core1-accounts-style">
-  .core1-account-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
-  .core1-account-top h3{margin:0;color:var(--card-ink);font-size:1.04rem}
-  .core1-account-top p{margin:3px 0 0;color:var(--muted);font-size:.82rem}
-  .core1-account-kpis{display:flex;gap:8px;flex-wrap:wrap}
-  .core1-account-kpi{border:1px solid var(--border);border-radius:999px;padding:5px 10px;background:var(--card2);font-size:.78rem;font-weight:800}
-  .core1-account-kpi.good{background:var(--success-alpha);border-color:rgba(21,128,61,.22);color:var(--success)}
-  .core1-account-kpi.warn{background:var(--warning-alpha);border-color:rgba(180,83,9,.22);color:var(--warning)}
-  .core1-account-kpi.bad{background:var(--danger-alpha);border-color:rgba(185,28,28,.22);color:var(--danger)}
-  .core1-account-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;margin-bottom:12px}
-  .core1-account-grid{display:grid;gap:10px;max-height:56vh;overflow:auto;padding-right:2px}
-  .core1-account-card{border:1px solid var(--border);border-radius:15px;background:var(--card);padding:13px;box-shadow:var(--shadow-xs)}
-  .core1-account-card.is-maintenance{border-left:4px solid var(--warning)}
-  .core1-account-card.is-suspended{border-left:4px solid var(--danger);opacity:.88}
-  .core1-account-card.is-full{border-left:4px solid var(--primary)}
-  .core1-account-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
-  .core1-account-name{font-weight:900;color:var(--card-ink);font-size:.95rem}
-  .core1-account-meta{color:var(--muted);font-size:.78rem;margin-top:2px;word-break:break-word}
-  .core1-account-badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-  .core1-account-slots{display:grid;gap:6px;margin:10px 0}
-  .core1-slot-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px dashed var(--border);background:var(--card2);border-radius:10px;padding:7px 9px;font-size:.8rem}
-  .core1-slot-left,.core1-slot-right{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-  .core1-client-list{border-top:1px dashed var(--border);padding-top:8px;display:grid;gap:5px;margin-top:8px}
-  .core1-client-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.8rem}
-  .core1-client-row b{color:var(--card-ink)}
-  .core1-account-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-  .core1-account-actions .btn{padding:6px 10px;font-size:.78rem}
-  .core1-plan-rule{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:end;border:1px dashed var(--border);background:var(--primary-alpha2);border-radius:12px;padding:10px;margin-bottom:10px}
-  .core1-plan-rule .field{margin:0}
-  .core1-edit-note{padding:9px 10px;background:var(--primary-alpha2);border:1px dashed var(--border);border-radius:10px;color:var(--muted);font-size:.8rem;margin-bottom:12px}
-  .core1-slot-editor{display:grid;gap:7px;margin:8px 0}
-  .core1-slot-edit-row{display:grid;grid-template-columns:1.1fr .8fr .55fr auto;gap:7px;align-items:end;border:1px solid var(--border);border-radius:12px;padding:9px;background:var(--card2)}
-  .core1-hidden{display:none!important}
-  .core1-state-select{width:auto;min-width:130px}
-  .core1-inline-help{font-size:.78rem;color:var(--muted);margin:4px 0 0}
-  @media(max-width:720px){
-    .core1-account-toolbar{grid-template-columns:1fr 1fr}.core1-account-toolbar input{grid-column:1/-1}
-    .core1-account-toolbar .btn{width:100%}
-    .core1-slot-edit-row{grid-template-columns:1fr 1fr}.core1-slot-edit-row .core1-remove-slot{grid-column:1/-1;width:100%}
-    .core1-plan-rule{grid-template-columns:1fr}.core1-plan-rule .btn{width:100%}
+
+<style id="innov-core102-accounts-style">
+  #dlgCore1Accounts{width:min(760px,96vw)}
+  .c102-summary{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+  .c102-summary h3{margin:0;font-size:1rem;color:var(--card-ink)}
+  .c102-summary p{margin:3px 0 0;color:var(--muted);font-size:.78rem}
+  .c102-kpis{display:flex;gap:6px;flex-wrap:wrap}
+  .c102-kpi{border:1px solid var(--border);border-radius:999px;padding:4px 8px;font-size:.75rem;font-weight:800;background:var(--card2)}
+  .c102-kpi.ok{color:var(--success);background:var(--success-alpha)}
+  .c102-kpi.bad{color:var(--danger);background:var(--danger-alpha)}
+  .c102-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;margin-bottom:8px}
+  .c102-list{display:grid;gap:7px;max-height:57vh;overflow:auto;padding-right:2px}
+  .c102-card{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:9px 10px;box-shadow:var(--shadow-xs)}
+  .c102-card.full{border-left:3px solid var(--danger)}
+  .c102-card.maintenance{border-left:3px solid var(--warning)}
+  .c102-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .c102-email{font-family:var(--mono);font-size:.86rem;font-weight:800;color:var(--card-ink);word-break:break-word}
+  .c102-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:5px}
+  .c102-chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 7px;font-size:.72rem;font-weight:800;border:1px solid var(--border);background:var(--card2)}
+  .c102-chip.ok{color:var(--success);background:var(--success-alpha)}
+  .c102-chip.bad{color:var(--danger);background:var(--danger-alpha)}
+  .c102-slots{font-size:.76rem;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c102-clients{font-size:.76rem;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c102-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+  .c102-actions .btn{padding:5px 9px;font-size:.75rem}
+  .c102-help{font-size:.78rem;color:var(--muted);padding:8px 10px;border:1px dashed var(--border);border-radius:10px;background:var(--card2);margin-bottom:10px}
+  .c102-slots-editor{display:grid;gap:6px;margin-top:8px}
+  .c102-slot-edit{display:grid;grid-template-columns:minmax(0,1fr) .8fr auto;gap:6px;align-items:end;border:1px solid var(--border);border-radius:10px;padding:7px;background:var(--card2)}
+  .c102-hidden{display:none!important}
+  @media(max-width:680px){
+    .c102-toolbar{grid-template-columns:1fr 1fr}.c102-toolbar input{grid-column:1/-1}.c102-toolbar .btn{width:100%}
+    .c102-slot-edit{grid-template-columns:1fr 1fr}.c102-slot-edit button{grid-column:1/-1;width:100%}
   }
 </style>
 
 <dialog id="dlgCore1Accounts">
-  <div class="modal-header">
-    <strong id="core1AccountsTitle">Cuentas y cupos</strong>
-    <button class="btn btn-ghost btn-icon" type="button" data-close="dlgCore1Accounts">✕</button>
-  </div>
+  <div class="modal-header"><strong id="c102Title">Cuentas y cupos</strong><button class="btn btn-ghost btn-icon" type="button" data-c102-close="dlgCore1Accounts">✕</button></div>
   <div class="dlg-body">
-    <div class="core1-account-top">
-      <div><h3 id="core1PlanName">Plan</h3><p>Los cupos se calculan desde servicios activos; no se editan manualmente.</p></div>
-      <div class="core1-account-kpis" id="core1PlanKpis"></div>
-    </div>
-    <div class="core1-plan-rule">
-      <div class="field"><label class="subtle">Tipo de acceso global del plan</label><select class="input" id="core1AccessMode"></select><div class="core1-inline-help">Define qué datos pide el formulario al agregar una cuenta.</div></div>
-      <button class="btn btn-primary" id="btnCore1SavePlanRule" type="button">Guardar tipo</button>
-    </div>
-    <div class="core1-account-toolbar">
-      <input class="input" id="core1AccountSearch" type="search" placeholder="Buscar alias, correo, perfil, PIN o cliente...">
-      <button class="btn" id="btnCore1Refresh" type="button">↻ Actualizar</button>
-      <button class="btn btn-primary" id="btnCore1AddAccount" type="button">＋ Agregar cuenta</button>
-    </div>
-    <div class="core1-account-grid" id="core1AccountsList"></div>
+    <div class="c102-summary"><div><h3 id="c102PlanName">Plan</h3><p>Cupos calculados por servicios que aún ocupan una cuenta.</p></div><div class="c102-kpis" id="c102Kpis"></div></div>
+    <div class="c102-toolbar"><input class="input" id="c102Search" type="search" placeholder="Buscar correo, perfil o cliente"><button class="btn" type="button" id="c102Refresh">↻ Actualizar</button><button class="btn btn-primary" type="button" id="c102Add">＋ Agregar</button></div>
+    <div class="c102-list" id="c102List"></div>
   </div>
 </dialog>
 
 <dialog id="dlgCore1AccountEditor">
-  <div class="modal-header">
-    <strong id="core1EditorTitle">Agregar cuenta</strong>
-    <button class="btn btn-ghost btn-icon" type="button" data-close="dlgCore1AccountEditor">✕</button>
-  </div>
-  <form id="core1AccountForm">
-    <input type="hidden" id="core1StockItemId">
-    <input type="hidden" id="core1PlanId">
-    <div class="core1-edit-note" id="core1EditorHelp"></div>
-    <div class="grid grid-2">
-      <div class="full"><label class="subtle">Alias operativo *</label><input class="input" id="core1Alias" required placeholder="Ej.: Netflix 02, Gemini Familia Norte, ChatGPT TOTP 03"><p class="core1-inline-help">Se usa para buscar y elegir la cuenta al entregar. No se envía al cliente.</p></div>
-      <div id="core1UserWrap"><label class="subtle" id="core1UserLabel">Correo / usuario *</label><input class="input" id="core1Username" autocomplete="off" placeholder="correo@gmail.com"></div>
-      <div id="core1PassWrap"><label class="subtle">Contraseña</label><input class="input" id="core1Password" type="password" autocomplete="new-password" placeholder="Contraseña o clave"></div>
-      <div id="core1GroupWrap" class="full core1-hidden"><label class="subtle">Grupo / invitación / URL</label><input class="input" id="core1GroupUrl" placeholder="https://..."><p class="core1-inline-help">Para servicios por invitación, grupo familiar o enlace.</p></div>
-      <div id="core1TotpWrap" class="full core1-hidden"><label class="subtle">Cuenta TOTP vinculada</label><select class="input" id="core1TotpAccount"></select><p class="core1-inline-help">Solo para planes que entregan acceso TOTP o códigos de autenticación.</p></div>
-      <div id="core1CapacityWrap"><label class="subtle" id="core1CapacityLabel">Cupos totales</label><input class="input" id="core1Capacity" type="number" min="1" max="1000" value="1"><p class="core1-inline-help">Nunca se puede bajar por debajo de los servicios activos.</p></div>
-      <div><label class="subtle">Estado operativo</label><select class="input" id="core1AccountState"><option value="active">Activa y disponible</option><option value="maintenance">En mantenimiento</option><option value="suspended">Suspendida</option></select></div>
-      <div id="core1SlotsWrap" class="full core1-hidden">
-        <label class="subtle" id="core1SlotsLabel">Perfiles / cupos</label>
-        <div id="core1SlotsEditor" class="core1-slot-editor"></div>
-        <button class="btn btn-sm" id="btnCore1AddSlot" type="button">＋ Agregar perfil</button>
-        <p class="core1-inline-help">Cada perfil ocupado bloquea solo ese perfil. No se usa una caja de texto por lote.</p>
+  <div class="modal-header"><strong id="c102EditorTitle">Agregar cuenta</strong><button class="btn btn-ghost btn-icon" type="button" data-c102-close="dlgCore1AccountEditor">✕</button></div>
+  <form id="c102Form">
+    <input type="hidden" id="c102ItemId"><input type="hidden" id="c102PlanId">
+    <div class="dlg-body">
+      <div class="c102-help" id="c102Help"></div>
+      <div class="grid grid-2">
+        <div id="c102UserWrap"><label class="subtle" id="c102UserLabel">Correo / usuario *</label><input class="input" id="c102Username" autocomplete="off" placeholder="correo@gmail.com"></div>
+        <div id="c102PassWrap"><label class="subtle">Contraseña</label><input class="input" id="c102Password" type="password" autocomplete="new-password" placeholder="Contraseña o clave"></div>
+        <div id="c102GroupWrap" class="full c102-hidden"><label class="subtle">Grupo / invitación / URL</label><input class="input" id="c102GroupUrl" placeholder="https://..."></div>
+        <div id="c102TotpWrap" class="full c102-hidden"><label class="subtle">Cuenta TOTP vinculada</label><select class="input" id="c102Totp"></select></div>
+        <div id="c102CapacityWrap"><label class="subtle" id="c102CapacityLabel">Cupos</label><input class="input" id="c102Capacity" type="number" min="1" max="1000" value="1"></div>
+        <div><label class="subtle">Estado</label><select class="input" id="c102State"><option value="active">Disponible</option><option value="maintenance">Mantenimiento</option><option value="suspended">Suspendida</option></select></div>
+        <div id="c102SlotsWrap" class="full c102-hidden"><label class="subtle">Perfiles</label><div class="c102-slots-editor" id="c102Slots"></div><button class="btn btn-sm" type="button" id="c102AddSlot">＋ Perfil</button></div>
       </div>
     </div>
   </form>
-  <div class="modal-actions">
-    <button class="btn btn-danger core1-hidden" id="btnCore1ArchiveAccount" type="button">Archivar cuenta</button>
-    <button class="btn" type="button" data-close="dlgCore1AccountEditor">Cancelar</button>
-    <button class="btn btn-primary" type="submit" form="core1AccountForm">Guardar cuenta</button>
-  </div>
+  <div class="modal-actions"><button class="btn" type="button" data-c102-close="dlgCore1AccountEditor">Cancelar</button><button class="btn btn-primary" type="submit" form="c102Form">Guardar</button></div>
 </dialog>
 
-<dialog id="dlgCore1MoveService">
-  <div class="modal-header"><strong>Mover servicio a otra cuenta/perfil</strong><button class="btn btn-ghost btn-icon" type="button" data-close="dlgCore1MoveService">✕</button></div>
-  <form id="core1MoveForm">
-    <input type="hidden" id="core1MoveAssignmentId">
-    <div class="core1-edit-note" id="core1MoveSummary"></div>
-    <div class="grid grid-2">
-      <div class="full"><label class="subtle">Cuenta / perfil destino *</label><select class="input" id="core1MoveTarget"></select><p class="core1-inline-help">Solo se muestran cupos activos con espacio disponible.</p></div>
-    </div>
-  </form>
-  <div class="modal-actions"><button class="btn" type="button" data-close="dlgCore1MoveService">Cancelar</button><button class="btn btn-primary" type="submit" form="core1MoveForm">Mover sin cambiar vencimiento</button></div>
-</dialog>
-
-<script id="innov-core1-accounts-module">
+<script id="innov-core102-accounts-module">
 (function(){
   'use strict';
-  if(window.__innovCore1AccountsLoaded)return;
-  window.__innovCore1AccountsLoaded=true;
-
   const $=id=>document.getElementById(id);
-  const safe=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
-  const text=v=>String(v??'').trim();
-  const list=v=>Array.isArray(v)?v:[];
-  const toastC=(m,t='ok')=>{try{toast(m,t)}catch(_){alert(m)}};
-  const modeLabels={credential:'Cuenta con correo y contraseña',profile:'Streaming por perfiles',invite:'Invitación / grupo / enlace',totp:'Cuenta con TOTP',code:'Código o acceso único',none:'Sin cuentas / cupos'};
-  const stateC={planId:'',model:null,channel:null,refreshTimer:null,slots:[]};
-
-  function show(id){const d=$(id);if(!d)return;try{if(!d.open)d.showModal()}catch(_){d.setAttribute('open','')}}
-  function close(id){const d=$(id);if(!d)return;try{if(d.open)d.close()}catch(_){d.removeAttribute('open')}}
+  const esc=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  const txt=v=>String(v??'').trim();
+  const arr=v=>Array.isArray(v)?v:[];
+  const say=(m,type='ok')=>{try{toast(m,type)}catch(_){alert(m)}};
+  const M={planId:'',model:null,channel:null,timer:null,slots:[]};
+  const labels={credential:'Cuenta con correo y contraseña',profile:'Streaming por perfiles',invite:'Invitación / grupo',totp:'Cuenta con TOTP',code:'Código / acceso',none:'Sin cuenta'};
+  const modal=id=>{const d=$(id);if(!d)return;try{if(!d.open)d.showModal()}catch(_){d.setAttribute('open','')}};
+  const close=id=>{const d=$(id);if(!d)return;try{if(d.open)d.close()}catch(_){d.removeAttribute('open')}};
+  const badge=(v,kind='')=>`<span class="c102-chip ${kind}">${esc(v)}</span>`;
   async function rpc(name,args){const r=await db.rpc(name,args);if(r.error)throw r.error;return r.data}
-  function planName(id){const p=(window.state?.plans||[]).find(x=>String(x.id)===String(id));return p?.name||'Plan'}
-  function accountById(id){return list(stateC.model?.accounts).find(a=>String(a.stock_item_id)===String(id))||null}
-  function openDialogByDataClose(){document.querySelectorAll('[data-close="dlgCore1Accounts"]').forEach(b=>b.onclick=()=>close('dlgCore1Accounts'));document.querySelectorAll('[data-close="dlgCore1AccountEditor"]').forEach(b=>b.onclick=()=>close('dlgCore1AccountEditor'));document.querySelectorAll('[data-close="dlgCore1MoveService"]').forEach(b=>b.onclick=()=>close('dlgCore1MoveService'));}
-
-  function badge(label,kind=''){return `<span class="badge ${kind}">${safe(label)}</span>`}
-  function accountClass(a){return `core1-account-card ${a.core_state==='maintenance'?'is-maintenance':''} ${a.core_state==='suspended'?'is-suspended':''} ${a.availability==='full'?'is-full':''}`}
-  function clientLine(c){return `<div class="core1-client-row"><span><b>${safe(c.customer_name||'Cliente')}</b> · ${safe(c.phone||'—')} · vence ${safe(String(c.next_due_date||'—').slice(0,10))}${c.slot_label?` · ${safe(c.slot_label)}`:''}</span><button class="btn btn-sm" type="button" onclick="window.INNOV_CORE1_ACCOUNTS.move('${safe(c.assignment_id)}')">Mover</button></div>`}
-
+  function accessMode(){return M.model?.rule?.access_mode||'credential'}
+  function account(id){return arr(M.model?.accounts).find(a=>String(a.stock_item_id)===String(id))||null}
+  function readableLogin(a){return txt(a?.login)||txt(a?.secret_data?.correo)||txt(a?.secret_data?.email)||txt(a?.secret_data?.usuario)||txt(a?.alias)||'Cuenta'}
+  function compactSlots(a){const xs=arr(a.slots);if(!xs.length)return '';return xs.map(s=>`${s.label||'Acceso'}${s.pin?` · PIN ${s.pin}`:''}`).join(' · ')}
+  function clients(a){return arr(a.clients).map(c=>`${c.customer_name||'Cliente'}${c.slot_label?` (${c.slot_label})`:''}`).join(' · ')}
   function render(){
-    const model=stateC.model; if(!model)return;
-    $('core1AccountsTitle').textContent='Cuentas y cupos · '+(model.plan_name||'Plan');
-    $('core1PlanName').textContent=model.plan_name||'Plan';
-    const rule=model.rule||{};
-    $('core1AccessMode').innerHTML=Object.entries(modeLabels).map(([v,l])=>`<option value="${v}" ${rule.access_mode===v?'selected':''}>${safe(l)}</option>`).join('');
-    const accounts=list(model.accounts);
-    const cap=accounts.reduce((n,a)=>n+Number(a.capacity||0),0), used=accounts.reduce((n,a)=>n+Number(a.used_count||0),0), free=accounts.reduce((n,a)=>n+Number(a.free_count||0),0);
-    $('core1PlanKpis').innerHTML=[`<span class="core1-account-kpi good">${free} libres</span>`,`<span class="core1-account-kpi bad">${used} usados</span>`,`<span class="core1-account-kpi">${cap} cupos reales</span>`].join('');
-    const q=text($('core1AccountSearch').value).toLowerCase();
-    const visible=accounts.filter(a=>JSON.stringify(a).toLowerCase().includes(q));
-    $('core1AccountsList').innerHTML=visible.map(a=>{
-      const slots=list(a.slots).map(s=>`<div class="core1-slot-row"><div class="core1-slot-left"><b>${safe(s.label)}</b>${s.pin?badge('PIN '+s.pin):''}${badge(s.kind||'slot')}</div><div class="core1-slot-right">${badge(`${s.used_count||0}/${s.capacity||0} usados`,Number(s.free_count||0)>0?'b-ok':'b-bad')}${badge(`${s.free_count||0} libres`,Number(s.free_count||0)>0?'b-ok':'b-bad')}</div></div>`).join('')||'<div class="help">Sin slots configurados.</div>';
-      const clients=list(a.clients); const clientsHtml=clients.length?`<div class="core1-client-list"><b class="help">Servicios activos vinculados (${clients.length})</b>${clients.map(clientLine).join('')}</div>`:'<div class="core1-client-list help">Sin servicios activos vinculados.</div>';
-      const availability=a.core_state!=='active'?a.core_state:(a.availability==='full'?'Cuenta llena':'Disponible');
-      return `<article class="${accountClass(a)}"><div class="core1-account-head"><div><div class="core1-account-name">${safe(a.alias||'Cuenta')}</div><div class="core1-account-meta">${safe(a.secret_data?.correo||a.secret_data?.email||a.secret_data?.usuario||'Sin correo/usuario')}</div></div><div class="core1-account-badges">${badge(availability,a.availability==='full'?'b-bad':a.core_state==='active'?'b-ok':'b-warn')}${badge(`${a.used_count||0}/${a.capacity||0} usos`,Number(a.free_count||0)>0?'b-ok':'b-bad')}${badge(`${a.free_count||0} libres`,Number(a.free_count||0)>0?'b-ok':'b-bad')}</div></div><div class="core1-account-slots">${slots}</div>${clientsHtml}<div class="core1-account-actions"><button class="btn" type="button" onclick="window.INNOV_CORE1_ACCOUNTS.edit('${safe(a.stock_item_id)}')">✏️ Editar</button><button class="btn" type="button" onclick="window.INNOV_CORE1_ACCOUNTS.changeState('${safe(a.stock_item_id)}','maintenance')">🛠 Mantenimiento</button><button class="btn ${a.core_state==='active'?'btn-warning':'btn-success'}" type="button" onclick="window.INNOV_CORE1_ACCOUNTS.changeState('${safe(a.stock_item_id)}','${a.core_state==='active'?'suspended':'active'}')">${a.core_state==='active'?'⏸ Suspender':'▶ Activar'}</button></div></article>`;
-    }).join('')||'<div class="empty-state"><span class="icon">📦</span><p>No hay cuentas que coincidan. Agrega una cuenta o ajusta la búsqueda.</p></div>';
+    const model=M.model;if(!model)return;
+    const as=arr(model.accounts); const used=as.reduce((n,a)=>n+Number(a.used_count||0),0), free=as.reduce((n,a)=>n+Number(a.free_count||0),0), cap=as.reduce((n,a)=>n+Number(a.capacity||0),0);
+    $('c102Title').textContent='Cuentas y cupos · '+(model.plan_name||'Plan');$('c102PlanName').textContent=model.plan_name||'Plan';
+    $('c102Kpis').innerHTML=badge(`${free} libres`,'ok')+badge(`${used} usados`,'bad')+badge(`${cap} cupos`);
+    const q=txt($('c102Search').value).toLowerCase(); const show=as.filter(a=>JSON.stringify(a).toLowerCase().includes(q));
+    $('c102List').innerHTML=show.length?show.map(a=>{
+      const full=String(a.availability)==='full', maint=a.core_state!=='active';
+      const state=maint?(a.core_state==='maintenance'?'Mantenimiento':'Suspendida'):(full?'Completa':'Disponible');
+      const stateKind=maint?'bad':full?'bad':'ok';
+      const slotLine=compactSlots(a), cli=clients(a);
+      return `<article class="c102-card ${full?'full':''} ${maint?'maintenance':''}"><div class="c102-row"><div><div class="c102-email">${esc(readableLogin(a))}</div><div class="c102-meta">${badge(state,stateKind)}${badge(`${Number(a.used_count||0)}/${Number(a.capacity||0)} usos`,full?'bad':'ok')}${badge(`${Number(a.free_count||0)} libres`,Number(a.free_count||0)>0?'ok':'bad')}</div></div></div>${slotLine?`<div class="c102-slots">${esc(slotLine)}</div>`:''}${cli?`<div class="c102-clients">Clientes: ${esc(cli)}</div>`:''}<div class="c102-actions"><button class="btn" type="button" data-c102-edit="${esc(a.stock_item_id)}">✏️ Editar</button><button class="btn btn-danger" type="button" data-c102-delete="${esc(a.stock_item_id)}">Eliminar</button></div></article>`;
+    }).join(''):'<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas para este plan.</p></div>';
+    document.querySelectorAll('[data-c102-edit]').forEach(b=>b.onclick=()=>openEditor(b.dataset.c102Edit));
+    document.querySelectorAll('[data-c102-delete]').forEach(b=>b.onclick=()=>remove(b.dataset.c102Delete));
   }
-
   async function load(planId,open=true){
-    if(!planId)return toastC('Selecciona un plan','bad');
-    stateC.planId=planId;
-    const res=await rpc('core1_plan_accounts',{p_plan_id:planId});
-    stateC.model=res;
-    render(); if(open)show('dlgCore1Accounts'); subscribe();
+    if(!planId)throw new Error('Selecciona un plan'); M.planId=planId; M.model=await rpc('core1_plan_accounts',{p_plan_id:planId});render();if(open)modal('dlgCore1Accounts');subscribe();
   }
-  function schedule(){clearTimeout(stateC.refreshTimer);stateC.refreshTimer=setTimeout(()=>load(stateC.planId,false).catch(e=>console.warn(e)),450)}
-  function subscribe(){
-    if(stateC.channel){try{db.removeChannel(stateC.channel)}catch(_){}}
-    stateC.channel=db.channel('core1-accounts-'+stateC.planId)
-      .on('postgres_changes',{event:'*',schema:'public',table:'stock_items',filter:`plan_id=eq.${stateC.planId}`},schedule)
-      .on('postgres_changes',{event:'*',schema:'public',table:'stock_access_slots'},schedule)
-      .on('postgres_changes',{event:'*',schema:'public',table:'service_assignments'},schedule)
-      .subscribe();
-  }
-
-  async function loadTotp(selected=''){
-    let rows=[];try{const r=await db.from('totp_accounts').select('id,label,issuer,active').eq('active',true).order('label');if(!r.error)rows=r.data||[];}catch(_){}
-    $('core1TotpAccount').innerHTML='<option value="">Sin TOTP vinculado</option>'+rows.map(r=>`<option value="${safe(r.id)}" ${String(r.id)===String(selected)?'selected':''}>${safe(r.label||r.issuer||'Cuenta TOTP')}</option>`).join('');
-  }
-  function slotRow(data={}){const i=stateC.slots.length;stateC.slots.push({id:data.id||'',label:data.label||'',pin:data.pin||'',capacity:Number(data.capacity||1),active:data.active!==false,sort_order:Number(data.sort_order||i)});renderSlots()}
+  function schedule(){clearTimeout(M.timer);M.timer=setTimeout(()=>load(M.planId,false).catch(console.warn),500)}
+  function subscribe(){try{if(M.channel)db.removeChannel(M.channel)}catch(_){};M.channel=db.channel('core102-'+M.planId).on('postgres_changes',{event:'*',schema:'public',table:'stock_items',filter:`plan_id=eq.${M.planId}`},schedule).on('postgres_changes',{event:'*',schema:'public',table:'service_assignments'},schedule).on('postgres_changes',{event:'*',schema:'public',table:'payment_reminders'},schedule).on('postgres_changes',{event:'*',schema:'public',table:'stock_access_slots'},schedule).subscribe()}
+  async function loadTotp(selected=''){let rows=[];try{const r=await db.from('totp_accounts').select('id,label,issuer,active').eq('active',true).order('label');if(!r.error)rows=r.data||[]}catch(_){};$('c102Totp').innerHTML='<option value="">Sin TOTP</option>'+rows.map(r=>`<option value="${esc(r.id)}" ${String(r.id)===String(selected)?'selected':''}>${esc(r.label||r.issuer||'TOTP')}</option>`).join('')}
+  function slotRow(s={}){M.slots.push({id:s.id||'',label:s.label||`Perfil ${M.slots.length+1}`,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:M.slots.length});renderSlots()}
   function renderSlots(){
-    $('core1SlotsEditor').innerHTML=stateC.slots.map((s,i)=>`<div class="core1-slot-edit-row"><div><label class="subtle">${(stateC.model?.rule?.access_mode||'')==='profile'?'Perfil':'Cupo / acceso'}</label><input class="input" data-c1="label" data-i="${i}" value="${safe(s.label)}" placeholder="Ej.: Perfil 1"></div><div><label class="subtle">PIN</label><input class="input" data-c1="pin" data-i="${i}" value="${safe(s.pin)}" placeholder="Opcional"></div><div class="${(stateC.model?.rule?.access_mode||'')==='profile'?'core1-hidden':''}"><label class="subtle">Capacidad</label><input class="input" data-c1="capacity" data-i="${i}" type="number" min="1" value="${Number(s.capacity||1)}"></div><button class="btn btn-danger core1-remove-slot" data-c1="remove" data-i="${i}" type="button">Quitar</button></div>`).join('');
-    document.querySelectorAll('[data-c1="label"]').forEach(el=>el.oninput=e=>stateC.slots[Number(e.target.dataset.i)].label=e.target.value);
-    document.querySelectorAll('[data-c1="pin"]').forEach(el=>el.oninput=e=>stateC.slots[Number(e.target.dataset.i)].pin=e.target.value);
-    document.querySelectorAll('[data-c1="capacity"]').forEach(el=>el.oninput=e=>stateC.slots[Number(e.target.dataset.i)].capacity=Number(e.target.value||1));
-    document.querySelectorAll('[data-c1="remove"]').forEach(el=>el.onclick=e=>{stateC.slots.splice(Number(e.currentTarget.dataset.i),1);renderSlots()});
+    $('c102Slots').innerHTML=M.slots.map((s,i)=>`<div class="c102-slot-edit"><div><label class="subtle">Perfil</label><input class="input" data-c102-slot="label" data-i="${i}" value="${esc(s.label)}"></div><div><label class="subtle">PIN</label><input class="input" data-c102-slot="pin" data-i="${i}" value="${esc(s.pin)}" placeholder="Opcional"></div><button class="btn btn-danger" type="button" data-c102-slot="del" data-i="${i}">Quitar</button></div>`).join('');
+    document.querySelectorAll('[data-c102-slot="label"]').forEach(x=>x.oninput=e=>M.slots[Number(e.target.dataset.i)].label=e.target.value);
+    document.querySelectorAll('[data-c102-slot="pin"]').forEach(x=>x.oninput=e=>M.slots[Number(e.target.dataset.i)].pin=e.target.value);
+    document.querySelectorAll('[data-c102-slot="del"]').forEach(x=>x.onclick=e=>{M.slots.splice(Number(e.currentTarget.dataset.i),1);renderSlots()});
   }
-  function applyMode(mode){
-    const profile=mode==='profile', invite=mode==='invite', totp=mode==='totp', code=mode==='code';
-    $('core1UserWrap').classList.toggle('core1-hidden',mode==='none');$('core1PassWrap').classList.toggle('core1-hidden',invite||code||mode==='none');
-    $('core1GroupWrap').classList.toggle('core1-hidden',!invite);$('core1TotpWrap').classList.toggle('core1-hidden',!totp);
-    $('core1SlotsWrap').classList.toggle('core1-hidden',!profile);$('core1CapacityWrap').classList.toggle('core1-hidden',profile||mode==='none');
-    $('core1UserLabel').textContent=code?'Código / dato de acceso':invite?'Correo administrador (opcional)':'Correo / usuario *';
-    $('core1CapacityLabel').textContent=invite?'Miembros / cupos totales':'Cupos totales';
-    $('core1SlotsLabel').textContent=profile?'Perfiles reales':'Cupos';
-    $('core1EditorHelp').textContent=modeLabels[mode]||'Tipo de acceso';
-    if(profile&&!stateC.slots.length)slotRow({label:'Perfil 1',capacity:1});
+  function adapt(mode){
+    const profile=mode==='profile',invite=mode==='invite',totp=mode==='totp',code=mode==='code';
+    $('c102UserWrap').classList.toggle('c102-hidden',mode==='none');$('c102PassWrap').classList.toggle('c102-hidden',invite||code||mode==='none');$('c102GroupWrap').classList.toggle('c102-hidden',!invite);$('c102TotpWrap').classList.toggle('c102-hidden',!totp);$('c102SlotsWrap').classList.toggle('c102-hidden',!profile);$('c102CapacityWrap').classList.toggle('c102-hidden',profile||mode==='none');
+    $('c102UserLabel').textContent=code?'Código / dato de acceso':invite?'Correo administrador (opcional)':'Correo / usuario *';$('c102CapacityLabel').textContent=invite?'Miembros / cupos':'Cupos';$('c102Help').textContent=labels[mode]||'Cuenta';
+    if(profile&&!M.slots.length)slotRow({label:'Perfil 1'});
   }
-  async function openEditor(stockId=''){
-    const account=stockId?accountById(stockId):null; const mode=stateC.model?.rule?.access_mode||'credential'; const sec=account?.secret_data||{};
-    $('core1StockItemId').value=account?.stock_item_id||'';$('core1PlanId').value=stateC.planId;$('core1Alias').value=account?.alias||'';$('core1Username').value=sec.correo||sec.email||sec.usuario||'';$('core1Password').value=sec.clave||sec.password||sec.pass||'';$('core1GroupUrl').value=sec.grupo||sec.url||'';$('core1Capacity').value=String(account?.capacity||1);$('core1AccountState').value=account?.core_state||'active';
-    stateC.slots=list(account?.slots).map((s,i)=>({id:s.id,label:s.label,pin:s.pin||'',capacity:Number(s.capacity||1),active:s.active!==false,sort_order:i}));
-    $('core1EditorTitle').textContent=account?'Editar cuenta / cupo':'Agregar cuenta / cupo';$('btnCore1ArchiveAccount').classList.toggle('core1-hidden',!account);
-    await loadTotp(sec.totp_account_id||''); applyMode(mode); renderSlots(); show('dlgCore1AccountEditor');
+  function legacyPassword(raw){const s=txt(raw);const parts=s.split('//');return parts.length>1 && !/solicitar|whatsapp|codigo/i.test(parts[1])?parts[1].trim():''}
+  async function openEditor(id=''){
+    const a=id?account(id):null, sec=a?.secret_data||{}, mode=accessMode();
+    $('c102ItemId').value=a?.stock_item_id||'';$('c102PlanId').value=M.planId;$('c102Username').value=txt(sec.correo)||txt(sec.email)||txt(sec.usuario)||readableLogin(a);$('c102Password').value=legacyPassword(a?.alias)||'';$('c102GroupUrl').value=txt(sec.grupo)||txt(sec.url);$('c102Capacity').value=String(a?.capacity||1);$('c102State').value=a?.core_state||'active';$('c102EditorTitle').textContent=a?'Editar cuenta':'Agregar cuenta';
+    M.slots=arr(a?.slots).map((s,i)=>({id:s.id,label:s.label,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:i}));await loadTotp(sec.totp_account_id||'');adapt(mode);renderSlots();modal('dlgCore1AccountEditor');
   }
-  async function saveAccount(e){e.preventDefault();const mode=stateC.model?.rule?.access_mode||'credential';const alias=text($('core1Alias').value);if(!alias)return toastC('Escribe un alias operativo','bad');if(mode==='profile'&&!stateC.slots.length)return toastC('Agrega al menos un perfil','bad');
-    try{await rpc('core1_upsert_account',{p_stock_item_id:text($('core1StockItemId').value)||null,p_plan_id:stateC.planId,p_alias:alias,p_username:text($('core1Username').value)||null,p_password:mode==='invite'||mode==='code'?null:$('core1Password').value,p_group_url:text($('core1GroupUrl').value)||null,p_totp_account_id:text($('core1TotpAccount').value)||null,p_state:$('core1AccountState').value,p_capacity:Number($('core1Capacity').value||1),p_slots:mode==='profile'?stateC.slots:[]});close('dlgCore1AccountEditor');toastC('Cuenta guardada. Los cupos se recalcularon desde servicios activos.','ok');await load(stateC.planId,false);}catch(err){toastC(err.message||String(err),'bad')}}
-  async function savePlanMode(){const mode=$('core1AccessMode').value; if(!confirm('Cambiar el tipo de acceso es global para este plan. Las cuentas actuales se conservarán. ¿Continuar?'))return;try{await rpc('core1_set_plan_access_mode',{p_plan_id:stateC.planId,p_access_mode:mode,p_release_stock_on_cancel:null,p_renewal_options:null});toastC('Tipo de acceso guardado','ok');await load(stateC.planId,false)}catch(e){toastC(e.message||String(e),'bad')}}
-  async function changeState(id,state){try{await rpc('core1_set_account_state',{p_stock_item_id:id,p_state:state});toastC('Estado actualizado','ok');await load(stateC.planId,false)}catch(e){toastC(e.message||String(e),'bad')}}
-  async function archive(){const id=text($('core1StockItemId').value);if(!id)return;if(!confirm('Archivar esta cuenta? Solo se permite cuando no tiene servicios activos.'))return;try{await rpc('core1_archive_account',{p_stock_item_id:id});close('dlgCore1AccountEditor');toastC('Cuenta archivada','ok');await load(stateC.planId,false)}catch(e){toastC(e.message||String(e),'bad')}}
-  function move(assignmentId){const account=list(stateC.model?.accounts).find(a=>list(a.clients).some(c=>String(c.assignment_id)===String(assignmentId)));const client=list(account?.clients).find(c=>String(c.assignment_id)===String(assignmentId));$('core1MoveAssignmentId').value=assignmentId;$('core1MoveSummary').textContent=`Mover a ${client?.customer_name||'cliente'} sin alterar su vencimiento ni recordatorio.`;const opts=[];list(stateC.model?.accounts).forEach(a=>list(a.slots).filter(s=>Number(s.free_count||0)>0&&a.core_state==='active').forEach(s=>opts.push(`<option value="${safe(a.stock_item_id)}|${safe(s.id)}">${safe(a.alias)} · ${safe(s.label)} (${s.free_count} libre${Number(s.free_count)===1?'':'s'})</option>`)));$('core1MoveTarget').innerHTML=opts.join('')||'<option value="">Sin cupos disponibles</option>';show('dlgCore1MoveService')}
-  async function saveMove(e){e.preventDefault();const [item,slot]=text($('core1MoveTarget').value).split('|');if(!item||!slot)return toastC('No hay destino disponible','bad');try{await rpc('core1_move_assignment',{p_assignment_id:text($('core1MoveAssignmentId').value),p_target_stock_item_id:item,p_target_slot_id:slot});close('dlgCore1MoveService');toastC('Servicio movido. Cliente, vencimiento y recordatorio se conservaron.','ok');await load(stateC.planId,false)}catch(err){toastC(err.message||String(err),'bad')}}
-
-  async function reconcile(){try{const r=await rpc('core1_reconcile_all',{});toastC(`Reconciliación lista: ${r.accounts_synced||0} cuenta(s) sincronizada(s).`,'ok');await load(stateC.planId,false)}catch(e){toastC(e.message||String(e),'bad')}}
-
+  async function save(e){e.preventDefault();const mode=accessMode();const username=txt($('c102Username').value),group=txt($('c102GroupUrl').value),password=txt($('c102Password').value);if(['credential','profile','totp'].includes(mode)&&!username)return say('Escribe el correo o usuario','bad');if(mode==='profile'&&!M.slots.length)return say('Agrega al menos un perfil','bad');const alias=username||group||'Cuenta';try{await rpc('core1_upsert_account',{p_stock_item_id:txt($('c102ItemId').value)||null,p_plan_id:M.planId,p_alias:alias,p_username:username||null,p_password:password||null,p_group_url:group||null,p_totp_account_id:txt($('c102Totp').value)||null,p_state:$('c102State').value,p_capacity:Number($('c102Capacity').value||1),p_slots:mode==='profile'?M.slots:[]});close('dlgCore1AccountEditor');say('Cuenta guardada','ok');await load(M.planId,false)}catch(err){say(err.message||String(err),'bad')}}
+  async function remove(id){if(!confirm('¿Eliminar esta cuenta de la lista? Solo se permite si no tiene clientes ni recordatorios que ocupan cupo.'))return;try{await rpc('core1_delete_account',{p_stock_item_id:id});say('Cuenta eliminada de la lista','ok');await load(M.planId,false)}catch(err){say(err.message||String(err),'bad')}}
   function bind(){
-    openDialogByDataClose();
-    $('core1AccountSearch').oninput=render;$('btnCore1Refresh').onclick=()=>load(stateC.planId,false);$('btnCore1AddAccount').onclick=()=>openEditor();$('btnCore1SavePlanRule').onclick=savePlanMode;$('btnCore1AddSlot').onclick=()=>slotRow({label:'Perfil '+(stateC.slots.length+1),capacity:1});$('core1AccountForm').onsubmit=saveAccount;$('btnCore1ArchiveAccount').onclick=archive;$('core1MoveForm').onsubmit=saveMove;
-    window.openPlanStockView=(planId)=>load(planId,true);window.openPlanAccounts=window.openPlanStockView;window.openOpsStockDialog=(type='account',id='')=>{let p=stateC.planId;if(id){const x=(window.state?.stock||[]).find(r=>String(r.id)===String(id));p=x?.plan_id||p}if(!p){p=(window.state?.plans||[])[0]?.id||''}load(p,false).then(()=>openEditor(id));};window.openStockViewEdit=(id)=>window.openOpsStockDialog('account',id);window.openAddStockFromPlanView=()=>openEditor();window.addStockForPlan=(planId)=>load(planId,false).then(()=>openEditor());
-    window.INNOV_CORE1_ACCOUNTS=Object.freeze({open:load,edit:openEditor,move,changeState,reconcile});
+    document.querySelectorAll('[data-c102-close]').forEach(b=>b.onclick=()=>close(b.dataset.c102Close));$('c102Search').oninput=render;$('c102Refresh').onclick=()=>load(M.planId,false);$('c102Add').onclick=()=>openEditor();$('c102AddSlot').onclick=()=>slotRow();$('c102Form').onsubmit=save;
+    window.openPlanStockView=(planId)=>load(planId,true);window.openPlanAccounts=window.openPlanStockView;window.openOpsStockDialog=(type='account',id='')=>{let p=M.planId;if(id){const x=(window.state?.stock||[]).find(r=>String(r.id)===String(id));p=x?.plan_id||p}if(!p)p=(window.state?.plans||[])[0]?.id||'';load(p,false).then(()=>openEditor(id));};window.openStockViewEdit=(id)=>window.openOpsStockDialog('account',id);window.openAddStockFromPlanView=()=>openEditor();window.addStockForPlan=(planId)=>load(planId,false).then(()=>openEditor());
+    window.INNOV_CORE1_ACCOUNTS=Object.freeze({open:load,edit:openEditor,remove});
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,900),{once:true});else setTimeout(bind,900);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,800),{once:true});else setTimeout(bind,800);
 })();
 </script>
 
 </body>
 </html>
+
 
 
