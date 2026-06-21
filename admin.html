@@ -1935,6 +1935,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 }
 </style>
 
+<!-- INNOV IA Core 1.1.0: selector y autofill unificados -->
 </head>
 <body>
 
@@ -2963,6 +2964,9 @@ Perfil 2|5678"></textarea><p class="help" style="margin-top:6px">Para streaming:
 const SUPABASE_URL='https://rfjvskrimsoqlyofhidj.supabase.co';
 const SUPABASE_KEY='sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+/* Core 1.1.2: una sola instancia oficial para todos los módulos del Admin. */
+window.db=db;
+window.INNOV_SUPABASE_CLIENT=db;
 const $=id=>document.getElementById(id);
 
 
@@ -9491,7 +9495,7 @@ setTimeout(enhanceCuposEntregaUi,0);
 
   function passwordBlock(pw){
     if(!pw)return '<span class="help">No guardada</span>';
-    return `<div class="v49-mini-actions"><span class="v49-secret" data-secret="${html(pw)}" data-showing="0">••••••••</span><button class="btn" type="button" onclick="event.stopPropagation();innovV49ToggleSecret(this)">Ver</button><button class="btn" type="button" onclick="event.stopPropagation();innovV49Copy('${html(pw)}','Contraseña')">Copiar</button></div>`;
+    return `<div class="v49-mini-actions"><span class="mono">${html(pw)}</span><button class="btn" type="button" onclick="event.stopPropagation();innovV49Copy('${html(pw)}','Contraseña')">Copiar</button></div>`;
   }
   function urlBlock(url){
     if(!url)return '<span class="help">No guardado</span>';
@@ -12009,7 +12013,7 @@ INNOV IA V62 - TOTP original + selección real
       <div class="c103-help" id="c103Help"></div>
       <div class="grid grid-2">
         <div id="c103UserWrap"><label class="subtle" id="c103UserLabel">Correo / usuario *</label><input class="input" id="c103Username" autocomplete="off" placeholder="correo@gmail.com"></div>
-        <div id="c103PassWrap"><label class="subtle">Contraseña</label><input class="input" id="c103Password" type="password" autocomplete="new-password" placeholder="Contraseña o clave"></div>
+        <div id="c103PassWrap"><label class="subtle">Contraseña</label><input class="input" id="c103Password" type="text" autocomplete="off" spellcheck="false" placeholder="Contraseña o clave"></div>
         <div id="c103GroupWrap" class="full c103-hidden"><label class="subtle">Grupo / invitación / URL</label><input class="input" id="c103GroupUrl" placeholder="https://..."></div>
         <div id="c103TotpWrap" class="full c103-hidden"><label class="subtle">Cuenta TOTP vinculada</label><select class="input" id="c103Totp"></select></div>
         <div id="c103CapacityWrap"><label class="subtle" id="c103CapacityLabel">Cupos</label><input class="input" id="c103Capacity" type="number" min="1" max="1000" value="1"></div>
@@ -12056,14 +12060,647 @@ INNOV IA V62 - TOTP original + selección real
   async function loadTotp(selected=''){let rows=[];try{const r=await db.from('totp_accounts').select('id,label,issuer,active').eq('active',true).order('label');if(!r.error)rows=r.data||[]}catch(_){};$('c103Totp').innerHTML='<option value="">Sin TOTP</option>'+rows.map(r=>`<option value="${esc(r.id)}" ${String(r.id)===String(selected)?'selected':''}>${esc(r.label||r.issuer||'TOTP')}</option>`).join('')}
   function slotRow(s={}){M.slots.push({id:s.id||'',label:s.label||`Perfil ${M.slots.length+1}`,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:M.slots.length});slots()}
   function slots(){$('c103Slots').innerHTML=M.slots.map((s,i)=>`<div class="c103-slot-edit"><div><label class="subtle">Perfil</label><input class="input" data-c103-slot="label" data-i="${i}" value="${esc(s.label)}"></div><div><label class="subtle">PIN</label><input class="input" data-c103-slot="pin" data-i="${i}" value="${esc(s.pin)}" placeholder="Opcional"></div><button class="btn btn-danger" type="button" data-c103-slot="del" data-i="${i}">Quitar</button></div>`).join('');document.querySelectorAll('[data-c103-slot="label"]').forEach(x=>x.oninput=e=>M.slots[Number(e.target.dataset.i)].label=e.target.value);document.querySelectorAll('[data-c103-slot="pin"]').forEach(x=>x.oninput=e=>M.slots[Number(e.target.dataset.i)].pin=e.target.value);document.querySelectorAll('[data-c103-slot="del"]').forEach(x=>x.onclick=e=>{M.slots.splice(Number(e.currentTarget.dataset.i),1);slots()})}
-  function adapt(x){const profile=x==='profile',invite=x==='invite',totp=x==='totp',code=x==='code';$('c103UserWrap').classList.toggle('c103-hidden',x==='none');$('c103PassWrap').classList.toggle('c103-hidden',invite||code||x==='none');$('c103GroupWrap').classList.toggle('c103-hidden',!invite);$('c103TotpWrap').classList.toggle('c103-hidden',!totp);$('c103SlotsWrap').classList.toggle('c103-hidden',!profile);$('c103CapacityWrap').classList.toggle('c103-hidden',profile||x==='none');$('c103UserLabel').textContent=code?'Código / dato de acceso':invite?'Correo administrador (opcional)':'Correo / usuario *';$('c103CapacityLabel').textContent=invite?'Miembros / cupos':'Cupos';$('c103Help').textContent=labels[x]||'Cuenta';if(profile&&!M.slots.length)slotRow({label:'Perfil 1'})}
+  function adapt(x){const profile=x==='profile',totp=x==='totp',code=x==='code';$('c103UserWrap').classList.toggle('c103-hidden',x==='none');$('c103PassWrap').classList.toggle('c103-hidden',code||x==='none');$('c103GroupWrap').classList.toggle('c103-hidden',code||x==='none');$('c103TotpWrap').classList.toggle('c103-hidden',!totp);$('c103SlotsWrap').classList.toggle('c103-hidden',!profile);$('c103CapacityWrap').classList.toggle('c103-hidden',profile||x==='none');$('c103UserLabel').textContent=code?'Código / dato de acceso':x==='invite'?'Correo administrador (opcional)':'Correo / usuario *';$('c103CapacityLabel').textContent=x==='invite'?'Miembros / cupos':'Cupos';$('c103Help').textContent=labels[x]||'Cuenta';if(profile&&!M.slots.length)slotRow({label:'Perfil 1'})}
   function legacyPass(raw){const s=txt(raw),p=s.split('//');return p.length>1&&!/solicitar|whatsapp|codigo/i.test(p[1])?p[1].trim():''}
-  async function editor(id=''){const a=id?account(id):null,sec=a?.secret_data||{},x=mode();$('c103ItemId').value=a?.stock_item_id||'';$('c103PlanId').value=M.planId;$('c103Username').value=txt(sec.correo)||txt(sec.email)||txt(sec.usuario)||login(a);$('c103Password').value=legacyPass(a?.alias)||'';$('c103GroupUrl').value=txt(sec.grupo)||txt(sec.url);$('c103Capacity').value=String(a?.capacity||1);$('c103State').value=a?.core_state||'active';$('c103EditorTitle').textContent=a?'Editar cuenta':'Agregar cuenta';M.slots=arr(a?.slots).map((s,i)=>({id:s.id,label:s.label,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:i}));await loadTotp(sec.totp_account_id||'');adapt(x);slots();modal('dlgCore1AccountEditor')}
+  function savedPassword(sec,a){return txt(sec?.clave)||txt(sec?.password)||txt(sec?.pass)||txt(sec?.contraseña)||txt(sec?.contrasena)||legacyPass(a?.alias)||''}
+  function savedGroup(sec){return txt(sec?.grupo)||txt(sec?.grupo_url)||txt(sec?.url_grupo)||txt(sec?.group_url)||txt(sec?.whatsapp_group_url)||txt(sec?.grupo_whatsapp)||txt(sec?.family_url)||txt(sec?.url)||''}
+  async function editor(id=''){const a=id?account(id):null,sec=a?.secret_data||{},x=mode();$('c103ItemId').value=a?.stock_item_id||'';$('c103PlanId').value=M.planId;$('c103Username').value=txt(sec.correo)||txt(sec.email)||txt(sec.usuario)||txt(sec.username)||login(a);$('c103Password').value=savedPassword(sec,a);$('c103GroupUrl').value=savedGroup(sec);$('c103Capacity').value=String(a?.capacity||1);$('c103State').value=a?.core_state||'active';$('c103EditorTitle').textContent=a?'Editar cuenta':'Agregar cuenta';M.slots=arr(a?.slots).map((s,i)=>({id:s.id,label:s.label,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:i}));await loadTotp(sec.totp_account_id||'');adapt(x);slots();modal('dlgCore1AccountEditor')}
   async function save(e){e.preventDefault();const x=mode(),username=txt($('c103Username').value),group=txt($('c103GroupUrl').value),password=txt($('c103Password').value);if(['credential','profile','totp'].includes(x)&&!username)return say('Escribe el correo o usuario','bad');if(x==='profile'&&!M.slots.length)return say('Agrega al menos un perfil','bad');try{await rpc('core1_upsert_account',{p_stock_item_id:txt($('c103ItemId').value)||null,p_plan_id:M.planId,p_alias:username||group||'Cuenta',p_username:username||null,p_password:password||null,p_group_url:group||null,p_totp_account_id:txt($('c103Totp').value)||null,p_state:$('c103State').value,p_capacity:Number($('c103Capacity').value||1),p_slots:x==='profile'?M.slots:[]});close('dlgCore1AccountEditor');say('Cuenta guardada');await load(M.planId,false)}catch(err){say(err.message||String(err),'bad')}}
   async function remove(id){if(!confirm('¿Eliminar esta cuenta de la lista? Solo se permite si no tiene clientes, recordatorios ni reservas que ocupan cupo.'))return;try{await rpc('core1_delete_account',{p_stock_item_id:id});say('Cuenta archivada');await load(M.planId,false)}catch(err){say(err.message||String(err),'bad')}}
   function bind(){document.querySelectorAll('[data-c103-close]').forEach(b=>b.onclick=()=>close(b.dataset.c103Close));$('c103Search').oninput=render;$('c103Refresh').onclick=()=>load(M.planId,false);$('c103Add').onclick=()=>editor();$('c103AddSlot').onclick=()=>slotRow();$('c103Form').onsubmit=save;window.openPlanStockView=(planId)=>load(planId,true);window.openPlanAccounts=window.openPlanStockView;window.openOpsStockDialog=(type='account',id='')=>{let p=M.planId;if(id){const x=(window.state?.stock||[]).find(r=>String(r.id)===String(id));p=x?.plan_id||p}if(!p)p=(window.state?.plans||[])[0]?.id||'';load(p,false).then(()=>editor(id))};window.openStockViewEdit=id=>window.openOpsStockDialog('account',id);window.openAddStockFromPlanView=()=>editor();window.addStockForPlan=planId=>load(planId,false).then(()=>editor());window.INNOV_CORE103_ACCOUNTS=Object.freeze({open:load,edit:editor,remove,history})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,800),{once:true});else setTimeout(bind,800);
 })();
 </script>
+
+<style id="innov-core11-css">
+  #opsDeliverSlotWrap,#manualStockSlotWrap{margin-top:8px}
+  #opsDeliverSlotWrap .help,#manualStockSlotWrap .help{margin:6px 0 0;font-size:.76rem}
+</style>
+
+<script id="innov-core11-client">
+/* =====================================================================
+   INNOV IA · CORE 1.1.1 — CLIENTE UNIFICADO Y ESTABLE
+   - Toda entrega consume Core11 delivery_options / delivery_context.
+   - No decide cupos con secret_data.used_count.
+   - Perfil, PIN y grupo se rellenan desde el slot real.
+   ===================================================================== */
+(function () {
+  'use strict';
+  if (window.__innovCore11ClientLoaded) return;
+  window.__innovCore11ClientLoaded = true;
+
+  const $ = id => document.getElementById(id);
+  const value = id => String($(id)?.value ?? '').trim();
+  const set = (id, val) => { const el = $(id); if (el) el.value = val == null ? '' : String(val); };
+  const esc = raw => String(raw ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const list = value => Array.isArray(value) ? value : [];
+  const nowDate = () => (typeof window.todayISO === 'function' ? window.todayISO() : new Date().toISOString().slice(0, 10));
+  const toast = (message, type = 'ok') => { try { window.toast?.(message, type); } catch (_) { console.log(message); } };
+  const errText = error => String(error?.message || error || 'Error inesperado');
+  const id = x => String(x ?? '').trim();
+
+  /* Core 1.1.2: nunca depender de un alias inexistente. La página publica
+     window.db arriba y este helper conserva una salida clara si la conexión
+     todavía no terminó de iniciar. */
+  function getClient() {
+    let client = window.db || window.INNOV_SUPABASE_CLIENT || null;
+    try {
+      if (!client && typeof db !== 'undefined') client = db;
+    } catch (_) { }
+    if (client && typeof client.rpc === 'function') {
+      window.db = client;
+      window.INNOV_SUPABASE_CLIENT = client;
+      return client;
+    }
+    throw new Error('La conexión con Supabase todavía no está lista. Recarga el Administrador e inténtalo nuevamente.');
+  }
+
+  const Core11 = window.INNOV_CORE11 = window.INNOV_CORE11 || {
+    version: '1.1.2',
+    options: new Map(),
+    contexts: new Map(),
+    pending: new Map(),
+    cacheMs: 4000
+  };
+
+  async function rpc(name, args) {
+    const response = await getClient().rpc(name, args);
+    if (response.error) throw response.error;
+    return Array.isArray(response.data) ? response.data[0] : response.data;
+  }
+
+  function normalizePhone(raw) {
+    if (typeof window.normalizePhone === 'function') return window.normalizePhone(raw);
+    const digits = String(raw || '').replace(/\D+/g, '');
+    if (digits.length === 9) return { ok: true, e164: '+51' + digits };
+    if (digits.length >= 10 && digits.length <= 15) return { ok: true, e164: '+' + digits };
+    return { ok: false, error: 'WhatsApp inválido' };
+  }
+
+  function planRule(planId) {
+    return list(window.state?.serviceRules).find(row => id(row.plan_id) === id(planId)) || { allocation_mode: 'none' };
+  }
+
+  function planName(planId) {
+    try { return window.planName?.(planId) || list(window.state?.plans).find(row => id(row.id) === id(planId))?.name || 'Servicio'; }
+    catch (_) { return 'Servicio'; }
+  }
+
+  function planDue(planId) {
+    try { return window.planRenewalDue?.(planId, nowDate()) || window.planRenewalDue?.(planId) || addOneMonth(nowDate()); }
+    catch (_) { return addOneMonth(nowDate()); }
+  }
+
+  function addOneMonth(dateValue) {
+    const d = new Date((dateValue || nowDate()) + 'T00:00:00');
+    d.setMonth(d.getMonth() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+
+  async function options(planId, force = false) {
+    const key = id(planId);
+    if (!key) return { accounts: [], requires_stock: false };
+    const cached = Core11.options.get(key);
+    if (!force && cached && Date.now() - cached.at < Core11.cacheMs) return cached.data;
+    if (Core11.pending.has(key)) return Core11.pending.get(key);
+    const task = rpc('core11_delivery_options', { p_plan_id: key })
+      .then(data => {
+        const normalized = data || { accounts: [] };
+        Core11.options.set(key, { at: Date.now(), data: normalized });
+        return normalized;
+      })
+      .finally(() => Core11.pending.delete(key));
+    Core11.pending.set(key, task);
+    return task;
+  }
+
+  async function deliveryContext(planId, stockItemId, stockSlotId = null) {
+    const ctx = await rpc('core11_delivery_context', {
+      p_plan_id: id(planId),
+      p_stock_item_id: id(stockItemId) || null,
+      p_stock_slot_id: id(stockSlotId) || null
+    });
+    return ctx || {};
+  }
+
+  const config = {
+    ops: {
+      plan: () => value('opsDeliverPlanId') || planFromStock(value('opsDeliverStockId') || value('opsDeliverStockSelect')),
+      stock: 'opsDeliverStockSelect', hidden: 'opsDeliverStockId', slot: 'opsDeliverSlotSelect', slotWrap: 'opsDeliverSlotWrap', hint: 'opsDeliverStockHint'
+    },
+    manual: {
+      plan: () => value('manualPlan'),
+      stock: 'manualStockSelect', hidden: 'manualStockId', slot: 'manualStockSlotSelect', slotWrap: 'manualStockSlotWrap', hint: 'manualStockPickHint'
+    }
+  };
+
+  function planFromStock(stockId) {
+    return list(window.state?.stock).find(row => id(row.id) === id(stockId))?.plan_id || '';
+  }
+
+  function accountById(model, stockId) {
+    return list(model?.accounts).find(account => id(account.stock_item_id) === id(stockId)) || null;
+  }
+
+  function eligibleAccounts(model) {
+    return list(model?.accounts).filter(account => account?.eligible && eligibleSlots(account).length > 0);
+  }
+
+  function eligibleSlots(account) {
+    return list(account?.slots).filter(slot => slot?.eligible);
+  }
+
+  function optionLabel(account) {
+    const meta = `${Number(account.used_count || 0)}/${Number(account.capacity || 0)} usados · ${Number(account.free_count || 0)} libres`;
+    const slots = eligibleSlots(account);
+    const detail = slots.length === 1 && slots[0]?.label ? ` · ${slots[0].label}` : '';
+    return `${account.login || 'Cuenta'} — ${meta}${detail}`;
+  }
+
+  function ensureSlotSelect(mode) {
+    const cfg = config[mode];
+    if (!cfg) return null;
+    let select = $(cfg.slot);
+    if (select) return select;
+    const accountSelect = $(cfg.stock);
+    if (!accountSelect) return null;
+    const wrap = document.createElement('div');
+    wrap.id = cfg.slotWrap;
+    wrap.className = 'full hidden';
+    wrap.innerHTML = `<label class="subtle">Perfil / cupo a entregar</label><select class="input" id="${cfg.slot}"></select><p class="help">Se usa exactamente este perfil o cupo al registrar la entrega.</p>`;
+    const target = accountSelect.closest('.full') || accountSelect.parentElement;
+    target?.insertAdjacentElement('afterend', wrap);
+    select = $(cfg.slot);
+    select?.addEventListener('change', () => hydrate(mode).catch(error => toast(errText(error), 'bad')));
+    return select;
+  }
+
+  function setHint(mode, message) {
+    const hint = $(config[mode]?.hint);
+    if (hint) hint.textContent = message;
+  }
+
+  async function populate(mode, force = false) {
+    const cfg = config[mode];
+    if (!cfg) return;
+    const planId = cfg.plan();
+    const select = $(cfg.stock);
+    if (!select || !planId) return;
+    const model = await options(planId, force);
+    const accounts = eligibleAccounts(model);
+    const old = value(cfg.stock) || value(cfg.hidden);
+    const chosen = accounts.some(a => id(a.stock_item_id) === old) ? old : id(accounts[0]?.stock_item_id);
+    select.innerHTML = '<option value="">Selecciona una cuenta</option>' + accounts.map(a => `<option value="${esc(a.stock_item_id)}" ${id(a.stock_item_id) === chosen ? 'selected' : ''}>${esc(optionLabel(a))}</option>`).join('');
+    select.disabled = !accounts.length;
+    if ($(cfg.hidden)) set(cfg.hidden, chosen);
+    setHint(mode, accounts.length
+      ? `${accounts.length} cuenta(s) disponible(s) calculadas por el núcleo.`
+      : 'No hay cuentas con cupo disponible para este plan.');
+    populateSlots(mode, model, chosen);
+    if (chosen) await hydrate(mode, model);
+  }
+
+  function populateSlots(mode, model, stockId) {
+    const cfg = config[mode];
+    const select = ensureSlotSelect(mode);
+    if (!select) return;
+    const wrap = $(cfg.slotWrap);
+    const account = accountById(model, stockId);
+    const slots = eligibleSlots(account);
+    const useSlotPicker = slots.length > 1;
+    if (!slots.length) {
+      select.innerHTML = '';
+      if (wrap) wrap.classList.add('hidden');
+      return;
+    }
+    const current = value(cfg.slot);
+    const selected = slots.some(s => id(s.stock_slot_id) === current) ? current : id(slots[0].stock_slot_id);
+    select.innerHTML = slots.map(slot => `<option value="${esc(slot.stock_slot_id)}" ${id(slot.stock_slot_id) === selected ? 'selected' : ''}>${esc(slot.label || 'Cupo')} · ${Number(slot.used_count || 0)}/${Number(slot.capacity || 0)} usados${slot.pin ? ` · PIN ${slot.pin}` : ''}</option>`).join('');
+    if (wrap) wrap.classList.toggle('hidden', !useSlotPicker);
+  }
+
+  async function hydrate(mode, suppliedModel = null) {
+    const cfg = config[mode];
+    if (!cfg) return null;
+    const planId = cfg.plan();
+    const stockId = value(cfg.stock) || value(cfg.hidden);
+    if (!planId || !stockId) return null;
+    const model = suppliedModel || await options(planId);
+    populateSlots(mode, model, stockId);
+    const slotId = value(cfg.slot) || null;
+    const ctx = await deliveryContext(planId, stockId, slotId);
+    Core11.contexts.set(mode, ctx);
+    if ($(cfg.hidden)) set(cfg.hidden, ctx.stock_item_id || stockId);
+    applyContext(mode, ctx);
+    return ctx;
+  }
+
+  function applyContext(mode, ctx) {
+    if (!ctx?.ok) return;
+    if (mode === 'manual') {
+      set('manualUser', ctx.login || '');
+      set('manualPass', ctx.password || '');
+      set('manualProfile', ctx.profile || '');
+      set('manualPin', ctx.pin || '');
+      set('manualGroup', ctx.group_url || '');
+      set('manualUrl', ctx.group_url || '');
+      try { window.renderDeliveryMessage?.(); } catch (_) { }
+    } else if (mode === 'ops') {
+      set('opsDeliverStockId', ctx.stock_item_id || value('opsDeliverStockId'));
+      renderOpsMessage(ctx).catch(error => console.warn('Core11 ops message', error));
+    }
+  }
+
+  async function renderOpsMessage(ctx = null, totpCode = '') {
+    const planId = config.ops.plan();
+    const current = ctx || Core11.contexts.get('ops') || await hydrate('ops');
+    if (!current) return '';
+    const phone = value('opsDeliverPhone');
+    const normalized = normalizePhone(phone);
+    const payload = {
+      cliente: value('opsDeliverName'),
+      telefono: normalized.ok ? normalized.e164 : phone,
+      monto: value('opsDeliverAmount'),
+      fecha_inicio: value('opsDeliverStart') || nowDate(),
+      fecha_vencimiento: value('opsDeliverDue') || planDue(planId),
+      correo: current.login || '',
+      contraseña: current.password || '',
+      perfil: current.profile || '',
+      pin: current.pin || '',
+      grupo: current.group_url || '',
+      codigo: totpCode || value('opsDeliverTotpCode') || ''
+    };
+    let message = '';
+    try { message = window.opsDeliveryTextFromPlan?.(planId, payload) || ''; } catch (_) { }
+    if (!message && typeof window.buildTemplateMessage === 'function') {
+      try { message = window.buildTemplateMessage(window.getDefaultTemplate?.(), { name: payload.cliente, phone_e164: payload.telefono }, { service_name: value('opsDeliverService') || planName(planId), amount: payload.monto, due_date: payload.fecha_vencimiento, plan_id: planId, ...payload }) || ''; } catch (_) { }
+    }
+    if ($('opsDeliverText')) set('opsDeliverText', message);
+    return message;
+  }
+
+  async function issueTotp(ctx, customerName, customerPhone, service) {
+    if (!ctx?.totp_account_id || typeof window.createTotpCodeForDelivery !== 'function') return null;
+    const made = await window.createTotpCodeForDelivery(ctx.totp_account_id, '', customerName, customerPhone, service);
+    if (!made?.ok) throw new Error(made?.error || 'No se pudo generar el código TOTP');
+    if (made?.code && $('opsDeliverTotpCode')) set('opsDeliverTotpCode', made.code);
+    if (made?.code && $('manualCode')) set('manualCode', made.code);
+    return made;
+  }
+
+  async function linkTotp(made, reminderId) {
+    if (!made?.id || !reminderId) return;
+    try { await getClient().from('totp_access_codes').update({ reminder_id: reminderId }).eq('id', made.id); } catch (_) { }
+  }
+
+  async function cleanupTotp(made) {
+    if (!made?.id) return;
+    try { await getClient().from('totp_access_codes').delete().eq('id', made.id); } catch (_) { }
+  }
+
+  function idempotency(prefix, parts) {
+    return `${prefix}:${parts.map(part => id(part) || 'none').join(':')}`;
+  }
+
+  async function saveOps() {
+    const planId = config.ops.plan();
+    const rule = planRule(planId);
+    const name = value('opsDeliverName');
+    const phoneRaw = value('opsDeliverPhone');
+    const phone = normalizePhone(phoneRaw);
+    const service = value('opsDeliverService') || planName(planId);
+    const due = value('opsDeliverDue') || planDue(planId);
+    const start = value('opsDeliverStart') || nowDate();
+    const amountRaw = value('opsDeliverAmount');
+    const amount = amountRaw === '' ? null : Number(amountRaw);
+    if (!planId) return toast('Selecciona un plan para entregar', 'bad');
+    if (!name) return toast('Ingresa el nombre del cliente', 'bad');
+    if (!phone.ok) return toast(phone.error || 'WhatsApp inválido', 'bad');
+
+    let ctx = { requires_stock: false };
+    if (rule.allocation_mode === 'stock_item') {
+      await populate('ops');
+      ctx = await hydrate('ops');
+      if (!ctx?.stock_item_id || !ctx?.stock_slot_id) return toast('Selecciona una cuenta y perfil/cupo libre', 'bad');
+    }
+
+    let made = null;
+    try {
+      made = await issueTotp(ctx, name, phone.e164 || phoneRaw, service);
+      const message = await renderOpsMessage(ctx, made?.code || '');
+      const result = await rpc('admin_v73_create_assignment', {
+        p_customer_name: name,
+        p_customer_phone: phone.e164 || phoneRaw,
+        p_customer_email: value('opsDeliverClientEmail') || null,
+        p_plan_id: planId,
+        p_service_name: service,
+        p_amount: Number.isFinite(amount) ? amount : null,
+        p_due_date: due,
+        p_start_date: start,
+        p_stock_item_id: ctx.stock_item_id || null,
+        p_source: 'manual',
+        p_order_id: null,
+        p_order_item_id: null,
+        p_message: message || null,
+        p_metadata: {
+          delivery_channel: 'ops',
+          stock_slot_id: ctx.stock_slot_id || null,
+          access_context: {
+            profile: ctx.profile || null,
+            pin: ctx.pin || null,
+            group_url: ctx.group_url || null
+          },
+          totp_code: made?.code || null
+        },
+        p_idempotency_key: idempotency('core11-ops', [name.toLowerCase(), phone.e164 || phoneRaw, planId, ctx.stock_item_id || 'none', ctx.stock_slot_id || 'none', start])
+      });
+      await linkTotp(made, result?.reminder_id);
+      try { window.copyTextSafe?.(message); } catch (_) { }
+      try { window.closeDialog?.('dlgOpsDeliver'); } catch (_) { }
+      if ($('opsDeliverOpenWa')?.checked && typeof window.waLink === 'function') {
+        const url = window.waLink(phone.e164 || phoneRaw, message);
+        if (url && url !== '#') window.open(url, '_blank', 'noopener,noreferrer');
+      }
+      toast(result?.reused ? 'La entrega ya existía; no se duplicó.' : 'Entrega, perfil/cupo y recordatorio registrados correctamente.', 'ok');
+      await refreshAll();
+    } catch (error) {
+      await cleanupTotp(made);
+      toast('No se registró nada: ' + errText(error), 'bad');
+    }
+  }
+
+  function manualData(ctx, extraCode = '') {
+    const data = {
+      correo: value('manualUser') || ctx?.login || '',
+      clave: value('manualPass') || ctx?.password || '',
+      perfil: value('manualProfile') || ctx?.profile || '',
+      pin: value('manualPin') || ctx?.pin || '',
+      grupo: value('manualGroup') || ctx?.group_url || '',
+      url: value('manualUrl') || ctx?.group_url || '',
+      codigo: value('manualCode') || extraCode || '',
+      nota: value('manualNote') || '',
+      stock_id: ctx?.stock_item_id || null,
+      stock_slot_id: ctx?.stock_slot_id || null,
+      fecha_inicio: value('manualStartDate') || nowDate(),
+      restricciones: value('manualRestrictions') || ''
+    };
+    return Object.fromEntries(Object.entries(data).filter(([, v]) => v !== '' && v != null));
+  }
+
+  async function saveManual() {
+    const orderId = value('manualOrderId');
+    const planId = value('manualPlan');
+    const order = list(window.state?.orders).find(row => id(row.id) === orderId) || {};
+    const rule = planRule(planId);
+    if (!orderId || !planId) return toast('Selecciona pedido y plan', 'bad');
+    const phone = normalizePhone(order.customer_whatsapp || '');
+    if (!phone.ok) return toast('El pedido no tiene un WhatsApp válido', 'bad');
+
+    let ctx = { requires_stock: false };
+    if (rule.allocation_mode === 'stock_item') {
+      await populate('manual');
+      ctx = await hydrate('manual');
+      if (!ctx?.stock_item_id || !ctx?.stock_slot_id) return toast('Selecciona una cuenta y perfil/cupo libre', 'bad');
+    }
+
+    let made = null;
+    try {
+      const service = planName(planId);
+      made = await issueTotp(ctx, order.customer_name || 'Cliente', phone.e164 || order.customer_whatsapp, service);
+      const data = manualData(ctx, made?.code || '');
+      try { window.renderDeliveryMessage?.(); } catch (_) { }
+      const result = await rpc('admin_v73_deliver_order_and_assign', {
+        p_order_id: orderId,
+        p_plan_id: planId,
+        p_stock_item_id: ctx.stock_item_id || null,
+        p_delivery_data: data,
+        p_delivery_message: value('manualMessage'),
+        p_due_date: planDue(planId),
+        p_idempotency_key: idempotency('core11-order', [orderId, planId, ctx.stock_item_id || rule.allocation_mode, ctx.stock_slot_id || 'none', phone.e164 || order.customer_whatsapp])
+      });
+      await linkTotp(made, result?.reminder_id);
+      try { window.closeDialog?.('dlgManual'); } catch (_) { }
+      toast(result?.reused ? 'La entrega ya existía; no se duplicó.' : 'Entrega, perfil/cupo y recordatorio registrados correctamente.', 'ok');
+      await refreshAll();
+      try { window.openDeliveredOrderWhatsApp?.(orderId); } catch (_) { }
+    } catch (error) {
+      await cleanupTotp(made);
+      toast('No se registró nada: ' + errText(error), 'bad');
+    }
+  }
+
+  async function refreshAll() {
+    Core11.options.clear();
+    Core11.contexts.clear();
+    try { await window.loadAll?.(); } catch (_) { }
+  }
+
+  async function refreshModeFromPlan(mode, attempt = 0) {
+    const cfg = config[mode];
+    if (!cfg) return;
+    const planId = cfg.plan();
+    if (!planId) {
+      if (attempt < 8) setTimeout(() => refreshModeFromPlan(mode, attempt + 1), 160 + attempt * 80);
+      return;
+    }
+    try {
+      await populate(mode, true);
+    } catch (error) {
+      console.warn('Core11 selector', error);
+      if (attempt < 4) setTimeout(() => refreshModeFromPlan(mode, attempt + 1), 180 + attempt * 100);
+    }
+  }
+
+  function hideReminderAccountFields() {
+    const box = $('rLinkedStockBox');
+    if (box) box.classList.add('hidden');
+  }
+
+  function wrapOpeners() {
+    const originalOps = window.openOpsDeliver;
+    if (typeof originalOps === 'function' && !originalOps.__core11) {
+      const wrapped = function () {
+        const output = originalOps.apply(this, arguments);
+        setTimeout(() => refreshModeFromPlan('ops'), 120);
+        return output;
+      };
+      wrapped.__core11 = true;
+      window.openOpsDeliver = window.openOpsDeliver = wrapped;
+      try { openOpsDeliver = wrapped; } catch (_) { }
+    }
+    const originalManual = window.openManualDelivery;
+    if (typeof originalManual === 'function' && !originalManual.__core11) {
+      const wrapped = function () {
+        const output = originalManual.apply(this, arguments);
+        setTimeout(() => refreshModeFromPlan('manual'), 160);
+        return output;
+      };
+      wrapped.__core11 = true;
+      window.openManualDelivery = window.openManualDelivery = wrapped;
+      try { openManualDelivery = wrapped; } catch (_) { }
+    }
+  }
+
+  function bindEvents() {
+    if ($('btnOpsSaveDeliver')) $('btnOpsSaveDeliver').onclick = saveOps;
+    if ($('btnSaveManualDelivery')) $('btnSaveManualDelivery').onclick = saveManual;
+
+    document.addEventListener('change', event => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.id === 'opsDeliverPlanId') refreshModeFromPlan('ops');
+      if (target.id === 'manualPlan') refreshModeFromPlan('manual');
+      if (target.id === 'rPlan') setTimeout(hideReminderAccountFields, 0);
+      if (target.id === 'opsDeliverStockSelect') {
+        set('opsDeliverStockId', target.value);
+        Core11.contexts.delete('ops');
+        refreshModeFromPlan('ops');
+      }
+      if (target.id === 'manualStockSelect') {
+        set('manualStockId', target.value);
+        Core11.contexts.delete('manual');
+        refreshModeFromPlan('manual');
+      }
+      if (target.id === 'opsDeliverSlotSelect') {
+        Core11.contexts.delete('ops');
+        refreshModeFromPlan('ops');
+      }
+      if (target.id === 'manualStockSlotSelect') {
+        Core11.contexts.delete('manual');
+        refreshModeFromPlan('manual');
+      }
+    }, true);
+
+    ['opsDeliverName','opsDeliverPhone','opsDeliverAmount','opsDeliverStart','opsDeliverDue','opsDeliverService'].forEach(inputId => {
+      $(inputId)?.addEventListener('input', () => renderOpsMessage().catch(() => {}));
+    });
+
+    hideReminderAccountFields();
+    wrapOpeners();
+  }
+
+  function patchRpcRefresh() {
+    try {
+      const client = getClient();
+      if (client.__innovCore11RpcPatched) return;
+      const original = client.rpc.bind(client);
+      client.rpc = async function (name, args) {
+        const result = await original(name, args);
+        if (!result?.error && ['core1_upsert_account','core1_set_account_state','core1_archive_account'].includes(String(name))) {
+          Core11.options.clear();
+          Core11.contexts.clear();
+          setTimeout(() => refreshAll(), 50);
+        }
+        return result;
+      };
+      client.__innovCore11RpcPatched = true;
+      window.db = client;
+    } catch (error) {
+      console.warn('Core11 no pudo interceptar refresco de cuentas', error);
+    }
+  }
+
+  window.saveOpsDeliver = saveOps;
+  window.saveManualDelivery = saveManual;
+  try { saveOpsDeliver = saveOps; saveManualDelivery = saveManual; } catch (_) { }
+  window.INNOV_CORE11.refreshDeliveryOptions = planId => options(planId, true);
+  window.INNOV_CORE11.deliveryContext = deliveryContext;
+  window.INNOV_CORE11.runSmoke = async planId => ({
+    options: await options(planId, true),
+    selfCheck: await rpc('core11_self_check', {})
+  });
+
+  function startup() {
+    patchRpcRefresh();
+    bindEvents();
+    hideReminderAccountFields();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(startup, 900), { once: true });
+  else setTimeout(startup, 150);
+})();
+
+</script>
+
+<script id="innov-core111-message-guard">
+(function(){
+  'use strict';
+  const byId=id=>document.getElementById(id);
+  const val=id=>String(byId(id)?.value||'').trim();
+  const oldRefresh=window.refreshOpsDeliverMessage;
+  function exactOpsRefresh(){
+    const ctx=window.INNOV_CORE11?.contexts?.get('ops');
+    const planId=val('opsDeliverPlanId');
+    if(ctx?.ok && planId && typeof window.opsDeliveryTextFromPlan==='function'){
+      const target=byId('opsDeliverText');
+      const text=window.opsDeliveryTextFromPlan(planId,{
+        pedido:val('opsDeliverPedido'),cliente:val('opsDeliverName'),telefono:val('opsDeliverPhone'),monto:val('opsDeliverAmount'),
+        fecha_inicio:val('opsDeliverStart'),fecha_pago:val('opsDeliverPayDate'),fecha_vencimiento:val('opsDeliverDue'),
+        correo:ctx.login||'',contraseña:ctx.password||'',perfil:ctx.profile||'',pin:ctx.pin||'',grupo:ctx.group_url||'',url:ctx.group_url||'',
+        codigo:val('opsDeliverTotpCode')
+      });
+      if(target) target.value=text;
+      return text;
+    }
+    return typeof oldRefresh==='function' ? oldRefresh.apply(this,arguments) : '';
+  }
+  window.refreshOpsDeliverMessage=exactOpsRefresh;
+  document.addEventListener('change',ev=>{
+    if(['opsDeliverSlotSelect','opsDeliverStockSelect'].includes(ev.target?.id)){
+      setTimeout(exactOpsRefresh,160);
+    }
+  },true);
+})();
+</script>
+
+
+<script id="innov-core112-runtime-guard">
+(function(){
+  'use strict';
+  const byId=id=>document.getElementById(id);
+  const notify=(message,type='bad')=>{try{window.toast?.(message,type)}catch(_){console.error(message)}};
+  function client(){
+    let c=window.db||window.INNOV_SUPABASE_CLIENT||null;
+    try{if(!c&&typeof db!=='undefined')c=db}catch(_){}
+    if(c&&typeof c.rpc==='function'){window.db=c;window.INNOV_SUPABASE_CLIENT=c;return c}
+    return null;
+  }
+  function canonicalButton(id,handlerName){
+    const old=byId(id);
+    if(!old || old.dataset.core112Bound==='1')return;
+    const fresh=old.cloneNode(true);
+    fresh.dataset.core112Bound='1';
+    old.replaceWith(fresh);
+    fresh.addEventListener('click',async event=>{
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const c=client();
+      if(!c){notify('La conexión con Supabase no está lista. Recarga el Administrador e inténtalo nuevamente.');return}
+      const action=window[handlerName];
+      if(typeof action!=='function'){notify('La acción de entrega aún no está lista. Recarga el Administrador.');return}
+      fresh.disabled=true;
+      try{await action()}finally{setTimeout(()=>{if(document.contains(fresh))fresh.disabled=false},250)}
+    },true);
+  }
+  function resetDeliveryCaches(){
+    const core=window.INNOV_CORE11;
+    try{core?.options?.clear?.();core?.contexts?.clear?.()}catch(_){}
+  }
+  function install(attempt=0){
+    if(!client()){
+      if(attempt<10)setTimeout(()=>install(attempt+1),180);
+      return;
+    }
+    resetDeliveryCaches();
+    canonicalButton('btnOpsSaveDeliver','saveOpsDeliver');
+    canonicalButton('btnSaveManualDelivery','saveManualDelivery');
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resetDeliveryCaches()},{once:false});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>install(),1100),{once:true});
+  else setTimeout(()=>install(),1100);
+})();
+</script>
+
 </body>
 </html>
+
