@@ -1936,6 +1936,36 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 </style>
 
 <!-- INNOV IA Core 1.1.0: selector y autofill unificados -->
+
+<style id="innov-v64-totp-plan-map-css">
+/* V64 — selector visual de planes compatibles con Access TOTP */
+.totp-plan-map-dialog{width:min(940px,96vw)}
+.totp-plan-map-intro{display:flex;gap:10px;align-items:flex-start;border-left:4px solid var(--purple);background:var(--purple-alpha);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.totp-plan-map-intro .ico{font-size:1.35rem;line-height:1}
+.totp-plan-map-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;margin-bottom:10px}
+.totp-plan-map-summary{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.totp-plan-map-list{display:grid;gap:9px;max-height:min(55vh,560px);overflow:auto;padding:2px}
+.totp-plan-map-group{border:1px solid var(--border);border-radius:15px;overflow:hidden;background:var(--card)}
+.totp-plan-map-group-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:var(--card2);border-bottom:1px solid var(--border);font-weight:900;font-size:.88rem;color:var(--card-ink)}
+.totp-plan-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.72fr);gap:12px;align-items:center;padding:12px;border-bottom:1px solid var(--border);transition:background var(--tr),opacity var(--tr)}
+.totp-plan-row:last-child{border-bottom:0}
+.totp-plan-row.is-enabled{background:var(--purple-alpha)}
+.totp-plan-row.is-disabled{opacity:.74}
+.totp-plan-main{display:flex;gap:10px;align-items:flex-start;min-width:0}
+.totp-plan-toggle{width:20px;height:20px;accent-color:var(--purple);margin-top:2px;flex:0 0 auto;cursor:pointer}
+.totp-plan-name{font-weight:850;line-height:1.25;color:var(--card-ink)}
+.totp-plan-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.totp-plan-account label{display:block;margin-bottom:5px;color:var(--muted);font-size:.71rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.totp-plan-account select:disabled{opacity:.52;cursor:not-allowed;background:var(--card2)}
+.totp-plan-empty{padding:26px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:14px}
+@media(max-width:700px){
+  .totp-plan-map-dialog{width:100vw!important}
+  .totp-plan-map-toolbar{grid-template-columns:1fr}
+  .totp-plan-row{grid-template-columns:1fr;gap:9px}
+  .totp-plan-map-intro{padding:10px}
+}
+</style>
+
 </head>
 <body>
 
@@ -2172,7 +2202,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <button class="btn btn-primary" id="btnTotpNewAccount" type="button">＋ Cuenta TOTP</button>
                 <button class="btn btn-success" id="btnTotpNewCode" type="button">＋ Código acceso</button>
-                <button class="btn" id="btnTotpBulkCodes" type="button">⚡ Códigos masivos</button>
+                <button class="btn" id="btnTotpPlanAccess" type="button">⚙️ Habilitar planes</button>
               </div>
             </div>
             <div class="totp-kpis">
@@ -2907,6 +2937,34 @@ Perfil 2|5678"></textarea><p class="help" style="margin-top:6px">Para streaming:
 </dialog>
 
 
+
+<!-- V65: Access TOTP condicional por plan + editor Core103 -->
+<dialog id="dlgTotpPlanAccess" class="totp-plan-map-dialog">
+  <div class="modal-header">
+    <strong>🛡️ Habilitar Access TOTP por plan</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgTotpPlanAccess" type="button" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div class="totp-plan-map-intro">
+      <span class="ico">🔐</span>
+      <div>
+        <b>Define en qué planes se puede entregar un código Access TOTP.</b>
+        <div class="help" style="margin-top:3px">Cada plan puede tener una cuenta TOTP predeterminada. Al habilitarlo, el selector aparecerá al agregar o editar cuentas de ese plan. Al deshabilitarlo, el selector desaparece y no se generan códigos para nuevas entregas; las vinculaciones antiguas se conservan para no perder datos.</div>
+      </div>
+    </div>
+    <div class="totp-plan-map-toolbar">
+      <input class="input" id="totpPlanMapSearch" type="search" placeholder="Buscar producto o plan...">
+      <button class="btn" id="btnTotpPlanMapSelectEnabled" type="button">Ver habilitados</button>
+    </div>
+    <div class="totp-plan-map-summary" id="totpPlanMapSummary"></div>
+    <div class="totp-plan-map-list" id="totpPlanMapList"></div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn" data-close="dlgTotpPlanAccess" type="button">Cancelar</button>
+    <button class="btn btn-primary" id="btnSaveTotpPlanAccess" type="button">Guardar disponibilidad</button>
+  </div>
+</dialog>
+
 <!-- Historial cliente / entregas -->
 <dialog id="dlgClientHistory">
   <div class="modal-header">
@@ -3543,7 +3601,7 @@ function renderPlans(){
       <span class="badge ${visibleStock(p)>0?'b-ok':'b-bad'}">${visibleStock(p)} cupos</span>
       <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
       <span class="badge">${esc(p.availability_status||'available')}</span>
-      ${planTotpAccountId(p)?`<span class="badge b-purple">🛡 Access TOTP</span>`:''}
+      ${isTotpEnabledForPlan(p.id)?`<span class="badge b-purple">🛡 Access TOTP${planTotpAccountId(p)?'':' · configurar cuenta'}</span>`:''}
     </div>
     <div class="line-actions">
       <button class="btn btn-primary" onclick="editPlan('${p.id}')">Editar</button>
@@ -5227,10 +5285,22 @@ function opsKeyFromItem(x){
   const d=opsSecret(x);
   return String(d.correo||d.usuario||d.codigo||x.title||'').trim().toLowerCase();
 }
-function isChatGPTPlanId(planId){
+/* V64 — Access TOTP configurable por plan.
+   Compatibilidad: los planes ChatGPT/OpenAI existentes siguen habilitados
+   hasta que se desactiven explícitamente desde “Habilitar planes”. */
+function isLegacyChatGPTPlanId(planId){
   const p=plan(planId)||{};
   return /chatgpt|gpt|openai/.test(normalizeServiceText(prodName(p.product_id)+' '+(p.name||'')));
 }
+function isTotpEnabledForPlan(planId){
+  const p=typeof planId==='object'?planId:plan(planId);
+  const meta=planMetadata(p);
+  if(meta.totp_enabled===false)return false;
+  if(meta.totp_enabled===true || meta.totp_account_id)return true;
+  return isLegacyChatGPTPlanId(p?.id||planId);
+}
+/* Alias conservado: otras funciones existentes siguen funcionando sin cambios. */
+function isChatGPTPlanId(planId){ return isTotpEnabledForPlan(planId); }
 function fillTotpSelectElement(el,selected=''){
   if(!el)return;
   const opts=(state.totpAccounts||[]).filter(a=>a.active!==false).map(a=>`<option value="${a.id}">${esc(a.label)}${a.issuer?' · '+esc(a.issuer):''}</option>`).join('');
@@ -5251,14 +5321,20 @@ function nextStockTotpCode(item){
 function syncOpsStockTotpBox(){
   const box=$('opsStockTotpBox'); if(!box)return;
   const planId=$('opsStockPlan')?.value||'';
-  fillTotpSelectElement($('opsStockTotpAccount'), $('opsStockTotpAccount')?.value||'');
-  box.classList.toggle('hidden',!isChatGPTPlanId(planId));
+  const current=$('opsStockTotpAccount')?.value||'';
+  const preferred=current||planTotpAccountId(planId)||'';
+  fillTotpSelectElement($('opsStockTotpAccount'), preferred);
+  if(preferred && $('opsStockTotpAccount'))$('opsStockTotpAccount').value=preferred;
+  box.classList.toggle('hidden',!isTotpEnabledForPlan(planId));
 }
 function syncOpsBulkTotpBox(){
   const box=$('opsBulkTotpBox'); if(!box)return;
   const planId=$('opsBulkPlan')?.value||'';
-  fillTotpSelectElement($('opsBulkTotpAccount'), $('opsBulkTotpAccount')?.value||'');
-  box.classList.toggle('hidden',!isChatGPTPlanId(planId));
+  const current=$('opsBulkTotpAccount')?.value||'';
+  const preferred=current||planTotpAccountId(planId)||'';
+  fillTotpSelectElement($('opsBulkTotpAccount'), preferred);
+  if(preferred && $('opsBulkTotpAccount'))$('opsBulkTotpAccount').value=preferred;
+  box.classList.toggle('hidden',!isTotpEnabledForPlan(planId));
 }
 async function createStockTotpCodesForItem(item,qty){
   const accountId=stockTotpAccountId(item);
@@ -11851,8 +11927,8 @@ INNOV IA V62 - TOTP original + selección real
   let queueTimer=null;
   let deepLinkConsumed=false;
 
-  function orderForC(id){ return (window.state?.orders||[]).find(o=>String(o.id)===String(id))||null; }
-  function planNameC(id){ try{return typeof window.planName==='function'?window.planName(id):((window.state?.plans||[]).find(p=>String(p.id)===String(id))?.name||'Plan');}catch(_){return 'Plan';} }
+  function orderForC(id){ return (state?.orders||[]).find(o=>String(o.id)===String(id))||null; }
+  function planNameC(id){ try{return typeof window.planName==='function'?window.planName(id):((state?.plans||[]).find(p=>String(p.id)===String(id))?.name||'Plan');}catch(_){return 'Plan';} }
   function fmtDateC(value){const raw=textC(value).slice(0,10);if(!raw)return '—';const p=raw.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:raw;}
   function pendingRows(){return queueRows.filter(r=>r.fulfillment_status==='waiting_manual_delivery');}
 
@@ -11994,6 +12070,16 @@ INNOV IA V62 - TOTP original + selección real
   .c103-slots-editor{display:grid;gap:6px;margin-top:8px}.c103-slot-edit{display:grid;grid-template-columns:minmax(0,1fr) .8fr auto;gap:6px;align-items:end;border:1px solid var(--border);border-radius:10px;padding:7px;background:var(--card2)}
   .c103-hidden{display:none!important}.c103-history-list{display:grid;gap:6px;max-height:50vh;overflow:auto}.c103-history-item{border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:var(--card2);font-size:.78rem}.c103-history-item b{color:var(--card-ink)}.c103-section{font-size:.8rem;font-weight:900;margin:10px 0 5px;color:var(--card-ink)}
   @media(max-width:680px){.c103-toolbar{grid-template-columns:1fr 1fr}.c103-toolbar input{grid-column:1/-1}.c103-toolbar .btn{width:100%}.c103-slot-edit{grid-template-columns:1fr 1fr}.c103-slot-edit button{grid-column:1/-1;width:100%}}
+
+/* V65 — El selector Access TOTP solo existe cuando el plan lo tiene habilitado. */
+.c103-totp-wrap{
+  border:1px dashed color-mix(in srgb,var(--purple) 35%,var(--border));
+  background:var(--purple-alpha);
+  border-radius:12px;
+  padding:10px;
+}
+.c103-totp-wrap .subtle{color:var(--purple)}
+.c103-totp-wrap.c103-hidden{display:none!important}
 </style>
 
 <dialog id="dlgCore1Accounts">
@@ -12015,7 +12101,11 @@ INNOV IA V62 - TOTP original + selección real
         <div id="c103UserWrap"><label class="subtle" id="c103UserLabel">Correo / usuario *</label><input class="input" id="c103Username" autocomplete="off" placeholder="correo@gmail.com"></div>
         <div id="c103PassWrap"><label class="subtle">Contraseña</label><input class="input" id="c103Password" type="text" autocomplete="off" spellcheck="false" placeholder="Contraseña o clave"></div>
         <div id="c103GroupWrap" class="full c103-hidden"><label class="subtle">Grupo / invitación / URL</label><input class="input" id="c103GroupUrl" placeholder="https://..."></div>
-        <div id="c103TotpWrap" class="full c103-hidden"><label class="subtle">Cuenta TOTP vinculada</label><select class="input" id="c103Totp"></select></div>
+        <div id="c103TotpWrap" class="full c103-hidden c103-totp-wrap">
+          <label class="subtle">🛡️ Cuenta Access TOTP</label>
+          <select class="input" id="c103Totp"></select>
+          <p class="help" id="c103TotpHelp" style="margin:6px 0 0">Selecciona la cuenta que generará el código de acceso para este plan.</p>
+        </div>
         <div id="c103CapacityWrap"><label class="subtle" id="c103CapacityLabel">Cupos</label><input class="input" id="c103Capacity" type="number" min="1" max="1000" value="1"></div>
         <div><label class="subtle">Estado</label><select class="input" id="c103State"><option value="active">Disponible</option><option value="maintenance">Mantenimiento</option><option value="suspended">Suspendida</option></select></div>
         <div id="c103SlotsWrap" class="full c103-hidden"><label class="subtle">Perfiles</label><div class="c103-slots-editor" id="c103Slots"></div><button class="btn btn-sm" type="button" id="c103AddSlot">＋ Perfil</button></div>
@@ -12035,12 +12125,28 @@ INNOV IA V62 - TOTP original + selección real
   'use strict';
   const $=id=>document.getElementById(id), esc=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'), txt=v=>String(v??'').trim(), arr=v=>Array.isArray(v)?v:[];
   const say=(m,t='ok')=>{try{toast(m,t)}catch(_){alert(m)}};
-  const M={planId:'',model:null,channel:null,timer:null,slots:[]};
+  const M={planId:'',model:null,channel:null,timer:null,slots:[],savedTotpId:''};
   const labels={credential:'Cuenta con correo y contraseña',profile:'Streaming por perfiles',invite:'Invitación / grupo',totp:'Cuenta con TOTP',code:'Código / acceso',none:'Sin cuenta'};
   const modal=id=>{const d=$(id);try{if(d&&!d.open)d.showModal()}catch(_){d?.setAttribute('open','')}}; const close=id=>{const d=$(id);try{if(d?.open)d.close()}catch(_){d?.removeAttribute('open')}};
   const chip=(v,k='')=>`<span class="c103-chip ${k}">${esc(v)}</span>`;
   async function rpc(name,args){const r=await db.rpc(name,args);if(r.error)throw r.error;return r.data}
   const mode=()=>M.model?.rule?.access_mode||'credential'; const account=id=>arr(M.model?.accounts).find(a=>String(a.stock_item_id)===String(id))||null;
+  function currentPlan(){return arr(state?.plans).find(p=>String(p?.id||'')===String(M.planId||''))||null}
+  function planUsesTotp(){
+    const p=currentPlan();
+    try{
+      if(typeof window.isTotpEnabledForPlan==='function') return !!window.isTotpEnabledForPlan(p||M.planId);
+    }catch(_){}
+    const m=(p?.metadata&&typeof p.metadata==='object'&&!Array.isArray(p.metadata))?p.metadata:{};
+    return m.totp_enabled===true||!!m.totp_account_id;
+  }
+  function defaultPlanTotp(){
+    const p=currentPlan();
+    try{
+      if(typeof window.planTotpAccountId==='function') return txt(window.planTotpAccountId(p||M.planId));
+    }catch(_){}
+    return txt(p?.metadata?.totp_account_id);
+  }
   const login=a=>txt(a?.login)||txt(a?.secret_data?.correo)||txt(a?.secret_data?.email)||txt(a?.secret_data?.usuario)||txt(a?.alias)||'Cuenta';
   function clientText(a){return arr(a.clients).map(c=>`${c.customer_name||'Cliente'}${c.slot_label?` (${c.slot_label})`:''}${c.source==='reserved_legacy'?' · reservado':''}`).join(' · ')}
   function render(){
@@ -12057,17 +12163,56 @@ INNOV IA V62 - TOTP original + selección real
   function schedule(){clearTimeout(M.timer);M.timer=setTimeout(()=>load(M.planId,false).catch(console.warn),500)}
   function subscribe(){try{if(M.channel)db.removeChannel(M.channel)}catch(_){};M.channel=db.channel('core103-'+M.planId).on('postgres_changes',{event:'*',schema:'public',table:'stock_items',filter:`plan_id=eq.${M.planId}`},schedule).on('postgres_changes',{event:'*',schema:'public',table:'service_assignments'},schedule).on('postgres_changes',{event:'*',schema:'public',table:'payment_reminders'},schedule).on('postgres_changes',{event:'*',schema:'public',table:'stock_access_slots'},schedule).on('postgres_changes',{event:'*',schema:'public',table:'core103_legacy_occupancies'},schedule).subscribe()}
   async function history(id){try{const h=await rpc('core103_account_history',{p_stock_item_id:id}),current=arr(h.current),legacy=arr(h.legacy);$('c103HistoryTitle').textContent='Historial · '+(h.login||'Cuenta');$('c103HistoryBody').innerHTML=`<div class="c103-section">Vínculos actuales</div><div class="c103-history-list">${current.length?current.map(x=>`<div class="c103-history-item"><b>${esc(x.customer_name||'Cliente')}</b> · ${esc(x.phone||'')}<br>${esc(x.service||'Servicio')}${x.profile?` · ${esc(x.profile)}`:''}<br><span>${esc(x.kind||'Vínculo')} · vence ${esc(x.due_date||'—')}</span></div>`).join(''):'<div class="c103-history-item">Sin vínculos actuales.</div>'}</div><div class="c103-section">Historial anterior</div><div class="c103-history-list">${legacy.length?legacy.slice(0,100).map(x=>`<div class="c103-history-item"><b>${esc(x.customer_name||'Cliente')}</b> · ${esc(x.phone||'')}<br>${esc(x.service||'Servicio')}${x.profile?` · Perfil ${esc(x.profile)}`:''}<br><span>Vence: ${esc(x.due_date||'—')} · registro: ${esc(x.at||'—')}</span></div>`).join(''):'<div class="c103-history-item">Sin historial anterior registrado.</div>'}</div>`;modal('dlgCore103History')}catch(e){say(e.message||String(e),'bad')}}
-  async function loadTotp(selected=''){let rows=[];try{const r=await db.from('totp_accounts').select('id,label,issuer,active').eq('active',true).order('label');if(!r.error)rows=r.data||[]}catch(_){};$('c103Totp').innerHTML='<option value="">Sin TOTP</option>'+rows.map(r=>`<option value="${esc(r.id)}" ${String(r.id)===String(selected)?'selected':''}>${esc(r.label||r.issuer||'TOTP')}</option>`).join('')}
+  async function loadTotp(selected=''){let rows=[];try{const r=await db.from('totp_accounts').select('id,label,issuer,active').eq('active',true).order('label');if(!r.error)rows=r.data||[]}catch(_){};$('c103Totp').innerHTML='<option value="">Sin Access TOTP</option>'+rows.map(r=>`<option value="${esc(r.id)}" ${String(r.id)===String(selected)?'selected':''}>${esc(r.label||r.issuer||'TOTP')}</option>`).join('')}
   function slotRow(s={}){M.slots.push({id:s.id||'',label:s.label||`Perfil ${M.slots.length+1}`,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:M.slots.length});slots()}
   function slots(){$('c103Slots').innerHTML=M.slots.map((s,i)=>`<div class="c103-slot-edit"><div><label class="subtle">Perfil</label><input class="input" data-c103-slot="label" data-i="${i}" value="${esc(s.label)}"></div><div><label class="subtle">PIN</label><input class="input" data-c103-slot="pin" data-i="${i}" value="${esc(s.pin)}" placeholder="Opcional"></div><button class="btn btn-danger" type="button" data-c103-slot="del" data-i="${i}">Quitar</button></div>`).join('');document.querySelectorAll('[data-c103-slot="label"]').forEach(x=>x.oninput=e=>M.slots[Number(e.target.dataset.i)].label=e.target.value);document.querySelectorAll('[data-c103-slot="pin"]').forEach(x=>x.oninput=e=>M.slots[Number(e.target.dataset.i)].pin=e.target.value);document.querySelectorAll('[data-c103-slot="del"]').forEach(x=>x.onclick=e=>{M.slots.splice(Number(e.currentTarget.dataset.i),1);slots()})}
-  function adapt(x){const profile=x==='profile',totp=x==='totp',code=x==='code';$('c103UserWrap').classList.toggle('c103-hidden',x==='none');$('c103PassWrap').classList.toggle('c103-hidden',code||x==='none');$('c103GroupWrap').classList.toggle('c103-hidden',code||x==='none');$('c103TotpWrap').classList.toggle('c103-hidden',!totp);$('c103SlotsWrap').classList.toggle('c103-hidden',!profile);$('c103CapacityWrap').classList.toggle('c103-hidden',profile||x==='none');$('c103UserLabel').textContent=code?'Código / dato de acceso':x==='invite'?'Correo administrador (opcional)':'Correo / usuario *';$('c103CapacityLabel').textContent=x==='invite'?'Miembros / cupos':'Cupos';$('c103Help').textContent=labels[x]||'Cuenta';if(profile&&!M.slots.length)slotRow({label:'Perfil 1'})}
+  function adapt(x){
+    const profile=x==='profile',code=x==='code',totpEnabled=planUsesTotp();
+    $('c103UserWrap').classList.toggle('c103-hidden',x==='none');
+    $('c103PassWrap').classList.toggle('c103-hidden',code||x==='none');
+    $('c103GroupWrap').classList.toggle('c103-hidden',code||x==='none');
+    $('c103TotpWrap').classList.toggle('c103-hidden',!totpEnabled);
+    $('c103SlotsWrap').classList.toggle('c103-hidden',!profile);
+    $('c103CapacityWrap').classList.toggle('c103-hidden',profile||x==='none');
+    $('c103UserLabel').textContent=code?'Código / dato de acceso':x==='invite'?'Correo administrador (opcional)':'Correo / usuario *';
+    $('c103CapacityLabel').textContent=x==='invite'?'Miembros / cupos':'Cupos';
+    $('c103Help').textContent=(labels[x]||'Cuenta')+(totpEnabled?' · Access TOTP habilitado para este plan':'');
+    const totpHelp=$('c103TotpHelp');
+    if(totpHelp)totpHelp.textContent=totpEnabled
+      ? 'Este plan tiene Access TOTP habilitado. Puedes usar la cuenta predeterminada o elegir otra para esta cuenta.'
+      : '';
+    if(profile&&!M.slots.length)slotRow({label:'Perfil 1'});
+  }
   function legacyPass(raw){const s=txt(raw),p=s.split('//');return p.length>1&&!/solicitar|whatsapp|codigo/i.test(p[1])?p[1].trim():''}
   function savedPassword(sec,a){return txt(sec?.clave)||txt(sec?.password)||txt(sec?.pass)||txt(sec?.contraseña)||txt(sec?.contrasena)||legacyPass(a?.alias)||''}
   function savedGroup(sec){return txt(sec?.grupo)||txt(sec?.grupo_url)||txt(sec?.url_grupo)||txt(sec?.group_url)||txt(sec?.whatsapp_group_url)||txt(sec?.grupo_whatsapp)||txt(sec?.family_url)||txt(sec?.url)||''}
-  async function editor(id=''){const a=id?account(id):null,sec=a?.secret_data||{},x=mode();$('c103ItemId').value=a?.stock_item_id||'';$('c103PlanId').value=M.planId;$('c103Username').value=txt(sec.correo)||txt(sec.email)||txt(sec.usuario)||txt(sec.username)||login(a);$('c103Password').value=savedPassword(sec,a);$('c103GroupUrl').value=savedGroup(sec);$('c103Capacity').value=String(a?.capacity||1);$('c103State').value=a?.core_state||'active';$('c103EditorTitle').textContent=a?'Editar cuenta':'Agregar cuenta';M.slots=arr(a?.slots).map((s,i)=>({id:s.id,label:s.label,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:i}));await loadTotp(sec.totp_account_id||'');adapt(x);slots();modal('dlgCore1AccountEditor')}
-  async function save(e){e.preventDefault();const x=mode(),username=txt($('c103Username').value),group=txt($('c103GroupUrl').value),password=txt($('c103Password').value);if(['credential','profile','totp'].includes(x)&&!username)return say('Escribe el correo o usuario','bad');if(x==='profile'&&!M.slots.length)return say('Agrega al menos un perfil','bad');try{await rpc('core1_upsert_account',{p_stock_item_id:txt($('c103ItemId').value)||null,p_plan_id:M.planId,p_alias:username||group||'Cuenta',p_username:username||null,p_password:password||null,p_group_url:group||null,p_totp_account_id:txt($('c103Totp').value)||null,p_state:$('c103State').value,p_capacity:Number($('c103Capacity').value||1),p_slots:x==='profile'?M.slots:[]});close('dlgCore1AccountEditor');say('Cuenta guardada');await load(M.planId,false)}catch(err){say(err.message||String(err),'bad')}}
+  async function editor(id=''){
+    const a=id?account(id):null,sec=a?.secret_data||{},x=mode();
+    $('c103ItemId').value=a?.stock_item_id||'';$('c103PlanId').value=M.planId;
+    $('c103Username').value=txt(sec.correo)||txt(sec.email)||txt(sec.usuario)||txt(sec.username)||login(a);
+    $('c103Password').value=savedPassword(sec,a);$('c103GroupUrl').value=savedGroup(sec);
+    $('c103Capacity').value=String(a?.capacity||1);$('c103State').value=a?.core_state||'active';
+    $('c103EditorTitle').textContent=a?'Editar cuenta':'Agregar cuenta';
+    M.slots=arr(a?.slots).map((s,i)=>({id:s.id,label:s.label,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:i}));
+    M.savedTotpId=txt(sec.totp_account_id);
+    const preferred=M.savedTotpId||(planUsesTotp()?defaultPlanTotp():'');
+    await loadTotp(preferred);
+    if(planUsesTotp()&&preferred&&$('c103Totp'))$('c103Totp').value=preferred;
+    adapt(x);slots();modal('dlgCore1AccountEditor');
+  }
+  async function save(e){
+    e.preventDefault();
+    const x=mode(),username=txt($('c103Username').value),group=txt($('c103GroupUrl').value),password=txt($('c103Password').value);
+    const totpAccountId=planUsesTotp()?txt($('c103Totp')?.value):txt(M.savedTotpId);
+    if(['credential','profile','totp'].includes(x)&&!username)return say('Escribe el correo o usuario','bad');
+    if(x==='profile'&&!M.slots.length)return say('Agrega al menos un perfil','bad');
+    try{
+      await rpc('core1_upsert_account',{p_stock_item_id:txt($('c103ItemId').value)||null,p_plan_id:M.planId,p_alias:username||group||'Cuenta',p_username:username||null,p_password:password||null,p_group_url:group||null,p_totp_account_id:totpAccountId||null,p_state:$('c103State').value,p_capacity:Number($('c103Capacity').value||1),p_slots:x==='profile'?M.slots:[]});
+      close('dlgCore1AccountEditor');say('Cuenta guardada');await load(M.planId,false);
+    }catch(err){say(err.message||String(err),'bad')}
+  }
   async function remove(id){if(!confirm('¿Eliminar esta cuenta de la lista? Solo se permite si no tiene clientes, recordatorios ni reservas que ocupan cupo.'))return;try{await rpc('core1_delete_account',{p_stock_item_id:id});say('Cuenta archivada');await load(M.planId,false)}catch(err){say(err.message||String(err),'bad')}}
-  function bind(){document.querySelectorAll('[data-c103-close]').forEach(b=>b.onclick=()=>close(b.dataset.c103Close));$('c103Search').oninput=render;$('c103Refresh').onclick=()=>load(M.planId,false);$('c103Add').onclick=()=>editor();$('c103AddSlot').onclick=()=>slotRow();$('c103Form').onsubmit=save;window.openPlanStockView=(planId)=>load(planId,true);window.openPlanAccounts=window.openPlanStockView;window.openOpsStockDialog=(type='account',id='')=>{let p=M.planId;if(id){const x=(window.state?.stock||[]).find(r=>String(r.id)===String(id));p=x?.plan_id||p}if(!p)p=(window.state?.plans||[])[0]?.id||'';load(p,false).then(()=>editor(id))};window.openStockViewEdit=id=>window.openOpsStockDialog('account',id);window.openAddStockFromPlanView=()=>editor();window.addStockForPlan=planId=>load(planId,false).then(()=>editor());window.INNOV_CORE103_ACCOUNTS=Object.freeze({open:load,edit:editor,remove,history})}
+  function bind(){document.querySelectorAll('[data-c103-close]').forEach(b=>b.onclick=()=>close(b.dataset.c103Close));$('c103Search').oninput=render;$('c103Refresh').onclick=()=>load(M.planId,false);$('c103Add').onclick=()=>editor();$('c103AddSlot').onclick=()=>slotRow();$('c103Form').onsubmit=save;window.openPlanStockView=(planId)=>load(planId,true);window.openPlanAccounts=window.openPlanStockView;window.openOpsStockDialog=(type='account',id='')=>{let p=M.planId;if(id){const x=(state?.stock||[]).find(r=>String(r.id)===String(id));p=x?.plan_id||p}if(!p)p=(state?.plans||[])[0]?.id||'';load(p,false).then(()=>editor(id))};window.openStockViewEdit=id=>window.openOpsStockDialog('account',id);window.openAddStockFromPlanView=()=>editor();window.addStockForPlan=planId=>load(planId,false).then(()=>editor());window.INNOV_CORE103_ACCOUNTS=Object.freeze({open:load,edit:editor,remove,history})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,800),{once:true});else setTimeout(bind,800);
 })();
 </script>
@@ -12138,11 +12283,11 @@ INNOV IA V62 - TOTP original + selección real
   }
 
   function planRule(planId) {
-    return list(window.state?.serviceRules).find(row => id(row.plan_id) === id(planId)) || { allocation_mode: 'none' };
+    return list(state?.serviceRules).find(row => id(row.plan_id) === id(planId)) || { allocation_mode: 'none' };
   }
 
   function planName(planId) {
-    try { return window.planName?.(planId) || list(window.state?.plans).find(row => id(row.id) === id(planId))?.name || 'Servicio'; }
+    try { return window.planName?.(planId) || list(state?.plans).find(row => id(row.id) === id(planId))?.name || 'Servicio'; }
     catch (_) { return 'Servicio'; }
   }
 
@@ -12195,7 +12340,7 @@ INNOV IA V62 - TOTP original + selección real
   };
 
   function planFromStock(stockId) {
-    return list(window.state?.stock).find(row => id(row.id) === id(stockId))?.plan_id || '';
+    return list(state?.stock).find(row => id(row.id) === id(stockId))?.plan_id || '';
   }
 
   function accountById(model, stockId) {
@@ -12450,7 +12595,7 @@ INNOV IA V62 - TOTP original + selección real
   async function saveManual() {
     const orderId = value('manualOrderId');
     const planId = value('manualPlan');
-    const order = list(window.state?.orders).find(row => id(row.id) === orderId) || {};
+    const order = list(state?.orders).find(row => id(row.id) === orderId) || {};
     const rule = planRule(planId);
     if (!orderId || !planId) return toast('Selecciona pedido y plan', 'bad');
     const phone = normalizePhone(order.customer_whatsapp || '');
@@ -12764,11 +12909,11 @@ INNOV IA V62 - TOTP original + selección real
 
   function planName(planId){
     try { if (typeof window.planName === 'function') return window.planName(planId) || 'Servicio'; } catch (_) {}
-    return list(window.state?.plans).find(row => same(row.id,planId))?.name || 'Servicio';
+    return list(state?.plans).find(row => same(row.id,planId))?.name || 'Servicio';
   }
 
   function productIdForPlan(planId){
-    return list(window.state?.plans).find(row => same(row.id,planId))?.product_id || null;
+    return list(state?.plans).find(row => same(row.id,planId))?.product_id || null;
   }
 
   function activeAccounts(model){
@@ -12801,7 +12946,7 @@ INNOV IA V62 - TOTP original + selección real
   }
 
   function planFromStock(stockId){
-    return list(window.state?.stock).find(row => same(row.id,stockId))?.plan_id || '';
+    return list(state?.stock).find(row => same(row.id,stockId))?.plan_id || '';
   }
 
   function ensureSlotSelect(mode){
@@ -12987,7 +13132,7 @@ INNOV IA V62 - TOTP original + selección real
     try {
       const orderId=value('manualOrderId'); const planId=value('manualPlan');
       if(!orderId||!planId) throw new Error('Selecciona pedido y plan');
-      const order=list(window.state?.orders).find(row=>same(row.id,orderId))||{};
+      const order=list(state?.orders).find(row=>same(row.id,orderId))||{};
       const phone=phoneInfo(order.customer_whatsapp||''); if(!phone?.ok) throw new Error('El pedido no tiene un WhatsApp válido');
       const ctx=await resolve('manual',{force:true});
       const service=planName(planId);
@@ -13059,7 +13204,187 @@ INNOV IA V62 - TOTP original + selección real
 })();
 </script>
 
+
+<script id="innov-v64-totp-plan-map-js">
+/* ================================================================
+   V64 — Access TOTP por plan, sin cambiar el resto de operaciones
+   ================================================================ */
+(function(){
+  const byId=id=>document.getElementById(id);
+  const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const normalize=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  let enabledOnly=false;
+
+  function meta(plan){
+    return (plan?.metadata && typeof plan.metadata==='object' && !Array.isArray(plan.metadata)) ? plan.metadata : {};
+  }
+  function isEnabled(plan){
+    if(typeof window.isTotpEnabledForPlan==='function') return !!window.isTotpEnabledForPlan(plan);
+    const m=meta(plan);
+    return m.totp_enabled===true || !!m.totp_account_id;
+  }
+  function accountId(plan){ return meta(plan).totp_account_id||''; }
+  function accountOptions(selected=''){
+    const rows=(state?.totpAccounts||[]).filter(a=>a.active!==false);
+    return '<option value="">Elegir al cargar la cuenta</option>'+rows.map(a=>`<option value="${safe(a.id)}" ${String(a.id)===String(selected)?'selected':''}>${safe(a.label||'Cuenta TOTP')}${a.issuer?' · '+safe(a.issuer):''}</option>`).join('');
+  }
+  function activePlans(){
+    return [...(state?.plans||[])].sort((a,b)=>{
+      const pa=String((typeof window.prodName==='function'?window.prodName(a.product_id):'')||'');
+      const pb=String((typeof window.prodName==='function'?window.prodName(b.product_id):'')||'');
+      return pa.localeCompare(pb,'es') || String(a.name||'').localeCompare(String(b.name||''),'es');
+    });
+  }
+  function productName(plan){
+    return typeof window.prodName==='function' ? window.prodName(plan.product_id) : 'Producto';
+  }
+
+  function render(){
+    const list=byId('totpPlanMapList'), summary=byId('totpPlanMapSummary');
+    if(!list || !summary) return;
+    const q=normalize(byId('totpPlanMapSearch')?.value||'');
+    const all=activePlans();
+    const enabled=all.filter(isEnabled);
+    const accounts=(state?.totpAccounts||[]).filter(a=>a.active!==false).length;
+    summary.innerHTML=[
+      `<span class="badge b-purple">${enabled.length} plan${enabled.length===1?'':'es'} habilitado${enabled.length===1?'':'s'}</span>`,
+      `<span class="badge">${all.length} planes en total</span>`,
+      `<span class="badge ${accounts?'b-ok':'b-warn'}">${accounts} cuenta${accounts===1?'':'s'} TOTP activa${accounts===1?'':'s'}</span>`
+    ].join('');
+    const filter=all.filter(p=>{
+      const hay=normalize(`${productName(p)} ${p.name||''} ${p.period||''} ${p.slug||''}`);
+      return (!q || hay.includes(q)) && (!enabledOnly || isEnabled(p));
+    });
+    if(!filter.length){
+      list.innerHTML='<div class="totp-plan-empty">No se encontraron planes con ese filtro.</div>';
+      return;
+    }
+    const groups=new Map();
+    filter.forEach(p=>{
+      const key=productName(p);
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(p);
+    });
+    list.innerHTML=[...groups.entries()].map(([product, plans])=>`
+      <section class="totp-plan-map-group">
+        <div class="totp-plan-map-group-title"><span>${safe(product)}</span><span class="badge">${plans.length} plan${plans.length===1?'':'es'}</span></div>
+        ${plans.map(p=>{
+          const on=isEnabled(p), acc=accountId(p), m=meta(p);
+          const legacy=on && m.totp_enabled===undefined && !m.totp_account_id;
+          return `<label class="totp-plan-row ${on?'is-enabled':'is-disabled'}" data-totp-plan-row="${safe(p.id)}">
+            <div class="totp-plan-main">
+              <input class="totp-plan-toggle" type="checkbox" data-totp-plan-enabled="${safe(p.id)}" ${on?'checked':''}>
+              <div>
+                <div class="totp-plan-name">${safe(p.name||'Plan sin nombre')}</div>
+                <div class="totp-plan-meta">
+                  <span class="badge ${p.active!==false?'b-ok':'b-bad'}">${p.active!==false?'Activo':'Oculto'}</span>
+                  ${p.period?`<span class="badge">${safe(p.period)}</span>`:''}
+                  ${legacy?'<span class="badge b-warn">Compatibilidad anterior</span>':''}
+                  ${on && !acc?'<span class="badge b-warn">Falta cuenta predeterminada</span>':''}
+                </div>
+              </div>
+            </div>
+            <div class="totp-plan-account">
+              <label>Cuenta TOTP predeterminada</label>
+              <select class="input" data-totp-plan-account="${safe(p.id)}" ${on?'':'disabled'}>${accountOptions(acc)}</select>
+            </div>
+          </label>`;
+        }).join('')}
+      </section>`).join('');
+    bindRows();
+  }
+
+  function bindRows(){
+    document.querySelectorAll('[data-totp-plan-enabled]').forEach(check=>{
+      check.addEventListener('change',event=>{
+        const id=event.target.dataset.totpPlanEnabled;
+        const row=document.querySelector(`[data-totp-plan-row="${CSS.escape(id)}"]`);
+        const select=document.querySelector(`[data-totp-plan-account="${CSS.escape(id)}"]`);
+        if(select)select.disabled=!event.target.checked;
+        row?.classList.toggle('is-enabled',event.target.checked);
+        row?.classList.toggle('is-disabled',!event.target.checked);
+      });
+    });
+  }
+
+  async function open(){
+    if(typeof window.loadTotpAccounts==='function'){
+      try{await window.loadTotpAccounts();}catch(_){}
+    }
+    enabledOnly=false;
+    const search=byId('totpPlanMapSearch'); if(search) search.value='';
+    const toggle=byId('btnTotpPlanMapSelectEnabled'); if(toggle) toggle.textContent='Ver habilitados';
+    render();
+    if(typeof window.showDialog==='function')window.showDialog('dlgTotpPlanAccess');else byId('dlgTotpPlanAccess')?.showModal();
+  }
+
+  async function save(){
+    const saveBtn=byId('btnSaveTotpPlanAccess');
+    const plans=activePlans();
+    const changes=[];
+    plans.forEach(p=>{
+      const checked=document.querySelector(`[data-totp-plan-enabled="${CSS.escape(p.id)}"]`);
+      const select=document.querySelector(`[data-totp-plan-account="${CSS.escape(p.id)}"]`);
+      if(!checked) return;
+      const current=meta(p);
+      const next={...current};
+      const beforeEnabled=isEnabled(p);
+      const nextEnabled=!!checked.checked;
+      const beforeAccount=String(current.totp_account_id||'');
+      const nextAccount=nextEnabled ? String(select?.value||'') : '';
+      if(nextEnabled){
+        next.totp_enabled=true;
+        if(nextAccount)next.totp_account_id=nextAccount; else delete next.totp_account_id;
+      }else{
+        next.totp_enabled=false;
+        delete next.totp_account_id;
+      }
+      const mustSave=(nextEnabled!==beforeEnabled) || (nextAccount!==beforeAccount);
+      if(mustSave)changes.push({id:p.id,metadata:next});
+    });
+    if(!changes.length){
+      if(typeof window.toast==='function')window.toast('No hay cambios para guardar','info');
+      return;
+    }
+    if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='Guardando…';}
+    try{
+      const results=await Promise.all(changes.map(x=>window.db.from('product_plans').update({metadata:x.metadata}).eq('id',x.id)));
+      const bad=results.find(r=>r.error);
+      if(bad)throw bad.error;
+      if(typeof window.publishAdminChange==='function')window.publishAdminChange('product_plans','UPDATE',{scope:'totp-plan-access',count:changes.length});
+      if(typeof window.loadAll==='function')await window.loadAll();
+      if(typeof window.closeDialog==='function')window.closeDialog('dlgTotpPlanAccess');else byId('dlgTotpPlanAccess')?.close();
+      if(typeof window.toast==='function')window.toast(`Access TOTP actualizado en ${changes.length} plan${changes.length===1?'':'es'}`,'ok');
+    }catch(error){
+      if(typeof window.toast==='function')window.toast('No se pudo guardar: '+(error?.message||error),'bad');
+    }finally{
+      if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Guardar disponibilidad';}
+    }
+  }
+
+  function install(){
+    const openBtn=byId('btnTotpPlanAccess');
+    if(!openBtn)return setTimeout(install,180);
+    openBtn.onclick=open;
+    byId('btnSaveTotpPlanAccess')?.addEventListener('click',save);
+    byId('totpPlanMapSearch')?.addEventListener('input',render);
+    byId('btnTotpPlanMapSelectEnabled')?.addEventListener('click',()=>{
+      enabledOnly=!enabledOnly;
+      byId('btnTotpPlanMapSelectEnabled').textContent=enabledOnly?'Ver todos':'Ver habilitados';
+      render();
+    });
+    window.openTotpPlanAccessDialog=open;
+    window.renderTotpPlanAccess=render;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,60),{once:true});
+  else setTimeout(install,60);
+})();
+</script>
+
 </body>
 </html>
+
+
+
 
 
