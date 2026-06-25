@@ -711,63 +711,6 @@ dialog form, .dlg-body {
 .auth-divider { height: 1px; background: var(--border); margin: 20px 0; }
 .auth-note { font-size: .8rem; color: var(--muted); line-height: 1.5; }
 
-/* ---------- KPI Cards ---------- */
-.admin-kpis {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.admin-kpi {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-xs);
-  padding: 16px;
-  position: relative;
-  overflow: hidden;
-  transition: box-shadow var(--tr), transform var(--tr);
-}
-.admin-kpi:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-.admin-kpi::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: var(--primary);
-}
-.admin-kpi.green::before { background: var(--success); }
-.admin-kpi.amber::before { background: var(--warning); }
-.admin-kpi.red::before { background: var(--danger); }
-.admin-kpi.purple::before { background: var(--purple); }
-.admin-kpi .kpi-icon {
-  font-size: 1.5rem;
-  display: block;
-  margin-bottom: 8px;
-  line-height: 1;
-}
-.admin-kpi .lbl {
-  font-size: .72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--muted);
-  letter-spacing: .06em;
-}
-.admin-kpi .val {
-  font-size: 2rem;
-  font-weight: 900;
-  color: var(--card-ink);
-  letter-spacing: -.03em;
-  line-height: 1.1;
-  margin: 2px 0;
-  font-variant-numeric: tabular-nums;
-}
-.admin-kpi .sub { font-size: .74rem; color: var(--muted); font-weight: 500; }
-@media (max-width: 600px) {
-  .admin-kpis { grid-template-columns: repeat(2, 1fr); }
-  .admin-kpi .val { font-size: 1.6rem; }
-}
-
 /* ---------- Mini grid / cards ---------- */
 .mini-grid {
   display: grid;
@@ -1058,14 +1001,6 @@ canvas.chart { width: 100%; max-height: 280px; border: 1px solid var(--border); 
   .cuentas-grid { grid-template-columns: 1fr; }
 }
 
-/* Admin tabs responsive */
-@media (max-width: 900px) {
-  .admin-kpis { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 640px) {
-  .admin-kpis { grid-template-columns: repeat(2, 1fr); }
-}
-
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -1250,13 +1185,6 @@ input, select, textarea, button { min-width: 0; }
   .brand, .brand .l { min-width: 0; }
   .app-title { max-width: 52vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .header-actions .btn:not(#btnTheme):not(#btnLogout) { padding-inline: 8px; }
-
-  .admin-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .admin-kpi { padding: 11px; border-radius: 14px; }
-  .admin-kpi .kpi-icon { font-size: 1.25rem; margin-bottom: 4px; }
-  .admin-kpi .val { font-size: 1.35rem; }
-  .admin-kpi .lbl { font-size: .64rem; letter-spacing: .04em; }
-  .admin-kpi .sub { display: none; }
 
   .card, .mini-card, .ops-stock-card { padding: 12px; border-radius: 14px; }
   .mini-grid, .ops-grid, .cuentas-grid, .cuenta-grid, .accx-group-grid { grid-template-columns: minmax(0, 1fr) !important; width: 100%; }
@@ -1910,6 +1838,78 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 .plan-stock-title-wrap{display:flex;align-items:center;gap:8px;min-width:0;}
 .v43-today-note{border-left:3px solid var(--primary);background:var(--primary-alpha2);border-radius:12px;padding:9px 10px;font-size:.82rem;color:var(--muted);margin-bottom:10px;}
 @media(max-width:800px){.bulkbar-v43.show{display:grid;grid-template-columns:1fr 1fr}.bulkbar-v43 strong,.bulkbar-v43 .help{grid-column:1/-1}.bulkbar-v43 .btn{width:100%}}
+
+
+
+
+/* =====================================================================
+   VERSIÓN 5 — DASHBOARD POWER BI PULIDO
+   Aislado en #tab-dashboard. Solo lectura y navegación.
+   ===================================================================== */
+#tab-dashboard .pbi5{--pbi5-ink:var(--card-ink);--pbi5-muted:var(--muted);--pbi5-purple:#7357f4;--pbi5-blue:#287de8;--pbi5-green:#1e9d63;--pbi5-yellow:#e7a424;--pbi5-orange:#f28022;--pbi5-red:#df4d59;--pbi5-teal:#0f9d9b;display:grid;gap:15px;color:var(--pbi5-ink)}
+#tab-dashboard .pbi5 *,#tab-dashboard .pbi5 *::before,#tab-dashboard .pbi5 *::after{box-sizing:border-box}
+#tab-dashboard .pbi5-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:5px 2px 14px;border-bottom:1px solid var(--border)}
+#tab-dashboard .pbi5-eyebrow{display:flex;align-items:center;gap:7px;font-size:.70rem;line-height:1;font-weight:950;text-transform:uppercase;letter-spacing:.085em;color:var(--primary)}
+#tab-dashboard .pbi5-title{margin:6px 0 3px;font-size:1.40rem;line-height:1.13;letter-spacing:-.04em;font-weight:950;color:var(--pbi5-ink)}
+#tab-dashboard .pbi5-copy{margin:0;max-width:760px;color:var(--pbi5-muted);font-size:.82rem;line-height:1.4}
+#tab-dashboard .pbi5-head-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;flex:0 0 auto}
+#tab-dashboard .pbi5-fresh{display:inline-flex;align-items:center;gap:5px;font-size:.70rem;color:var(--pbi5-muted);font-weight:800;white-space:nowrap}
+#tab-dashboard .pbi5-fresh::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--pbi5-green);box-shadow:0 0 0 4px rgba(30,157,99,.11)}
+#tab-dashboard .pbi5-refresh{min-height:36px;padding-inline:13px}
+#tab-dashboard .pbi5-card{min-width:0;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-xs);overflow:hidden;animation:pbi5-enter .42s both}
+#tab-dashboard .pbi5-filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 10px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(180deg,var(--card),var(--card2));box-shadow:var(--shadow-xs)}
+#tab-dashboard .pbi5-filter-label{font-size:.66rem;color:var(--pbi5-muted);font-weight:950;letter-spacing:.05em;text-transform:uppercase;padding-left:3px}
+#tab-dashboard .pbi5-filter-group{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+#tab-dashboard .pbi5-filter-divider{width:1px;height:27px;background:var(--border);margin-inline:3px}
+#tab-dashboard .pbi5-filter-chip{appearance:none;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--pbi5-muted);padding:8px 11px;font:850 .75rem var(--font);cursor:pointer;transition:background .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease}
+#tab-dashboard .pbi5-filter-chip:hover{background:var(--primary-alpha2);color:var(--primary);transform:translateY(-1px)}
+#tab-dashboard .pbi5-filter-chip[aria-pressed="true"]{background:var(--primary);color:#fff;box-shadow:0 8px 16px rgba(43,66,198,.18)}
+#tab-dashboard .pbi5-select,#tab-dashboard .pbi5-date{border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--pbi5-ink);padding:6px 10px;min-height:34px;outline:0;font:750 .74rem var(--font);max-width:230px}
+#tab-dashboard .pbi5-select:focus,#tab-dashboard .pbi5-date:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-alpha)}
+#tab-dashboard .pbi5-custom-range{display:none;align-items:center;gap:5px;font-size:.69rem;color:var(--pbi5-muted);font-weight:850}
+#tab-dashboard .pbi5-custom-range.is-open{display:flex}
+#tab-dashboard .pbi5-date{max-width:135px;min-height:32px}
+#tab-dashboard .pbi5-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#tab-dashboard .pbi5-kpi{min-height:126px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 70px;gap:7px;align-items:start}
+#tab-dashboard .pbi5-kpi:nth-child(2){animation-delay:.04s}#tab-dashboard .pbi5-kpi:nth-child(3){animation-delay:.08s}#tab-dashboard .pbi5-kpi:nth-child(4){animation-delay:.12s}
+#tab-dashboard .pbi5-kpi-top{display:flex;align-items:center;gap:8px;color:var(--pbi5-muted);font-size:.70rem;font-weight:900;line-height:1.15}
+#tab-dashboard .pbi5-kpi-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:11px;color:#fff;font-size:.94rem;background:linear-gradient(145deg,var(--pbi5-purple),#a18fff);box-shadow:0 8px 16px rgba(115,87,244,.21)}
+#tab-dashboard .pbi5-kpi.blue .pbi5-kpi-icon{background:linear-gradient(145deg,var(--pbi5-blue),#76b2ff);box-shadow:0 8px 16px rgba(40,125,232,.19)}
+#tab-dashboard .pbi5-kpi.green .pbi5-kpi-icon{background:linear-gradient(145deg,var(--pbi5-green),#64d99a);box-shadow:0 8px 16px rgba(30,157,99,.18)}
+#tab-dashboard .pbi5-kpi.orange .pbi5-kpi-icon{background:linear-gradient(145deg,var(--pbi5-orange),#ffbf63);box-shadow:0 8px 16px rgba(242,128,34,.18)}
+#tab-dashboard .pbi5-kpi-value{margin-top:12px;font-size:1.43rem;line-height:1;font-weight:950;letter-spacing:-.05em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tab-dashboard .pbi5-kpi-sub{margin-top:8px;font-size:.66rem;font-weight:780;line-height:1.2;color:var(--pbi5-muted)}
+#tab-dashboard .pbi5-kpi-sub.up{color:var(--success)}#tab-dashboard .pbi5-kpi-sub.warn{color:#aa6b00}
+#tab-dashboard .pbi5-spark{align-self:end;width:70px;height:43px;overflow:visible}
+#tab-dashboard .pbi5-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr) minmax(305px,.86fr);grid-template-areas:"trend trend risk" "status top risk" "flow collection risk" "health alerts risk" "monitor activity activity";gap:12px;align-items:stretch}
+#tab-dashboard .pbi5-trend{grid-area:trend;min-height:304px}.pbi5-status{grid-area:status;min-height:272px}.pbi5-top{grid-area:top}.pbi5-risk{grid-area:risk}.pbi5-flow{grid-area:flow}.pbi5-collection{grid-area:collection}.pbi5-health{grid-area:health}.pbi5-alerts{grid-area:alerts}.pbi5-monitor{grid-area:monitor}.pbi5-activity{grid-area:activity}
+#tab-dashboard .pbi5-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;padding:15px 16px 10px}
+#tab-dashboard .pbi5-card-title{display:flex;align-items:center;gap:6px;color:var(--pbi5-ink);font-size:.89rem;line-height:1.2;font-weight:950;letter-spacing:-.012em}
+#tab-dashboard .pbi5-card-sub{margin:4px 0 0;color:var(--pbi5-muted);font-size:.68rem;line-height:1.35;font-weight:680}
+#tab-dashboard .pbi5-info{display:inline-grid;place-items:center;width:16px;height:16px;border:1px solid var(--border);border-radius:50%;color:var(--pbi5-muted);font-size:.62rem;font-weight:950;cursor:help}
+#tab-dashboard .pbi5-mini-btn{appearance:none;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--pbi5-muted);padding:6px 8px;font:800 .68rem var(--font);cursor:pointer;white-space:nowrap}
+#tab-dashboard .pbi5-mini-btn:hover{color:var(--primary);border-color:var(--primary);background:var(--primary-alpha2)}
+#tab-dashboard .pbi5-trend-legend{display:flex;align-items:center;gap:13px;flex-wrap:wrap;padding:0 16px;font-size:.68rem;color:var(--pbi5-muted);font-weight:780}
+#tab-dashboard .pbi5-dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle;margin-right:4px}.pbi5-dot.sales{background:var(--pbi5-purple)}.pbi5-dot.orders{background:var(--pbi5-blue)}
+#tab-dashboard .pbi5-chart-wrap{padding:7px 12px 12px;min-height:219px}.pbi5-trend-svg{display:block;width:100%;height:222px;overflow:visible}.pbi5-grid-line{stroke:var(--border);stroke-width:1}.pbi5-grid-label{fill:var(--pbi5-muted);font-size:10px;font-family:var(--font)}.pbi5-axis-label{fill:var(--pbi5-muted);font-size:9px;font-family:var(--font)}
+#tab-dashboard .pbi5-area{fill:url(#pbi5SalesGradient);opacity:.58}.pbi5-line-sales{fill:none;stroke:var(--pbi5-purple);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1500;stroke-dashoffset:1500;animation:pbi5-draw 1s .16s ease-out forwards}.pbi5-line-orders{fill:none;stroke:var(--pbi5-blue);stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1500;stroke-dashoffset:1500;animation:pbi5-draw 1s .30s ease-out forwards}.pbi5-point-sales{fill:#fff;stroke:var(--pbi5-purple);stroke-width:2}.pbi5-point-orders{fill:#fff;stroke:var(--pbi5-blue);stroke-width:1.8}
+#tab-dashboard .pbi5-status-body{padding:2px 15px 14px;display:grid;grid-template-columns:132px minmax(0,1fr);gap:11px;align-items:center}.pbi5-donut-box{position:relative;width:126px;height:126px}.pbi5-donut{width:126px;height:126px;display:block;transform:rotate(-90deg);overflow:visible}.pbi5-donut-ring{fill:none;stroke:var(--card2);stroke-width:17}.pbi5-donut-seg{fill:none;stroke-width:17;transition:stroke-width .16s ease;cursor:pointer}.pbi5-donut-seg:hover{stroke-width:21}.pbi5-donut-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}.pbi5-donut-center strong{display:block;font-size:1.36rem;line-height:1;font-weight:950}.pbi5-donut-center span{display:block;margin-top:3px;color:var(--pbi5-muted);font-size:.62rem;font-weight:850}.pbi5-status-list{display:grid;gap:6px;min-width:0}.pbi5-status-item{appearance:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:6px;border:0;border-radius:7px;background:transparent;color:var(--pbi5-ink);padding:3px 0;text-align:left;font:760 .68rem var(--font)}.pbi5-status-item.is-link{cursor:pointer}.pbi5-status-item.is-link:hover{background:var(--primary-alpha2)}.pbi5-status-bullet{width:8px;height:8px;border-radius:50%}.pbi5-status-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pbi5-status-count{font-weight:950;font-variant-numeric:tabular-nums}
+#tab-dashboard .pbi5-risk{display:grid;grid-template-rows:auto 1fr auto}.pbi5-risk-head{padding-bottom:11px;border-bottom:1px solid var(--border)}.pbi5-risk-total{border:0;border-radius:8px;background:#ffe7e9;color:#d0404e;padding:5px 8px;font:900 .66rem var(--font);white-space:nowrap}.pbi5-risk-list{display:grid;align-content:start;padding:4px 12px}.pbi5-risk-row{appearance:none;display:grid;gap:7px;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--pbi5-ink);padding:12px 2px;text-align:left;cursor:pointer}.pbi5-risk-row:last-child{border-bottom:0}.pbi5-risk-row:hover .pbi5-risk-name{color:var(--primary)}.pbi5-risk-main{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center}.pbi5-risk-name{font-size:.76rem;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pbi5-risk-level{border-radius:6px;padding:4px 6px;font-size:.58rem;font-weight:950;letter-spacing:.03em;text-transform:uppercase}.pbi5-risk-level.low{background:#e8f8ee;color:#128447}.pbi5-risk-level.medium{background:#fff5d9;color:#9b6300}.pbi5-risk-level.high{background:#fff0df;color:#c36900}.pbi5-risk-level.critical{background:#ffe6e9;color:#c83041}.pbi5-risk-number{min-width:32px;text-align:right;font-size:1.15rem;line-height:1;font-weight:950;font-variant-numeric:tabular-nums}.pbi5-risk-caption{font-size:.59rem;color:var(--pbi5-muted);font-weight:820;white-space:nowrap}.pbi5-risk-row.low .pbi5-risk-number{color:var(--pbi5-green)}.pbi5-risk-row.medium .pbi5-risk-number{color:#b67a00}.pbi5-risk-row.high .pbi5-risk-number{color:var(--pbi5-orange)}.pbi5-risk-row.critical .pbi5-risk-number{color:var(--pbi5-red)}.pbi5-risk-track{height:6px;background:var(--card2);border-radius:999px;overflow:hidden}.pbi5-risk-fill{display:block;height:100%;border-radius:inherit;transform-origin:left;animation:pbi5-grow .72s .12s both}.pbi5-risk-row.low .pbi5-risk-fill{background:var(--pbi5-green)}.pbi5-risk-row.medium .pbi5-risk-fill{background:var(--pbi5-yellow)}.pbi5-risk-row.high .pbi5-risk-fill{background:var(--pbi5-orange)}.pbi5-risk-row.critical .pbi5-risk-fill{background:var(--pbi5-red)}.pbi5-risk-badges{display:flex;gap:4px;flex-wrap:wrap}.pbi5-risk-badge{border-radius:6px;background:var(--card2);color:var(--pbi5-muted);font-size:.58rem;font-weight:820;padding:3px 5px}.pbi5-risk-foot{border-top:1px solid var(--border);padding:10px 14px;text-align:center}.pbi5-text-link{appearance:none;border:0;background:transparent;color:var(--primary);font:900 .67rem var(--font);cursor:pointer}.pbi5-text-link:hover{text-decoration:underline}
+#tab-dashboard .pbi5-top-list{display:grid;gap:10px;padding:6px 16px 15px}.pbi5-top-row{appearance:none;display:grid;grid-template-columns:18px minmax(86px,1fr) minmax(56px,1.5fr) auto;gap:7px;align-items:center;border:0;background:transparent;color:var(--pbi5-ink);padding:0;text-align:left;cursor:pointer}.pbi5-top-row:hover .pbi5-top-name{color:var(--primary)}.pbi5-top-rank{font-size:.64rem;font-weight:950;text-align:center;color:var(--pbi5-muted)}.pbi5-top-name{font-size:.71rem;font-weight:880;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pbi5-top-track{height:10px;border-radius:999px;background:var(--card2);overflow:hidden}.pbi5-top-fill{display:block;height:100%;border-radius:inherit;transform-origin:left;animation:pbi5-grow .7s both}.pbi5-top-count{font-size:.69rem;font-weight:950;font-variant-numeric:tabular-nums}
+#tab-dashboard .pbi5-flow-body{padding:1px 14px 13px}.pbi5-flow-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:7px;color:var(--pbi5-muted);font-size:.62rem;font-weight:800}.pbi5-flow-key{display:inline-flex;align-items:center;gap:4px}.pbi5-flow-key i{width:8px;height:8px;border-radius:2px}.pbi5-flow-svg{display:block;width:100%;height:125px;overflow:visible}.pbi5-flow-grid{stroke:var(--border);stroke-width:1}.pbi5-flow-label{fill:var(--pbi5-muted);font-size:9px;font-family:var(--font)}.pbi5-flow-bar{transform-origin:bottom;animation:pbi5-bar .65s ease-out both}.pbi5-flow-bar:nth-child(3n+1){animation-delay:.04s}.pbi5-flow-bar:nth-child(3n+2){animation-delay:.08s}.pbi5-flow-bar:nth-child(3n){animation-delay:.12s}
+#tab-dashboard .pbi5-collection-list{display:grid;padding:1px 15px 14px;gap:10px}.pbi5-collection-row{appearance:none;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;border:0;background:transparent;color:var(--pbi5-ink);padding:0;text-align:left;cursor:pointer}.pbi5-collection-top{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:.68rem;font-weight:850}.pbi5-collection-top span:last-child{font-weight:950;font-variant-numeric:tabular-nums}.pbi5-collection-track{grid-column:1/-1;height:8px;border-radius:999px;background:var(--card2);overflow:hidden}.pbi5-collection-fill{display:block;height:100%;border-radius:inherit;transform-origin:left;animation:pbi5-grow .7s both}.pbi5-collection-row.overdue .pbi5-collection-fill{background:var(--pbi5-red)}.pbi5-collection-row.today .pbi5-collection-fill{background:var(--pbi5-orange)}.pbi5-collection-row.next .pbi5-collection-fill{background:var(--pbi5-blue)}.pbi5-collection-row.renew .pbi5-collection-fill{background:var(--pbi5-purple)}.pbi5-collection-row:hover .pbi5-collection-top{color:var(--primary)}
+#tab-dashboard .pbi5-health-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:4px 12px 15px}.pbi5-health-item{appearance:none;min-height:116px;padding:10px 8px;border:1px solid var(--border);border-radius:12px;display:grid;align-content:space-between;gap:8px;background:var(--card);color:var(--pbi5-ink);text-align:left;cursor:pointer}.pbi5-health-item.stable{background:linear-gradient(180deg,#effbf4,var(--card))}.pbi5-health-item.low{background:linear-gradient(180deg,#fff9e9,var(--card))}.pbi5-health-item.out{background:linear-gradient(180deg,#fff0f1,var(--card))}.pbi5-health-item:hover{transform:translateY(-1px);box-shadow:var(--shadow-xs)}.pbi5-health-label{font-size:.61rem;font-weight:900;line-height:1.15}.pbi5-health-item.stable .pbi5-health-label{color:#167a46}.pbi5-health-item.low .pbi5-health-label{color:#a36a00}.pbi5-health-item.out .pbi5-health-label{color:#d14450}.pbi5-health-count{font-size:1.32rem;line-height:1;font-weight:950;font-variant-numeric:tabular-nums}.pbi5-health-small{font-size:.59rem;color:var(--pbi5-muted);font-weight:760}.pbi5-mini-trend{display:block;width:100%;height:24px}
+#tab-dashboard .pbi5-alert-list{display:grid;padding:3px 12px 12px}.pbi5-alert-row{appearance:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:7px;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--pbi5-ink);padding:9px 2px;text-align:left;font:800 .70rem var(--font);cursor:pointer}.pbi5-alert-row:last-child{border-bottom:0}.pbi5-alert-row:hover{background:var(--primary-alpha2)}.pbi5-alert-icon{font-size:.86rem}.pbi5-alert-count{min-width:22px;text-align:center;border-radius:999px;padding:3px 6px;font-size:.63rem;font-weight:950;font-variant-numeric:tabular-nums}.pbi5-alert-row.danger .pbi5-alert-count{background:#ffe4e7;color:#cf3042}.pbi5-alert-row.warning .pbi5-alert-count{background:#fff2d8;color:#ad6d00}.pbi5-alert-row.purple .pbi5-alert-count{background:#eee9ff;color:#5c47d0}.pbi5-alert-arrow{color:var(--pbi5-muted);font-size:.95rem}
+#tab-dashboard .pbi5-monitor{display:grid;grid-template-rows:auto 1fr}.pbi5-monitor-body{display:grid;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);gap:10px;padding:3px 13px 14px}.pbi5-monitor-lines{display:grid;align-content:start;gap:8px}.pbi5-monitor-line{display:grid;grid-template-columns:8px minmax(0,1fr);gap:6px;align-items:start;font-size:.64rem;line-height:1.2}.pbi5-monitor-dot{width:8px;height:8px;border-radius:50%;margin-top:2px;background:var(--pbi5-green);box-shadow:0 0 0 3px rgba(30,157,99,.10)}.pbi5-monitor-dot.warn{background:#e6a100;box-shadow:0 0 0 3px rgba(230,161,0,.12)}.pbi5-monitor-line b{display:block;font-size:.65rem;color:var(--pbi5-ink)}.pbi5-monitor-line span{display:block;color:var(--pbi5-muted);margin-top:2px}.pbi5-log-title{margin:0 0 6px;color:var(--pbi5-muted);font-size:.64rem;font-weight:950}.pbi5-mini-log{display:grid;gap:6px;align-content:start}.pbi5-mini-log-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:5px;font-size:.61rem;line-height:1.2}.pbi5-mini-log-time{color:var(--pbi5-muted);font-weight:850;font-variant-numeric:tabular-nums}.pbi5-mini-log-text{color:var(--pbi5-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tab-dashboard .pbi5-activity{padding-bottom:2px}.pbi5-activity-list{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));padding:2px 11px 13px}.pbi5-activity-item{appearance:none;position:relative;min-width:0;border:0;border-right:1px solid var(--border);background:transparent;color:var(--pbi5-ink);padding:8px 9px 5px;text-align:left;cursor:pointer}.pbi5-activity-item:last-child{border-right:0}.pbi5-activity-item:hover{background:var(--primary-alpha2)}.pbi5-activity-icon{display:grid;place-items:center;width:29px;height:29px;border-radius:10px;margin-bottom:7px;background:var(--primary-alpha);font-size:.82rem}.pbi5-activity-item.order .pbi5-activity-icon{background:#eaf2ff}.pbi5-activity-item.delivery .pbi5-activity-icon{background:#efeaff}.pbi5-activity-item.renew .pbi5-activity-icon{background:#fff1df}.pbi5-activity-item.customer .pbi5-activity-icon{background:#e9f8ef}.pbi5-activity-title{font-size:.67rem;line-height:1.2;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pbi5-activity-detail{display:block;margin-top:3px;font-size:.61rem;color:var(--pbi5-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pbi5-activity-time{display:block;margin-top:6px;font-size:.60rem;color:var(--pbi5-muted);font-weight:790}
+#tab-dashboard .pbi5-empty{padding:24px 15px;text-align:center;color:var(--pbi5-muted);font-size:.75rem;line-height:1.45}.pbi5-empty strong{display:block;color:var(--pbi5-ink);margin-bottom:4px}
+#tab-dashboard .pbi5 button:focus-visible,#tab-dashboard .pbi5 select:focus-visible,#tab-dashboard .pbi5 input:focus-visible{outline:3px solid var(--primary-alpha);outline-offset:2px}
+@keyframes pbi5-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes pbi5-grow{from{transform:scaleX(.12)}to{transform:scaleX(1)}}@keyframes pbi5-draw{to{stroke-dashoffset:0}}@keyframes pbi5-bar{from{transform:scaleY(.12)}to{transform:scaleY(1)}}
+@media(max-width:1160px){#tab-dashboard .pbi5-layout{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);grid-template-areas:"trend trend" "risk status" "top flow" "collection health" "alerts monitor" "activity activity"}.pbi5-risk{min-height:0}}
+@media(max-width:860px){#tab-dashboard .pbi5-head{display:grid}.pbi5-head-tools{justify-content:space-between}.pbi5-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.pbi5-layout{grid-template-columns:1fr 1fr;grid-template-areas:"trend trend" "status risk" "top flow" "collection health" "alerts monitor" "activity activity"}.pbi5-activity-list{grid-template-columns:repeat(3,minmax(0,1fr))}.pbi5-activity-item:nth-child(3){border-right:0}.pbi5-activity-item:nth-child(-n+3){border-bottom:1px solid var(--border)}}
+@media(max-width:640px){#tab-dashboard .pbi5{gap:10px}.pbi5-head{padding-bottom:10px}.pbi5-title{font-size:1.15rem}.pbi5-copy{font-size:.74rem}.pbi5-filterbar{padding:7px;gap:6px}.pbi5-filter-label{display:none}.pbi5-filter-divider{display:none}.pbi5-filter-chip{padding:7px 8px;font-size:.68rem}.pbi5-select{order:2;flex:1;max-width:none;width:100%}.pbi5-custom-range{order:3;width:100%;justify-content:space-between}.pbi5-date{max-width:calc(50% - 12px);flex:1}.pbi5-kpis{gap:7px}.pbi5-kpi{min-height:112px;padding:11px;grid-template-columns:minmax(0,1fr) 52px}.pbi5-kpi-top{font-size:.62rem;gap:6px}.pbi5-kpi-icon{width:26px;height:26px;border-radius:9px;font-size:.78rem}.pbi5-kpi-value{font-size:1.12rem;margin-top:10px}.pbi5-kpi-sub{font-size:.57rem;margin-top:7px}.pbi5-spark{width:52px;height:37px}.pbi5-layout{display:grid;grid-template-columns:1fr;grid-template-areas:"trend" "status" "risk" "top" "flow" "collection" "health" "alerts" "monitor" "activity";gap:9px}.pbi5-card{border-radius:15px}.pbi5-card-head{padding:12px 12px 8px}.pbi5-card-title{font-size:.80rem}.pbi5-card-sub{font-size:.63rem}.pbi5-trend{min-height:270px}.pbi5-trend-legend{padding-inline:12px;font-size:.63rem}.pbi5-chart-wrap{padding:4px 7px 10px;min-height:193px}.pbi5-trend-svg{height:194px}.pbi5-status-body{padding:2px 12px 12px;grid-template-columns:118px minmax(0,1fr);gap:8px}.pbi5-donut,.pbi5-donut-box{width:114px;height:114px}.pbi5-status-item{font-size:.64rem}.pbi5-risk-list{padding-inline:10px}.pbi5-risk-row{padding-block:10px}.pbi5-top-list{padding:4px 12px 12px;gap:9px}.pbi5-top-row{grid-template-columns:14px minmax(72px,1fr) minmax(42px,1.2fr) auto}.pbi5-flow-body{padding-inline:11px}.pbi5-health-grid{padding:3px 10px 12px;gap:6px}.pbi5-health-item{min-height:104px;padding:9px 7px}.pbi5-health-count{font-size:1.16rem}.pbi5-monitor-body{padding:2px 11px 12px;grid-template-columns:1fr 1fr;gap:7px}.pbi5-activity-list{grid-template-columns:repeat(2,minmax(0,1fr));padding:2px 7px 9px}.pbi5-activity-item{padding:7px;border-right:1px solid var(--border)!important;border-bottom:1px solid var(--border)}.pbi5-activity-item:nth-child(even){border-right:0!important}.pbi5-activity-item:nth-last-child(-n+2){border-bottom:0}.pbi5-activity-icon{margin-bottom:5px;width:26px;height:26px;border-radius:9px}.pbi5-activity-title{font-size:.63rem}.pbi5-activity-detail,.pbi5-activity-time{font-size:.57rem}}
+@media(prefers-reduced-motion:reduce){#tab-dashboard .pbi5 *,#tab-dashboard .pbi5 *::before,#tab-dashboard .pbi5 *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
 </style>
 
 <style id="innov-v58-totp-final-css">
@@ -2064,28 +2064,9 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
   <main id="main">
     <div class="container">
 
-      <!-- Dashboard -->
+      <!-- Dashboard V5: aislado. Ningún bloque del dashboard existe fuera de esta sección. -->
       <section id="tab-dashboard" class="admin-section active">
-        <div class="admin-kpis">
-          <div class="admin-kpi"><span class="kpi-icon">🧩</span><div class="lbl">Productos activos</div><div class="val" id="kpiProducts">0</div><div class="sub">Visibles si tienen plan activo</div></div>
-          <div class="admin-kpi green"><span class="kpi-icon">📦</span><div class="lbl">Cupos disponibles</div><div class="val" id="kpiStock">0</div><div class="sub">Automático + manual</div></div>
-          <div class="admin-kpi amber"><span class="kpi-icon">🧾</span><div class="lbl">Pagos por revisar</div><div class="val" id="kpiOrders">0</div><div class="sub">Yape / operación</div></div>
-          <div class="admin-kpi red"><span class="kpi-icon">🚚</span><div class="lbl">Entrega pendiente</div><div class="val" id="kpiDelivery">0</div><div class="sub">Falta cuenta/perfil/PIN real</div></div>
-          <div class="admin-kpi"><span class="kpi-icon">👥</span><div class="lbl">Clientes</div><div class="val" id="kpiClients">0</div><div class="sub">Base de clientes</div></div>
-          <div class="admin-kpi amber"><span class="kpi-icon">🔔</span><div class="lbl">Record. vencidos</div><div class="val" id="kpiDue">0</div><div class="sub">Renovaciones pendientes</div></div>
-        </div>
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-            <strong>📌 Resumen de productos y cupos</strong>
-            <button class="btn btn-sm" id="btnReload1" type="button">↻ Actualizar</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Producto</th><th>Plan</th><th>Tipo</th><th>Cupos</th><th>Estado</th><th>Acción</th></tr></thead>
-              <tbody id="summaryRows"></tbody>
-            </table>
-          </div>
-        </div>
+        <div class="pbi5" id="pbi5Dashboard" aria-live="polite"></div>
       </section>
 
       <!-- Productos -->
@@ -3487,32 +3468,147 @@ function fillReminderSelects(){
 }
 
 /* ---- Render All ---- */
-function renderAll(){renderKPIs();renderSummary();renderProducts();renderPlans();renderOrders();renderClients();renderReminders();renderOps();renderTemplates();renderDeliveryTemplates();renderCoupons();renderSettings();renderTotp()}
+function renderAll(){renderDashboard();renderProducts();renderPlans();renderOrders();renderClients();renderReminders();renderOps();renderTemplates();renderDeliveryTemplates();renderCoupons();renderSettings();renderTotp()}
 
-function renderKPIs(){
-  $('kpiProducts').textContent=state.products.filter(p=>p.active!==false).length;
-  $('kpiStock').textContent=state.summary.reduce((a,b)=>a+(Number(b.available_stock)>=999999?0:Number(b.available_stock||0)),0);
-  const pendOrders=state.orders.filter(o=>['pending_payment','payment_review'].includes(o.status)).length;
-  $('kpiOrders').textContent=pendOrders;
-  $('kpiDelivery').textContent=state.orders.filter(o=>['waiting_manual_delivery','partial'].includes(o.delivery_status)).length;
-  if($('kpiClients'))$('kpiClients').textContent=state.customers.length;
-  const dueRem=state.reminders.filter(reminderIsExpired).length;
-  if($('kpiDue'))$('kpiDue').textContent=dueRem;
-  // Update tab badges
-  ['tbOrders','mbOrders'].forEach(id=>{const el=$(id);if(el){el.textContent=pendOrders;el.style.display=pendOrders>0?'':'none';}});
-  ['tbReminders','mbReminders'].forEach(id=>{const el=$(id);if(el){el.textContent=dueRem;el.style.display=dueRem>0?'':'none';}});
+
+
+/* =====================================================================
+   VERSIÓN 5 — DASHBOARD POWER BI PULIDO
+   Lectura y navegación únicamente. No escribe datos ni toca otros módulos.
+   ===================================================================== */
+function pbi5Ui(){
+  if(!state.pbi5||typeof state.pbi5!=='object')state.pbi5={range:'month',service:'',customStart:'',customEnd:''};
+  return state.pbi5;
+}
+function pbi5Num(v){const n=Number(v);return Number.isFinite(n)?n:0}
+function pbi5N(v){return Math.round(pbi5Num(v)).toLocaleString('es-PE')}
+function pbi5Money(v){return 'S/ '+pbi5Num(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function pbi5Text(v){return String(v??'').trim()}
+function pbi5Status(v){return pbi5Text(v).toLowerCase()}
+function pbi5Today(){try{return typeof todayISO==='function'?todayISO():new Date().toISOString().slice(0,10)}catch(_){return new Date().toISOString().slice(0,10)}}
+function pbi5ISO(v){
+  const raw=pbi5Text(v);if(!raw)return '';
+  if(/^\d{4}-\d{2}-\d{2}/.test(raw))return raw.slice(0,10);
+  const d=new Date(raw);if(Number.isNaN(d.getTime()))return '';
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function pbi5Date(iso){const s=pbi5ISO(iso);return s?new Date(s+'T12:00:00'):null}
+function pbi5AddDays(iso,days){const d=pbi5Date(iso)||new Date();d.setDate(d.getDate()+Number(days||0));return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function pbi5Range(){
+  const ui=pbi5Ui(),today=pbi5Today();let start=today,end=today,label='Hoy';
+  if(ui.range==='week'){start=pbi5AddDays(today,-6);label='Últimos 7 días'}
+  else if(ui.range==='month'){const d=pbi5Date(today);d.setDate(1);start=pbi5ISO(d);label='Este mes'}
+  else if(ui.range==='prevmonth'){const d=pbi5Date(today);d.setDate(1);d.setDate(0);end=pbi5ISO(d);d.setDate(1);start=pbi5ISO(d);label='Mes anterior'}
+  else if(ui.range==='custom'){start=pbi5ISO(ui.customStart)||pbi5AddDays(today,-6);end=pbi5ISO(ui.customEnd)||today;if(start>end){const t=start;start=end;end=t}label='Personalizado'}
+  return {start,end,label};
+}
+function pbi5Previous(range){const a=pbi5Date(range.start),b=pbi5Date(range.end);if(!a||!b)return range;const length=Math.max(1,Math.round((b-a)/86400000)+1),end=pbi5AddDays(range.start,-1);return {start:pbi5AddDays(end,-(length-1)),end};}
+function pbi5InRange(v,range){const iso=pbi5ISO(v);return !!iso&&iso>=range.start&&iso<=range.end}
+function pbi5Maps(){
+  const products=new Map((state.products||[]).map(p=>[String(p?.id||''),p]));
+  const plans=new Map((state.plans||[]).map(p=>[String(p?.id||''),p]));
+  const orderById=new Map((state.orders||[]).map(o=>[String(o?.id||''),o]));
+  const itemsByOrder=new Map();
+  (state.items||[]).forEach(i=>{const k=String(i?.order_id||'');if(!k)return;if(!itemsByOrder.has(k))itemsByOrder.set(k,[]);itemsByOrder.get(k).push(i)});
+  return {products,plans,orderById,itemsByOrder};
+}
+function pbi5ProductName(productId,maps){return maps.products.get(String(productId||''))?.name||'Servicio'}
+function pbi5PlanProduct(planId,maps){return String(maps.plans.get(String(planId||''))?.product_id||'')}
+function pbi5OrderMatchesService(order,productId,maps){
+  if(!productId)return true;const id=String(productId),items=maps.itemsByOrder.get(String(order?.id||''))||[];
+  return String(order?.product_id||'')===id||items.some(i=>pbi5PlanProduct(i?.plan_id,maps)===id);
+}
+function pbi5Cancelled(order){const st=pbi5Status(order?.status),ds=pbi5Status(order?.delivery_status);return ['cancelled','canceled','cancelado','rejected','rechazado','void','anulado','failed'].includes(st)||['cancelled','canceled','cancelado','rejected','rechazado','anulado'].includes(ds)}
+function pbi5PaymentWaiting(order){return ['pending_payment','payment_review','pending','pendiente','review','por_revisar','awaiting_payment'].includes(pbi5Status(order?.status))}
+function pbi5DeliveryWaiting(order){return ['waiting_manual_delivery','partial','pending','reserved','awaiting_delivery','delivery_pending'].includes(pbi5Status(order?.delivery_status))}
+function pbi5Delivered(order){const st=pbi5Status(order?.status),ds=pbi5Status(order?.delivery_status);return ['delivered','completed','complete','released','fulfilled','entregado','completado'].includes(st)||['delivered','completed','complete','released','fulfilled','entregado','completado'].includes(ds)}
+function pbi5Bucket(order){if(pbi5Cancelled(order))return 'cancelled';if(pbi5PaymentWaiting(order))return 'review';if(pbi5DeliveryWaiting(order))return 'delivery';if(pbi5Delivered(order))return 'delivered';return 'approved'}
+function pbi5Confirmed(order){const b=pbi5Bucket(order);return b==='approved'||b==='delivered'}
+function pbi5Orders(range,service,maps){return (state.orders||[]).filter(o=>pbi5InRange(o?.created_at,range)&&pbi5OrderMatchesService(o,service,maps))}
+function pbi5Deliveries(range,service,maps){
+  const seen=new Set();return (state.deliveries||[]).filter(d=>{const at=d?.delivered_at||d?.created_at||d?.updated_at,order=maps.orderById.get(String(d?.order_id||''))||{};if(!pbi5InRange(at,range)||!pbi5OrderMatchesService(order,service,maps))return false;const k=String(d?.order_id||d?.id||'');if(!k||seen.has(k))return false;seen.add(k);return true});
+}
+function pbi5CalendarDiff(reminder){
+  try{const n=Number(window.localCalendarDiffFromToday?.(reminder?.due_date));if(Number.isFinite(n))return n}catch(_){}
+  const d=pbi5Date(reminder?.due_date),t=pbi5Date(pbi5Today());return d&&t?Math.round((d-t)/86400000):null;
+}
+function pbi5Reminders(service,maps){
+  const closed=new Set(['cancelled','canceled','deleted','eliminado','archived','archivado','no_renovo']);const paid=new Set(['paid','pagado','renewed','renovado']);
+  const all=(state.reminders||[]).filter(r=>!closed.has(pbi5Status(r?.status))).filter(r=>!service||pbi5PlanProduct(r?.plan_id,maps)===String(service));
+  const pending=all.filter(r=>!paid.has(pbi5Status(r?.status)));
+  return {all,pending,overdue:pending.filter(r=>{const d=pbi5CalendarDiff(r);return d!==null&&d<0}),today:pending.filter(r=>pbi5CalendarDiff(r)===0),next7:pending.filter(r=>{const d=pbi5CalendarDiff(r);return d!==null&&d>0&&d<=7}),renew:all.filter(r=>paid.has(pbi5Status(r?.status)))};
+}
+function pbi5Inventory(service,maps){
+  const source=(state.summary||[]).length?(state.summary||[]).map(s=>{const p=maps.plans.get(String(s?.plan_id||''))||{},stock=Number(s?.available_stock),finite=Number.isFinite(stock)&&stock<999999,controlled=s?.stock_mode==='controlled'||p?.stock_mode==='controlled'||finite;return {planId:String(s?.plan_id||p?.id||''),productId:String(s?.product_id||p?.product_id||''),stock:finite?Math.max(0,stock):null,controlled}}):(state.plans||[]).map(p=>{let n=null;try{n=Number(typeof visibleStock==='function'?visibleStock(p):p?.available_stock)}catch(_){}const finite=Number.isFinite(n)&&n<999999;return {planId:String(p?.id||''),productId:String(p?.product_id||''),stock:finite?Math.max(0,n):null,controlled:p?.stock_mode==='controlled'||finite}});
+  const rows=source.filter(x=>x.controlled&&x.stock!==null&&(!service||x.productId===String(service)));
+  return {rows,stable:rows.filter(x=>x.stock>2),low:rows.filter(x=>x.stock>0&&x.stock<=2),out:rows.filter(x=>x.stock===0)};
+}
+function pbi5ServiceSales(orders,maps){
+  const out=new Map();orders.forEach(o=>{let items=maps.itemsByOrder.get(String(o?.id||''))||[];if(!items.length&&o?.product_id)items=[{plan_id:(state.plans||[]).find(p=>String(p?.product_id)===String(o.product_id))?.id,quantity:1}];items.forEach(i=>{const pid=pbi5PlanProduct(i?.plan_id,maps)||String(o?.product_id||'');if(!pid)return;const rec=out.get(pid)||{productId:pid,name:pbi5ProductName(pid,maps),count:0};rec.count+=Math.max(1,pbi5Num(i?.quantity||i?.qty||1));out.set(pid,rec)})});return [...out.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name)).slice(0,6);
+}
+function pbi5Risk(service,maps,rem,inventory){
+  const productIds=service?[String(service)]:[...new Set((state.products||[]).map(p=>String(p?.id||'')).filter(Boolean))];const allOrders=(state.orders||[]);const rank={critical:4,high:3,medium:2,low:1};
+  const rows=productIds.map(pid=>{const stock=inventory.rows.filter(x=>x.productId===pid),out=stock.filter(x=>x.stock===0),low=stock.filter(x=>x.stock>0&&x.stock<=2),over=rem.overdue.filter(r=>pbi5PlanProduct(r?.plan_id,maps)===pid),renew=rem.renew.filter(r=>pbi5PlanProduct(r?.plan_id,maps)===pid),delivery=allOrders.filter(o=>pbi5DeliveryWaiting(o)&&pbi5OrderMatchesService(o,pid,maps));const alerts=out.length+low.length+over.length+renew.length+delivery.length;if(!alerts)return null;const score=out.length*7+low.length*3+over.length*1.6+renew.length*1.1+delivery.length*1.5;let level='low';if(score>=11||(out.length&&(over.length+renew.length+delivery.length)>=3))level='critical';else if(score>=6||out.length)level='high';else if(score>=3)level='medium';const badges=[];if(out.length)badges.push(`${out.length} sin cupo`);else if(low.length)badges.push(`${low.length} cupos bajos`);if(over.length)badges.push(`${over.length} vencidos`);if(renew.length)badges.push(`${renew.length} renovar`);if(delivery.length)badges.push(`${delivery.length} entrega${delivery.length===1?'':'s'}`);return {productId:pid,name:pbi5ProductName(pid,maps),alerts,score,level,badges,planId:(out[0]||low[0])?.planId||over[0]?.plan_id||renew[0]?.plan_id||''}}).filter(Boolean);
+  return rows.sort((a,b)=>rank[b.level]-rank[a.level]||b.score-a.score||b.alerts-a.alerts||a.name.localeCompare(b.name)).slice(0,7);
+}
+function pbi5Trend(range,orders){const rows=[];for(let d=range.start,guard=0;d<=range.end&&guard<370;d=pbi5AddDays(d,1),guard++)rows.push({date:d,sales:0,orders:0});const byDate=new Map(rows.map(x=>[x.date,x]));orders.forEach(o=>{const r=byDate.get(pbi5ISO(o?.created_at));if(!r)return;r.orders++;if(pbi5Confirmed(o))r.sales+=pbi5Num(o?.total)});return rows}
+function pbi5Flow(range,service,maps){const rows=[];for(let d=range.start,guard=0;d<=range.end&&guard<370;d=pbi5AddDays(d,1),guard++)rows.push({date:d,orders:0,deliveries:0,renewals:0});const byDate=new Map(rows.map(x=>[x.date,x]));pbi5Orders(range,service,maps).forEach(o=>{const r=byDate.get(pbi5ISO(o?.created_at));if(r)r.orders++});pbi5Deliveries(range,service,maps).forEach(d=>{const r=byDate.get(pbi5ISO(d?.delivered_at||d?.created_at||d?.updated_at));if(r)r.deliveries++});(state.reminders||[]).filter(r=>!service||pbi5PlanProduct(r?.plan_id,maps)===String(service)).forEach(r=>{const at=r?.fecha_pago||r?.updated_at;const row=byDate.get(pbi5ISO(at));if(row&&['paid','pagado','renewed','renovado'].includes(pbi5Status(r?.status)))row.renewals++});return rows}
+function pbi5ShortDay(iso){const d=pbi5Date(iso);return d?d.toLocaleDateString('es-PE',{day:'numeric',month:'short'}).replace('.',''):iso}
+function pbi5LongDay(iso){const d=pbi5Date(iso);return d?d.toLocaleDateString('es-PE',{day:'numeric',month:'long',year:'numeric'}):iso}
+function pbi5Path(vals,W,H,L,T,B,max){const cw=W-L-12,ch=H-T-B,m=Math.max(1,max||1);return vals.map((v,i)=>{const x=L+(vals.length===1?cw/2:i/(vals.length-1)*cw),y=T+ch-(pbi5Num(v)/m)*ch;return `${i?'L':'M'}${x.toFixed(1)},${y.toFixed(1)}`}).join(' ')}
+function pbi5TrendSvg(points){const W=720,H=228,L=46,T=18,B=32,ch=H-T-B,cw=W-L-12,sales=points.map(x=>x.sales),orders=points.map(x=>x.orders),ms=Math.max(...sales,1),mo=Math.max(...orders,1),salesPath=pbi5Path(sales,W,H,L,T,B,ms),ordersPath=pbi5Path(orders,W,H,L,T,B,mo),area=`${salesPath} L${(L+cw).toFixed(1)},${T+ch} L${L},${T+ch} Z`,grid=[0,.25,.5,.75,1].map(p=>{const y=T+ch-ch*p;return `<line class="pbi5-grid-line" x1="${L}" y1="${y}" x2="${L+cw}" y2="${y}"/><text class="pbi5-grid-label" x="2" y="${y+3}">${esc(pbi5Money(ms*p).replace('S/ ',''))}</text>`}).join(''),every=Math.max(1,Math.ceil(points.length/6)),labels=points.map((d,i)=>i%every===0||i===points.length-1?`<text class="pbi5-axis-label" x="${(L+(points.length===1?cw:i/(points.length-1)*cw)).toFixed(1)}" y="${H-8}" text-anchor="middle">${esc(pbi5ShortDay(d.date))}</text>`:'').join(''),circle=(d,i,type)=>{const vals=type==='sales'?sales:orders,m=type==='sales'?ms:mo,x=L+(points.length===1?cw:i/(points.length-1)*cw),y=T+ch-vals[i]/m*ch;return `<circle class="pbi5-point-${type}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${type==='sales'?'3.1':'2.6'}"><title>${esc(pbi5LongDay(d.date))}\nVentas: ${esc(pbi5Money(d.sales))}\nPedidos: ${pbi5N(d.orders)}</title></circle>`};return `<svg class="pbi5-trend-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tendencia de ventas confirmadas y pedidos por día"><defs><linearGradient id="pbi5SalesGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#7357f4" stop-opacity=".32"/><stop offset="100%" stop-color="#7357f4" stop-opacity="0"/></linearGradient></defs>${grid}<path class="pbi5-area" d="${area}"/><path class="pbi5-line-sales" d="${salesPath}"/><path class="pbi5-line-orders" d="${ordersPath}"/>${points.map((d,i)=>circle(d,i,'sales')+circle(d,i,'orders')).join('')}${labels}</svg>`}
+function pbi5FlowSvg(points){const W=500,H=136,L=26,T=8,B=24,cw=W-L-8,ch=H-T-B,max=Math.max(1,...points.flatMap(x=>[x.orders,x.deliveries,x.renewals])),slot=cw/Math.max(points.length,1),bar=Math.max(2,Math.min(8,slot/5)),every=Math.max(1,Math.ceil(points.length/6)),grid=[0,.5,1].map(p=>{const y=T+ch-ch*p;return `<line class="pbi5-flow-grid" x1="${L}" y1="${y}" x2="${L+cw}" y2="${y}"/>`}).join(''),bars=points.map((d,i)=>{const base=L+i*slot+slot/2;const mk=(value,offset,color,label)=>{const h=value/max*ch,y=T+ch-h,x=base+offset-bar/2;return `<rect class="pbi5-flow-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bar.toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(2,bar/2)}" fill="${color}"><title>${esc(pbi5LongDay(d.date))}\n${label}: ${pbi5N(value)}</title></rect>`};const label=i%every===0||i===points.length-1?`<text class="pbi5-flow-label" x="${base.toFixed(1)}" y="${H-6}" text-anchor="middle">${esc(pbi5ShortDay(d.date))}</text>`:'';return mk(d.orders,-bar*1.25,'#287de8','Pedidos')+mk(d.deliveries,0,'#1e9d63','Entregas')+mk(d.renewals,bar*1.25,'#7357f4','Renovaciones')+label}).join('');return `<svg class="pbi5-flow-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Actividad operativa por día: pedidos, entregas y renovaciones">${grid}${bars}</svg>`}
+function pbi5Spark(values,tone){const arr=values.length?values:[0],max=Math.max(...arr,1),w=82,h=46,pts=arr.map((v,i)=>`${i/(Math.max(1,arr.length-1))*w},${h-(pbi5Num(v)/max)*(h-7)-3}`).join(' '),colors={blue:'#287de8',green:'#1e9d63',orange:'#f28022',purple:'#7357f4'};return `<svg class="pbi5-spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${colors[tone]||colors.purple}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><polyline points="${pts}" fill="none" stroke="${colors[tone]||colors.purple}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".08"/></svg>`}
+function pbi5Change(cur,prev){const c=pbi5Num(cur),p=pbi5Num(prev);if(!p)return c?'Nueva actividad en el período':'Sin actividad previa';const x=(c-p)/p*100;return `${x>=0?'↗':'↘'} ${Math.abs(x).toFixed(1)}% vs período anterior`}
+function pbi5Kpi(tone,icon,label,value,raw,sub,spark,fmt='number'){return `<article class="pbi5-card pbi5-kpi ${tone}"><div><div class="pbi5-kpi-top"><span class="pbi5-kpi-icon">${icon}</span><span>${esc(label)}</span></div><div class="pbi5-kpi-value" data-pbi5-number="${pbi5Num(raw)}" data-pbi5-format="${fmt}">${esc(value)}</div><div class="pbi5-kpi-sub ${sub.startsWith('↘')?'warn':'up'}">${esc(sub)}</div></div>${pbi5Spark(spark,tone)}</article>`}
+function pbi5Donut(status){const data=[{k:'review',l:'Por revisar',c:'#e7a424',n:status.review,route:'review'},{k:'approved',l:'Aprobados',c:'#287de8',n:status.approved},{k:'delivery',l:'Pendientes de entrega',c:'#7357f4',n:status.delivery,route:'manual'},{k:'delivered',l:'Entregados',c:'#1e9d63',n:status.delivered},{k:'cancelled',l:'Cancelados',c:'#df4d59',n:status.cancelled}],total=data.reduce((a,x)=>a+x.n,0),circ=263.894;let offset=0;const arcs=data.filter(x=>x.n).map(x=>{const len=total?x.n/total*circ:0,out=`<circle class="pbi5-donut-seg" data-pbi5-route="${x.route?'orders':''}" data-pbi5-filter="${x.route||''}" cx="63" cy="63" r="42" stroke="${x.c}" stroke-dasharray="${len} ${circ-len}" stroke-dashoffset="${-offset}"><title>${esc(x.l)}: ${pbi5N(x.n)}</title></circle>`;offset+=len;return out}).join(''),list=data.map(x=>`<button type="button" class="pbi5-status-item ${x.route?'is-link':''}" ${x.route?`data-pbi5-route="orders" data-pbi5-filter="${x.route}"`:''} aria-label="${esc(x.l)}: ${pbi5N(x.n)}"><span class="pbi5-status-bullet" style="background:${x.c}"></span><span class="pbi5-status-label">${esc(x.l)}</span><span class="pbi5-status-count">${pbi5N(x.n)}</span></button>`).join('');return `<div class="pbi5-status-body"><div class="pbi5-donut-box"><svg class="pbi5-donut" viewBox="0 0 126 126" role="img" aria-label="Estado de ${pbi5N(total)} pedidos"><circle class="pbi5-donut-ring" cx="63" cy="63" r="42"/>${arcs}</svg><div class="pbi5-donut-center"><strong>${pbi5N(total)}</strong><span>Total</span></div></div><div class="pbi5-status-list">${list}</div></div>`}
+function pbi5RiskHtml(rows){if(!rows.length)return '<div class="pbi5-empty"><strong>✅ Sin servicios en riesgo</strong>No se detectaron alertas operativas en los servicios controlados.</div>';const max=Math.max(...rows.map(r=>r.score),1);return rows.map(r=>`<button type="button" class="pbi5-risk-row ${r.level}" data-pbi5-plan="${esc(r.planId)}" aria-label="${esc(r.name)}, ${r.alerts} alertas, nivel ${r.level}"><span class="pbi5-risk-main"><span class="pbi5-risk-name">${esc(r.name)}</span><span class="pbi5-risk-level ${r.level}">${r.level==='critical'?'Crítico':r.level==='high'?'Alto':r.level==='medium'?'Medio':'Bajo'}</span><strong class="pbi5-risk-number">${pbi5N(r.alerts)}</strong></span><span class="pbi5-risk-caption">${pbi5N(r.alerts)} alerta${r.alerts===1?'':'s'}</span><span class="pbi5-risk-track"><span class="pbi5-risk-fill" style="width:${Math.max(14,Math.round(r.score/max*100))}%"></span></span><span class="pbi5-risk-badges">${r.badges.slice(0,4).map(b=>`<span class="pbi5-risk-badge">${esc(b)}</span>`).join('')}</span></button>`).join('')}
+function pbi5MiniTrend(color){const pts=[3,18,11,19,12,24,17,28,21,18,26,31].map((v,i)=>`${i*9},${30-v*.72}`).join(' ');return `<svg class="pbi5-mini-trend" viewBox="0 0 100 30" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+function pbi5Health(label,count,detail,cls,color){return `<button type="button" class="pbi5-health-item ${cls}" data-pbi5-route="inventory" aria-label="${esc(label)}: ${pbi5N(count)} servicios"><span class="pbi5-health-label">${esc(label)}</span><strong class="pbi5-health-count">${pbi5N(count)}</strong><span class="pbi5-health-small">${esc(detail)}</span>${pbi5MiniTrend(color)}</button>`}
+function pbi5Collections(groups){const rows=[{cls:'overdue',label:'Vencidos',n:groups.overdue.length,filter:'overdue'},{cls:'today',label:'Vencen hoy',n:groups.today.length,filter:'today'},{cls:'next',label:'Próximos 7 días',n:groups.next7.length,filter:'upcoming'},{cls:'renew',label:'Por renovar',n:groups.renew.length,filter:'renew'}],max=Math.max(1,...rows.map(x=>x.n));return rows.map(r=>`<button type="button" class="pbi5-collection-row ${r.cls}" data-pbi5-route="reminders" data-pbi5-filter="${r.filter}" aria-label="${esc(r.label)}: ${pbi5N(r.n)}"><span class="pbi5-collection-top"><span>${esc(r.label)}</span><span>${pbi5N(r.n)}</span></span><span class="pbi5-collection-track"><span class="pbi5-collection-fill" style="width:${r.n?Math.max(8,Math.round(r.n/max*100)):0}%"></span></span></button>`).join('')}
+function pbi5Alerts(groups,review,manual,health){const rows=[{tone:'danger',icon:'🚨',label:'Vencidos',n:groups.overdue.length,route:'reminders',filter:'overdue'},{tone:'warning',icon:'⏰',label:'Vencen hoy',n:groups.today.length,route:'reminders',filter:'today'},{tone:'purple',icon:'🧾',label:'Por renovar',n:groups.renew.length,route:'reminders',filter:'renew'},{tone:'warning',icon:'💳',label:'Pagos por validar',n:review.length,route:'orders',filter:'review'},{tone:'warning',icon:'📦',label:'Entregas pendientes',n:manual.length,route:'orders',filter:'manual'},{tone:'danger',icon:'⚠️',label:'Planes sin cupos',n:health.out.length,route:'inventory',filter:''}];return rows.map(r=>`<button type="button" class="pbi5-alert-row ${r.tone}" data-pbi5-route="${r.route}" data-pbi5-filter="${r.filter}" aria-label="${esc(r.label)}: ${pbi5N(r.n)}"><span class="pbi5-alert-icon">${r.icon}</span><span>${esc(r.label)}</span><span class="pbi5-alert-count">${pbi5N(r.n)}</span><span class="pbi5-alert-arrow">›</span></button>`).join('')}
+function pbi5EventTime(v){const d=new Date(v);return Number.isNaN(d.getTime())?0:d.getTime()}
+function pbi5Relative(v){const t=pbi5EventTime(v);if(!t)return 'Sin hora';const m=Math.max(0,Math.round((Date.now()-t)/60000));if(m<1)return 'Ahora';if(m<60)return `Hace ${m} min`;const h=Math.round(m/60);if(h<24)return `Hace ${h} h`;return `Hace ${Math.round(h/24)} d`}
+function pbi5Activity(maps){const events=[];(state.orders||[]).forEach(o=>{if(o?.created_at)events.push({at:o.created_at,type:'order',icon:'🛒',title:`Pedido ${o?.order_code||''}`.trim(),detail:o?.customer_name||'Nuevo pedido',route:'orders',filter:''})});(state.deliveries||[]).forEach(d=>{const at=d?.delivered_at||d?.created_at||d?.updated_at;if(!at)return;const o=maps.orderById.get(String(d?.order_id||''));events.push({at,type:'delivery',icon:'🚚',title:'Cuenta entregada',detail:o?.order_code||'Entrega registrada',route:'orders',filter:'manual'})});(state.reminders||[]).forEach(r=>{if(!r?.fecha_pago)return;const p=maps.plans.get(String(r?.plan_id||''));events.push({at:r.fecha_pago,type:'renew',icon:'🔔',title:'Servicio renovado',detail:r?.service_name||p?.name||'Servicio',route:'reminders',filter:'renew'})});(state.customers||[]).forEach(c=>{if(c?.created_at)events.push({at:c.created_at,type:'customer',icon:'👤',title:'Cliente agregado',detail:c?.name||'Nuevo cliente',route:'clients',filter:''})});return events.sort((a,b)=>pbi5EventTime(b.at)-pbi5EventTime(a.at)).slice(0,8)}
+function pbi5ActivityHtml(events){if(!events.length)return '<div class="pbi5-empty"><strong>Sin actividad reciente</strong>Los nuevos movimientos aparecerán aquí cuando existan datos.</div>';return `<div class="pbi5-activity-list">${events.slice(0,6).map(e=>`<button type="button" class="pbi5-activity-item ${e.type}" data-pbi5-route="${e.route}" data-pbi5-filter="${e.filter}" aria-label="${esc(e.title)}"><span class="pbi5-activity-icon">${e.icon}</span><span class="pbi5-activity-title">${esc(e.title)}</span><span class="pbi5-activity-detail">${esc(e.detail)}</span><span class="pbi5-activity-time">${esc(pbi5Relative(e.at))}</span></button>`).join('')}</div>`}
+function pbi5Monitor(total,inventory,groups,events){const now=new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}),lines=[{tone:'',n:'Datos del panel',d:`${pbi5N(total)} pedidos cargados`},{tone:'',n:'Inventario',d:`${pbi5N(inventory.rows.length)} planes controlados`},{tone:'',n:'Recordatorios',d:`${pbi5N(groups.overdue.length+groups.today.length)} cobros urgentes`},{tone:'warn',n:'Telegram',d:'Verificación automática pendiente'},{tone:'',n:'Panel',d:`Actualizado ${now}`}];return `<div class="pbi5-monitor-body"><div class="pbi5-monitor-lines">${lines.map(x=>`<div class="pbi5-monitor-line"><span class="pbi5-monitor-dot ${x.tone}"></span><span><b>${esc(x.n)}</b><span>${esc(x.d)}</span></span></div>`).join('')}</div><div><p class="pbi5-log-title">Actividad reciente</p><div class="pbi5-mini-log">${events.slice(0,5).map(e=>`<div class="pbi5-mini-log-row"><span class="pbi5-mini-log-time">${esc(new Date(e.at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}))}</span><span class="pbi5-mini-log-text">${esc(e.title)}${e.detail?' · '+esc(e.detail):''}</span></div>`).join('')||'<span class="pbi5-mini-log-text">Sin movimientos registrados</span>'}</div></div></div>`}
+function pbi5Route(target,filter=''){
+  if(target==='orders'){state.onlyReview=filter==='review';state.onlyManual=filter==='manual';state.onlySupport=false;if($('btnOnlyReview'))$('btnOnlyReview').setAttribute('aria-pressed',String(state.onlyReview));if($('btnOnlyManual'))$('btnOnlyManual').setAttribute('aria-pressed',String(state.onlyManual));if($('btnOnlySupport'))$('btnOnlySupport').setAttribute('aria-pressed','false');switchTab('orders');renderOrders();return}
+  if(target==='reminders'){state.v68Filter=['today','overdue','renew','upcoming','all'].includes(filter)?filter:'all';switchTab('reminders');setTimeout(()=>{const chip=document.querySelector(`#innovV68Bar [data-v68-filter="${state.v68Filter}"]`);if(chip)chip.click();else window.renderReminders?.()},0);return}
+  if(target==='inventory'){switchTab('inventory');setTimeout(()=>renderPlans?.(),0);return}
+  if(target==='clients'){switchTab('clients');return}
+}
+function pbi5Bind(host){host.onclick=e=>{const range=e.target.closest('[data-pbi5-range]');if(range){pbi5Ui().range=range.dataset.pbi5Range||'month';renderDashboard();return}const service=e.target.closest('[data-pbi5-service]');if(service){pbi5Ui().service=service.dataset.pbi5Service||'';renderDashboard();return}const route=e.target.closest('[data-pbi5-route]');if(route){pbi5Route(route.dataset.pbi5Route||'',route.dataset.pbi5Filter||'');return}const plan=e.target.closest('[data-pbi5-plan]');if(plan){const id=plan.dataset.pbi5Plan||'';if(id&&typeof window.openPlanStockView==='function')window.openPlanStockView(id);else pbi5Route('inventory');return}if(e.target.closest('#btnPbi5Refresh')){loadAll();return}};host.onchange=e=>{if(e.target.id==='pbi5Service'){pbi5Ui().service=e.target.value||'';renderDashboard()}if(e.target.id==='pbi5CustomStart'){pbi5Ui().customStart=e.target.value||'';renderDashboard()}if(e.target.id==='pbi5CustomEnd'){pbi5Ui().customEnd=e.target.value||'';renderDashboard()}}}
+function pbi5Animate(host){if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;host.querySelectorAll('[data-pbi5-number]').forEach(el=>{const target=pbi5Num(el.dataset.pbi5Number),format=el.dataset.pbi5Format||'number',start=performance.now(),duration=440;const draw=now=>{const q=Math.min(1,(now-start)/duration),val=target*(1-Math.pow(1-q,3));el.textContent=format==='money'?pbi5Money(val):pbi5N(val);if(q<1)requestAnimationFrame(draw)};requestAnimationFrame(draw)})}
+function renderDashboard(){
+  const host=$('pbi5Dashboard');if(!host)return;
+  try{
+    const ui=pbi5Ui(),maps=pbi5Maps(),range=pbi5Range(),previous=pbi5Previous(range),orders=pbi5Orders(range,ui.service,maps),previousOrders=pbi5Orders(previous,ui.service,maps),confirmed=orders.filter(pbi5Confirmed),previousConfirmed=previousOrders.filter(pbi5Confirmed),deliveries=pbi5Deliveries(range,ui.service,maps),previousDeliveries=pbi5Deliveries(previous,ui.service,maps),groups=pbi5Reminders(ui.service,maps),inventory=pbi5Inventory(ui.service,maps),top=pbi5ServiceSales(orders,maps),risk=pbi5Risk(ui.service,maps,groups,inventory),trend=pbi5Trend(range,orders),flow=pbi5Flow(range,ui.service,maps),events=pbi5Activity(maps),review=(state.orders||[]).filter(o=>pbi5PaymentWaiting(o)&&pbi5OrderMatchesService(o,ui.service,maps)),manual=(state.orders||[]).filter(o=>pbi5DeliveryWaiting(o)&&pbi5OrderMatchesService(o,ui.service,maps)),status={review:0,approved:0,delivery:0,delivered:0,cancelled:0};
+    orders.forEach(o=>status[pbi5Bucket(o)]++);
+    const clients=new Set(groups.all.map(r=>String(r?.customer_id||'')).filter(Boolean)),activeClients=clients.size||((state.customers||[]).length&&!(state.reminders||[]).length?(state.customers||[]).length:0),sales=confirmed.reduce((a,o)=>a+pbi5Num(o?.total),0),prevSales=previousConfirmed.reduce((a,o)=>a+pbi5Num(o?.total),0),topMax=Math.max(1,...top.map(x=>x.count)),colors=['#7357f4','#287de8','#1e9d63','#f28022','#0f9d9b','#d762b4'],serviceOptions=(state.products||[]).map(p=>`<option value="${esc(p.id)}" ${String(ui.service)===String(p.id)?'selected':''}>${esc(p.name)}</option>`).join(''),riskTotal=risk.reduce((a,r)=>a+r.alerts,0);
+    const deliveryTrend=trend.map(x=>flow.find(y=>y.date===x.date)?.deliveries||0);
+    host.innerHTML=`
+      <header class="pbi5-head"><div><span class="pbi5-eyebrow">⚡ Innov IA · Centro de control</span><h1 class="pbi5-title">Panel general</h1><p class="pbi5-copy">Ventas, pedidos, cobranzas, inventario y actividad del sistema. Todo es de lectura: los accesos solo te llevan al módulo correspondiente.</p></div><div class="pbi5-head-tools"><span class="pbi5-fresh">Actualizado ${esc(new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}))}</span><button class="btn btn-primary pbi5-refresh" id="btnPbi5Refresh" type="button">↻ Actualizar</button></div></header>
+      <section class="pbi5-filterbar" aria-label="Filtros del dashboard"><span class="pbi5-filter-label">Período</span><div class="pbi5-filter-group" role="group" aria-label="Periodo">${[['today','Hoy'],['week','7 días'],['month','Este mes'],['prevmonth','Mes anterior'],['custom','Personalizado']].map(x=>`<button class="pbi5-filter-chip" type="button" data-pbi5-range="${x[0]}" aria-pressed="${String(ui.range===x[0])}">${x[1]}</button>`).join('')}</div><span class="pbi5-filter-divider" aria-hidden="true"></span><select class="pbi5-select" id="pbi5Service" aria-label="Filtrar por servicio"><option value="">Todos los servicios</option>${serviceOptions}</select><div class="pbi5-custom-range ${ui.range==='custom'?'is-open':''}"><span>Desde</span><input class="pbi5-date" id="pbi5CustomStart" type="date" value="${esc(ui.customStart||'')}"><span>Hasta</span><input class="pbi5-date" id="pbi5CustomEnd" type="date" value="${esc(ui.customEnd||'')}"></div></section>
+      <section class="pbi5-kpis" aria-label="Indicadores principales">${pbi5Kpi('purple','💰','Ventas confirmadas',pbi5Money(sales),sales,pbi5Change(sales,prevSales),trend.map(x=>x.sales),'money')}${pbi5Kpi('blue','🧾','Pedidos recibidos',pbi5N(orders.length),orders.length,pbi5Change(orders.length,previousOrders.length),trend.map(x=>x.orders))}${pbi5Kpi('green','🚚','Entregas registradas',pbi5N(deliveries.length),deliveries.length,pbi5Change(deliveries.length,previousDeliveries.length),deliveryTrend)}${pbi5Kpi('orange','👥','Clientes con servicio',pbi5N(activeClients),activeClients,activeClients?`${pbi5N(groups.all.length)} servicios en seguimiento`:'Sin servicios activos detectados',trend.map(x=>x.orders))}</section>
+      <section class="pbi5-layout">
+        <article class="pbi5-card pbi5-trend"><div class="pbi5-card-head"><div><div class="pbi5-card-title">Tendencia de ventas y pedidos <span class="pbi5-info" title="Ventas confirmadas y pedidos creados por día.">i</span></div><p class="pbi5-card-sub">${esc(range.label)} · selecciona un período para actualizar la tendencia.</p></div><button class="pbi5-mini-btn" type="button" data-pbi5-route="orders">Ver pedidos ›</button></div><div class="pbi5-trend-legend"><span><i class="pbi5-dot sales"></i>Ventas confirmadas (S/)</span><span><i class="pbi5-dot orders"></i>Pedidos creados</span></div><div class="pbi5-chart-wrap">${pbi5TrendSvg(trend)}</div></article>
+        <aside class="pbi5-card pbi5-risk"><div class="pbi5-card-head pbi5-risk-head"><div><div class="pbi5-card-title">Servicios en riesgo <span class="pbi5-info" title="Cruza cupos, vencidos, renovaciones y entregas pendientes.">i</span></div><p class="pbi5-card-sub">Nivel y cantidad real de alertas por servicio.</p></div><span class="pbi5-risk-total">${pbi5N(riskTotal)} alertas</span></div><div class="pbi5-risk-list">${pbi5RiskHtml(risk)}</div><div class="pbi5-risk-foot"><button class="pbi5-text-link" type="button" data-pbi5-route="inventory">Ver inventario y cuentas ›</button></div></aside>
+        <article class="pbi5-card pbi5-status"><div class="pbi5-card-head"><div><div class="pbi5-card-title">Estado de pedidos <span class="pbi5-info" title="Distribución de pedidos dentro del período seleccionado.">i</span></div><p class="pbi5-card-sub">Por revisar y entrega pendiente son accesos directos.</p></div></div>${pbi5Donut(status)}</article>
+        <article class="pbi5-card pbi5-top"><div class="pbi5-card-head"><div><div class="pbi5-card-title">Servicios más vendidos <span class="pbi5-info" title="Ranking por unidades solicitadas en el período.">i</span></div><p class="pbi5-card-sub">Toca un servicio para enfocarlo en el dashboard.</p></div></div><div class="pbi5-top-list">${top.length?top.map((r,i)=>`<button class="pbi5-top-row" type="button" data-pbi5-service="${esc(r.productId)}" aria-label="Filtrar por ${esc(r.name)}"><span class="pbi5-top-rank">${i+1}</span><span class="pbi5-top-name">${esc(r.name)}</span><span class="pbi5-top-track"><span class="pbi5-top-fill" style="width:${Math.max(8,Math.round(r.count/topMax*100))}%;background:${colors[i%colors.length]}"></span></span><strong class="pbi5-top-count">${pbi5N(r.count)}</strong></button>`).join(''):'<div class="pbi5-empty"><strong>Sin ventas en este período</strong>Cuando existan pedidos, aquí aparecerá el ranking.</div>'}</div></article>
+        <article class="pbi5-card pbi5-flow"><div class="pbi5-card-head"><div><div class="pbi5-card-title">Flujo operativo diario <span class="pbi5-info" title="Pedidos creados, entregas registradas y renovaciones por día.">i</span></div><p class="pbi5-card-sub">Movimiento real del sistema durante ${esc(range.label.toLowerCase())}.</p></div></div><div class="pbi5-flow-body"><div class="pbi5-flow-legend"><span class="pbi5-flow-key"><i style="background:#287de8"></i>Pedidos</span><span class="pbi5-flow-key"><i style="background:#1e9d63"></i>Entregas</span><span class="pbi5-flow-key"><i style="background:#7357f4"></i>Renovaciones</span></div>${pbi5FlowSvg(flow)}</div></article>
+        <article class="pbi5-card pbi5-collection"><div class="pbi5-card-head"><div><div class="pbi5-card-title">Estado de cobranzas <span class="pbi5-info" title="Distribución actual de los recordatorios de pago.">i</span></div><p class="pbi5-card-sub">Toca una barra para abrir la vista correspondiente.</p></div></div><div class="pbi5-collection-list">${pbi5Collections(groups)}</div></article>
+        <article class="pbi5-card pbi5-health"><div class="pbi5-card-head"><div><div class="pbi5-card-title">Salud del inventario <span class="pbi5-info" title="Solo considera planes con cupos controlados.">i</span></div><p class="pbi5-card-sub">Estado general de cupos disponibles.</p></div></div><div class="pbi5-health-grid">${pbi5Health('Estables',inventory.stable.length,'Más de 2 cupos','stable','#1e9d63')}${pbi5Health('Cupos bajos',inventory.low.length,'Entre 1 y 2 cupos','low','#e7a424')}${pbi5Health('Agotados',inventory.out.length,'0 cupos disponibles','out','#df4d59')}</div></article>
+        <article class="pbi5-card pbi5-alerts"><div class="pbi5-card-head"><div><div class="pbi5-card-title">Alertas operativas <span class="pbi5-info" title="Accesos rápidos para tareas que requieren atención.">i</span></div><p class="pbi5-card-sub">Prioriza pagos, entregas y reposición.</p></div></div><div class="pbi5-alert-list">${pbi5Alerts(groups,review,manual,inventory)}</div></article>
+        <article class="pbi5-card pbi5-monitor"><div class="pbi5-card-head"><div><div class="pbi5-card-title">Monitor del sistema <span class="pbi5-info" title="Estado visible de los datos cargados. Telegram no se marca como correcto sin una confirmación real.">i</span></div><p class="pbi5-card-sub">Salud visible y registro corto de actividad.</p></div><span class="badge b-ok">● Datos cargados</span></div>${pbi5Monitor((state.orders||[]).length,inventory,groups,events)}</article>
+        <article class="pbi5-card pbi5-activity"><div class="pbi5-card-head"><div><div class="pbi5-card-title">Actividad reciente <span class="pbi5-info" title="Últimos pedidos, entregas, renovaciones y clientes detectados.">i</span></div><p class="pbi5-card-sub">Eventos disponibles en el sistema.</p></div><button class="pbi5-mini-btn" type="button" data-pbi5-route="orders">Ver pedidos ›</button></div>${pbi5ActivityHtml(events)}</article>
+      </section>`;
+    pbi5Bind(host);pbi5Animate(host);
+    const pending=review.length;['tbOrders','mbOrders'].forEach(id=>{const el=$(id);if(el){el.textContent=pbi5N(pending);el.style.display=pending?'':'none'}});
+    const urgent=groups.overdue.length+groups.today.length+groups.renew.length;['tbReminders','mbReminders'].forEach(id=>{const el=$(id);if(el){el.textContent=pbi5N(urgent);el.style.display=urgent?'':'none'}});
+  }catch(error){console.warn('Dashboard V5',error);host.innerHTML='<div class="pbi5-card pbi5-empty"><strong>No se pudo dibujar el dashboard.</strong>Los demás módulos siguen disponibles. Usa Actualizar para volver a cargar los datos.</div>'}
 }
 
-function renderSummary(){
-  $('summaryRows').innerHTML=state.summary.map(s=>`<tr>
-    <td data-label="Producto"><b>${esc(s.product_name)}</b></td>
-    <td data-label="Plan">${esc(s.plan_name)}</td>
-    <td data-label="Tipo"><span class="badge ${s.stock_mode==='controlled'?'b-ok':'b-warn'}">${s.stock_mode==='controlled'?'Auto':'Manual'}</span></td>
-    <td data-label="Cupos"><span class="badge ${Number(s.available_stock)>0?'b-ok':'b-bad'}">${Number(s.available_stock)>=999999?'∞':s.available_stock+' cupos'}</span></td>
-    <td data-label="Estado">${esc(s.availability_status)}</td>
-    <td data-label="Acción"><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editPlan('${s.plan_id}')">Editar</button><button class="btn btn-sm btn-primary" onclick="openPlanStockView('${s.plan_id}')">Ver cuentas</button></div></td>
-  </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin datos</td></tr>';
-}
 
 function renderProducts(){
   const q=($('productSearch')?.value||'').toLowerCase();
@@ -3708,7 +3804,7 @@ function orderSectionTitle(key,count){
 function renderOrders(){
   const q=($('orderSearch')?.value||'').toLowerCase();
   let arr=state.orders.filter(o=>(`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''}`).toLowerCase().includes(q));
-  if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(orderStatusValue(o))||orderGroupKey(o)==='pending');
+  if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(orderStatusValue(o)));
   if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(orderDeliveryValue(o)));
   if(state.onlySupport)arr=arr.filter(o=>state.orderChats.some(m=>m.order_id===o.id));
   arr=arr.sort((a,b)=>{
@@ -4910,11 +5006,11 @@ async function markReminderPaid(id){
     if(r.error)return toast('No se pudo renovar: '+r.error.message,'bad');
   }
   state.reminders=state.reminders.map(x=>x.id===id?{...x,...(r.data||payload),due_date:nextDue,status:'pending',last_sent_at:null}:x);
-  renderKPIs();renderClients();renderReminders();
+  renderDashboard();renderClients();renderReminders();
   toast('Pago registrado. Servicio renovado desde hoy.','ok');
   publishAdminChange('payment_reminders','PATCH',{action:'renew_reminder'});
   await loadReminders().catch(()=>{});
-  renderKPIs();renderClients();renderReminders();
+  renderDashboard();renderClients();renderReminders();
 }
 async function renewReminder(id){return markReminderPaid(id)}
 async function openReminderWhatsApp(id){
@@ -6340,7 +6436,7 @@ async function adminAutoRefresh(){
     if(!jobs.length)jobs.push(loadOrders(),loadReminders(),loadStock(),loadSummary().catch(()=>{}));
     await Promise.allSettled(jobs);
 
-    renderKPIs();
+    renderDashboard();
     detectNewActivity(prevOrders,prevChats);
     if(state.tab==='products')renderProducts();
     if(state.tab==='orders')renderOrders();
@@ -6370,7 +6466,7 @@ $('btnTheme').onclick=()=>{
 $('btnLoginHelp').onclick=()=>toast('Primero crea usuario en Supabase Authentication y agrégalo a admin_users.','info');
 
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
-['btnReload1','btnReload2','btnReload3','btnReload4','btnReloadClients','btnSyncAll'].forEach(id=>{const el=$(id);if(el)el.onclick=loadAll});
+['btnOpsDashboardRefresh','btnReload2','btnReload3','btnReload4','btnReloadClients','btnSyncAll'].forEach(id=>{const el=$(id);if(el)el.onclick=loadAll});
 
 $('btnNewProduct').onclick=blankProduct;
 $('btnNewPlan').onclick=()=>blankPlan();
@@ -10004,11 +10100,6 @@ setTimeout(enhanceCuposEntregaUi,0);
   }
   window.innovV50UpdateBell=updateBell;
 
-  const oldRenderKPIs=window.renderKPIs;
-  if(typeof oldRenderKPIs==='function'){
-    window.renderKPIs=function(){oldRenderKPIs.apply(this,arguments);updateBell()};
-    try{renderKPIs=window.renderKPIs}catch(_){ }
-  }
   const oldRenderAll=window.renderAll;
   if(typeof oldRenderAll==='function'){
     window.renderAll=function(){oldRenderAll.apply(this,arguments);setTimeout(updateBell,80)};
@@ -13381,10 +13472,1195 @@ INNOV IA V62 - TOTP original + selección real
 })();
 </script>
 
+
+<style id="innov-v66-reminder-renewal-css">
+/* ================================================================
+   V66 — Renovación confirmada + centro de cobros ordenado
+   Regla visual: HOY primero, VENCIDOS en su propia vista.
+   ================================================================ */
+.v66-reminder-note{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  border-left:4px solid var(--primary);
+  background:var(--primary-alpha2);
+  color:var(--muted);border-radius:14px;padding:11px 12px;margin:0 0 10px;
+  font-size:.84rem;
+}
+.v66-reminder-note b{color:var(--card-ink)}
+.v66-reminder-note .btn{flex:0 0 auto}
+.v66-reminder-section{
+  display:flex;align-items:center;justify-content:space-between;gap:9px;
+  margin:14px 2px 8px;padding-top:2px;color:var(--card-ink);font-weight:900;
+}
+.v66-reminder-section .v66-title{display:flex;align-items:center;gap:7px;min-width:0}
+.v66-reminder-section .v66-sub{font-size:.75rem;color:var(--muted);font-weight:600}
+.v66-repair-card{
+  border:1px solid rgba(180,83,9,.32);background:var(--warning-alpha);
+  border-radius:14px;padding:10px 12px;margin:0 0 10px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.v66-repair-card b{color:var(--card-ink)}
+.v66-reminder-row{
+  position:relative;
+}
+.v66-reminder-row .rem-actions .btn-renew{
+  background:var(--success);color:#fff;border-color:transparent;
+}
+.v66-reminder-row .rem-actions .btn-renew:hover{filter:brightness(1.06)}
+.v66-reminder-row.v66-stale-paid{border-color:rgba(180,83,9,.38);background:var(--warning-alpha)}
+.v66-reminder-row.v66-today{border-color:rgba(30,64,175,.30)}
+.v66-reminder-row.v66-overdue{border-color:rgba(185,28,28,.38);background:var(--danger-alpha)}
+.v66-reminder-row .v66-aux{font-size:.74rem;color:var(--muted);margin-top:2px}
+#innovV66ReminderCenter{width:min(860px,96vw)}
+#innovV66ReminderCenter .v66-center-top{
+  display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;
+  padding:10px 18px;border-bottom:1px solid var(--border);background:var(--card2);
+}
+#innovV66ReminderCenter .v66-center-tabs{display:flex;gap:6px;flex-wrap:wrap}
+#innovV66ReminderCenter .v66-center-tabs .chip{border-radius:10px;padding:7px 11px}
+#innovV66ReminderCenter .v66-center-count{
+  border:1px solid var(--border);background:var(--card);border-radius:999px;
+  padding:4px 9px;font-size:.76rem;font-weight:800;color:var(--muted)
+}
+#innovV66ReminderCenter .v66-center-body{padding:13px 18px 18px;overflow:auto;max-height:66vh}
+#innovV66ReminderCenter .v66-center-summary{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px;
+}
+#innovV66ReminderCenter .v66-center-kpi{
+  border:1px solid var(--border);background:var(--card2);border-radius:12px;padding:9px;
+}
+#innovV66ReminderCenter .v66-center-kpi b{display:block;color:var(--card-ink);font-size:1.1rem;line-height:1.1}
+#innovV66ReminderCenter .v66-center-kpi span{font-size:.7rem;color:var(--muted);font-weight:700}
+#innovV66ReminderCenter .v66-center-empty{
+  border:1px dashed var(--border);border-radius:14px;padding:28px 14px;text-align:center;color:var(--muted)
+}
+@media(max-width:700px){
+  #innovV66ReminderCenter{width:100vw!important}
+  #innovV66ReminderCenter .v66-center-top{padding:9px 12px}
+  #innovV66ReminderCenter .v66-center-body{padding:10px 12px 14px;max-height:66vh}
+  #innovV66ReminderCenter .v66-center-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  #innovV66ReminderCenter .v66-center-kpi{padding:8px}
+  #innovV66ReminderCenter .v66-center-kpi b{font-size:1rem}
+  .v66-reminder-note{font-size:.76rem;line-height:1.3}
+  .v66-reminder-section{margin:10px 1px 6px;font-size:.86rem}
+}
+</style>
+
+
+<script id="innov-v66-reminder-renewal-patch">
+/* =====================================================================
+   V66 — RENOVACIÓN REAL Y CENTRO DE COBROS
+   Corrige el conflicto final entre el Core y los recordatorios:
+   1) "Pagado" siempre renueva la fecha y vuelve a estado pendiente.
+   2) Si existe una asignación, primero renueva por RPC oficial.
+   3) Luego confirma y normaliza el recordatorio para que no siga vencido.
+   4) La vista prioriza VENCEN HOY; los VENCIDOS van después y también
+      tienen su propia pestaña en la campana.
+   ===================================================================== */
+(function(){
+  'use strict';
+  if(window.__innovV66ReminderRenewalPatch)return;
+  window.__innovV66ReminderRenewalPatch=true;
+
+  const byId=id=>document.getElementById(id);
+  const str=v=>String(v==null?'':v).trim();
+  const escHtml=v=>str(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  const safeId=v=>escHtml(v);
+  const idsEqual=(a,b)=>str(a)===str(b);
+  const closedStatuses=new Set(['paid','pagado','renewed','renovado','cancelled','canceled','deleted','eliminado','no_renovo','no-renovo','no renovó','no_renovó','no renovado','archived','archivado','completed','expired']);
+  const paidStatuses=new Set(['paid','pagado','renewed','renovado']);
+  const renewing=new Set();
+
+  function toastV66(message,type='ok'){
+    try{window.toast(message,type)}catch(_){console[type==='bad'?'error':'log'](message)}
+  }
+  function todayV66(){
+    try{return typeof window.todayISO==='function'?window.todayISO():new Date().toISOString().slice(0,10)}
+    catch(_){return new Date().toISOString().slice(0,10)}
+  }
+  function dateDiffV66(reminder){
+    try{
+      if(typeof window.reminderEffectiveDaysLeft==='function'){
+        const n=Number(window.reminderEffectiveDaysLeft(reminder?.due_date));
+        if(Number.isFinite(n))return n;
+      }
+      if(typeof window.localCalendarDiffFromToday==='function'){
+        const n=Number(window.localCalendarDiffFromToday(reminder?.due_date));
+        if(Number.isFinite(n))return n;
+      }
+    }catch(_){}
+    const due=str(reminder?.due_date).slice(0,10);
+    if(!due)return 99999;
+    const a=new Date(due+'T00:00:00'), b=new Date(todayV66()+'T00:00:00');
+    return Math.round((a-b)/86400000);
+  }
+  function calendarDiffV66(reminder){
+    try{
+      if(typeof window.localCalendarDiffFromToday==='function'){
+        const n=Number(window.localCalendarDiffFromToday(reminder?.due_date));
+        if(Number.isFinite(n))return n;
+      }
+    }catch(_){}
+    return dateDiffV66(reminder);
+  }
+  function statusV66(reminder){return str(reminder?.status||'pending').toLowerCase()}
+  function isStalePaidV66(reminder){
+    return paidStatuses.has(statusV66(reminder)) && calendarDiffV66(reminder)<=0;
+  }
+  function isOpenV66(reminder){
+    return !closedStatuses.has(statusV66(reminder));
+  }
+  function isTodayV66(reminder){
+    return isOpenV66(reminder) && calendarDiffV66(reminder)===0 && dateDiffV66(reminder)>=0;
+  }
+  function isOverdueV66(reminder){
+    return isOpenV66(reminder) && dateDiffV66(reminder)<0;
+  }
+  function isFutureV66(reminder){
+    return isOpenV66(reminder) && dateDiffV66(reminder)>0;
+  }
+  function customerV66(reminder){
+    return (window.state?.customers||[]).find(c=>idsEqual(c.id,reminder?.customer_id))||{};
+  }
+  function planV66(planId){
+    try{return typeof window.plan==='function'?window.plan(planId):((window.state?.plans||[]).find(p=>idsEqual(p.id,planId))||null)}
+    catch(_){return null}
+  }
+  function nextDueV66(reminder){
+    const base=todayV66();
+    try{
+      if(reminder?.plan_id && typeof window.planRenewalDue==='function'){
+        const due=window.planRenewalDue(reminder.plan_id,base);
+        if(due)return due;
+      }
+    }catch(_){}
+    try{
+      if(typeof window.daysFromNow==='function')return window.daysFromNow(30);
+    }catch(_){}
+    const d=new Date(base+'T00:00:00');d.setDate(d.getDate()+30);return d.toISOString().slice(0,10);
+  }
+  function dueTextV66(reminder){
+    const n=dateDiffV66(reminder), cal=calendarDiffV66(reminder);
+    if(n<0){
+      if(cal===0)return 'venció hoy';
+      const abs=Math.abs(cal);
+      return `hace ${abs} día${abs===1?'':'s'}`;
+    }
+    if(cal===0)return 'vence hoy';
+    return `en ${cal} día${cal===1?'':'s'}`;
+  }
+  function recordGroupV66(){
+    const all=(window.state?.reminders||[]);
+    const regular=all.filter(isOpenV66);
+    const match=q=>{
+      q=str(q).toLowerCase();
+      if(!q)return true;
+      return regular.filter(r=>{
+        const c=customerV66(r), p=planV66(r.plan_id)||{};
+        const content=[r.service_name,r.status,r.due_date,r.amount,r.order_id,c.name,c.email,c.phone_e164,c.phone_raw,p.name].map(str).join(' ').toLowerCase();
+        return content.includes(q);
+      });
+    };
+    return {all,regular,match};
+  }
+  function sectionsV66(query=''){
+    const all=(window.state?.reminders||[]);
+    const q=str(query).toLowerCase();
+    const matches=r=>{
+      if(!q)return true;
+      const c=customerV66(r), p=planV66(r.plan_id)||{};
+      const content=[r.service_name,r.status,r.due_date,r.amount,r.order_id,c.name,c.email,c.phone_e164,c.phone_raw,p.name].map(str).join(' ').toLowerCase();
+      return content.includes(q);
+    };
+    const current=all.filter(r=>isOpenV66(r)&&matches(r));
+    const sortSoon=(a,b)=>dateDiffV66(a)-dateDiffV66(b)||str(a.due_date).localeCompare(str(b.due_date));
+    const sortOver=(a,b)=>dateDiffV66(b)-dateDiffV66(a)||str(b.due_date).localeCompare(str(a.due_date));
+    return {
+      today:current.filter(isTodayV66).sort(sortSoon),
+      overdue:current.filter(isOverdueV66).sort(sortOver),
+      next7:current.filter(r=>isFutureV66(r)&&dateDiffV66(r)<=7).sort(sortSoon),
+      later:current.filter(r=>isFutureV66(r)&&dateDiffV66(r)>7).sort(sortSoon),
+      stale:all.filter(r=>isStalePaidV66(r)&&matches(r)).sort(sortOver)
+    };
+  }
+
+  async function findAssignmentV66(reminder){
+    let assignment=(window.state?.assignments||[]).find(a=>idsEqual(a.id,reminder?.assignment_id)||idsEqual(a.reminder_id,reminder?.id))||null;
+    if(assignment)return assignment;
+    try{
+      if(reminder?.assignment_id){
+        const q=await window.db.from('service_assignments').select('*').eq('id',reminder.assignment_id).maybeSingle();
+        if(!q.error&&q.data)assignment=q.data;
+      }
+      if(!assignment&&reminder?.id){
+        const q=await window.db.from('service_assignments').select('*').eq('reminder_id',reminder.id).limit(1);
+        if(!q.error&&q.data?.[0])assignment=q.data[0];
+      }
+      if(assignment){
+        window.state.assignments=Array.isArray(window.state.assignments)?window.state.assignments:[];
+        const idx=window.state.assignments.findIndex(a=>idsEqual(a.id,assignment.id));
+        if(idx>=0)window.state.assignments[idx]=assignment;else window.state.assignments.unshift(assignment);
+      }
+    }catch(_){}
+    return assignment;
+  }
+
+  async function writeRenewedReminderV66(reminder,nextDue){
+    const enhanced={
+      status:'pending',
+      due_date:nextDue,
+      last_sent_at:null,
+      fecha_inicio:todayV66(),
+      fecha_pago:todayV66()
+    };
+    let res=await window.db.from('payment_reminders').update(enhanced).eq('id',reminder.id).select().maybeSingle();
+    if(res.error){
+      const minimal={status:'pending',due_date:nextDue,last_sent_at:null};
+      res=await window.db.from('payment_reminders').update(minimal).eq('id',reminder.id).select().maybeSingle();
+      if(res.error)throw res.error;
+    }
+    return res.data||{...reminder,...enhanced,due_date:nextDue,status:'pending',last_sent_at:null};
+  }
+
+  async function renewReminderV66(reminderId){
+    const reminder=(window.state?.reminders||[]).find(r=>idsEqual(r.id,reminderId));
+    if(!reminder)return toastV66('No se encontró el recordatorio','bad');
+    if(renewing.has(String(reminderId)))return;
+    renewing.add(String(reminderId));
+    const nextDue=nextDueV66(reminder);
+    try{
+      const assignment=await findAssignmentV66(reminder);
+      if(assignment?.id){
+        const rpcName=window.INNOV_ADMIN_CORE?.rpc?.renew || 'admin_v73_renew_assignment';
+        const response=await window.db.rpc(rpcName,{
+          p_assignment_id:assignment.id,
+          p_next_due_date:nextDue,
+          p_amount:null
+        });
+        if(response.error)throw response.error;
+      }
+      const updated=await writeRenewedReminderV66(reminder,nextDue);
+
+      window.state.reminders=(window.state.reminders||[]).map(r=>idsEqual(r.id,reminderId)?{
+        ...r,...updated,status:'pending',due_date:nextDue,last_sent_at:null,fecha_inicio:todayV66(),fecha_pago:todayV66()
+      }:r);
+
+      try{window.publishAdminChange?.('payment_reminders','PATCH',{action:'renew_payment_confirmed',reminder_id:reminderId,due_date:nextDue});}catch(_){}
+      renderAllV66();
+      toastV66(`Pago registrado y renovación confirmada hasta ${formatDateV66(nextDue)}.`,'ok');
+
+      // Recarga final: la UI solo conserva el cambio si la base lo confirma.
+      try{await window.loadAll?.();}catch(_){}
+      const verify=(window.state?.reminders||[]).find(r=>idsEqual(r.id,reminderId));
+      if(!verify || str(verify.due_date).slice(0,10)!==str(nextDue).slice(0,10) || paidStatuses.has(statusV66(verify))){
+        toastV66('La renovación fue enviada, pero no pudo verificarse al recargar. Revisa conexión y vuelve a intentar.','bad');
+        return;
+      }
+      renderAllV66();
+    }catch(error){
+      toastV66('No se renovó: '+str(error?.message||error),'bad');
+    }finally{
+      renewing.delete(String(reminderId));
+    }
+  }
+
+  async function repairStalePaidV66(){
+    const stale=sectionsV66('').stale;
+    if(!stale.length)return toastV66('No hay pagos antiguos por corregir','ok');
+    if(!confirm(`Se corregirán ${stale.length} pago(s) que quedaron como “pagado” pero conservan una fecha vencida. Cada uno se renovará desde hoy según su plan. ¿Continuar?`))return;
+    let ok=0,fail=0;
+    for(const r of stale){
+      const before=(window.state?.reminders||[]).find(x=>idsEqual(x.id,r.id));
+      await renewReminderV66(r.id);
+      const after=(window.state?.reminders||[]).find(x=>idsEqual(x.id,r.id));
+      if(after && !paidStatuses.has(statusV66(after)) && calendarDiffV66(after)>0)ok++;else if(before)fail++;
+    }
+    toastV66(`Corrección finalizada: ${ok} renovado(s)${fail?`, ${fail} por revisar`:''}.`,fail?'bad':'ok');
+    renderAllV66();
+  }
+
+  function formatDateV66(value){
+    const m=str(value).slice(0,10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m?`${m[3]}/${m[2]}/${m[1]}`:str(value)||'—';
+  }
+  function statusLabelV66(reminder){
+    if(isStalePaidV66(reminder))return 'Pago sin renovar';
+    if(isOverdueV66(reminder))return calendarDiffV66(reminder)===0?'Vencido hoy':'Vencido';
+    if(isTodayV66(reminder))return 'Vence hoy';
+    const d=dateDiffV66(reminder);
+    if(d<=2)return 'Por vencer';
+    return 'En uso';
+  }
+  function statusClassV66(reminder){
+    if(isStalePaidV66(reminder))return 'b-warn';
+    if(isOverdueV66(reminder))return 'b-bad';
+    if(isTodayV66(reminder)||dateDiffV66(reminder)<=2)return 'b-warn';
+    return 'b-ok';
+  }
+  function rowV66(reminder,{stale=false}={}){
+    const c=customerV66(reminder);
+    const rId=safeId(reminder.id);
+    const hasCustomer=!!c.id;
+    const title=escHtml(reminder.service_name||'Servicio');
+    const client=escHtml(c.name||'Sin cliente');
+    const phone=escHtml(c.phone_e164||c.phone_raw||'Sin WhatsApp');
+    const due=formatDateV66(reminder.due_date);
+    const icon=stale?'⚠️':isOverdueV66(reminder)?'🚨':isTodayV66(reminder)?'⏰':'📌';
+    const cls=`reminder-row v66-reminder-row ${stale?'v66-stale-paid':isOverdueV66(reminder)?'v66-overdue':isTodayV66(reminder)?'v66-today':''}`;
+    const waTxt=reminder.last_sent_at?'Reenviar WhatsApp':'WhatsApp';
+    const history=hasCustomer?`<button class="btn" type="button" onclick="event.stopPropagation();showClientHistory('${safeId(c.id)}')">Hist.</button>`:'';
+    const payAction=stale
+      ? `<button class="btn btn-renew" type="button" onclick="event.stopPropagation();markReminderPaid('${rId}')">Reparar</button>`
+      : `<button class="btn btn-renew" type="button" onclick="event.stopPropagation();markReminderPaid('${rId}')">Renovar</button>`;
+    return `<div class="${cls}" data-reminder-id="${rId}">
+      <div class="rem-main">
+        <div class="rem-title">${icon} ${title}</div>
+        <div class="rem-sub">${client} · ${phone}</div>
+        <div class="v66-aux">${stale?'Este pago fue marcado, pero quedó con fecha vencida.':'Renovación: '+(planV66(reminder.plan_id)?.period||'Mensual')}</div>
+      </div>
+      <div class="rem-meta-line">
+        <span class="badge ${statusClassV66(reminder)}">${escHtml(statusLabelV66(reminder))}</span>
+        <span class="badge">${typeof window.money==='function'?window.money(reminder.amount):'S/ '+Number(reminder.amount||0).toFixed(2)}</span>
+      </div>
+      <div class="rem-meta-line">
+        <span class="pill ${isOverdueV66(reminder)?'dueneg':isTodayV66(reminder)?'due0':'duepos'}">📅 ${due} · ${escHtml(dueTextV66(reminder))}</span>
+      </div>
+      <div class="rem-actions">
+        <button class="btn btn-success" type="button" onclick="event.stopPropagation();openReminderWhatsApp('${rId}')">${waTxt}</button>
+        ${payAction}
+        <button class="btn btn-primary" type="button" onclick="event.stopPropagation();editReminder('${rId}')">Editar</button>
+        ${history}
+        <button class="btn btn-danger" type="button" onclick="event.stopPropagation();quickDeleteReminder('${rId}')">Borrar</button>
+      </div>
+    </div>`;
+  }
+  function sectionV66(icon,title,subtitle,rows,cls,opts={}){
+    if(!rows?.length)return '';
+    return `<div class="v66-reminder-section"><div class="v66-title"><span>${icon}</span><span>${title}</span><span class="v66-sub">${subtitle||''}</span></div><span class="badge ${cls||''}">${rows.length}</span></div>${rows.map(r=>rowV66(r,opts)).join('')}`;
+  }
+  function repairNoticeV66(stale){
+    if(!stale?.length)return '';
+    return `<div class="v66-repair-card"><div><b>⚠️ ${stale.length} pago(s) marcado(s) como pagado no se renovaron.</b><div class="help">No se mezclan con los vencidos. Puedes corregirlos desde hoy, respetando el periodo del plan.</div></div><button class="btn btn-warning" type="button" onclick="window.innovV66RepairStalePayments()">🔧 Corregir pagos</button></div>`;
+  }
+
+  function renderRemindersV66(){
+    const search=str(byId('reminderSearch')?.value||byId('clientSearch')?.value);
+    if(byId('reminderSearch'))byId('reminderSearch').placeholder='🔍 Buscar cliente, servicio, WhatsApp, correo, fecha o monto...';
+    const g=sectionsV66(search);
+    const onlyOverdue=!!(window.state?.onlyDue||window.state?.onlyDueClients);
+    let html='';
+    if(onlyOverdue){
+      html=repairNoticeV66(g.stale)+sectionV66('🚨','Vencidos','seguimiento pendiente',g.overdue,'b-bad');
+      if(!html.trim())html='<div class="empty-state"><span class="icon">✅</span><p>No hay vencidos.</p></div>';
+    }else{
+      html=repairNoticeV66(g.stale)
+        +sectionV66('⏰','Vencen hoy','prioridad de cobro',g.today,'b-warn')
+        +sectionV66('🚨','Vencidos','cobranza pendiente',g.overdue,'b-bad')
+        +sectionV66('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')
+        +sectionV66('🗓','Más adelante','servicios en curso',g.later,'b-purple');
+      if(!html.trim())html='<div class="empty-state"><span class="icon">✅</span><p>No hay recordatorios pendientes.</p></div>';
+    }
+    if(byId('remindersGrid'))byId('remindersGrid').innerHTML=html;
+    if(byId('remindersMergedGrid'))byId('remindersMergedGrid').innerHTML=html;
+    updateIndicatorsV66();
+    try{window.updateReminderBulkBar?.()}catch(_){}
+  }
+
+  function updateIndicatorsV66(){
+    const g=sectionsV66('');
+    const attention=g.today.length+g.overdue.length;
+    const badgeText=attention>999?'999+':String(attention);
+    ['tbReminders','mbReminders'].forEach(id=>{
+      const el=byId(id);
+      if(el){el.textContent=badgeText;el.style.display=attention>0?'':'none';}
+    });
+    const kpi=byId('kpiDue');if(kpi)kpi.textContent=attention;
+    const bellCount=byId('innovV50BellCount');
+    if(bellCount){bellCount.textContent=badgeText;bellCount.style.display=attention>0?'flex':'none';}
+    const bell=byId('innovV50Bell');
+    if(bell){
+      bell.classList.toggle('v50-has-alert',g.overdue.length>0);
+      bell.title=attention?`${g.today.length} vence(n) hoy · ${g.overdue.length} vencido(s)`:'Sin cobros urgentes';
+    }
+    const repair=byId('btnV66RepairPayments');
+    if(repair){
+      repair.hidden=!g.stale.length;
+      repair.textContent=`🔧 Corregir ${g.stale.length} pago${g.stale.length===1?'':'s'}`;
+    }
+  }
+
+  let centerTab='today';
+  function ensureCenterV66(){
+    if(byId('innovV66ReminderCenter'))return;
+    const d=document.createElement('dialog');
+    d.id='innovV66ReminderCenter';
+    d.innerHTML=`<div class="modal-header"><strong>🔔 Centro de cobros</strong><button class="btn btn-ghost btn-icon" type="button" aria-label="Cerrar" onclick="document.getElementById('innovV66ReminderCenter')?.close()">✕</button></div>
+      <div class="v66-center-top"><div class="v66-center-tabs">
+        <button class="chip" data-v66-center-tab="today" type="button">⏰ Hoy</button>
+        <button class="chip" data-v66-center-tab="overdue" type="button">🚨 Vencidos</button>
+        <button class="chip" data-v66-center-tab="upcoming" type="button">📆 Próximos</button>
+      </div><span class="v66-center-count" id="innovV66CenterCount">0 pendientes</span></div>
+      <div class="v66-center-body" id="innovV66CenterBody"></div>`;
+    (byId('app')||document.body).appendChild(d);
+    d.querySelectorAll('[data-v66-center-tab]').forEach(b=>b.onclick=()=>{centerTab=b.dataset.v66CenterTab||'today';renderCenterV66();});
+  }
+  function centerSummaryV66(g){
+    return `<div class="v66-center-summary">
+      <div class="v66-center-kpi"><b>${g.today.length}</b><span>vencen hoy</span></div>
+      <div class="v66-center-kpi"><b>${g.overdue.length}</b><span>vencidos</span></div>
+      <div class="v66-center-kpi"><b>${g.next7.length}</b><span>próx. 7 días</span></div>
+    </div>`;
+  }
+  function renderCenterV66(){
+    ensureCenterV66();
+    const g=sectionsV66('');
+    const dialog=byId('innovV66ReminderCenter');
+    dialog?.querySelectorAll('[data-v66-center-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v66CenterTab===centerTab)));
+    let html=centerSummaryV66(g),count=0;
+    if(centerTab==='today'){
+      count=g.today.length+g.overdue.length;
+      html+=`<div class="v66-reminder-note"><div><b>Prioridad diaria.</b><br>Primero aparecen los pagos que vencen hoy; debajo quedan los vencidos para continuar la cobranza.</div></div>`;
+      html+=sectionV66('⏰','Vencen hoy','atiéndelos primero',g.today,'b-warn');
+      html+=sectionV66('🚨','Vencidos','continúa la cobranza',g.overdue,'b-bad');
+      if(!g.today.length&&!g.overdue.length){
+        html+=sectionV66('📆','Próximos pagos','para avanzar sin buscar',g.next7.slice(0,8),'b-ok');
+        if(!g.next7.length)html+='<div class="v66-center-empty">✅ No hay cobros urgentes hoy.</div>';
+      }
+    }else if(centerTab==='overdue'){
+      count=g.overdue.length;
+      html+=repairNoticeV66(g.stale);
+      html+=sectionV66('🚨','Vencidos','requieren seguimiento',g.overdue,'b-bad');
+      if(!g.overdue.length&&!g.stale.length)html+='<div class="v66-center-empty">✅ No hay pagos vencidos.</div>';
+    }else{
+      count=g.next7.length+g.later.length;
+      html+=sectionV66('📆','Próximos 7 días','ordenados por fecha',g.next7,'b-ok');
+      html+=sectionV66('🗓','Más adelante','servicios en curso',g.later,'b-purple');
+      if(!g.next7.length&&!g.later.length)html+='<div class="v66-center-empty">No hay próximos pagos.</div>';
+    }
+    if(byId('innovV66CenterBody'))byId('innovV66CenterBody').innerHTML=html;
+    if(byId('innovV66CenterCount'))byId('innovV66CenterCount').textContent=centerTab==='today'?`${count} urgentes`:(centerTab==='overdue'?`${count} vencido(s)`:`${count} próximo(s)`);
+  }
+  function openCenterV66(tab='today'){
+    centerTab=tab||'today';
+    ensureCenterV66();
+    renderCenterV66();
+    const d=byId('innovV66ReminderCenter');
+    try{d.showModal()}catch(_){d.setAttribute('open','')}
+  }
+
+  function rebindToolbarV66(){
+    const due=byId('btnOnlyDue');
+    if(due && !due.dataset.v66Bound){
+      const clone=due.cloneNode(true);
+      clone.dataset.v66Bound='1';
+      clone.textContent='🚨 Vencidos';
+      clone.setAttribute('aria-pressed',String(!!window.state?.onlyDue));
+      clone.onclick=()=>{
+        window.state.onlyDue=!window.state.onlyDue;
+        clone.setAttribute('aria-pressed',String(!!window.state.onlyDue));
+        clone.textContent=window.state.onlyDue?'✓ Vencidos':'🚨 Vencidos';
+        renderRemindersV66();
+      };
+      due.replaceWith(clone);
+    }
+    const actions=byId('tab-reminders')?.querySelector('.admin-toolbar .actions');
+    if(actions && !byId('btnV66RepairPayments')){
+      const b=document.createElement('button');
+      b.id='btnV66RepairPayments';b.type='button';b.className='btn btn-warning';b.hidden=true;
+      b.onclick=repairStalePaidV66;
+      actions.appendChild(b);
+    }
+  }
+  function rebindBellV66(){
+    const bell=byId('innovV50Bell');
+    if(bell && !bell.dataset.v66Bound){
+      bell.dataset.v66Bound='1';
+      bell.onclick=e=>{e.preventDefault();openCenterV66('today');};
+    }
+  }
+
+  function renderAllV66(){
+    try{window.renderDashboard?.()}catch(_){}
+    renderRemindersV66();
+    try{window.renderClients?.()}catch(_){}
+    updateIndicatorsV66();
+  }
+
+  // Reemplazo final: esto queda después del Core, por lo tanto no vuelve al flujo viejo.
+  window.markReminderPaid=renewReminderV66;
+  try{markReminderPaid=renewReminderV66}catch(_){}
+  window.renewReminder=renewReminderV66;
+  try{renewReminder=renewReminderV66}catch(_){}
+  window.renderReminders=renderRemindersV66;
+  try{renderReminders=renderRemindersV66}catch(_){}
+  window.openDailySummary=openCenterV66;
+  window.innovV66RepairStalePayments=repairStalePaidV66;
+  window.openReminderCenterV66=openCenterV66;
+
+  function installV66(){
+    rebindToolbarV66();
+    rebindBellV66();
+    ensureCenterV66();
+    renderRemindersV66();
+    updateIndicatorsV66();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(installV66,250),{once:true});
+  else setTimeout(installV66,250);
+  setTimeout(installV66,1200);
+})();
+</script>
+
+
+
+<style id="innov-v67-reminder-direct-css">
+/* =====================================================================
+   V67 — RECORDATORIOS DIRECTOS
+   Objetivo: lista siempre visible, renovación simple y lectura rápida.
+   ===================================================================== */
+#tab-reminders .v67-filterbar{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:9px 10px;margin:-2px 0 10px;
+  border:1px solid var(--border);background:var(--card);
+  border-radius:14px;box-shadow:var(--shadow-xs);
+}
+#tab-reminders .v67-filterbar .v67-filter-label{
+  color:var(--muted);font-size:.76rem;font-weight:850;text-transform:uppercase;letter-spacing:.05em;
+  margin-right:2px;
+}
+#tab-reminders .v67-filterbar .chip{padding:7px 10px;border-radius:10px}
+#tab-reminders .v67-filterbar .v67-repair-all{margin-left:auto}
+.v67-reminder-summary{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
+  margin:0 0 10px;
+}
+.v67-summary-card{
+  text-align:left;border:1px solid var(--border);background:var(--card);
+  color:var(--card-ink);border-radius:13px;padding:9px 10px;cursor:pointer;
+  font-family:var(--font);transition:transform var(--tr-fast),border-color var(--tr),background var(--tr),box-shadow var(--tr);
+}
+.v67-summary-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-xs);border-color:var(--primary)}
+.v67-summary-card[aria-pressed="true"]{background:var(--primary-alpha);border-color:rgba(30,64,175,.35)}
+.v67-summary-card .n{display:block;font-size:1.18rem;font-weight:950;line-height:1;color:var(--card-ink);font-variant-numeric:tabular-nums}
+.v67-summary-card .l{display:block;margin-top:3px;font-size:.69rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.v67-summary-card.today .n{color:var(--warning)}
+.v67-summary-card.overdue .n{color:var(--danger)}
+.v67-summary-card.repair .n{color:var(--purple)}
+.v67-reminder-section{margin:14px 1px 8px;display:flex;align-items:center;justify-content:space-between;gap:9px}
+.v67-reminder-section .v67-section-title{display:flex;align-items:center;gap:7px;min-width:0;color:var(--card-ink);font-weight:900}
+.v67-reminder-section .v67-section-help{font-size:.75rem;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v67-reminder-row{
+  position:relative;display:grid;grid-template-columns:minmax(220px,1.2fr) minmax(190px,.85fr) minmax(150px,.6fr) minmax(250px,auto);
+  gap:10px;align-items:center;padding:12px 13px;margin-bottom:8px;
+  border:1px solid var(--border);border-radius:15px;background:var(--card);box-shadow:var(--shadow-xs);
+}
+.v67-reminder-row:hover{box-shadow:var(--shadow-md);background:var(--primary-alpha2)}
+.v67-reminder-row.is-today{border-color:rgba(180,83,9,.38);background:var(--warning-alpha)}
+.v67-reminder-row.is-overdue{border-color:rgba(185,28,28,.38);background:var(--danger-alpha)}
+.v67-reminder-row.is-repair{border-color:rgba(124,58,237,.38);background:var(--purple-alpha)}
+.v67-reminder-main{min-width:0}
+.v67-reminder-title{font-weight:900;color:var(--card-ink);line-height:1.18;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v67-reminder-client{margin-top:3px;color:var(--muted);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v67-reminder-sub{margin-top:4px;color:var(--muted);font-size:.73rem;line-height:1.25}
+.v67-reminder-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.v67-reminder-date{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.v67-reminder-date .v67-date-main{font-weight:850;color:var(--card-ink);font-size:.86rem}
+.v67-reminder-date .v67-date-note{font-size:.72rem;color:var(--muted);font-weight:650}
+.v67-reminder-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.v67-reminder-actions .btn{padding:7px 9px;font-size:.76rem;border-radius:9px}
+.v67-btn-renew{background:var(--success)!important;color:#fff!important;border-color:transparent!important}
+.v67-btn-renew:hover{filter:brightness(1.06)}
+.v67-repair-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding:11px 12px;margin:0 0 10px;border:1px solid rgba(124,58,237,.28);
+  border-left:4px solid var(--purple);border-radius:14px;background:var(--purple-alpha);
+}
+.v67-repair-banner b{color:var(--card-ink)}
+.v67-reminder-empty{
+  padding:34px 16px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:14px;background:var(--card);
+}
+#innovV67ReminderCenter{width:min(900px,96vw)}
+#innovV67ReminderCenter .v67-center-top{padding:11px 18px;border-bottom:1px solid var(--border);background:var(--card2);display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#innovV67ReminderCenter .v67-center-tabs{display:flex;gap:6px;flex-wrap:wrap}
+#innovV67ReminderCenter .v67-center-tabs .chip{padding:7px 10px;border-radius:10px}
+#innovV67ReminderCenter .v67-center-count{font-size:.76rem;font-weight:850;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:999px;padding:4px 8px}
+#innovV67ReminderCenter .v67-center-body{padding:14px 18px 18px;max-height:68vh;overflow:auto}
+#innovV67ReminderCenter .v67-reminder-row{margin-bottom:8px}
+@media(max-width:850px){
+  .v67-reminder-row{grid-template-columns:1fr;gap:7px;padding:10px}
+  .v67-reminder-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));justify-content:stretch}
+  .v67-reminder-actions .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+@media(max-width:700px){
+  #tab-reminders .v67-filterbar{padding:8px;gap:6px}
+  #tab-reminders .v67-filterbar .v67-filter-label{display:none}
+  #tab-reminders .v67-filterbar .chip{padding:6px 8px;font-size:.72rem}
+  #tab-reminders .v67-filterbar .v67-repair-all{margin-left:0}
+  .v67-reminder-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .v67-summary-card{padding:8px 9px}
+  .v67-summary-card .n{font-size:1.05rem}.v67-summary-card .l{font-size:.64rem}
+  .v67-reminder-section{margin:10px 1px 6px}.v67-reminder-section .v67-section-help{font-size:.68rem}
+  .v67-reminder-row{border-radius:13px;padding:9px;gap:5px}
+  .v67-reminder-title{font-size:.88rem}.v67-reminder-client{font-size:.71rem}.v67-reminder-sub{font-size:.68rem}
+  .v67-reminder-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+  .v67-reminder-actions .btn{height:32px;min-height:32px;padding:4px;font-size:.68rem}
+  #innovV67ReminderCenter{width:100vw!important}
+  #innovV67ReminderCenter .v67-center-top{padding:9px 12px}
+  #innovV67ReminderCenter .v67-center-body{padding:10px 12px 14px;max-height:68vh}
+}
+</style>
+
+
+<script id="innov-v67-reminder-direct-patch">
+/* =====================================================================
+   V67 — RENOVAR DIRECTO + LISTA SIEMPRE VISIBLE
+   - "Pagado y renovar" actualiza payment_reminders directamente.
+   - No depende de RPC de asignaciones ni toca cupos, entregas o TOTP.
+   - Después de cargar datos vuelve a pintar la lista.
+   ===================================================================== */
+(function(){
+  'use strict';
+  if(window.__innovV67ReminderDirectPatch)return;
+  window.__innovV67ReminderDirectPatch=true;
+
+  const byId=id=>document.getElementById(id);
+  const text=v=>String(v==null?'':v).trim();
+  const same=(a,b)=>text(a)===text(b);
+  const esc=v=>text(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  const paidStates=new Set(['paid','pagado','renewed','renovado']);
+  const terminalStates=new Set(['cancelled','canceled','deleted','eliminado','archived','archivado','completed']);
+  let busy=false;
+  let centerTab='today';
+
+  function toastV67(message,type='ok'){try{window.toast(message,type)}catch(_){console.log(message)}}
+  function localToday(){try{return typeof window.todayISO==='function'?window.todayISO():new Date().toISOString().slice(0,10)}catch(_){return new Date().toISOString().slice(0,10)}}
+  function statusOf(r){return text(r?.status||'pending').toLowerCase()}
+  function calendarDiff(r){
+    try{const n=Number(window.localCalendarDiffFromToday?.(r?.due_date));if(Number.isFinite(n))return n}catch(_){}
+    const iso=text(r?.due_date).slice(0,10);if(!iso)return 99999;
+    const a=new Date(iso+'T12:00:00'),b=new Date(localToday()+'T12:00:00');
+    return Math.round((a-b)/86400000);
+  }
+  function effectiveDiff(r){
+    try{const n=Number(window.reminderEffectiveDaysLeft?.(r?.due_date));if(Number.isFinite(n))return n}catch(_){}
+    return calendarDiff(r);
+  }
+  function customerOf(r){return (window.state?.customers||[]).find(c=>same(c.id,r?.customer_id))||{}}
+  function planOf(id){try{return typeof window.plan==='function'?window.plan(id):((window.state?.plans||[]).find(p=>same(p.id,id))||null)}catch(_){return null}}
+  function isRegular(r){return !terminalStates.has(statusOf(r))}
+  function isPaidWaiting(r){return isRegular(r)&&paidStates.has(statusOf(r))}
+  function isToday(r){return isRegular(r)&&!isPaidWaiting(r)&&effectiveDiff(r)===0}
+  function isOverdue(r){return isRegular(r)&&!isPaidWaiting(r)&&effectiveDiff(r)<0}
+  function isFuture(r){return isRegular(r)&&!isPaidWaiting(r)&&effectiveDiff(r)>0}
+  function dueText(r){
+    const eff=effectiveDiff(r), cal=calendarDiff(r);
+    if(eff<0){if(cal===0)return 'venció hoy';const n=Math.abs(cal);return `hace ${n} día${n===1?'':'s'}`;}
+    if(cal===0)return 'vence hoy';
+    return `en ${cal} día${cal===1?'':'s'}`;
+  }
+  function dueLabel(r){
+    const raw=text(r?.due_date).slice(0,10);const m=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m?`${m[3]}/${m[2]}/${m[1]}`:(raw||'—');
+  }
+  function moneyValue(v){try{return typeof window.money==='function'?window.money(v):'S/ '+Number(v||0).toFixed(2)}catch(_){return 'S/ '+Number(v||0).toFixed(2)}}
+  function nextDue(r){
+    const base=localToday();
+    try{const d=window.planRenewalDue?.(r?.plan_id,base);if(d)return d}catch(_){}
+    const p=planOf(r?.plan_id)||{};const raw=(text(p.period)+' '+text(p.name)).toLowerCase();
+    let months=1;
+    if(/anual|annual|año|ano|12\s*mes/.test(raw))months=12;
+    else if(/semestral|6\s*mes/.test(raw))months=6;
+    else if(/trimestral|3\s*mes/.test(raw))months=3;
+    else if(/bimestral|2\s*mes/.test(raw))months=2;
+    const d=new Date(base+'T12:00:00');const wanted=d.getDate();d.setMonth(d.getMonth()+months);if(d.getDate()<wanted)d.setDate(0);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function matches(r,q){
+    q=text(q).toLowerCase();if(!q)return true;
+    const c=customerOf(r),p=planOf(r.plan_id)||{};
+    return [r.service_name,r.status,r.due_date,r.amount,r.order_id,c.name,c.email,c.phone_e164,c.phone_raw,p.name,p.period].map(text).join(' ').toLowerCase().includes(q);
+  }
+  function groups(query=''){
+    const all=(window.state?.reminders||[]).filter(r=>matches(r,query));
+    const regular=all.filter(isRegular);
+    const soon=(a,b)=>effectiveDiff(a)-effectiveDiff(b)||text(a.due_date).localeCompare(text(b.due_date));
+    const old=(a,b)=>effectiveDiff(a)-effectiveDiff(b)||text(a.due_date).localeCompare(text(b.due_date));
+    return {
+      today:regular.filter(isToday).sort(soon),
+      overdue:regular.filter(isOverdue).sort(old),
+      next7:regular.filter(r=>isFuture(r)&&effectiveDiff(r)<=7).sort(soon),
+      later:regular.filter(r=>isFuture(r)&&effectiveDiff(r)>7).sort(soon),
+      paid:regular.filter(isPaidWaiting).sort(old)
+    };
+  }
+  function reminderStatus(r){
+    if(isPaidWaiting(r))return ['Pago registrado','b-purple'];
+    if(isOverdue(r))return ['Vencido','b-bad'];
+    if(isToday(r))return ['Vence hoy','b-warn'];
+    if(effectiveDiff(r)<=7)return ['Por vencer','b-warn'];
+    return ['En curso','b-ok'];
+  }
+  function row(r){
+    const c=customerOf(r),p=planOf(r.plan_id)||{};
+    const status=reminderStatus(r),isPay=isPaidWaiting(r),isDue=isToday(r),isOld=isOverdue(r);
+    const id=esc(r.id),client=esc(c.name||'Cliente sin nombre'),phone=esc(c.phone_e164||c.phone_raw||'Sin WhatsApp');
+    const service=esc(r.service_name||p.name||'Servicio');
+    const kind=isPay?'is-repair':isOld?'is-overdue':isDue?'is-today':'';
+    const icon=isPay?'🧾':isOld?'🚨':isDue?'⏰':'📌';
+    const period=esc(p.period||'Mensual');
+    const hist=c.id?`<button class="btn" type="button" onclick="event.stopPropagation();showClientHistory('${esc(c.id)}')">Hist.</button>`:'';
+    return `<div class="v67-reminder-row ${kind}" data-reminder-id="${id}">
+      <div class="v67-reminder-main">
+        <div class="v67-reminder-title">${icon} ${service}</div>
+        <div class="v67-reminder-client">${client} · ${phone}</div>
+        <div class="v67-reminder-sub">${isPay?'Este pago quedó registrado sin crear el siguiente mes.':'Periodo: '+period}</div>
+      </div>
+      <div class="v67-reminder-meta">
+        <span class="badge ${status[1]}">${status[0]}</span>
+        <span class="badge">${moneyValue(r.amount)}</span>
+        ${r.last_sent_at?'<span class="badge b-pagado">WhatsApp enviado</span>':''}
+      </div>
+      <div class="v67-reminder-date">
+        <div class="v67-date-main">📅 ${dueLabel(r)}</div>
+        <div class="v67-date-note">${esc(dueText(r))}</div>
+      </div>
+      <div class="v67-reminder-actions">
+        <button class="btn btn-success" type="button" onclick="event.stopPropagation();openReminderWhatsApp('${id}')">WhatsApp</button>
+        <button class="btn v67-btn-renew" type="button" onclick="event.stopPropagation();markReminderPaid('${id}')">✓ Pagado y renovar</button>
+        <button class="btn btn-primary" type="button" onclick="event.stopPropagation();editReminder('${id}')">Editar</button>
+        ${hist}
+        <button class="btn btn-danger" type="button" onclick="event.stopPropagation();quickDeleteReminder('${id}')">Borrar</button>
+      </div>
+    </div>`;
+  }
+  function section(icon,title,subtitle,rows,klass){
+    if(!rows?.length)return '';
+    return `<div class="v67-reminder-section"><div class="v67-section-title"><span>${icon}</span><span>${title}</span><span class="v67-section-help">${subtitle||''}</span></div><span class="badge ${klass||''}">${rows.length}</span></div>${rows.map(row).join('')}`;
+  }
+  function repairBanner(g){
+    if(!g.paid.length)return '';
+    return `<div class="v67-repair-banner"><div><b>🧾 ${g.paid.length} pago(s) ya marcados necesitan crear su siguiente vencimiento.</b><div class="help">No se tocarán cupos ni entregas: solo se pondrá el recordatorio en pendiente con la nueva fecha del plan.</div></div><button class="btn v67-btn-renew" type="button" onclick="window.innovV67RepairPaid()">Renovar ${g.paid.length} pago(s)</button></div>`;
+  }
+  function makeSummary(g){
+    const f=String(window.state?.v67ReminderFilter||'all');
+    const card=(key,klass,num,label)=>`<button class="v67-summary-card ${klass}" data-v67-filter="${key}" aria-pressed="${String(f===key)}" type="button"><span class="n">${num}</span><span class="l">${label}</span></button>`;
+    return `<div class="v67-reminder-summary">${card('today','today',g.today.length,'Vencen hoy')}${card('overdue','overdue',g.overdue.length,'Vencidos')}${card('upcoming','upcoming',g.next7.length+g.later.length,'Próximos')}${card('paid','repair',g.paid.length,'Pagos por renovar')}</div>`;
+  }
+  function viewContent(g){
+    const f=String(window.state?.v67ReminderFilter||'all');
+    if(f==='today')return section('⏰','Vencen hoy','prioridad de cobro',g.today,'b-warn')||'<div class="v67-reminder-empty">✅ No hay pagos que vencen hoy.</div>';
+    if(f==='overdue')return section('🚨','Vencidos','requieren seguimiento',g.overdue,'b-bad')||'<div class="v67-reminder-empty">✅ No hay pagos vencidos.</div>';
+    if(f==='upcoming')return section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-purple')||'<div class="v67-reminder-empty">No hay próximos pagos.</div>';
+    if(f==='paid')return repairBanner(g)+section('🧾','Pagos sin siguiente fecha','requieren renovación',g.paid,'b-purple')||'<div class="v67-reminder-empty">✅ No hay pagos pendientes de renovar.</div>';
+    const content=section('⏰','Vencen hoy','atiéndelos primero',g.today,'b-warn')
+      +section('🚨','Vencidos','continúa la cobranza',g.overdue,'b-bad')
+      +repairBanner(g)
+      +section('🧾','Pagos sin siguiente fecha','requieren renovación',g.paid,'b-purple')
+      +section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')
+      +section('🗓','Más adelante','servicios en curso',g.later,'b-ok');
+    return content||'<div class="v67-reminder-empty">✅ No hay recordatorios activos para mostrar.</div>';
+  }
+  function bindSummary(root){
+    root?.querySelectorAll('[data-v67-filter]').forEach(button=>{
+      button.onclick=()=>{window.state.v67ReminderFilter=button.dataset.v67Filter||'all';renderV67();};
+    });
+  }
+  function renderV67(){
+    const host=byId('remindersGrid'), merged=byId('remindersMergedGrid');
+    if(!host&&!merged)return;
+    const query=text(byId('reminderSearch')?.value||byId('clientSearch')?.value||'');
+    const g=groups(query);
+    const html=makeSummary(g)+viewContent(g);
+    if(host){host.innerHTML=html;bindSummary(host);}
+    if(merged){merged.innerHTML=html;bindSummary(merged);}
+    updateIndicators(g);
+  }
+  function updateIndicators(g=groups('')){
+    const urgent=g.today.length+g.overdue.length+g.paid.length;
+    const display=urgent>999?'999+':String(urgent);
+    ['tbReminders','mbReminders'].forEach(id=>{const el=byId(id);if(el){el.textContent=display;el.style.display=urgent?'':'none';}});
+    const kpi=byId('kpiDue');if(kpi)kpi.textContent=g.overdue.length+g.today.length;
+    const count=byId('innovV50BellCount');if(count){count.textContent=display;count.style.display=urgent?'flex':'none';}
+    const bell=byId('innovV50Bell');if(bell){bell.classList.toggle('v50-has-alert',urgent>0);bell.title=urgent?`${g.today.length} vencen hoy · ${g.overdue.length} vencidos · ${g.paid.length} pagos por renovar`:'No hay cobros urgentes';}
+    const repair=byId('btnV67RepairPaid');if(repair){repair.hidden=!g.paid.length;repair.textContent=`🧾 Renovar ${g.paid.length} pago${g.paid.length===1?'':'s'}`;}
+  }
+  function ensureToolbar(){
+    const tab=byId('tab-reminders');const toolbar=tab?.querySelector('.admin-toolbar');if(!toolbar)return;
+    const add=byId('btnNewReminder');if(add)add.textContent='＋ Nuevo';
+    const oldDue=byId('btnOnlyDue');if(oldDue)oldDue.style.display='none';
+    const oldPending=byId('btnOnlyPending');if(oldPending)oldPending.style.display='none';
+    const oldRepair=byId('btnV66RepairPayments');if(oldRepair)oldRepair.style.display='none';
+    window.state.onlyDue=false;window.state.onlyPending=false;
+    let bar=byId('v67ReminderFilterbar');
+    if(!bar){
+      bar=document.createElement('div');bar.id='v67ReminderFilterbar';bar.className='v67-filterbar';
+      toolbar.insertAdjacentElement('afterend',bar);
+    }
+    const g=groups('');
+    bar.innerHTML=`<span class="v67-filter-label">Vista</span>
+      <button class="chip" data-v67-filter="all" type="button">Todos</button>
+      <button class="chip" data-v67-filter="today" type="button">⏰ Hoy · ${g.today.length}</button>
+      <button class="chip" data-v67-filter="overdue" type="button">🚨 Vencidos · ${g.overdue.length}</button>
+      <button class="chip" data-v67-filter="upcoming" type="button">📆 Próximos</button>
+      <button class="chip" data-v67-filter="paid" type="button">🧾 Pagados · ${g.paid.length}</button>
+      <button class="btn v67-repair-all" id="btnV67RepairPaid" type="button" ${g.paid.length?'':'hidden'}>🧾 Renovar ${g.paid.length} pago${g.paid.length===1?'':'s'}</button>`;
+    const current=String(window.state.v67ReminderFilter||'all');
+    bar.querySelectorAll('[data-v67-filter]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v67Filter===current));b.onclick=()=>{window.state.v67ReminderFilter=b.dataset.v67Filter||'all';ensureToolbar();renderV67();};});
+    byId('btnV67RepairPaid')?.addEventListener('click',repairAllPaid);
+  }
+  function ensureCenter(){
+    let d=byId('innovV67ReminderCenter');if(d)return d;
+    d=document.createElement('dialog');d.id='innovV67ReminderCenter';
+    d.innerHTML=`<div class="modal-header"><strong>🔔 Centro de cobros</strong><button class="btn btn-ghost btn-icon" type="button" aria-label="Cerrar" onclick="document.getElementById('innovV67ReminderCenter')?.close()">✕</button></div>
+      <div class="v67-center-top"><div class="v67-center-tabs"><button class="chip" data-v67-center="today" type="button">⏰ Hoy</button><button class="chip" data-v67-center="overdue" type="button">🚨 Vencidos</button><button class="chip" data-v67-center="upcoming" type="button">📆 Próximos</button><button class="chip" data-v67-center="paid" type="button">🧾 Pagados</button></div><span class="v67-center-count" id="innovV67CenterCount">0</span></div><div class="v67-center-body" id="innovV67CenterBody"></div>`;
+    (byId('app')||document.body).appendChild(d);
+    d.querySelectorAll('[data-v67-center]').forEach(b=>b.onclick=()=>{centerTab=b.dataset.v67Center||'today';renderCenter();});
+    return d;
+  }
+  function renderCenter(){
+    const d=ensureCenter(),g=groups('');
+    d.querySelectorAll('[data-v67-center]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v67Center===centerTab)));
+    let content='',count=0;
+    if(centerTab==='today'){count=g.today.length+g.overdue.length;content=section('⏰','Vencen hoy','atiéndelos primero',g.today,'b-warn')+section('🚨','Vencidos','continúa la cobranza',g.overdue,'b-bad');if(!content)content='<div class="v67-reminder-empty">✅ No hay cobros urgentes hoy.</div>';}
+    else if(centerTab==='overdue'){count=g.overdue.length;content=section('🚨','Vencidos','requieren seguimiento',g.overdue,'b-bad')||'<div class="v67-reminder-empty">✅ No hay pagos vencidos.</div>';}
+    else if(centerTab==='upcoming'){count=g.next7.length+g.later.length;content=section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');if(!content)content='<div class="v67-reminder-empty">No hay próximos pagos.</div>';}
+    else {count=g.paid.length;content=repairBanner(g)+section('🧾','Pagos sin siguiente fecha','renuévalos desde aquí',g.paid,'b-purple')||'<div class="v67-reminder-empty">✅ No hay pagos pendientes de renovar.</div>';}
+    const body=byId('innovV67CenterBody');if(body){body.innerHTML=content;bindSummary(body);}
+    const badge=byId('innovV67CenterCount');if(badge)badge.textContent=`${count} registro${count===1?'':'s'}`;
+  }
+  function openCenter(tab='today'){centerTab=tab||'today';const d=ensureCenter();renderCenter();try{d.showModal()}catch(_){d.setAttribute('open','');}}
+
+  async function fetchReminderRows(){
+    const response=await window.db.from('payment_reminders').select('*').order('due_date',{ascending:true}).limit(5000);
+    if(response.error)throw response.error;
+    window.state.reminders=response.data||[];
+    return window.state.reminders;
+  }
+  async function refreshReminderArea(showError=false){
+    try{await fetchReminderRows();ensureToolbar();renderV67();}catch(error){if(showError)toastV67('No se pudieron cargar recordatorios: '+text(error?.message||error),'bad');}
+  }
+  async function renewDirect(reminderId,{silent=false}={}){
+    if(busy)return;const r=(window.state?.reminders||[]).find(x=>same(x.id,reminderId));
+    if(!r){toastV67('No se encontró el recordatorio','bad');return false;}
+    busy=true;const due=nextDue(r);const today=localToday();
+    try{
+      const full={status:'pending',due_date:due,last_sent_at:null,fecha_inicio:today,fecha_pago:today};
+      let response=await window.db.from('payment_reminders').update(full).eq('id',r.id).select().maybeSingle();
+      if(response.error){
+        response=await window.db.from('payment_reminders').update({status:'pending',due_date:due,last_sent_at:null}).eq('id',r.id).select().maybeSingle();
+      }
+      if(response.error)throw response.error;
+      window.state.reminders=(window.state.reminders||[]).map(x=>same(x.id,r.id)?{...x,...(response.data||{}),status:'pending',due_date:due,last_sent_at:null,fecha_inicio:today,fecha_pago:today}:x);
+      try{window.publishAdminChange?.('payment_reminders','PATCH',{action:'paid_and_renewed',reminder_id:r.id,due_date:due});}catch(_){}
+      renderV67();
+      const verify=await window.db.from('payment_reminders').select('id,status,due_date,last_sent_at').eq('id',r.id).maybeSingle();
+      if(verify.error)throw verify.error;
+      const saved=verify.data||{};
+      if(text(saved.status).toLowerCase()!=='pending'||text(saved.due_date).slice(0,10)!==text(due).slice(0,10))throw new Error('La base no confirmó la fecha nueva');
+      await refreshReminderArea(false);
+      if(!silent)toastV67(`Pago registrado. Próximo vencimiento: ${dueLabel({due_date:due})}.`,'ok');
+      return true;
+    }catch(error){toastV67('No se pudo renovar: '+text(error?.message||error),'bad');return false;}
+    finally{busy=false;}
+  }
+  async function repairAllPaid(){
+    const list=groups('').paid;
+    if(!list.length)return toastV67('No hay pagos pendientes de renovar','ok');
+    if(!confirm(`Se renovarán ${list.length} pago(s) ya registrados. Solo cambiará el recordatorio a pendiente con su nueva fecha según el plan. ¿Continuar?`))return;
+    let ok=0,fail=0;
+    for(const r of list){if(await renewDirect(r.id,{silent:true}))ok++;else fail++;}
+    await refreshReminderArea(false);
+    toastV67(`${ok} pago(s) renovado(s)${fail?`; ${fail} no se pudieron renovar`:''}.`,fail?'bad':'ok');
+  }
+  function rebindBell(){
+    const bell=byId('innovV50Bell');
+    if(bell){bell.onclick=e=>{e.preventDefault();openCenter('today');};}
+  }
+  function install(){
+    ensureToolbar();rebindBell();ensureCenter();renderV67();
+  }
+
+  window.markReminderPaid=renewDirect;
+  window.renewReminder=renewDirect;
+  try{markReminderPaid=renewDirect;renewReminder=renewDirect}catch(_){}
+  window.renderReminders=renderV67;
+  try{renderReminders=renderV67}catch(_){}
+  window.openDailySummary=openCenter;
+  window.openReminderCenterV67=openCenter;
+  window.innovV67RepairPaid=repairAllPaid;
+
+  const previousLoadAll=window.loadAll;
+  if(typeof previousLoadAll==='function'){
+    window.loadAll=async function(){const result=await previousLoadAll.apply(this,arguments);setTimeout(()=>{install();refreshReminderArea(false);},0);setTimeout(install,160);return result;};
+    try{loadAll=window.loadAll}catch(_){}
+  }
+  const previousLoadReminders=window.loadReminders;
+  if(typeof previousLoadReminders==='function'){
+    window.loadReminders=async function(){const result=await previousLoadReminders.apply(this,arguments);setTimeout(install,0);return result;};
+    try{loadReminders=window.loadReminders}catch(_){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,300),{once:true});
+  else setTimeout(install,300);
+  let initialHydrateAttempts=0;
+  function initialHydrate(){
+    initialHydrateAttempts++;
+    if(!byId('app')?.classList.contains('hidden'))refreshReminderArea(false);
+    if(initialHydrateAttempts<6)setTimeout(initialHydrate,850);
+  }
+  setTimeout(initialHydrate,500);
+})();
+</script>
+
+<style id="innov-v68-reminder-final-css">
+/* =====================================================================
+   V68 — CENTRO DE COBROS FINAL
+   Fuente visual: recordatorio + servicio activo. No oculta servicios
+   activos por un estado histórico del recordatorio.
+   ===================================================================== */
+#tab-reminders .v68-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 12px;padding:8px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-xs)}
+#tab-reminders .v68-bar .v68-label{display:none}
+#tab-reminders .v68-bar .chip{padding:9px 12px;border-radius:12px;font-weight:800;letter-spacing:.01em;display:inline-flex;align-items:center;gap:6px;box-shadow:none}
+#tab-reminders .v68-bar .chip[aria-pressed="true"]{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:var(--shadow-sm)}
+#tab-reminders .v68-bar .chip[data-v68-filter="today"][aria-pressed="true"]{background:var(--warning);border-color:var(--warning);color:#fff}
+#tab-reminders .v68-bar .chip[data-v68-filter="overdue"][aria-pressed="true"]{background:var(--danger);border-color:var(--danger);color:#fff}
+#tab-reminders .v68-bar .chip[data-v68-filter="renew"][aria-pressed="true"]{background:var(--purple);border-color:var(--purple);color:#fff}
+#tab-reminders .v68-bar .chip .count{font-weight:950;font-variant-numeric:tabular-nums}
+.v68-summary{display:none!important}
+.v68-section{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:15px 2px 7px;color:var(--card-ink)}
+.v68-section-main{display:flex;align-items:center;gap:7px;min-width:0;font-weight:900}.v68-section-main small{color:var(--muted);font-size:.74rem;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v68-row{display:grid;grid-template-columns:minmax(220px,1.2fr) minmax(190px,.85fr) minmax(150px,.62fr) minmax(250px,auto);gap:10px;align-items:center;padding:12px 13px;margin-bottom:8px;border:1px solid var(--border);border-radius:15px;background:var(--card);box-shadow:var(--shadow-xs)}
+.v68-row:hover{background:var(--primary-alpha2);box-shadow:var(--shadow-md)}
+.v68-row.today{background:var(--warning-alpha);border-color:rgba(180,83,9,.35)}.v68-row.overdue{background:var(--danger-alpha);border-color:rgba(185,28,28,.35)}.v68-row.renew{background:var(--purple-alpha);border-color:rgba(124,58,237,.35)}.v68-row.review{border-style:dashed}
+.v68-main{min-width:0}.v68-title{font-weight:920;line-height:1.18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v68-client{margin-top:3px;font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v68-sub{margin-top:4px;font-size:.72rem;color:var(--muted);line-height:1.25}
+.v68-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center}.v68-date{display:grid;gap:3px}.v68-date b{font-size:.86rem;color:var(--card-ink)}.v68-date span{font-size:.72rem;color:var(--muted);font-weight:650}
+.v68-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.v68-actions .btn{padding:7px 9px;font-size:.76rem;border-radius:9px}.v68-renew{background:var(--success)!important;color:#fff!important;border-color:transparent!important}
+.v68-empty{padding:34px 16px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:14px;background:var(--card)}
+#innovV68Center{width:min(940px,96vw)}#innovV68Center .v68-center-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 18px;border-bottom:1px solid var(--border);background:var(--card2)}#innovV68Center .v68-center-tabs{display:flex;gap:6px;flex-wrap:wrap}#innovV68Center .v68-center-body{padding:14px 18px 18px;max-height:68vh;overflow:auto}
+@media(max-width:850px){.v68-row{grid-template-columns:1fr;gap:7px;padding:10px}.v68-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));justify-content:stretch}.v68-actions .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+/* Vista móvil compacta: conserva todas las acciones, pero evita tres filas de botones. */
+@media(max-width:700px){
+  #tab-reminders .v68-bar{padding:7px;gap:6px;border-radius:14px}
+  #tab-reminders .v68-bar .chip{padding:8px 10px;font-size:.86rem;border-radius:11px}
+  .v68-row{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"main main" "meta date" "actions actions";
+    gap:5px 8px;
+    border-radius:13px;
+    padding:8px 9px;
+  }
+  .v68-main{grid-area:main}
+  .v68-meta{grid-area:meta;gap:4px;min-width:0}
+  .v68-date{grid-area:date;justify-items:end;text-align:right;min-width:0}
+  .v68-date b{font-size:.76rem;white-space:nowrap}
+  .v68-date span{font-size:.62rem;white-space:nowrap}
+  .v68-title{font-size:.86rem;line-height:1.1}
+  .v68-client{font-size:.70rem;line-height:1.08;margin-top:2px}
+  /* El periodo se oculta solo en servicios normales de móvil: ya está definido por el plan. */
+  .v68-row:not(.renew):not(.review) .v68-sub{display:none}
+  .v68-sub{font-size:.66rem;line-height:1.15;margin-top:3px}
+  .v68-meta .badge{font-size:.60rem;padding:2px 6px}
+  .v68-actions{
+    grid-area:actions;
+    display:grid;
+    grid-template-columns:1fr 1.15fr .90fr;
+    gap:4px;
+    justify-content:stretch;
+  }
+  .v68-actions .btn{
+    width:100%;height:30px;min-height:30px;
+    padding:3px 4px;font-size:.63rem;line-height:1;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .v68-actions .btn-danger{grid-column:span 2}
+  #innovV68Center{width:100vw!important}
+  #innovV68Center .v68-center-top,#innovV68Center .v68-center-body{padding-left:12px;padding-right:12px}
+}
+@media(max-width:370px){
+  .v68-row{grid-template-columns:1fr;grid-template-areas:"main" "meta" "date" "actions"}
+  .v68-date{justify-items:start;text-align:left}
+  .v68-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .v68-actions .btn-danger{grid-column:auto}
+}
+</style>
+<script id="innov-v68-reminder-final-patch">
+/* =====================================================================
+   V68 — Recordatorios visibles + renovación directa confirmada.
+   No requiere SQL: corrige el renderer del Admin.
+   ===================================================================== */
+(function(){
+  'use strict';
+  if(window.__innovV68ReminderFinal)return;
+  window.__innovV68ReminderFinal=true;
+
+  const byId=id=>document.getElementById(id);
+  const txt=v=>String(v==null?'':v).trim();
+  const same=(a,b)=>txt(a)===txt(b);
+  const esc=v=>txt(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  const paid=new Set(['paid','pagado','renewed','renovado']);
+  const hardClosed=new Set(['cancelled','canceled','deleted','eliminado','archived','archivado','no_renovo']);
+  let busy=false, centerTab='today';
+
+  function say(message,type='ok'){try{window.toast(message,type)}catch(_){console.log(message)}}
+  function today(){try{return typeof window.todayISO==='function'?window.todayISO():new Date().toISOString().slice(0,10)}catch(_){return new Date().toISOString().slice(0,10)}}
+  /* V69: `state` fue declarado con `let` en el núcleo. En navegadores, un let global
+     no siempre existe como window.state. Usar primero la referencia real del núcleo;
+     window.state queda solo como respaldo de compatibilidad. */
+  function stateObj(){
+    try{ if(typeof state !== 'undefined' && state) return state; }catch(_){ }
+    return window.state||{reminders:[],customers:[],plans:[],assignments:[]};
+  }
+  try{ if(typeof state !== 'undefined' && state) window.INNOV_ADMIN_STATE=state; }catch(_){ }
+  function status(r){return txt(r?.status||'pending').toLowerCase()}
+  function assignmentFor(r){
+    const a=stateObj().assignments||[];
+    return a.find(x=>same(x?.id,r?.assignment_id)||same(x?.reminder_id,r?.id))||null;
+  }
+  function linkedActive(r){return txt(assignmentFor(r)?.status).toLowerCase()==='active'}
+  function operational(r){
+    /* Un servicio activo es autoridad sobre un estado histórico del recordatorio.
+       Así un antiguo 'completed' no desaparece de la cobranza. */
+    if(linkedActive(r))return true;
+    return !hardClosed.has(status(r));
+  }
+  function customer(r){return (stateObj().customers||[]).find(c=>same(c?.id,r?.customer_id))||{}}
+  function planRow(id){try{return typeof window.plan==='function'?window.plan(id):((stateObj().plans||[]).find(p=>same(p?.id,id))||null)}catch(_){return null}}
+  function numberOrNull(value){
+    if(value===null||value===undefined||String(value).trim()==='')return null;
+    const n=Number(value);return Number.isFinite(n)?n:null;
+  }
+  function calDiff(r){
+    try{
+      const n=numberOrNull(window.localCalendarDiffFromToday?.(r?.due_date));
+      if(n!==null)return n;
+    }catch(_){ }
+    const iso=txt(r?.due_date).slice(0,10);if(!iso)return null;
+    const a=new Date(iso+'T12:00:00'),b=new Date(today()+'T12:00:00');return Math.round((a-b)/86400000);
+  }
+  function effDiff(r){
+    try{
+      const n=numberOrNull(window.reminderEffectiveDaysLeft?.(r?.due_date));
+      if(n!==null)return n;
+    }catch(_){ }
+    return calDiff(r);
+  }
+  function queryMatch(r,q){
+    q=txt(q).toLowerCase();if(!q)return true;
+    const c=customer(r),p=planRow(r?.plan_id)||{},a=assignmentFor(r)||{};
+    return [r?.service_name,r?.status,r?.due_date,r?.amount,r?.order_id,c?.name,c?.email,c?.phone_e164,c?.phone_raw,p?.name,p?.period,a?.status].map(txt).join(' ').toLowerCase().includes(q);
+  }
+  function group(query=''){
+    const rows=(stateObj().reminders||[]).filter(r=>queryMatch(r,query)).filter(operational);
+    const active=rows.filter(r=>!paid.has(status(r)));
+    /* Los segmentos se definen por día calendario, no por la hora de corte.
+       Por eso, una tarjeta que ya diga “Venció hoy” permanece en Hoy hasta
+       terminar el día. Vencidos contiene únicamente fechas anteriores. */
+    const order=(a,b)=>{
+      const da=calDiff(a),db=calDiff(b);
+      if(da==null&&db!=null)return 1;if(db==null&&da!=null)return -1;
+      if(da!==db)return Number(da)-Number(db);
+      return txt(a?.due_date).localeCompare(txt(b?.due_date));
+    };
+    return {
+      today:active.filter(r=>calDiff(r)===0).sort(order),
+      overdue:active.filter(r=>{const d=calDiff(r);return d!=null&&d<0}).sort(order),
+      next7:active.filter(r=>{const d=calDiff(r);return d!=null&&d>0&&d<=7}).sort(order),
+      later:active.filter(r=>{const d=calDiff(r);return d!=null&&d>7}).sort(order),
+      noDate:active.filter(r=>calDiff(r)==null).sort(order),
+      paid:rows.filter(r=>paid.has(status(r))).sort(order)
+    };
+  }
+  function dateLabel(r){const raw=txt(r?.due_date).slice(0,10);const m=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:(raw||'Sin fecha')}
+  function dateNote(r){const d=effDiff(r),c=calDiff(r);if(d==null)return 'Requiere fecha';if(d<0){if(c===0)return 'venció hoy';const n=Math.abs(c);return `hace ${n} día${n===1?'':'s'}`;}if(c===0)return 'vence hoy';return `en ${c} día${c===1?'':'s'}`}
+  function nextDue(r){
+    const base=today();
+    try{const x=window.planRenewalDue?.(r?.plan_id,base);if(x)return x}catch(_){ }
+    const p=planRow(r?.plan_id)||{};const raw=(txt(p?.period)+' '+txt(p?.name)).toLowerCase();let months=1;
+    if(/anual|annual|año|ano|12\s*mes/.test(raw))months=12;else if(/semestral|6\s*mes/.test(raw))months=6;else if(/trimestral|3\s*mes/.test(raw))months=3;else if(/bimestral|2\s*mes/.test(raw))months=2;
+    const d=new Date(base+'T12:00:00'),day=d.getDate();d.setMonth(d.getMonth()+months);if(d.getDate()<day)d.setDate(0);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function price(v){try{return typeof window.money==='function'?window.money(v):'S/ '+Number(v||0).toFixed(2)}catch(_){return 'S/ '+Number(v||0).toFixed(2)}}
+  function statusInfo(r){
+    const st=status(r),effective=effDiff(r),calendar=calDiff(r);
+    if(paid.has(st))return['Pago registrado','b-purple','renew'];
+    if(calendar==null)return['Sin fecha','b-pagado','review'];
+    if(calendar===0)return[effective<0?'Venció hoy':'Vence hoy',effective<0?'b-bad':'b-warn','today'];
+    if(calendar<0)return['Vencido','b-bad','overdue'];
+    if(calendar<=7)return['Por vencer','b-warn',''];
+    return['En curso','b-ok',''];
+  }
+  function row(r){
+    const c=customer(r),p=planRow(r?.plan_id)||{},info=statusInfo(r),id=esc(r?.id),kind=info[2];
+    const client=esc(c?.name||'Cliente sin nombre'), phone=esc(c?.phone_e164||c?.phone_raw||'Sin WhatsApp'), service=esc(r?.service_name||p?.name||'Servicio');
+    const period=esc(p?.period||'Mensual');const hist=c?.id?`<button class="btn" type="button" title="Ver historial del cliente" aria-label="Ver historial del cliente" onclick="event.stopPropagation();window.showClientHistory?.('${esc(c.id)}')">◷ Hist.</button>`:'';
+    return `<div class="v68-row ${kind}" data-reminder-id="${id}">
+      <div class="v68-main"><div class="v68-title">${kind==='overdue'?'🚨':kind==='today'?'⏰':kind==='renew'?'🧾':'📌'} ${service}</div><div class="v68-client">${client} · ${phone}</div><div class="v68-sub">${kind==='renew'?'Pago registrado: falta crear el próximo vencimiento.':kind==='review'?'Servicio activo sin fecha de vencimiento: revísalo.':'Periodo: '+period}</div></div>
+      <div class="v68-meta"><span class="badge ${info[1]}">${info[0]}</span><span class="badge">${price(r?.amount)}</span>${r?.last_sent_at?'<span class="badge b-pagado">WhatsApp enviado</span>':''}</div>
+      <div class="v68-date"><b>📅 ${dateLabel(r)}</b><span>${esc(dateNote(r))}</span></div>
+      <div class="v68-actions">
+        <button class="btn btn-success" type="button" title="Enviar WhatsApp" aria-label="Enviar WhatsApp" onclick="event.stopPropagation();window.openReminderWhatsApp?.('${id}')">💬 WhatsApp</button>
+        <button class="btn v68-renew" type="button" title="Registrar pago y renovar" aria-label="Registrar pago y renovar" onclick="event.stopPropagation();window.markReminderPaid('${id}')">✓ Renovar</button>
+        <button class="btn btn-primary" type="button" title="Editar recordatorio" aria-label="Editar recordatorio" onclick="event.stopPropagation();window.editReminder?.('${id}')">✎ Editar</button>
+        ${hist}
+        <button class="btn btn-danger" type="button" title="Borrar recordatorio" aria-label="Borrar recordatorio" onclick="event.stopPropagation();window.quickDeleteReminder?.('${id}')">🗑 Borrar</button>
+      </div>
+    </div>`;
+  }
+  function section(icon,title,sub,rows,badge){if(!rows?.length)return '';return `<div class="v68-section"><div class="v68-section-main"><span>${icon}</span><span>${title}</span><small>${sub||''}</small></div><span class="badge ${badge||''}">${rows.length}</span></div>${rows.map(row).join('')}`}
+  function summary(g){return ''}
+  function normalizeFilter(v){v=txt(v||'all');return ['all','today','overdue','renew','upcoming'].includes(v)?v:'all'}
+  function content(g,filter){
+    filter=normalizeFilter(filter);
+    if(filter==='today')return section('⏰','Vencen hoy','prioridad de cobro',g.today,'b-warn')||'<div class="v68-empty">✅ No hay pagos que vencen hoy.</div>';
+    if(filter==='overdue')return section('🚨','Vencidos','requieren seguimiento',g.overdue,'b-bad')||'<div class="v68-empty">✅ No hay pagos vencidos.</div>';
+    if(filter==='renew')return section('🧾','Pagos por renovar','crear el siguiente vencimiento',g.paid,'b-purple')||'<div class="v68-empty">✅ No hay pagos pendientes de renovar.</div>';
+    if(filter==='upcoming')return section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok')||'<div class="v68-empty">No hay próximos pagos.</div>';
+    const html=section('⏰','Vencen hoy','atiéndelos primero',g.today,'b-warn')+section('🚨','Vencidos','continúa la cobranza',g.overdue,'b-bad')+section('🧾','Pagos por renovar','crea el siguiente vencimiento',g.paid,'b-purple')+section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');
+    return html||'<div class="v68-empty">✅ No hay recordatorios operativos para mostrar.</div>';
+  }
+  function bind(root){root?.querySelectorAll('[data-v68-filter]').forEach(b=>b.onclick=()=>{stateObj().v68Filter=b.dataset.v68Filter||'all';render();});}
+  function indicators(g){const urgent=g.today.length+g.overdue.length+g.paid.length;const display=urgent>999?'999+':String(urgent);['tbReminders','mbReminders'].forEach(k=>{const el=byId(k);if(el){el.textContent=display;el.style.display=urgent?'':'none';}});const due=byId('kpiDue');if(due)due.textContent=g.today.length+g.overdue.length;const bellCount=byId('innovV50BellCount');if(bellCount){bellCount.textContent=display;bellCount.style.display=urgent?'flex':'none';}}
+  function render(){
+    const host=byId('remindersGrid'),merged=byId('remindersMergedGrid');if(!host&&!merged)return;
+    const q=txt(byId('reminderSearch')?.value||byId('clientSearch')?.value||'');const g=group(q),filter=normalizeFilter(stateObj().v68Filter||'all');stateObj().v68Filter=filter;const html=content(g,filter);
+    if(host){host.innerHTML=html;bind(host);}if(merged){merged.innerHTML=html;bind(merged);}indicators(g);
+  }
+  function toolbar(){
+    const tab=byId('tab-reminders'),base=tab?.querySelector('.admin-toolbar');if(!base)return;
+    byId('btnOnlyDue') && (byId('btnOnlyDue').style.display='none');byId('btnOnlyPending') && (byId('btnOnlyPending').style.display='none');
+    let bar=byId('innovV68Bar');if(!bar){bar=document.createElement('div');bar.id='innovV68Bar';bar.className='v68-bar';base.insertAdjacentElement('afterend',bar);}
+    const g=group('');const f=normalizeFilter(stateObj().v68Filter||'all');stateObj().v68Filter=f;
+    bar.innerHTML=`<button class="chip" data-v68-filter="all" type="button">Todos</button><button class="chip" data-v68-filter="today" type="button">⏰ Hoy <span class="count">· ${g.today.length}</span></button><button class="chip" data-v68-filter="overdue" type="button">🚨 Vencidos <span class="count">· ${g.overdue.length}</span></button><button class="chip" data-v68-filter="renew" type="button">🧾 Renovar <span class="count">· ${g.paid.length}</span></button><button class="chip" data-v68-filter="upcoming" type="button">📆 Próximos <span class="count">· ${g.next7.length+g.later.length}</span></button>`;
+    bar.querySelectorAll('[data-v68-filter]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.v68Filter===f));b.onclick=()=>{stateObj().v68Filter=b.dataset.v68Filter||'all';toolbar();render();};});
+  }
+  function center(){let d=byId('innovV68Center');if(d)return d;d=document.createElement('dialog');d.id='innovV68Center';d.innerHTML=`<div class="modal-header"><strong>🔔 Centro de cobros</strong><button class="btn btn-ghost btn-icon" type="button" onclick="document.getElementById('innovV68Center')?.close()">✕</button></div><div class="v68-center-top"><div class="v68-center-tabs"><button class="chip" data-v68-center="today" type="button">⏰ Hoy</button><button class="chip" data-v68-center="overdue" type="button">🚨 Vencidos</button><button class="chip" data-v68-center="renew" type="button">🧾 Renovar</button><button class="chip" data-v68-center="upcoming" type="button">📆 Próximos</button></div><span class="badge" id="innovV68CenterCount"></span></div><div class="v68-center-body" id="innovV68CenterBody"></div>`;(byId('app')||document.body).appendChild(d);d.querySelectorAll('[data-v68-center]').forEach(b=>b.onclick=()=>{centerTab=b.dataset.v68Center||'today';renderCenter();});return d;}
+  function renderCenter(){const d=center(),g=group('');d.querySelectorAll('[data-v68-center]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v68Center===centerTab)));const h=content(g,centerTab);const b=byId('innovV68CenterBody');if(b){b.innerHTML=h;bind(b);}const n={today:g.today.length,overdue:g.overdue.length,renew:g.paid.length,upcoming:g.next7.length+g.later.length}[centerTab]||0;byId('innovV68CenterCount').textContent=`${n} registro${n===1?'':'s'}`;}
+  function openCenter(tab='today'){centerTab=tab;const d=center();renderCenter();try{d.showModal()}catch(_){d.setAttribute('open','');}}
+  async function refresh(showError=false){try{const r=await window.db.from('payment_reminders').select('*').order('due_date',{ascending:true}).limit(5000);if(r.error)throw r.error;stateObj().reminders=r.data||[];toolbar();render();}catch(e){if(showError)say('No se pudieron cargar recordatorios: '+txt(e?.message||e),'bad');}}
+  async function renew(id){
+    if(busy)return false;const r=(stateObj().reminders||[]).find(x=>same(x?.id,id));if(!r){say('No se encontró el recordatorio','bad');return false;}
+    busy=true;const due=nextDue(r),now=today();
+    try{
+      let res=await window.db.from('payment_reminders').update({status:'pending',due_date:due,last_sent_at:null,fecha_inicio:now,fecha_pago:now}).eq('id',r.id).select().maybeSingle();
+      if(res.error)res=await window.db.from('payment_reminders').update({status:'pending',due_date:due,last_sent_at:null}).eq('id',r.id).select().maybeSingle();
+      if(res.error)throw res.error;
+      const verify=await window.db.from('payment_reminders').select('id,status,due_date').eq('id',r.id).maybeSingle();if(verify.error)throw verify.error;
+      if(txt(verify.data?.status).toLowerCase()!=='pending'||txt(verify.data?.due_date).slice(0,10)!==due)throw new Error('Supabase no confirmó la renovación');
+      try{window.publishAdminChange?.('payment_reminders','PATCH',{action:'paid_and_renewed',reminder_id:r.id,due_date:due});}catch(_){ }
+      await refresh(false);say('Pago registrado. Próximo vencimiento: '+dateLabel({due_date:due})+'.','ok');return true;
+    }catch(e){say('No se pudo renovar: '+txt(e?.message||e),'bad');return false;}finally{busy=false;}
+  }
+  function install(){toolbar();render();const bell=byId('innovV50Bell');if(bell)bell.onclick=e=>{e.preventDefault();openCenter('today');};}
+  window.markReminderPaid=renew;window.renewReminder=renew;try{markReminderPaid=renew;renewReminder=renew}catch(_){ }
+  window.renderReminders=render;try{renderReminders=render}catch(_){ }
+  window.openDailySummary=()=>openCenter('today');window.openReminderCenterV68=openCenter;
+  const previousLoadAll=window.loadAll;if(typeof previousLoadAll==='function'){window.loadAll=async function(){const out=await previousLoadAll.apply(this,arguments);setTimeout(()=>{install();refresh(false);},0);return out;};try{loadAll=window.loadAll}catch(_){ }}
+  const previousLoadReminders=window.loadReminders;if(typeof previousLoadReminders==='function'){window.loadReminders=async function(){const out=await previousLoadReminders.apply(this,arguments);setTimeout(()=>{install();render();},0);return out;};try{loadReminders=window.loadReminders}catch(_){ }}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{install();refresh(false);},350),{once:true});else setTimeout(()=>{install();refresh(false);},350);
+  let retries=0;const hydrate=()=>{if(!byId('app')?.classList.contains('hidden'))refresh(false);if(++retries<5)setTimeout(hydrate,900)};setTimeout(hydrate,650);
+})();
+</script>
+
+
+<!-- Innov IA Admin — Recordatorios: interfaz móvil compacta y filtros por día calendario.
+     Mantiene la lectura del estado real del núcleo sin alterar Supabase ni SQL. -->
 </body>
 </html>
-
-
-
-
-
