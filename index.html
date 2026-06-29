@@ -749,209 +749,110 @@
     .home-hero-shell .carousel-progress{position:absolute!important;left:0!important;right:0!important;bottom:0!important}
     .home-hero-shell .carousel-indicators{position:absolute!important;left:50%!important;bottom:3px!important;display:flex!important;gap:5px!important;list-style:none!important;padding:0!important;transform:translateX(-50%)!important}
     @media(max-width:991px){.home-hero-item > .row{grid-template-columns:1fr!important}}
+
+
+/* =====================================================================
+   INNOV TIENDA — CABECERA UNIFICADA V3
+   Una sola barra compacta: se elimina el bloque superior voluminoso.
+   ===================================================================== */
+:root{--innov-v3-ink:#172033;--innov-v3-yellow:#ffcc28;--innov-v3-yellow-soft:#ffe28b;--innov-v3-red:#ef4444;--innov-v3-line:rgba(255,255,255,.12)}
+.innov-site-header{position:sticky;top:0;z-index:1100;background:#18212f;border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 8px 26px rgba(15,23,42,.18);font-family:'Roboto',system-ui,-apple-system,sans-serif}
+.innov-nav-shell{position:relative;min-height:68px;max-width:1440px;margin:auto;padding:0 28px;display:flex;align-items:center;gap:18px}
+.innov-brand{display:inline-flex;align-items:center;flex:0 0 auto;text-decoration:none!important;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.22))}
+.innov-brand span{display:inline-flex;align-items:center;height:34px;padding:0 10px;font-weight:950;font-size:1.27rem;letter-spacing:-.035em}
+.innov-brand .innov-brand-a{background:#fff;color:#1d2633;border-radius:9px 0 0 9px}.innov-brand .innov-brand-b{background:var(--innov-v3-yellow);color:#1c2430;border-radius:0 9px 9px 0}
+.innov-nav-search{display:flex;align-items:center;flex:0 1 350px;min-width:200px;height:38px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.07);overflow:hidden;transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}
+.innov-nav-search:focus-within{border-color:var(--innov-v3-yellow);background:#fff;box-shadow:0 0 0 4px rgba(255,204,40,.15)}
+.innov-nav-search input{width:100%;min-width:0;height:100%;border:0!important;outline:0!important;background:transparent!important;color:#eef4ff;padding:0 11px;font-size:.84rem;font-weight:600;box-shadow:none!important}
+.innov-nav-search input::placeholder{color:rgba(238,244,255,.66)}.innov-nav-search:focus-within input{color:#202a39}.innov-nav-search:focus-within input::placeholder{color:#7c8797}
+.innov-nav-search button{height:100%;width:42px;display:grid;place-items:center;border:0;background:transparent;color:var(--innov-v3-yellow);cursor:pointer;font-size:.92rem}.innov-nav-search:focus-within button{color:#2c3747}
+.innov-nav-menu{display:flex;align-items:center;gap:3px;margin-left:auto;min-width:0}.innov-nav-link{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 11px;border-radius:10px;color:rgba(255,255,255,.78)!important;text-decoration:none!important;font-size:.86rem;font-weight:850;letter-spacing:-.01em;transition:color .16s ease,background .16s ease,transform .16s ease}.innov-nav-link:hover{color:#fff!important;background:rgba(255,255,255,.08);transform:translateY(-1px)}
+.innov-nav-link.is-active{background:var(--innov-v3-yellow);color:#1d2838!important;box-shadow:0 6px 16px rgba(0,0,0,.18)}.innov-nav-link.is-active:hover{color:#1d2838!important;background:#ffd84e}
+.innov-shop-link{padding-right:12px!important}.innov-shop-link .innov-store-prompt{position:absolute;right:7px;top:calc(100% - 1px);display:inline-flex;align-items:center;gap:3px;padding:2px 5px;border-radius:999px;background:rgba(255,255,255,.96);color:#d93434!important;font-size:.50rem;line-height:1;font-weight:950;letter-spacing:.015em;white-space:nowrap;box-shadow:0 5px 12px rgba(0,0,0,.18);pointer-events:none;z-index:2}.innov-shop-link .innov-store-prompt i{font-size:.50rem;animation:innovV3Arrow 1.15s infinite ease-in-out}.innov-shop-link .innov-store-prompt i:last-child{animation-delay:.15s}@keyframes innovV3Arrow{0%,100%{transform:translateX(-1px);opacity:.46}50%{transform:translateX(3px);opacity:1}}
+.innov-shop-page .innov-shop-link .innov-store-prompt{display:none}.innov-cart-link{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:40px;height:40px;margin-left:2px;border:1px solid rgba(255,255,255,.15);border-radius:12px;color:var(--innov-v3-yellow)!important;text-decoration:none!important;background:rgba(255,255,255,.04);font-size:1rem;transition:transform .16s ease,background .16s ease}.innov-cart-link:hover{transform:translateY(-1px);background:rgba(255,255,255,.1)}.innov-cart-link .innov-cart-count{display:grid;place-items:center;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:#fff;color:#1c2634;font-size:.66rem;font-weight:950;line-height:1}
+.innov-menu-toggle{display:none;width:40px;height:40px;border:1px solid rgba(255,255,255,.16);border-radius:11px;background:rgba(255,255,255,.05);color:#fff;cursor:pointer;font-size:1.04rem}
+@media(max-width:1180px){.innov-nav-shell{padding:0 18px;gap:12px}.innov-nav-search{flex-basis:270px}.innov-nav-link{padding:0 9px}.innov-nav-link:not(.innov-shop-link) span{display:none}}
+@media(max-width:880px){.innov-site-header{min-height:61px}.innov-nav-shell{min-height:61px;padding:0 13px;gap:9px}.innov-brand span{height:31px;padding:0 8px;font-size:1.08rem}.innov-nav-search{display:none}.innov-menu-toggle{display:inline-grid;place-items:center;margin-left:auto}.innov-nav-menu{position:absolute;top:calc(100% + 8px);right:10px;left:10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:9px;border:1px solid rgba(255,255,255,.13);border-radius:15px;background:#1c2635;box-shadow:0 16px 38px rgba(8,15,26,.32);opacity:0;transform:translateY(-7px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}.innov-site-header.is-open .innov-nav-menu{opacity:1;transform:translateY(0);pointer-events:auto}.innov-nav-link{justify-content:center;min-height:39px;padding:0 9px;background:rgba(255,255,255,.04)}.innov-nav-link:not(.innov-shop-link) span{display:inline}.innov-shop-link .innov-store-prompt{right:50%;transform:translateX(50%);top:calc(100% - 4px)}.innov-cart-link{margin-left:0}.innov-nav-menu .innov-nav-link:last-child{grid-column:span 2}}
+@media(max-width:420px){.innov-brand span{font-size:.97rem;padding:0 7px}.innov-cart-link{width:38px;min-width:38px}.innov-cart-link .innov-cart-count{position:absolute;right:-5px;top:-5px}.innov-nav-menu{grid-template-columns:1fr 1fr}.innov-nav-link{font-size:.80rem}}
+
+
+/* =====================================================================
+   PORTADA V3 — limpia, editorial y controlada desde Admin > Portada
+   ===================================================================== */
+.home-v3-stage{padding:21px 0 0}.home-v3-layout{display:grid;grid-template-columns:minmax(0,1.78fr) minmax(280px,.72fr);gap:15px;align-items:stretch}.home-v3-layout.no-promos{grid-template-columns:1fr}.home-v3-hero{position:relative;overflow:hidden;border:1px solid #e3e7ec;border-radius:22px;background:#fff;box-shadow:0 16px 42px rgba(28,43,63,.09)}
+.home-v3-slides{position:relative;min-height:365px}.home-v3-slide{display:none;min-height:365px}.home-v3-slide.is-active{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);animation:homeV3Enter .38s ease both}@keyframes homeV3Enter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.home-v3-media{position:relative;overflow:hidden;min-height:365px;background:#141c28;isolation:isolate}.home-v3-media::after{content:'';position:absolute;inset:0;z-index:4;background:linear-gradient(112deg,rgba(12,18,28,.12),transparent 56%,rgba(12,18,28,.23));pointer-events:none}.home-v3-image-wrap{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;padding:28px;background:radial-gradient(circle at 18% 17%,rgba(255,204,40,.15),transparent 35%),radial-gradient(circle at 82% 77%,rgba(255,255,255,.10),transparent 45%),#1a2638}.home-v3-image-wrap img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 18px 24px rgba(0,0,0,.26));transition:transform .45s ease}.home-v3-slide.is-active .home-v3-image-wrap img{transform:scale(1.015)}.home-v3-video{position:absolute;inset:0;z-index:3;width:100%;height:100%;border:0;object-fit:cover;background:#141c28;pointer-events:none}.home-v3-video.home-v3-fit-contain{object-fit:contain}.home-v3-video-frame{position:absolute;z-index:3;left:50%;top:50%;width:178%;height:100%;min-width:100%;min-height:178%;border:0;transform:translate(-50%,-50%) scale(1.035);background:#141c28;pointer-events:none}.home-v3-video-frame.home-v3-fit-contain{width:100%;height:100%;min-width:100%;min-height:100%;transform:translate(-50%,-50%);object-fit:contain}
+.home-v3-copy{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:29px 31px 25px;background:#fff}.home-v3-topline{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}.home-v3-tag,.home-v3-availability{display:inline-flex;align-items:center;gap:6px;max-width:100%;border-radius:999px;padding:6px 9px;font-size:.67rem;font-weight:950;letter-spacing:.025em;text-transform:uppercase;white-space:nowrap}.home-v3-tag{color:#4c5a6a;background:#f3f5f7}.home-v3-availability{color:#17834a;background:#e9f9ef}.home-v3-availability.is-ask{color:#9d6500;background:#fff5d9}.home-v3-availability i{font-size:.53rem}.home-v3-title{margin:0;color:#182232;font-size:clamp(1.24rem,2vw,1.73rem);line-height:1.05;font-weight:950;letter-spacing:-.047em;text-transform:uppercase}.home-v3-price{display:flex;align-items:baseline;gap:9px;min-width:0;margin-top:15px}.home-v3-price strong{color:#0e6bcf;font-size:1.68rem;line-height:1;font-weight:950;letter-spacing:-.05em;white-space:nowrap}.home-v3-price span{min-width:0;overflow:hidden;color:#6a7584;font-size:.73rem;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.home-v3-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}.home-v3-chip{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:5px 8px;border:1px solid #e3e7ed;border-radius:999px;background:#fff;color:#596678;font-size:.68rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.home-v3-chip i{color:#0d6efd;font-size:.63rem}.home-v3-desc{display:-webkit-box;overflow:hidden;margin:14px 0 0;color:#5e6b7b;font-size:.86rem;font-weight:600;line-height:1.48;-webkit-box-orient:vertical;-webkit-line-clamp:3}.home-v3-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}.home-v3-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;border-radius:11px;background:#ffcc28;color:#202a37!important;text-decoration:none!important;font-size:.79rem;font-weight:950;box-shadow:0 7px 16px rgba(255,190,20,.25);transition:transform .16s ease,background .16s ease,box-shadow .16s ease}.home-v3-cta:hover{background:#ffd84c;transform:translateY(-1px);box-shadow:0 10px 19px rgba(255,190,20,.30)}.home-v3-linknote{color:#687588;font-size:.70rem;font-weight:750}.home-v3-trust{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-top:15px;padding-top:13px;border-top:1px solid #edf0f3;color:#7b8796;font-size:.66rem;font-weight:800}.home-v3-trust span{display:inline-flex;align-items:center;gap:5px}.home-v3-trust i{color:#0d6efd}
+.home-v3-arrow{position:absolute;top:50%;z-index:11;display:grid;place-items:center;width:36px;height:36px;border:1px solid #e5e9ee;border-radius:50%;background:rgba(255,255,255,.96);color:#263345;box-shadow:0 7px 16px rgba(15,23,42,.15);cursor:pointer;transform:translateY(-50%);transition:transform .16s ease,background .16s ease}.home-v3-arrow:hover{background:#ffcc28;transform:translateY(-50%) scale(1.04)}.home-v3-arrow.prev{left:11px}.home-v3-arrow.next{right:11px}.home-v3-indicators{position:absolute;right:18px;bottom:15px;z-index:12;display:flex;align-items:center;gap:6px}.home-v3-indicator{width:17px;height:4px;padding:0;border:0;border-radius:999px;background:rgba(31,45,64,.19);cursor:pointer;transition:width .18s ease,background .18s ease}.home-v3-indicator.is-active{width:30px;background:#ffbf12}.home-v3-progress{position:absolute;right:0;bottom:0;left:0;z-index:12;height:3px;background:#f0f2f4}.home-v3-progress span{display:block;width:0;height:100%;background:#ffcc28}
+.home-v3-promos{display:grid;gap:15px;grid-template-rows:repeat(2,minmax(0,1fr))}.home-v3-promo{position:relative;display:flex;align-items:flex-end;min-height:175px;overflow:hidden;border:1px solid #e4e8ee;border-radius:19px;background:#172130;color:#fff;box-shadow:0 13px 30px rgba(28,43,63,.10);isolation:isolate;text-decoration:none!important;transition:transform .18s ease,box-shadow .18s ease}.home-v3-promo:hover{transform:translateY(-2px);box-shadow:0 18px 35px rgba(28,43,63,.15)}.home-v3-promo-media{position:absolute;inset:0;overflow:hidden;background:#172130}.home-v3-promo .home-v3-image-wrap{padding:15px;filter:saturate(1.06);background:#162236}.home-v3-promo .home-v3-image-wrap img{object-fit:cover;opacity:.83;filter:blur(.15px) saturate(1.04) brightness(.8);transform:scale(1.04)}.home-v3-promo .home-v3-video,.home-v3-promo .home-v3-video-frame{opacity:.88}.home-v3-promo::after{content:'';position:absolute;inset:0;z-index:4;background:linear-gradient(90deg,rgba(12,18,29,.91),rgba(12,18,29,.50) 62%,rgba(12,18,29,.10));pointer-events:none}.home-v3-promo-copy{position:relative;z-index:6;max-width:85%;padding:18px}.home-v3-promo-copy small{display:block;color:rgba(255,255,255,.76);font-size:.66rem;font-weight:850;text-transform:uppercase;letter-spacing:.04em}.home-v3-promo-copy h3{display:-webkit-box;overflow:hidden;margin:5px 0 10px;color:#fff;font-size:1.05rem;line-height:1.05;font-weight:950;letter-spacing:-.035em;text-transform:uppercase;-webkit-box-orient:vertical;-webkit-line-clamp:2}.home-v3-promo-copy span{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;border-radius:9px;background:#ffcc28;color:#1c2838;font-size:.68rem;font-weight:950}.home-v3-promo-empty{display:grid;place-items:center;min-height:175px;border:1px dashed #e2e7ed;border-radius:19px;color:#8793a2;font-size:.75rem;font-weight:800;background:#fff}
+.home-v3-curated-stage{padding:19px 0 0}.home-v3-curated{overflow:hidden;border:1px solid #e4e8ed;border-radius:19px;background:#fff;box-shadow:0 10px 25px rgba(28,43,63,.06)}.home-v3-curated-head{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:16px 19px 12px;border-bottom:1px solid #eef1f4}.home-v3-curated-eyebrow{display:flex;align-items:center;gap:7px;color:#176ac8;font-size:.63rem;font-weight:950;letter-spacing:.07em;text-transform:uppercase}.home-v3-curated-title{margin:4px 0 0;color:#1c2838;font-size:1.10rem;line-height:1.15;font-weight:950;letter-spacing:-.03em}.home-v3-curated-link{display:inline-flex;align-items:center;gap:7px;color:#166dcc!important;text-decoration:none!important;font-size:.75rem;font-weight:950;white-space:nowrap}.home-v3-curated-link:hover{text-decoration:underline!important}.home-v3-curated-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}.home-v3-card{position:relative;display:grid;grid-template-columns:80px minmax(0,1fr);gap:11px;min-width:0;padding:13px;border-right:1px solid #edf0f3;background:#fff;color:#1d2939;text-decoration:none!important;transition:background .17s ease,transform .17s ease}.home-v3-card:last-child{border-right:0}.home-v3-card:hover{background:#fbfcfd;transform:translateY(-1px)}.home-v3-card-media{position:relative;display:flex;align-items:center;justify-content:center;width:80px;height:80px;overflow:hidden;border-radius:14px;background:#1c2737}.home-v3-card-media .home-v3-image-wrap{padding:7px;background:#1c2737}.home-v3-card-media .home-v3-image-wrap img{filter:drop-shadow(0 6px 8px rgba(0,0,0,.24))}.home-v3-card-media .home-v3-video,.home-v3-card-media .home-v3-video-frame{opacity:.82}.home-v3-card-body{display:flex;flex-direction:column;min-width:0}.home-v3-card-category{overflow:hidden;color:#6b7b8e;font-size:.57rem;font-weight:950;letter-spacing:.06em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.home-v3-card-name{display:-webkit-box;overflow:hidden;margin-top:5px;color:#1a2637;font-size:.78rem;font-weight:950;line-height:1.15;-webkit-box-orient:vertical;-webkit-line-clamp:2}.home-v3-card-price{display:flex;align-items:baseline;gap:5px;margin-top:auto;padding-top:8px;color:#0c6dcf}.home-v3-card-price strong{font-size:.91rem;font-weight:950;white-space:nowrap}.home-v3-card-price span{overflow:hidden;color:#7e8997;font-size:.58rem;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.home-v3-card-arrow{position:absolute;right:11px;bottom:12px;color:#b0bac5;font-size:.68rem;transition:transform .16s ease,color .16s ease}.home-v3-card:hover .home-v3-card-arrow{color:#0d6efd;transform:translateX(3px)}
+.home-v3-empty{display:grid;min-height:340px;place-content:center;gap:8px;padding:30px;text-align:center;color:#6a7787;background:#fff}.home-v3-empty i{color:#ffbf14;font-size:1.55rem}.home-v3-empty strong{color:#1f2b3b;font-size:1rem}.home-v3-empty p{margin:0;font-size:.80rem;font-weight:600}.home-v3-empty .home-v3-cta{justify-self:center;margin-top:4px}
+@media(max-width:991px){.home-v3-layout{grid-template-columns:1fr}.home-v3-promos{grid-template-columns:1fr 1fr;grid-template-rows:none}.home-v3-promo,.home-v3-promo-empty{min-height:160px}.home-v3-slide,.home-v3-slides,.home-v3-media{min-height:340px}.home-v3-curated-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home-v3-card:nth-child(2){border-right:0}.home-v3-card:nth-child(n+3){border-top:1px solid #edf0f3}}
+@media(max-width:600px){.home-v3-stage{padding-top:12px}.home-v3-hero{border-radius:16px}.home-v3-slide.is-active{grid-template-columns:1fr}.home-v3-slide,.home-v3-slides{min-height:auto}.home-v3-media{min-height:230px}.home-v3-copy{padding:18px 19px 21px}.home-v3-title{font-size:1.23rem}.home-v3-price strong{font-size:1.42rem}.home-v3-desc{-webkit-line-clamp:2;font-size:.79rem}.home-v3-arrow{top:115px;width:32px;height:32px}.home-v3-arrow.prev{left:8px}.home-v3-arrow.next{right:8px}.home-v3-indicators{right:13px;bottom:11px}.home-v3-trust{font-size:.62rem;gap:8px}.home-v3-promos{grid-template-columns:1fr;gap:10px}.home-v3-promo,.home-v3-promo-empty{min-height:135px;border-radius:15px}.home-v3-promo-copy{padding:14px}.home-v3-promo-copy h3{font-size:.95rem}.home-v3-curated-stage{padding-top:13px}.home-v3-curated{border-radius:16px}.home-v3-curated-head{padding:14px 15px 10px}.home-v3-curated-title{font-size:1rem}.home-v3-curated-link{font-size:.68rem}.home-v3-curated-grid{grid-template-columns:1fr}.home-v3-card{border-right:0;border-top:1px solid #edf0f3}.home-v3-card:first-child{border-top:0}.home-v3-card-media{width:68px;height:68px}.home-v3-card{grid-template-columns:68px minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.home-v3-slide.is-active{animation:none}.home-v3-image-wrap img,.home-v3-card,.home-v3-promo,.home-v3-arrow{transition:none!important}}
+
 </style>
 </head>
 
 <body>
-  <!-- ===========================
-       HEADER (PEGADO)
-       =========================== -->
-  <header class="site-header sticky-top">
-    <!-- Topbar Start -->
-    <div class="container-fluid">
-      <div class="row bg-secondary py-1 px-xl-5">
-        <div class="col-lg-6 d-none d-lg-block">
-          <div class="d-inline-flex align-items-center h-100">
-            <a class="text-body mr-3" href="acerca.html">Acerca de</a>
-            <a class="text-body mr-3" href="contact.html">Contacto</a>
-            <a class="text-body mr-3" href="ayuda.html">Ayuda</a>
-            <a class="text-body mr-3" href="faq.html">Preguntas frecuentes</a>
+
+<header class="innov-site-header" id="innovSiteHeader">
+  <div class="innov-nav-shell">
+    <a class="innov-brand" href="index.html" aria-label="Innov Tienda, inicio"><span class="innov-brand-a">INNOV</span><span class="innov-brand-b">TIENDA</span></a>
+    <form class="innov-nav-search" action="shop.html" role="search">
+      <input name="q" type="search" placeholder="Buscar IA, diseño, streaming…" aria-label="Buscar productos">
+      <button type="submit" aria-label="Buscar"><i class="fas fa-search"></i></button>
+    </form>
+    <button class="innov-menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" data-innov-menu-toggle><i class="fas fa-bars"></i></button>
+    <nav class="innov-nav-menu" aria-label="Navegación principal">
+      <a href="index.html" class="innov-nav-link is-active"><i class="fas fa-home"></i><span>Inicio</span></a>
+      <a href="shop.html" class="innov-nav-link innov-shop-link"><i class="fas fa-store"></i><span>Tienda</span><span class="innov-store-prompt"><i class="fas fa-chevron-right"></i>Más productos<i class="fas fa-chevron-right"></i></span></a>
+      <a href="contact.html" class="innov-nav-link"><i class="fas fa-headset"></i><span>Soporte</span></a>
+    </nav>
+    <a href="cart.html" class="innov-cart-link" aria-label="Ver carrito"><i class="fas fa-shopping-cart"></i><span id="headerCartBadge" class="innov-cart-count">0</span></a>
+  </div>
+</header>
+
+<!-- ===========================================================
+     PORTADA V3 — destacados reales elegidos desde Admin > ★ Portada
+     =========================================================== -->
+<main class="container-fluid home-v3-stage" id="homeV3Stage">
+  <div class="row px-xl-5">
+    <div class="col-12">
+      <div class="home-v3-layout" id="homeV3Layout">
+        <section class="home-v3-hero" id="homeV3Hero" aria-label="Servicios destacados">
+          <div class="home-v3-slides" id="homeV3Slides" aria-live="polite">
+            <div class="home-v3-empty"><i class="fas fa-circle-notch fa-spin"></i><strong>Actualizando destacados</strong><p>Conectando con los productos publicados.</p></div>
           </div>
-        </div>
-        <div class="col-lg-6 text-center text-lg-right">
-          <div class="d-inline-flex align-items-center">
-            <div class="btn-group">
-              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Mi cuenta</button>
-              <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="login.html">Ingresar</a>
-                <a class="dropdown-item" href="register.html">Registrarse</a>
-              </div>
-            </div>
-            <div class="btn-group mx-2">
-              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Soles</button>
-              <div class="dropdown-menu dropdown-menu-right">
-                <button class="dropdown-item" type="button">USD</button>
-              </div>
-            </div>
-            <div class="btn-group">
-              <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">ES</button>
-              <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="?lang=en">EN</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="d-inline-flex align-items-center d-block d-lg-none">
-            <a href="favoritos.html" class="btn px-0 ml-2" aria-label="Favoritos">
-              <i class="fas fa-heart text-dark"></i>
-              <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
-            </a>
-            <a href="cart.html" class="btn px-0 ml-2" aria-label="Carrito">
-              <i class="fas fa-shopping-cart text-dark"></i>
-              <span id="headerCartBadgeSm" class="badge text-dark border border-dark rounded-circle" style="padding-bottom:2px;">0</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
-        <div class="col-lg-4">
-          <a href="index.html" class="text-decoration-none">
-            <span class="h1 text-uppercase text-primary bg-dark px-2">INNOV</span>
-            <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">TIENDA</span>
-          </a>
-        </div>
-        <div class="col-lg-4 col-6 text-left">
-          <form action="shop.html">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Buscar productos (IA, diseño, streaming...)" aria-label="Buscar productos">
-              <div class="input-group-append">
-                <button class="input-group-text bg-transparent text-primary" type="submit" aria-label="Buscar">
-                  <i class="fa fa-search"></i>
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="col-lg-4 col-6 text-right">
-          <p class="m-0">Servicio al cliente</p>
-          <h5 class="m-0"><a href="tel:+51991564053" class="text-dark">+51 991564053</a></h5>
-        </div>
-      </div>
-    </div>
-    <!-- Topbar End -->
-
-    <!-- Navbar Start -->
-    <div class="container-fluid bg-dark">
-      <div class="row px-xl-5">
-        <div class="col-lg-3 d-none d-lg-block">
-          <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#navbar-vertical" style="height:65px;padding:0 30px;">
-            <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>Categorías</h6>
-            <i class="fa fa-angle-down text-dark"></i>
-          </a>
-          <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical" style="width:calc(100% - 30px);z-index:999;">
-            <div class="navbar-nav w-100">
-              <a href="shop.html#chatgpt-plus" class="nav-item nav-link">ChatGPT Plus</a>
-              <a href="shop.html#gemini-pro" class="nav-item nav-link">Gemini Pro</a>
-              <a href="shop.html#perplexity" class="nav-item nav-link">Perplexity</a>
-              <a href="shop.html#canva-pro" class="nav-item nav-link">Canva Pro</a>
-              <a href="shop.html#capcut-pro" class="nav-item nav-link">CapCut Pro</a>
-              <a href="shop.html#autodesk" class="nav-item nav-link">Autodesk</a>
-              <a href="shop.html#streaming" class="nav-item nav-link">Streaming</a>
-              <a href="shop.html#vpn" class="nav-item nav-link">VPN</a>
-            </div>
-          </nav>
-        </div>
-
-        <div class="col-lg-9">
-          <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
-            <a href="index.html" class="text-decoration-none d-block d-lg-none">
-              <span class="h1 text-uppercase text-dark bg-light px-2">INNOV</span>
-              <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">TIENDA</span>
-            </a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-              <div class="navbar-nav mr-auto py-0">
-                <a href="index.html" class="nav-item nav-link active">Inicio</a>
-                <a href="shop.html" class="nav-item nav-link nav-shop-spotlight">Tienda</a>
-                <a href="detail.html" class="nav-item nav-link">Detalle</a>
-                <div class="nav-item dropdown">
-                  <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Páginas <i class="fa fa-angle-down mt-1"></i></a>
-                  <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
-                    <a href="cart.html" class="dropdown-item">Carrito</a>
-                    <a href="checkout.html" class="dropdown-item">Pagar</a>
-                  </div>
-                </div>
-                <a href="contact.html" class="nav-item nav-link">Contacto</a>
-              </div>
-
-              <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
-                <a href="favoritos.html" class="btn px-0" aria-label="Favoritos">
-                  <i class="fas fa-heart text-primary"></i>
-                  <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
-                </a>
-                <a href="cart.html" class="btn px-0 ml-3" aria-label="Carrito">
-                  <i class="fas fa-shopping-cart text-primary"></i>
-                  <span id="headerCartBadge" class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom:2px;">0</span>
-                </a>
-              </div>
-
-            </div>
-          </nav>
-        </div>
-
-      </div>
-    </div>
-    <!-- Navbar End -->
-  </header>
-
-  <!-- ===========================================================
-       PORTADA REAL — destacados administrados desde Productos > ★ Portada
-       =========================================================== -->
-  <div class="container-fluid home-stage">
-    <div class="row px-xl-5">
-      <div class="col-lg-8 mb-3 mb-lg-0">
-        <section class="home-hero-shell" aria-label="Servicios destacados de Innov AI Tienda">
-          <div id="heroCarousel" class="carousel slide hero-carousel" data-interval="false">
-            <ol class="carousel-indicators" id="homeHeroIndicators" aria-label="Servicios destacados"></ol>
-            <div class="carousel-inner" id="homeHeroSlides" aria-live="polite">
-              <div class="carousel-item active">
-                <div class="home-empty">
-                  <i class="fa fa-circle-notch fa-spin" aria-hidden="true"></i>
-                  <strong>Actualizando los destacados</strong>
-                  <p>Conectando la portada con los productos publicados.</p>
-                </div>
-              </div>
-            </div>
-            <div class="carousel-progress" aria-hidden="true"><span id="carouselProgressBar"></span></div>
-            <button class="carousel-control-prev" id="homeCarouselPrev" type="button" aria-label="Servicio anterior"><i class="fa fa-angle-left"></i></button>
-            <button class="carousel-control-next" id="homeCarouselNext" type="button" aria-label="Siguiente servicio"><i class="fa fa-angle-right"></i></button>
-          </div>
+          <button class="home-v3-arrow prev" id="homeV3Prev" type="button" aria-label="Destacado anterior"><i class="fas fa-chevron-left"></i></button>
+          <button class="home-v3-arrow next" id="homeV3Next" type="button" aria-label="Siguiente destacado"><i class="fas fa-chevron-right"></i></button>
+          <div class="home-v3-indicators" id="homeV3Indicators" aria-label="Seleccionar destacado"></div>
+          <div class="home-v3-progress" aria-hidden="true"><span id="homeV3Progress"></span></div>
         </section>
+        <aside class="home-v3-promos" id="homeV3Promos" aria-label="Promociones seleccionadas"></aside>
       </div>
-
-      <aside class="col-lg-4" aria-label="Promociones destacadas">
-        <div class="home-promo-rail" id="homePromoRail">
-          <div class="home-promo-card home-promo-skeleton" aria-hidden="true"></div>
-          <div class="home-promo-card home-promo-skeleton" aria-hidden="true"></div>
-        </div>
-      </aside>
     </div>
   </div>
+</main>
 
-  <!-- Solo productos reales del catálogo; no se simulan “más vendidos” ni recomendaciones. -->
-  <section class="container-fluid" id="homeCatalogStage">
-    <div class="row px-xl-5">
-      <div class="col-12">
-        <div class="home-discovery">
-          <div class="home-discovery-head">
-            <div>
-              <div class="home-discovery-eyebrow"><i class="fa fa-layer-group"></i> Más servicios del catálogo</div>
-              <h2 class="home-discovery-title">Descubre más opciones para ti</h2>
-              <p>Productos publicados que no están en el carrusel principal. Cada tarjeta abre directamente sus planes en la tienda.</p>
-            </div>
-            <a class="home-cta" href="shop.html"><i class="fa fa-store"></i> Ver todo el catálogo</a>
+<section class="container-fluid home-v3-curated-stage" id="homeV3CuratedStage" hidden>
+  <div class="row px-xl-5">
+    <div class="col-12">
+      <div class="home-v3-curated">
+        <div class="home-v3-curated-head">
+          <div>
+            <div class="home-v3-curated-eyebrow"><i class="fas fa-star"></i> Selección de la tienda</div>
+            <h2 class="home-v3-curated-title">Explora también</h2>
           </div>
-          <div class="home-catalog-grid" id="homeProductSpotlight" aria-live="polite">
-            <div class="home-catalog-empty">Cargando productos publicados…</div>
-          </div>
+          <a class="home-v3-curated-link" href="shop.html"><i class="fas fa-store"></i> Ver tienda</a>
         </div>
+        <div class="home-v3-curated-grid" id="homeV3CuratedGrid"></div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+
+
 
   <!-- ===========================
        FOOTER (con redes reales)
@@ -998,7 +899,7 @@
               <a class="btn btn-primary btn-square" href="https://www.instagram.com/innov_iaa/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
             </div>
             <div class="mt-4">
-              <a class="btn btn-outline-light btn-sm" href="shop.html"><i class="fa fa-store mr-2"></i> Ir a la tienda</a>
+              <a class="btn btn-outline-light btn-sm" href="shop.html"><i class="fas fa-store mr-2"></i> Ir a la tienda</a>
             </div>
           </div>
 
@@ -1237,130 +1138,66 @@
          - Selección: home_showcase guardado desde Admin > Productos > ★ Portada
          - Navegación: toda tarjeta abre shop.html#p=db-{slug}
          =========================================================== */
+
+      /* ==========================================================
+         PORTADA V3 — catálogo real, medios compartidos con Shop
+         - Selección: app_settings.home_showcase desde Admin > Productos > ★ Portada
+         - Hero: 3–5; promociones: 0–2; fila inferior: 0–4.
+         ========================================================== */
       const HOME_SUPABASE_URL = 'https://rfjvskrimsoqlyofhidj.supabase.co';
       const HOME_SUPABASE_KEY = 'sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
       const HOME_CONFIG_RPC = 'get_public_home_showcase';
-      const HOME_ROTATION_MS = 5600;
-      const homeRuntime = {client:null,byId:new Map(),products:[],config:{},bound:false,carouselIndex:0,carouselTimer:null,progressTimer:null};
+      const HOME_ROTATION_MS = 5500;
+      const homeRuntime = {client:null,products:[],byId:new Map(),config:{},active:0,timer:null,progressTimer:null,paused:false,eventsBound:false};
 
-      function homeEsc(value){return String(value==null?'':value).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[ch]));}
+      function homeText(value){return String(value==null?'':value).replace(/\s+/g,' ').trim();}
+      function homeEsc(value){return String(value==null?'':value).replace(/[&<>'"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[ch];});}
       function homeAttr(value){return homeEsc(value);}
       function homeJson(value){if(!value)return{};if(typeof value==='object')return value;try{return JSON.parse(value);}catch(_){return{};}}
       function homeArray(value){if(Array.isArray(value))return value;if(typeof value==='string'){try{const out=JSON.parse(value);return Array.isArray(out)?out:[];}catch(_){return value?[value]:[];}}return[];}
-      function homeBool(value,fallback=true){if(value===false||value===0||String(value).toLowerCase()==='false')return false;if(value==null||value==='')return fallback;return true;}
-      function homeText(value){return String(value==null?'':value).replace(/\s+/g,' ').trim();}
-      function homeMediaUrl(value){
-        const url=homeText(value);
-        if(!url||/^(javascript|vbscript):/i.test(url))return'';
-        if(/^data:/i.test(url)&&!/^data:image\//i.test(url))return'';
-        return url;
-      }
-      function homeInitials(name){return homeText(name).split(/\s+/).filter(Boolean).slice(0,2).map(x=>x.charAt(0)).join('').toUpperCase()||'IA';}
+      function homeBool(value,fallback){if(fallback===undefined)fallback=true;if(value===false||value===0||String(value).toLowerCase()==='false')return false;if(value==null||value==='')return fallback;return true;}
+      function homeMediaUrl(value){const raw=homeText(value);if(!raw)return'';if(/^(https?:|data:|blob:)/i.test(raw))return raw;if(/^\/?\.?\//.test(raw)||/^img\//i.test(raw)||/^assets\//i.test(raw))return raw;if(/^[a-z0-9.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(raw))return'https://'+raw;return raw;}
       function homeCategoryLabel(cat){const c=homeText(cat).toLowerCase();return c==='ai'?'IA':c==='streaming'?'Streaming':c==='musica'?'Diseño y video':c==='otros'?'Herramientas':(c||'Servicio');}
-      function homeCategoryIcon(cat){const c=homeText(cat).toLowerCase();return c==='ai'?'fa-robot':c==='streaming'?'fa-tv':c==='musica'?'fa-magic':'fa-layer-group';}
-      function homeMoney(value,currency='PEN'){const n=Number(value);if(!Number.isFinite(n))return'Consultar';return(String(currency||'PEN').toUpperCase()==='USD'?'US$':'S/')+' '+n.toLocaleString('es-PE',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2});}
-      function homePlaceholder(name){
-        const initials=homeInitials(name), svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 320"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#16304f"/><stop offset="1" stop-color="#2584e8"/></linearGradient></defs><rect width="420" height="320" rx="30" fill="url(#g)"/><circle cx="328" cy="-6" r="110" fill="#29d0e7" opacity=".28"/><circle cx="56" cy="296" r="120" fill="#fff" opacity=".10"/><rect x="130" y="82" width="160" height="160" rx="46" fill="#fff" opacity=".14"/><text x="210" y="186" text-anchor="middle" font-family="Arial,sans-serif" font-size="76" font-weight="800" fill="#fff">'+homeEsc(initials)+'</text></svg>';
-        return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
-      }
-      function homeImageTag(product,cls='home-media-img'){
-        const plan=homePreferredPlan(product);
-        const src=homeMediaUrl(plan?.image||product.image)||homePlaceholder(product.name);
-        const fallback=homePlaceholder(product.name);
-        return `<img class="${cls}" src="${homeAttr(src)}" alt="${homeAttr(product.name)}" loading="lazy" onerror="this.onerror=null;this.src='${homeAttr(fallback)}'">`;
-      }
-      function homePlanAvailable(plan){
-        if(!plan||plan.active===false)return false;
-        const status=homeText(plan.availabilityStatus||'available').toLowerCase();
-        const mode=homeText(plan.stockMode||'controlled').toLowerCase();
-        const stock=Number(plan.availableStock||0);
-        if(status==='unavailable')return false;
-        if(status==='consult'||mode==='unlimited')return true;
-        if(mode==='manual'||mode==='preorder')return !!plan.allowPurchaseWithoutStock||status==='available'||stock>0;
-        return stock>0||!!plan.allowPurchaseWithoutStock;
-      }
-      function homeSortedPlans(product){return(product?.plans||[]).filter(p=>p&&p.active!==false).slice().sort((a,b)=>Number(a.priority||100)-Number(b.priority||100)||String(a.name||'').localeCompare(String(b.name||''),'es'));}
+      function homeCategoryIcon(cat){const c=homeText(cat).toLowerCase();return c==='ai'?'fa-robot':c==='streaming'?'fa-tv':c==='musica'?'fa-magic':'fa-cubes';}
+      function homeInitials(name){return homeText(name).split(/\s+/).filter(Boolean).slice(0,2).map(function(x){return x.charAt(0);}).join('').toUpperCase()||'IA';}
+      function homeMoney(value,currency){const n=Number(value);if(!Number.isFinite(n))return'Consultar';const sign=String(currency||'PEN').toUpperCase()==='USD'?'US$':'S/';return sign+' '+n.toLocaleString('es-PE',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2});}
+      function homePlaceholder(name){const initials=homeInitials(name);const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 380"><rect width="520" height="380" rx="34" fill="#1c2737"/><circle cx="438" cy="44" r="108" fill="#ffcc28" opacity=".15"/><circle cx="72" cy="352" r="128" fill="#fff" opacity=".06"/><rect x="169" y="99" width="182" height="182" rx="45" fill="#fff" opacity=".12"/><text x="260" y="213" text-anchor="middle" font-family="Arial,sans-serif" font-size="76" font-weight="800" fill="#fff">'+homeEsc(initials)+'</text></svg>';return'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);}
+      function homeDomain(value){try{const raw=homeMediaUrl(value);if(!raw||!/^(https?:)/i.test(raw))return'';return new URL(raw).hostname.replace(/^www\./,'');}catch(_){return'';}}
+      function homeImageUrl(product){const plan=homePreferredPlan(product);return homeMediaUrl((plan&&plan.image)||product.image||'');}
+      function homeLogoFallback(product){const d=homeDomain(product.websiteUrl||product.url||'');return d?'https://logo.clearbit.com/'+encodeURIComponent(d)+'?size=512':'';}
+      function homeImageTag(product,klass){const primary=homeImageUrl(product)||homeLogoFallback(product)||homePlaceholder(product.name);const domain=homeDomain(product.websiteUrl||product.url||'');const fallback=domain?'https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=256':homePlaceholder(product.name);const final=homePlaceholder(product.name);return'<img class="'+homeAttr(klass||'')+'" src="'+homeAttr(primary)+'" alt="'+homeAttr(product.name)+'" loading="lazy" onerror="if(!this.dataset.hf){this.dataset.hf=\'1\';this.src=\''+homeAttr(fallback)+'\';}else{this.onerror=null;this.src=\''+homeAttr(final)+'\';}">';}
+
+      function homePlanAvailable(plan){if(!plan||plan.active===false)return false;const status=homeText(plan.availabilityStatus||'available').toLowerCase();if(['unavailable','out_of_stock','disabled','inactive'].indexOf(status)>-1)return false;if(plan.allowWithoutStock)return true;if(homeText(plan.stockMode||'manual').toLowerCase()==='controlled')return Number(plan.stock||0)>0;return status!=='unavailable';}
+      function homeSortedPlans(product){return(product&&product.plans||[]).filter(function(p){return p&&p.active!==false;}).slice().sort(function(a,b){return Number(a.priority||100)-Number(b.priority||100)||String(a.name||'').localeCompare(String(b.name||''),'es');});}
       function homePreferredPlan(product){const plans=homeSortedPlans(product);return plans.find(homePlanAvailable)||plans[0]||null;}
       function homeProductAvailable(product){return homeSortedPlans(product).some(homePlanAvailable);}
-      function homePriceInfo(product){
-        const plans=homeSortedPlans(product).filter(p=>Number.isFinite(Number(p.price)));
-        const live=plans.filter(homePlanAvailable);
-        const pool=live.length?live:plans;
-        if(!pool.length)return{value:null,plan:null,count:0};
-        pool.sort((a,b)=>Number(a.price)-Number(b.price)||Number(a.priority||100)-Number(b.priority||100));
-        return{value:Number(pool[0].price),plan:pool[0],count:pool.length};
-      }
-      function homeBuildCatalog(rows){
-        const map=new Map();
-        (rows||[]).forEach(row=>{
-          if(!homeBool(row.product_active,true))return;
-          const productId=homeText(row.product_id||row.product_slug);
-          if(!productId)return;
-          if(!map.has(productId)){
-            const slug=homeText(row.product_slug||productId);
-            const rawMode=homeText(row.sale_mode||row.product_mode||'retail').toLowerCase();
-            map.set(productId,{
-              id:productId,slug,shopId:'db-'+slug,name:homeText(row.product_name)||'Producto',
-              description:homeText(row.product_description||row.product_desc||''),why:homeText(row.product_why||''),
-              category:homeText(row.category)||'otros',priority:Number(row.product_priority??100),
-              image:homeMediaUrl(row.image_url||row.product_image_url||''),
-              videoUrl:homeMediaUrl(row.product_video_url||row.video_url||''),videoType:row.product_video_type||row.video_type||'auto',videoFit:row.product_video_fit||row.video_fit||'cover',videoEnabled:homeBool(row.product_video_enabled,true),
-              saleMode:rawMode.includes('whole')||rawMode.includes('prove')?'wholesale':'retail',plans:[]
-            });
-          }
-          const product=map.get(productId);
-          const planId=homeText(row.plan_id);
-          if(planId){
-            product.plans.push({
-              id:planId,name:homeText(row.plan_name)||'Plan',price:row.price==null?null:Number(row.price),currency:row.currency||'PEN',period:homeText(row.period||''),priority:Number(row.plan_priority??100),active:homeBool(row.plan_active,true),
-              stockMode:row.stock_mode||'controlled',availableStock:Number(row.available_stock||0),availabilityStatus:row.availability_status||'available',allowPurchaseWithoutStock:!!row.allow_purchase_without_stock,
-              chips:homeArray(row.chips).map(homeText).filter(Boolean),benefits:homeArray(row.benefits).map(homeText).filter(Boolean),description:homeText(row.plan_description||''),why:homeText(row.plan_why||''),
-              image:homeMediaUrl(row.plan_image_url||row.image_url||row.product_image_url||''),
-              videoUrl:homeMediaUrl(row.plan_video_url||row.product_video_url||row.video_url||''),videoType:row.plan_video_type||row.product_video_type||row.video_type||'auto',videoFit:row.plan_video_fit||row.product_video_fit||row.video_fit||'cover',videoEnabled:homeBool(row.plan_video_enabled,true)&&homeBool(row.product_video_enabled,true)
-            });
-          }
-        });
-        return Array.from(map.values()).filter(p=>p.plans.length>0).sort((a,b)=>Number(a.priority||100)-Number(b.priority||100)||String(a.name).localeCompare(String(b.name),'es'));
-      }
-      function homeConfig(raw){
-        const parsed=homeJson(raw);const ids=Array.isArray(parsed.hero_product_ids)?parsed.hero_product_ids:(Array.isArray(parsed.hero_ids)?parsed.hero_ids:[]);
-        return{heroIds:[...new Set(ids.map(String).filter(Boolean))].slice(0,5),promoTop:String(parsed.promo_top_product_id||parsed.promo_top_id||''),promoBottom:String(parsed.promo_bottom_product_id||parsed.promo_bottom_id||'')};
-      }
-      function homePickProducts(products,config){
-        const active=(products||[]).filter(p=>p&&p.saleMode!=='wholesale');const index=new Map(active.map(p=>[String(p.id),p]));const hero=[];
-        (config.heroIds||[]).forEach(id=>{const p=index.get(String(id));if(p&&!hero.some(x=>x.id===p.id))hero.push(p);});
-        for(const p of active){if(hero.length>=3)break;if(!hero.some(x=>x.id===p.id))hero.push(p);}
-        const pool=[...active.filter(p=>!hero.some(h=>h.id===p.id)),...hero];const promos=[];
-        [config.promoTop,config.promoBottom].forEach(id=>{const p=index.get(String(id));if(p&&!promos.some(x=>x.id===p.id))promos.push(p);});
-        for(const p of pool){if(promos.length>=2)break;if(!promos.some(x=>x.id===p.id))promos.push(p);}
-        const rest=[...active.filter(p=>!hero.some(h=>h.id===p.id)&&!promos.some(x=>x.id===p.id)),...active.filter(p=>!hero.some(h=>h.id===p.id))];
-        return{hero:hero.slice(0,5),promos:promos.slice(0,2),rest:[...new Map(rest.map(p=>[p.id,p])).values()].slice(0,8)};
-      }
+      function homePriceInfo(product){const all=homeSortedPlans(product).filter(function(p){return Number.isFinite(Number(p.price));});const active=all.filter(homePlanAvailable);const candidates=active.length?active:all;if(!candidates.length)return{value:null,count:0,plan:null};const min=candidates.reduce(function(best,p){return Number(p.price)<Number(best.price)?p:best;});return{value:Number(min.price),count:candidates.length,plan:min};}
+
+      function homeBuildCatalog(rows){const map=new Map();(rows||[]).forEach(function(row){if(!homeBool(row.product_active,true))return;const mode=homeText(row.sale_mode||row.product_mode||'retail').toLowerCase();if(mode.indexOf('whole')>-1||mode.indexOf('prove')>-1)return;const id=homeText(row.product_id||row.product_slug);if(!id)return;const slug=homeText(row.product_slug||id);if(!map.has(id)){map.set(id,{id:id,slug:slug,shopId:'db-'+slug,name:homeText(row.product_name)||'Producto',description:homeText(row.product_description||row.product_desc||''),category:homeText(row.category)||'otros',priority:Number(row.product_priority||100),image:homeMediaUrl(row.product_image_url||row.image_url||''),websiteUrl:homeText(row.website_url||row.product_website_url||row.url||''),url:homeText(row.website_url||row.url||''),videoUrl:homeMediaUrl(row.product_video_url||row.video_url||''),videoType:homeText(row.product_video_type||row.video_type||'auto'),videoFit:homeText(row.product_video_fit||row.video_fit||'cover'),videoEnabled:homeBool(row.product_video_enabled,true),plans:[]});}const product=map.get(id);const pid=homeText(row.plan_id);if(pid){product.plans.push({id:pid,name:homeText(row.plan_name)||'Plan',price:row.price==null?null:Number(row.price),currency:row.currency||'PEN',period:homeText(row.period||''),priority:Number(row.plan_priority||100),active:homeBool(row.plan_active,true),stock:Number(row.available_stock||0),stockMode:homeText(row.stock_mode||'manual'),availabilityStatus:homeText(row.availability_status||'available'),allowWithoutStock:homeBool(row.allow_purchase_without_stock,false),chips:homeArray(row.chips).map(homeText).filter(Boolean),benefits:homeArray(row.benefits).map(homeText).filter(Boolean),description:homeText(row.plan_description||''),image:homeMediaUrl(row.plan_image_url||row.image_url||row.product_image_url||''),videoUrl:homeMediaUrl(row.plan_video_url||row.product_video_url||row.video_url||''),videoType:homeText(row.plan_video_type||row.product_video_type||row.video_type||'auto'),videoFit:homeText(row.plan_video_fit||row.product_video_fit||row.video_fit||'cover'),videoEnabled:homeBool(row.plan_video_enabled,true)&&homeBool(row.product_video_enabled,true)});}});return Array.from(map.values()).sort(function(a,b){return Number(a.priority||100)-Number(b.priority||100)||String(a.name).localeCompare(String(b.name),'es');});}
+      function homeConfig(raw){const value=homeJson(raw);function ids(val,max){return[...new Set((Array.isArray(val)?val:[]).map(String).filter(Boolean))].slice(0,max);}return{hero_product_ids:ids(value.hero_product_ids||value.hero_ids,5),promo_top_product_id:homeText(value.promo_top_product_id||value.promo_top_id||''),promo_bottom_product_id:homeText(value.promo_bottom_product_id||value.promo_bottom_id||''),bottom_product_ids:ids(value.bottom_product_ids||value.lower_product_ids||value.footer_product_ids,4)};}
+      function homeSelected(products,config){const byId=new Map(products.map(function(p){return[String(p.id),p];}));const fallback=products.slice(0,5);const hero=(config.hero_product_ids||[]).map(function(id){return byId.get(String(id));}).filter(Boolean);const finalHero=hero.length?hero:fallback.slice(0,Math.min(3,fallback.length));const promos=[config.promo_top_product_id,config.promo_bottom_product_id].map(function(id){return byId.get(String(id));}).filter(Boolean);const bottom=(config.bottom_product_ids||[]).map(function(id){return byId.get(String(id));}).filter(Boolean);return{hero:finalHero,promos:promos,bottom:bottom};}
       function homeYouTubeId(url){const m=String(url||'').match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);return m?m[1]:'';}
       function homeVimeoId(url){const m=String(url||'').match(/vimeo\.com\/(?:video\/)?(\d+)/i);return m?m[1]:'';}
-      function homeMedia(product){
-        const plan=homePreferredPlan(product);const video=homeMediaUrl(plan?.videoUrl||product.videoUrl||'');const enabled=(plan?plan.videoEnabled:product.videoEnabled)!==false;const fit=(plan?.videoFit||product.videoFit||'cover')==='contain'?' home-fit-contain':'';
-        let videoHtml='';
-        if(video&&enabled){const yt=homeYouTubeId(video),vm=homeVimeoId(video);if(yt)videoHtml=`<iframe class="home-media-video${fit}" src="https://www.youtube-nocookie.com/embed/${homeAttr(yt)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${homeAttr(yt)}&playsinline=1&rel=0&modestbranding=1" title="Video de ${homeAttr(product.name)}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>`;else if(vm)videoHtml=`<iframe class="home-media-video${fit}" src="https://player.vimeo.com/video/${homeAttr(vm)}?autoplay=1&muted=1&loop=1&background=1&dnt=1" title="Video de ${homeAttr(product.name)}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>`;else if(/\.(mp4|webm|ogg)(?:[?#].*)?$/i.test(video))videoHtml=`<video class="home-media-video${fit}" muted playsinline loop autoplay preload="metadata" poster="${homeAttr(homeMediaUrl(plan?.image||product.image)||homePlaceholder(product.name))}"><source src="${homeAttr(video)}"></video>`;}
-        return `<div class="home-visual-fallback">${homeImageTag(product)}</div>${videoHtml}`;
-      }
-      function homeLink(product){return 'shop.html#p='+encodeURIComponent(product.shopId);}
-      function homeDescription(product){const plan=homePreferredPlan(product);return homeText(product.description||plan?.description||product.why||plan?.why||'Revisa los planes disponibles y elige la opción que mejor se adapte a ti.');}
-      function homePriceHtml(product){const info=homePriceInfo(product);if(info.value==null)return'<strong>Consultar</strong><span>según disponibilidad</span>';const prefix=info.count>1?'Desde ':'';const note=info.count>1?`${info.count} planes disponibles`:(info.plan?.period||'Plan disponible');return `<strong>${homeEsc(prefix+homeMoney(info.value,info.plan?.currency||'PEN'))}</strong><span>${homeEsc(note)}</span>`;}
-      function homeChipHtml(product){const plan=homePreferredPlan(product),available=homeProductAvailable(product);const raw=[...(plan?.chips||[]),plan?.period||''];const chips=[...new Set(raw.map(homeText).filter(Boolean))].slice(0,3);return `<span class="home-chip ${available?'is-good':''}"><i class="fa ${available?'fa-check-circle':'fa-info-circle'}"></i>${available?'Disponible':'Consultar'}</span>`+chips.map(ch=>`<span class="home-chip"><i class="fa fa-circle"></i>${homeEsc(ch)}</span>`).join('');}
-      function homeHeroSlide(product,index){
-        return `<div class="carousel-item ${index===0?'active':''}"><article class="home-hero-item home-openable" data-home-open="${homeAttr(product.id)}" tabindex="0" role="link" aria-label="Abrir ${homeAttr(product.name)} en la tienda"><div class="row align-items-center"><div class="col-lg-6 mb-3 mb-lg-0"><div class="home-hero-media">${homeMedia(product)}</div></div><div class="col-lg-6"><div class="home-hero-copy"><div class="home-eyebrow"><span class="home-category"><i class="fa ${homeCategoryIcon(product.category)}"></i>${homeEsc(homeCategoryLabel(product.category))}</span><span class="home-live ${homeProductAvailable(product)?'':'is-consult'}"><i class="fa fa-circle"></i>${homeProductAvailable(product)?'Disponible':'Consultar'}</span></div><div class="home-open-hint"><i class="fa fa-hand-pointer"></i> Toca esta tarjeta para ver todos los planes</div><h2 class="home-hero-title">${homeEsc(product.name)}</h2><div class="home-price-row">${homePriceHtml(product)}</div><div class="home-chip-row">${homeChipHtml(product)}</div><p class="home-hero-description">${homeEsc(homeDescription(product)).slice(0,240)}</p><div class="home-hero-actions"><a class="home-cta" href="${homeAttr(homeLink(product))}"><i class="fa fa-store"></i> Ver planes en tienda</a></div><div class="home-mini-trust"><div><i class="fa fa-list-alt"></i> Planes y precios reales</div><div><i class="fa fa-headset"></i> Soporte de tienda</div></div></div></div></div></article></div>`;
-      }
-      function homePromoCard(product){const plan=homePreferredPlan(product),detail=plan?.period?`${homeCategoryLabel(product.category)} · ${plan.period}`:homeCategoryLabel(product.category);return `<a class="home-promo-card" href="${homeAttr(homeLink(product))}" aria-label="Abrir ${homeAttr(product.name)} en tienda"><div class="home-promo-media"><div class="home-visual-fallback">${homeImageTag(product)}</div></div><div class="home-promo-copy"><small>${homeEsc(detail)}</small><h3>${homeEsc(product.name)}</h3><span class="home-cta"><i class="fa fa-store"></i> Ver planes</span></div></a>`;}
-      function homeCatalogCard(product){const info=homePriceInfo(product),plan=homePreferredPlan(product),chips=[...(plan?.chips||[]),plan?.period||''].map(homeText).filter(Boolean).slice(0,2);const price=info.value==null?'Consultar':(info.count>1?'Desde ':'')+homeMoney(info.value,info.plan?.currency||'PEN');const note=info.value==null?'Ver disponibilidad':(info.count>1?`${info.count} planes`:info.plan?.period||'Plan');const media=homeMediaUrl(plan?.image||product.image)?homeImageTag(product,''):`<span class="home-catalog-monogram">${homeEsc(homeInitials(product.name))}</span>`;return `<a class="home-catalog-card" href="${homeAttr(homeLink(product))}" aria-label="Abrir ${homeAttr(product.name)} en tienda"><span class="home-catalog-media">${media}</span><span class="home-catalog-body"><span class="home-catalog-cat"><i class="fa ${homeCategoryIcon(product.category)}"></i>${homeEsc(homeCategoryLabel(product.category))}</span><strong class="home-catalog-name">${homeEsc(product.name)}</strong><span class="home-catalog-price"><strong>${homeEsc(price)}</strong><span>${homeEsc(note)}</span></span><span class="home-catalog-chips">${chips.map(ch=>`<span class="home-catalog-chip"><i class="fa fa-check-circle"></i>${homeEsc(ch)}</span>`).join('')}</span><span class="home-catalog-go">Ver en tienda <i class="fa fa-arrow-right"></i></span></span></a>`;}
-      function homeRenderEmpty(){const slides=document.getElementById('homeHeroSlides'),indicators=document.getElementById('homeHeroIndicators'),promos=document.getElementById('homePromoRail'),spot=document.getElementById('homeProductSpotlight');if(slides)slides.innerHTML=`<div class="carousel-item active"><div class="home-empty"><i class="fa fa-store"></i><strong>El catálogo aún no está disponible</strong><p>Revisa los productos publicados directamente en la tienda.</p><a class="home-cta" href="shop.html">Abrir tienda</a></div></div>`;if(indicators)indicators.innerHTML='';if(promos)promos.innerHTML='';if(spot)spot.innerHTML='<div class="home-catalog-empty">Los productos publicados aparecerán aquí.</div>';}
-      function homeSyncVideos(){document.querySelectorAll('#heroCarousel video.home-media-video').forEach(video=>{const active=video.closest('.carousel-item')?.classList.contains('active');if(active)video.play?.().catch(()=>{});else video.pause?.();});}
-      function homeRestartProgress(){const bar=document.getElementById('carouselProgressBar');if(!bar)return;bar.style.transition='none';bar.style.width='0%';clearTimeout(homeRuntime.progressTimer);homeRuntime.progressTimer=setTimeout(()=>{bar.style.transition=`width ${HOME_ROTATION_MS-150}ms linear`;bar.style.width='100%';},35);}
-      function homeSetSlide(next){const slides=[...document.querySelectorAll('#homeHeroSlides .carousel-item')];if(!slides.length)return;homeRuntime.carouselIndex=((next%slides.length)+slides.length)%slides.length;slides.forEach((slide,i)=>slide.classList.toggle('active',i===homeRuntime.carouselIndex));document.querySelectorAll('#homeHeroIndicators [data-home-slide]').forEach((dot,i)=>dot.classList.toggle('active',i===homeRuntime.carouselIndex));homeSyncVideos();homeRestartProgress();}
-      function homeResetCarousel(){const root=document.getElementById('heroCarousel');if(!root)return;clearInterval(homeRuntime.carouselTimer);try{if(window.jQuery)window.jQuery('#heroCarousel').carousel('pause');}catch(_){}homeRuntime.carouselIndex=0;const prev=document.getElementById('homeCarouselPrev'),next=document.getElementById('homeCarouselNext');if(prev)prev.onclick=e=>{e.preventDefault();e.stopPropagation();homeSetSlide(homeRuntime.carouselIndex-1);};if(next)next.onclick=e=>{e.preventDefault();e.stopPropagation();homeSetSlide(homeRuntime.carouselIndex+1);};document.querySelectorAll('#homeHeroIndicators [data-home-slide]').forEach(dot=>dot.onclick=e=>{e.preventDefault();homeSetSlide(Number(dot.dataset.homeSlide||0));});homeRuntime.carouselTimer=setInterval(()=>homeSetSlide(homeRuntime.carouselIndex+1),HOME_ROTATION_MS);homeSetSlide(0);}
-      function homeBindActions(){if(homeRuntime.bound)return;homeRuntime.bound=true;document.addEventListener('click',event=>{const card=event.target.closest('[data-home-open]');if(!card||event.target.closest('a,button,input,select,textarea'))return;const product=homeRuntime.byId.get(String(card.dataset.homeOpen||''));if(product)window.location.href=homeLink(product);});document.addEventListener('keydown',event=>{if(event.key!=='Enter'&&event.key!==' ')return;const card=event.target.closest?.('[data-home-open]');if(!card)return;event.preventDefault();const product=homeRuntime.byId.get(String(card.dataset.homeOpen||''));if(product)window.location.href=homeLink(product);});}
-      function homeRender(products,config){const selected=homePickProducts(products,config);homeRuntime.byId=new Map(products.map(p=>[String(p.id),p]));homeRuntime.products=products;homeRuntime.config=config;if(!selected.hero.length){homeRenderEmpty();return;}const slides=document.getElementById('homeHeroSlides'),indicators=document.getElementById('homeHeroIndicators'),promos=document.getElementById('homePromoRail'),spot=document.getElementById('homeProductSpotlight');if(slides)slides.innerHTML=selected.hero.map(homeHeroSlide).join('');if(indicators)indicators.innerHTML=selected.hero.map((_,i)=>`<li data-home-slide="${i}" class="${i===0?'active':''}" aria-label="Ver servicio ${i+1}" role="button" tabindex="0"></li>`).join('');if(promos)promos.innerHTML=selected.promos.map(homePromoCard).join('');if(spot)spot.innerHTML=(selected.rest.length?selected.rest.map(homeCatalogCard).join(''):'<div class="home-catalog-empty">Pronto habrá más servicios en el catálogo.</div>');homeResetCarousel();homeBindActions();}
-      async function initHomeShowcase(){if(!window.supabase){homeRenderEmpty();return;}try{homeRuntime.client=window.supabase.createClient(HOME_SUPABASE_URL,HOME_SUPABASE_KEY);const [catalogRes,configRes]=await Promise.all([homeRuntime.client.rpc('get_public_catalog'),homeRuntime.client.rpc(HOME_CONFIG_RPC)]);if(catalogRes.error)throw catalogRes.error;const products=homeBuildCatalog(catalogRes.data||[]);const config=configRes?.error?homeConfig({}):homeConfig(configRes.data);homeRender(products,config);}catch(error){console.warn('No se pudo cargar la portada dinámica',error);homeRenderEmpty();}}
+      function homeVisual(product,variant){const plan=homePreferredPlan(product);const video=homeMediaUrl((plan&&plan.videoUrl)||product.videoUrl||'');const enabled=(plan?plan.videoEnabled:product.videoEnabled)!==false;const fit=((plan&&plan.videoFit)||product.videoFit||'cover')==='contain'?' home-v3-fit-contain':'';let videoHtml='';if(video&&enabled){const yt=homeYouTubeId(video),vm=homeVimeoId(video);if(yt)videoHtml='<iframe class="home-v3-video-frame'+fit+'" src="https://www.youtube-nocookie.com/embed/'+homeAttr(yt)+'?autoplay=1&mute=1&controls=0&loop=1&playlist='+homeAttr(yt)+'&playsinline=1&rel=0&modestbranding=1" title="Video de '+homeAttr(product.name)+'" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>';else if(vm)videoHtml='<iframe class="home-v3-video-frame'+fit+'" src="https://player.vimeo.com/video/'+homeAttr(vm)+'?autoplay=1&muted=1&loop=1&background=1&dnt=1" title="Video de '+homeAttr(product.name)+'" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>';else if(/\.(mp4|webm|ogg)(?:[?#].*)?$/i.test(video))videoHtml='<video class="home-v3-video'+fit+'" muted playsinline loop autoplay preload="metadata" poster="'+homeAttr(homeImageUrl(product)||homePlaceholder(product.name))+'"><source src="'+homeAttr(video)+'"></video>';}return'<div class="home-v3-image-wrap">'+homeImageTag(product,'home-v3-media-img')+'</div>'+videoHtml;}
+      function homeLink(product){return'shop.html#p='+encodeURIComponent(product.shopId);}
+      function homeDescription(product){const plan=homePreferredPlan(product);return homeText(product.description||(plan&&plan.description)||'Revisa los planes disponibles y elige la opción que mejor se adapte a ti.');}
+      function homePriceHtml(product){const info=homePriceInfo(product);if(info.value==null)return'<strong>Consultar</strong><span>Ver opciones en tienda</span>';const prefix=info.count>1?'Desde ':'';const note=info.count>1?info.count+' planes disponibles':(info.plan&&info.plan.period)||'Plan disponible';return'<strong>'+homeEsc(prefix+homeMoney(info.value,(info.plan&&info.plan.currency)||'PEN'))+'</strong><span>'+homeEsc(note)+'</span>';}
+      function homeChips(product){const plan=homePreferredPlan(product);const parts=[].concat((plan&&plan.chips)||[],[(plan&&plan.period)||'']).map(homeText).filter(Boolean);return[...new Set(parts)].slice(0,3);}
+      function homeHeroSlide(product,index){const available=homeProductAvailable(product);const chips=homeChips(product);return'<article class="home-v3-slide '+(index===0?'is-active':'')+'" data-home-v3-slide="'+index+'"><div class="home-v3-media">'+homeVisual(product,'hero')+'</div><div class="home-v3-copy"><div class="home-v3-topline"><span class="home-v3-tag"><i class="fas '+homeCategoryIcon(product.category)+'"></i>'+homeEsc(homeCategoryLabel(product.category))+'</span><span class="home-v3-availability '+(available?'':'is-ask')+'"><i class="fas fa-circle"></i>'+ (available?'Disponible':'Consultar')+'</span></div><h1 class="home-v3-title">'+homeEsc(product.name)+'</h1><div class="home-v3-price">'+homePriceHtml(product)+'</div><div class="home-v3-chips">'+chips.map(function(c){return'<span class="home-v3-chip"><i class="fas fa-check"></i>'+homeEsc(c)+'</span>';}).join('')+'</div><p class="home-v3-desc">'+homeEsc(homeDescription(product)).slice(0,230)+'</p><div class="home-v3-actions"><a class="home-v3-cta" href="'+homeAttr(homeLink(product))+'"><i class="fas fa-store"></i> Ver planes en tienda</a><span class="home-v3-linknote">Elige tu plan dentro de la tienda</span></div><div class="home-v3-trust"><span><i class="fas fa-tags"></i> Precios reales</span><span><i class="fas fa-headset"></i> Soporte disponible</span></div></div></article>';}
+      function homePromo(product){const info=homePriceInfo(product),plan=homePreferredPlan(product);const price=info.value==null?'Consultar':(info.count>1?'Desde ':'')+homeMoney(info.value,(info.plan&&info.plan.currency)||'PEN');const meta=homeCategoryLabel(product.category)+(plan&&plan.period?' · '+plan.period:'');return'<a class="home-v3-promo" href="'+homeAttr(homeLink(product))+'" aria-label="Abrir '+homeAttr(product.name)+' en la tienda"><div class="home-v3-promo-media">'+homeVisual(product,'promo')+'</div><div class="home-v3-promo-copy"><small>'+homeEsc(meta)+'</small><h3>'+homeEsc(product.name)+'</h3><span><i class="fas fa-store"></i> '+homeEsc(price)+'</span></div></a>';}
+      function homeBottomCard(product){const info=homePriceInfo(product),plan=homePreferredPlan(product);const price=info.value==null?'Consultar':(info.count>1?'Desde ':'')+homeMoney(info.value,(info.plan&&info.plan.currency)||'PEN');const note=info.value==null?'Ver planes':(info.count>1?info.count+' planes':(plan&&plan.period)||'Plan');return'<a class="home-v3-card" href="'+homeAttr(homeLink(product))+'" aria-label="Abrir '+homeAttr(product.name)+' en la tienda"><span class="home-v3-card-media">'+homeVisual(product,'card')+'</span><span class="home-v3-card-body"><span class="home-v3-card-category">'+homeEsc(homeCategoryLabel(product.category))+'</span><strong class="home-v3-card-name">'+homeEsc(product.name)+'</strong><span class="home-v3-card-price"><strong>'+homeEsc(price)+'</strong><span>'+homeEsc(note)+'</span></span></span><i class="fas fa-arrow-right home-v3-card-arrow"></i></a>';}
+      function homeEmpty(){const slides=document.getElementById('homeV3Slides'),promos=document.getElementById('homeV3Promos'),curated=document.getElementById('homeV3CuratedStage');if(slides)slides.innerHTML='<div class="home-v3-empty"><i class="fas fa-store"></i><strong>La portada aún no tiene destacados</strong><p>Publica productos y selecciónalos desde el administrador.</p><a class="home-v3-cta" href="shop.html"><i class="fas fa-store"></i> Ir a la tienda</a></div>';if(promos)promos.innerHTML='';if(curated)curated.hidden=true;}
+      function homeSyncVideos(){document.querySelectorAll('#homeV3Slides video.home-v3-video').forEach(function(video){const isActive=video.closest('[data-home-v3-slide]')&&video.closest('[data-home-v3-slide]').classList.contains('is-active');if(isActive)video.play&&video.play().catch(function(){});else video.pause&&video.pause();});}
+      function homeResetProgress(){const bar=document.getElementById('homeV3Progress');if(!bar)return;bar.style.transition='none';bar.style.width='0%';clearTimeout(homeRuntime.progressTimer);if(window.matchMedia&&window.matchMedia('(max-width: 600px)').matches)return;homeRuntime.progressTimer=setTimeout(function(){bar.style.transition='width '+(HOME_ROTATION_MS-80)+'ms linear';bar.style.width='100%';},35);}
+      function homeSetSlide(index){const slides=[].slice.call(document.querySelectorAll('#homeV3Slides [data-home-v3-slide]'));if(!slides.length)return;homeRuntime.active=((index%slides.length)+slides.length)%slides.length;slides.forEach(function(slide,i){slide.classList.toggle('is-active',i===homeRuntime.active);});document.querySelectorAll('[data-home-v3-indicator]').forEach(function(dot,i){dot.classList.toggle('is-active',i===homeRuntime.active);dot.setAttribute('aria-current',i===homeRuntime.active?'true':'false');});homeSyncVideos();homeResetProgress();}
+      function homeStopAuto(){clearInterval(homeRuntime.timer);homeRuntime.timer=null;}
+      function homeStartAuto(){homeStopAuto();if((window.matchMedia&&window.matchMedia('(max-width: 600px)').matches)||window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;homeRuntime.timer=setInterval(function(){if(!homeRuntime.paused)homeSetSlide(homeRuntime.active+1);},HOME_ROTATION_MS);}
+      function homeBindCarousel(){if(homeRuntime.eventsBound)return;const hero=document.getElementById('homeV3Hero');if(!hero)return;const prev=document.getElementById('homeV3Prev'),next=document.getElementById('homeV3Next');if(prev)prev.onclick=function(){homeSetSlide(homeRuntime.active-1);homeStartAuto();};if(next)next.onclick=function(){homeSetSlide(homeRuntime.active+1);homeStartAuto();};hero.addEventListener('mouseenter',function(){homeRuntime.paused=true;});hero.addEventListener('mouseleave',function(){homeRuntime.paused=false;});document.addEventListener('visibilitychange',function(){homeRuntime.paused=document.hidden;});homeRuntime.eventsBound=true;}
+      function homeRender(products,config){const selected=homeSelected(products,config);homeRuntime.products=products;homeRuntime.byId=new Map(products.map(function(p){return[String(p.id),p];}));homeRuntime.config=config;const slides=document.getElementById('homeV3Slides'),promos=document.getElementById('homeV3Promos'),indicators=document.getElementById('homeV3Indicators'),layout=document.getElementById('homeV3Layout'),bottomStage=document.getElementById('homeV3CuratedStage'),bottomGrid=document.getElementById('homeV3CuratedGrid');if(!selected.hero.length){homeEmpty();return;}if(slides)slides.innerHTML=selected.hero.map(homeHeroSlide).join('');if(indicators)indicators.innerHTML=selected.hero.map(function(_,i){return'<button type="button" class="home-v3-indicator '+(i===0?'is-active':'')+'" data-home-v3-indicator="'+i+'" aria-label="Ver destacado '+(i+1)+'"></button>';}).join('');if(promos){promos.innerHTML=selected.promos.map(homePromo).join('');if(!selected.promos.length)promos.innerHTML='';}if(layout)layout.classList.toggle('no-promos',!selected.promos.length);if(bottomStage&&bottomGrid){if(selected.bottom.length){bottomGrid.innerHTML=selected.bottom.map(homeBottomCard).join('');bottomStage.hidden=false;}else{bottomGrid.innerHTML='';bottomStage.hidden=true;}}document.querySelectorAll('[data-home-v3-indicator]').forEach(function(btn){btn.onclick=function(){homeSetSlide(Number(btn.dataset.homeV3Indicator||0));homeStartAuto();};});homeRuntime.active=0;homeBindCarousel();homeSetSlide(0);homeStartAuto();}
+      async function initHomeShowcase(){if(!window.supabase){homeEmpty();return;}try{homeRuntime.client=window.supabase.createClient(HOME_SUPABASE_URL,HOME_SUPABASE_KEY);const results=await Promise.all([homeRuntime.client.rpc('get_public_catalog'),homeRuntime.client.rpc(HOME_CONFIG_RPC)]);const catalogRes=results[0],configRes=results[1];if(catalogRes.error)throw catalogRes.error;homeRender(homeBuildCatalog(catalogRes.data||[]),configRes&&configRes.error?homeConfig({}):homeConfig(configRes?configRes.data:{}));}catch(error){console.warn('No se pudo cargar la portada dinámica',error);homeEmpty();}}
+      function initCarouselProgress(){homeResetProgress();}
+
+
 
       /* ===== WhatsApp badge persistencia ===== */
       (function(){
@@ -1400,8 +1237,23 @@
       });
     })();
   </script>
+
+<script>
+(function(){
+  var header=document.getElementById('innovSiteHeader');
+  var toggle=document.querySelector('[data-innov-menu-toggle]');
+  if(!header||!toggle)return;
+  toggle.addEventListener('click',function(){var open=header.classList.toggle('is-open');toggle.setAttribute('aria-expanded',open?'true':'false');});
+  document.addEventListener('click',function(e){if(!header.contains(e.target)){header.classList.remove('is-open');toggle.setAttribute('aria-expanded','false');}});
+  header.querySelectorAll('.innov-nav-link').forEach(function(link){link.addEventListener('click',function(){header.classList.remove('is-open');toggle.setAttribute('aria-expanded','false');});});
+})();
+</script>
+
 </body>
 </html>
+
+
+
 
 
 
