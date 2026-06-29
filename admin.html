@@ -1910,6 +1910,32 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 @media(max-width:640px){#tab-dashboard .pbi5{gap:10px}.pbi5-head{padding-bottom:10px}.pbi5-title{font-size:1.15rem}.pbi5-copy{font-size:.74rem}.pbi5-filterbar{padding:7px;gap:6px}.pbi5-filter-label{display:none}.pbi5-filter-divider{display:none}.pbi5-filter-chip{padding:7px 8px;font-size:.68rem}.pbi5-select{order:2;flex:1;max-width:none;width:100%}.pbi5-custom-range{order:3;width:100%;justify-content:space-between}.pbi5-date{max-width:calc(50% - 12px);flex:1}.pbi5-kpis{gap:7px}.pbi5-kpi{min-height:112px;padding:11px;grid-template-columns:minmax(0,1fr) 52px}.pbi5-kpi-top{font-size:.62rem;gap:6px}.pbi5-kpi-icon{width:26px;height:26px;border-radius:9px;font-size:.78rem}.pbi5-kpi-value{font-size:1.12rem;margin-top:10px}.pbi5-kpi-sub{font-size:.57rem;margin-top:7px}.pbi5-spark{width:52px;height:37px}.pbi5-layout{display:grid;grid-template-columns:1fr;grid-template-areas:"trend" "status" "risk" "top" "flow" "collection" "health" "alerts" "monitor" "activity";gap:9px}.pbi5-card{border-radius:15px}.pbi5-card-head{padding:12px 12px 8px}.pbi5-card-title{font-size:.80rem}.pbi5-card-sub{font-size:.63rem}.pbi5-trend{min-height:270px}.pbi5-trend-legend{padding-inline:12px;font-size:.63rem}.pbi5-chart-wrap{padding:4px 7px 10px;min-height:193px}.pbi5-trend-svg{height:194px}.pbi5-status-body{padding:2px 12px 12px;grid-template-columns:118px minmax(0,1fr);gap:8px}.pbi5-donut,.pbi5-donut-box{width:114px;height:114px}.pbi5-status-item{font-size:.64rem}.pbi5-risk-list{padding-inline:10px}.pbi5-risk-row{padding-block:10px}.pbi5-top-list{padding:4px 12px 12px;gap:9px}.pbi5-top-row{grid-template-columns:14px minmax(72px,1fr) minmax(42px,1.2fr) auto}.pbi5-flow-body{padding-inline:11px}.pbi5-health-grid{padding:3px 10px 12px;gap:6px}.pbi5-health-item{min-height:104px;padding:9px 7px}.pbi5-health-count{font-size:1.16rem}.pbi5-monitor-body{padding:2px 11px 12px;grid-template-columns:1fr 1fr;gap:7px}.pbi5-activity-list{grid-template-columns:repeat(2,minmax(0,1fr));padding:2px 7px 9px}.pbi5-activity-item{padding:7px;border-right:1px solid var(--border)!important;border-bottom:1px solid var(--border)}.pbi5-activity-item:nth-child(even){border-right:0!important}.pbi5-activity-item:nth-last-child(-n+2){border-bottom:0}.pbi5-activity-icon{margin-bottom:5px;width:26px;height:26px;border-radius:9px}.pbi5-activity-title{font-size:.63rem}.pbi5-activity-detail,.pbi5-activity-time{font-size:.57rem}}
 @media(prefers-reduced-motion:reduce){#tab-dashboard .pbi5 *,#tab-dashboard .pbi5 *::before,#tab-dashboard .pbi5 *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
+
+
+/* ================================================================
+   HOME SHOWCASE — configuración de portada de la tienda
+   Admin > Productos > Portada
+   ================================================================ */
+.home-showcase-dialog{width:min(900px,96vw)}
+.home-showcase-note{border-left:4px solid var(--primary);background:var(--primary-alpha2);border-radius:13px;padding:11px 12px;color:var(--muted);font-size:.84rem;line-height:1.45;margin-bottom:14px}
+.home-showcase-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.home-showcase-top h3{margin:0;color:var(--card-ink);font-size:1rem}.home-showcase-count{font-variant-numeric:tabular-nums}
+.home-showcase-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:390px;overflow:auto;padding:2px}
+.home-showcase-product{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:9px;border:1px solid var(--border);border-radius:14px;padding:9px;background:var(--card);cursor:pointer;transition:border-color var(--tr),background var(--tr),box-shadow var(--tr),transform var(--tr)}
+.home-showcase-product:hover{border-color:rgba(30,64,175,.45);box-shadow:var(--shadow-xs);transform:translateY(-1px)}
+.home-showcase-product.is-selected{border-color:var(--primary);background:var(--primary-alpha2);box-shadow:0 0 0 2px var(--primary-alpha)}
+.home-showcase-product .thumb{width:48px;height:48px}.home-showcase-name{min-width:0}.home-showcase-name b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--card-ink);font-size:.86rem}.home-showcase-name span{display:block;margin-top:2px;color:var(--muted);font-size:.74rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.home-showcase-check{width:21px;height:21px;accent-color:var(--primary);cursor:pointer}
+.home-showcase-side{margin-top:15px;padding-top:14px;border-top:1px dashed var(--border)}.home-showcase-side h4{margin:0 0 4px;color:var(--card-ink);font-size:.92rem}.home-showcase-side p{margin:0 0 9px;color:var(--muted);font-size:.78rem}.home-showcase-side-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.home-showcase-side-grid .form-group{margin:0}
+.home-showcase-empty{grid-column:1/-1;padding:26px;text-align:center;border:1px dashed var(--border);border-radius:14px;color:var(--muted);font-size:.86rem}
+.home-showcase-card-flag{background:var(--purple-alpha);color:var(--purple);border-color:rgba(124,58,237,.20)!important}
+@media(max-width:700px){.home-showcase-list{grid-template-columns:1fr;max-height:46vh}.home-showcase-side-grid{grid-template-columns:1fr}.home-showcase-dialog{width:100vw!important;max-width:100vw!important}.home-showcase-product{padding:8px}.home-showcase-note{font-size:.80rem}}
+
+
+/* =====================================================================
+   PORTADA V3 — selección separada de carrusel, promos y fila inferior
+   ===================================================================== */
+.home-showcase-dialog{width:min(940px,96vw)}.home-showcase-section{margin-top:16px}.home-showcase-section:first-child{margin-top:0}.home-showcase-lower{padding-top:15px;border-top:1px dashed var(--border)}.home-showcase-lower-list{max-height:275px}.home-showcase-top h3{margin:0 0 3px}.home-showcase-top .help{margin:0}.home-showcase-list{grid-template-columns:repeat(2,minmax(0,1fr))}.home-showcase-product{grid-template-columns:48px minmax(0,1fr) auto}.home-showcase-product .thumb{width:48px;height:48px;object-fit:contain;background:var(--card2)}.home-showcase-card-flag{background:var(--purple-alpha);color:var(--purple);border-color:rgba(124,58,237,.20)!important}
+@media(max-width:700px){.home-showcase-list{grid-template-columns:1fr}.home-showcase-lower-list{max-height:38vh}.home-showcase-dialog{width:100vw!important;max-width:100vw!important}}
+
 </style>
 
 <style id="innov-v58-totp-final-css">
@@ -1966,6 +1992,14 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 }
 </style>
 
+
+<style id="innov-v5-portada-admin-css">
+.home-showcase-timing{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card2)}
+.home-showcase-timing .input{max-width:140px}
+.home-showcase-side-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#storeSocialSettingsCard .support-message{min-height:92px;resize:vertical}
+@media(max-width:700px){.home-showcase-side-grid{grid-template-columns:1fr!important}.home-showcase-timing{align-items:stretch;flex-direction:column}.home-showcase-timing .input{max-width:none}}
+</style>
 </head>
 <body>
 
@@ -2075,6 +2109,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
           <div class="input-wrap"><input class="input" id="productSearch" type="search" placeholder="🔍 Buscar producto..."></div>
           <div class="actions">
             <button class="btn btn-primary" id="btnNewProduct" type="button">＋ Producto</button>
+            <button class="btn" id="btnHomeShowcase" type="button" title="Elegir carrusel y promociones de la portada">★ Portada</button>
             <button class="btn" id="btnReload2" type="button">↻</button>
             <button class="btn" id="btnExportProducts" type="button">⬇ Export</button>
           </div>
@@ -2302,6 +2337,22 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
             </div>
             <img id="qrPreview" style="margin-top:14px;max-width:180px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:8px;display:block" src="img/yape-qr.png" alt="QR Yape">
           </div>
+          <div class="card" id="storeSocialSettingsCard">
+            <strong style="display:block;margin-bottom:6px">📣 Redes y contacto de la tienda</strong>
+            <p class="help" style="margin:0 0 12px">Estos enlaces se muestran en el pie de página y el botón flotante de WhatsApp del index. Se guardan en Supabase para que puedas cambiarlos sin editar código.</p>
+            <div class="grid grid-2">
+              <div><label class="subtle">WhatsApp general</label><input class="input" id="setStoreWhatsapp" placeholder="51991564053 o https://wa.me/..." inputmode="url"></div>
+              <div><label class="subtle">WhatsApp para soporte</label><input class="input" id="setStoreSupportWhatsapp" placeholder="51991564053" inputmode="url"></div>
+              <div class="full"><label class="subtle">Mensaje sugerido de soporte</label><textarea class="input support-message" id="setStoreSupportMessage" placeholder="Mensaje que verá el cliente al abrir WhatsApp"></textarea><p class="help" style="margin:5px 0 0">Usa un mensaje breve y amable. El cliente podrá completar producto, pedido y consulta antes de enviarlo.</p></div>
+              <div><label class="subtle">Facebook</label><input class="input" id="setStoreFacebook" placeholder="https://facebook.com/..." inputmode="url"></div>
+              <div><label class="subtle">TikTok</label><input class="input" id="setStoreTikTok" placeholder="https://tiktok.com/@..." inputmode="url"></div>
+              <div><label class="subtle">Instagram</label><input class="input" id="setStoreInstagram" placeholder="https://instagram.com/..." inputmode="url"></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+              <button class="btn btn-primary" id="btnSaveStoreSocial" type="button">Guardar redes de la tienda</button>
+            </div>
+          </div>
+
           <div class="card">
             <strong style="display:block;margin-bottom:14px">💾 Respaldo y sincronización</strong>
             <p class="help">Exporta/importa productos, planes, stock, clientes, recordatorios, entregas y cupones en Excel segmentado por hojas.</p>
@@ -2362,6 +2413,48 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 </nav>
 
 <!-- ============ DIALOGS ============ -->
+
+<!-- Portada de la tienda -->
+<dialog id="dlgHomeShowcase" class="home-showcase-dialog">
+  <div class="modal-header">
+    <strong>★ Portada de la tienda</strong>
+    <button class="btn btn-ghost btn-icon" data-close="dlgHomeShowcase" type="button">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div class="home-showcase-note">
+      La portada usa únicamente productos publicados. El carrusel debe tener <strong>mínimo 3 y máximo 5</strong> productos. El video se toma primero del plan y luego del producto; si no existe, se usa la imagen/logo registrado. Cada clic abre el producto exacto dentro de la tienda.
+    </div>
+    <section class="home-showcase-section">
+      <div class="home-showcase-top">
+        <div><h3>Carrusel principal</h3><p class="help">Elige de 3 a 5 productos. La portada usará el video del plan o producto; si no existe, mostrará su imagen/logo real.</p></div>
+        <span class="badge b-warn home-showcase-count" id="homeShowcaseCount">0 de 5 seleccionados</span>
+      </div>
+      <div class="home-showcase-timing"><div><strong>Movimiento del carrusel</strong><div class="help">Cambio automático con transición cinematográfica suave.</div></div><select class="input" id="homeCarouselSeconds" aria-label="Segundos entre cada destacado"><option value="5">Cada 5 segundos</option><option value="3">Cada 3 segundos</option><option value="4">Cada 4 segundos</option><option value="6">Cada 6 segundos</option><option value="7">Cada 7 segundos</option><option value="8">Cada 8 segundos</option><option value="9">Cada 9 segundos</option><option value="10">Cada 10 segundos</option></select></div>
+      <div class="home-showcase-list" id="homeShowcaseProductList"></div>
+    </section>
+    <section class="home-showcase-side home-showcase-section">
+      <h4>Promociones laterales</h4>
+      <p>Opcionales. Puedes elegir hasta 3. Usan el mismo producto, logo, video y precio real de tu tienda.</p>
+      <div class="home-showcase-side-grid">
+        <div class="form-group"><label class="subtle">Promoción 1</label><select class="input" id="homePromoTopSelect"></select></div>
+        <div class="form-group"><label class="subtle">Promoción 2</label><select class="input" id="homePromoBottomSelect"></select></div>
+        <div class="form-group"><label class="subtle">Promoción 3</label><select class="input" id="homePromoThirdSelect"></select></div>
+      </div>
+    </section>
+    <section class="home-showcase-lower home-showcase-section">
+      <div class="home-showcase-top">
+        <div><h3>Fila inferior</h3><p class="help">Opcional. Elige hasta 4 productos para una sola fila compacta. Ya no se mostrará todo el catálogo automáticamente.</p></div>
+        <span class="badge home-showcase-count" id="homeShowcaseBottomCount">0 de 4 seleccionados</span>
+      </div>
+      <div class="home-showcase-list home-showcase-lower-list" id="homeShowcaseBottomList"></div>
+    </section>
+  </div>
+  <div class="modal-actions">
+    <button class="btn" data-close="dlgHomeShowcase" type="button">Cancelar</button>
+    <button class="btn btn-primary" id="btnSaveHomeShowcase" type="button">Guardar portada</button>
+  </div>
+</dialog>
+
 
 <!-- Producto -->
 <dialog id="dlgProduct">
@@ -3625,6 +3718,7 @@ function renderProducts(){
         <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
         <span class="badge">${pls.length} planes</span>
         <span class="badge b-ok">${cups} cupos</span>
+        ${homeShowcaseHeroIds().includes(String(p.id))?'<span class="badge home-showcase-card-flag">★ Portada</span>':''}
         ${p.video_url?'<span class="badge video-badge">🎬 Video</span>':''}
       </div>
       <p class="help">${esc(p.description||'Sin descripción').slice(0,120)}</p>
@@ -3637,6 +3731,112 @@ function renderProducts(){
       </div>
     </div>`;
   }).join('')||'<div class="empty-state"><span class="icon">🧩</span><p>No hay productos.</p></div>';
+}
+
+/* ---- Home showcase / Portada de la tienda V5 ----
+   Configuración aislada dentro de app_settings. No modifica productos ni planes. */
+const HOME_SHOWCASE_SETTINGS_KEY='home_showcase';
+function homeShowcaseValue(){
+  const raw=(state.settings||[]).find(s=>s.key===HOME_SHOWCASE_SETTINGS_KEY)?.value;
+  const value=(raw&&typeof raw==='object'&&!Array.isArray(raw))?raw:{};
+  const readIds=(input,max)=>[...new Set((Array.isArray(input)?input:[]).map(String).filter(Boolean))].slice(0,max);
+  let promoIds=readIds(value.promo_product_ids||value.promo_ids,3);
+  if(!promoIds.length) promoIds=[value.promo_top_product_id||value.promo_top_id,value.promo_bottom_product_id||value.promo_bottom_id,value.promo_third_product_id||value.promo_third_id].map(x=>String(x||'')).filter(Boolean).slice(0,3);
+  const savedSeconds=Number(value.carousel_seconds||value.rotation_seconds||0);
+  const seconds=(Number(value.version||0)>=6&&savedSeconds)?Math.min(10,Math.max(3,savedSeconds)):5;
+  return {
+    hero_product_ids:readIds(value.hero_product_ids||value.hero_ids,5),
+    promo_product_ids:promoIds,
+    promo_top_product_id:promoIds[0]||'',
+    promo_bottom_product_id:promoIds[1]||'',
+    promo_third_product_id:promoIds[2]||'',
+    bottom_product_ids:readIds(value.bottom_product_ids||value.lower_product_ids||value.footer_product_ids,4),
+    carousel_seconds:seconds
+  };
+}
+function homeShowcaseHeroIds(){return homeShowcaseValue().hero_product_ids;}
+function homeShowcaseActiveProducts(){
+  return (state.products||[])
+    .filter(p=>p.active!==false&&!String(p.sale_mode||'retail').toLowerCase().includes('whole'))
+    .slice()
+    .sort((a,b)=>Number(a.priority||100)-Number(b.priority||100)||String(a.name||'').localeCompare(String(b.name||''),'es'));
+}
+function homeShowcaseDraftIds(){return [...document.querySelectorAll('#homeShowcaseProductList input[data-home-showcase-product]:checked')].map(input=>String(input.value));}
+function homeShowcaseBottomDraftIds(){return [...document.querySelectorAll('#homeShowcaseBottomList input[data-home-showcase-bottom]:checked')].map(input=>String(input.value));}
+function homeShowcaseCount(){
+  const count=homeShowcaseDraftIds().length,label=$('homeShowcaseCount');
+  if(label){label.textContent=`${count} de 5 seleccionados`;label.className='badge home-showcase-count '+(count>=3&&count<=5?'b-ok':'b-warn');}
+  document.querySelectorAll('#homeShowcaseProductList input[data-home-showcase-product]').forEach(input=>{
+    input.disabled=!input.checked&&count>=5;
+    input.closest('.home-showcase-product')?.classList.toggle('is-selected',input.checked);
+  });
+}
+function homeShowcaseBottomCount(){
+  const count=homeShowcaseBottomDraftIds().length,label=$('homeShowcaseBottomCount');
+  if(label){label.textContent=`${count} de 4 seleccionados`;label.className='badge home-showcase-count '+(count<=4?'b-ok':'b-warn');}
+  document.querySelectorAll('#homeShowcaseBottomList input[data-home-showcase-bottom]').forEach(input=>{
+    input.disabled=!input.checked&&count>=4;
+    input.closest('.home-showcase-product')?.classList.toggle('is-selected',input.checked);
+  });
+}
+function homeShowcaseSelectOptions(selected=''){
+  const products=homeShowcaseActiveProducts();
+  return {options:['<option value="">No mostrar</option>',...products.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`)].join(''),selected:String(selected||'')};
+}
+function homeShowcaseProductCard(p,selected,attr){
+  const plans=(state.plans||[]).filter(x=>x.product_id===p.id);
+  const meta=[p.category||'otros',`${plans.length} plan${plans.length===1?'':'es'}`,p.video_url?'video listo':'logo / imagen'].join(' · ');
+  return `<label class="home-showcase-product ${selected.has(String(p.id))?'is-selected':''}"><img class="thumb" src="${esc(p.image_url||'img/placeholder.jpg')}" onerror="this.onerror=null;this.src='img/placeholder.jpg'" alt="" loading="lazy"><span class="home-showcase-name"><b>${esc(p.name)}</b><span>${esc(meta)}</span></span><input class="home-showcase-check" type="checkbox" value="${esc(p.id)}" ${attr} ${selected.has(String(p.id))?'checked':''} aria-label="Seleccionar ${esc(p.name)}"></label>`;
+}
+function homeShowcaseFillPromo(id,value){
+  const option=homeShowcaseSelectOptions(value);
+  const el=$(id);if(!el)return;
+  el.innerHTML=option.options;el.value=option.selected;
+}
+function renderHomeShowcaseDialog(){
+  const heroHost=$('homeShowcaseProductList'),lowerHost=$('homeShowcaseBottomList');if(!heroHost||!lowerHost)return;
+  const config=homeShowcaseValue(),products=homeShowcaseActiveProducts(),heroSelected=new Set(config.hero_product_ids),lowerSelected=new Set(config.bottom_product_ids);
+  if(!products.length){heroHost.innerHTML='<div class="home-showcase-empty">No hay productos activos para publicar en la portada.</div>';lowerHost.innerHTML='';}
+  else{
+    heroHost.innerHTML=products.map(p=>homeShowcaseProductCard(p,heroSelected,'data-home-showcase-product')).join('');
+    lowerHost.innerHTML=products.map(p=>homeShowcaseProductCard(p,lowerSelected,'data-home-showcase-bottom')).join('');
+  }
+  homeShowcaseFillPromo('homePromoTopSelect',config.promo_product_ids[0]||'');
+  homeShowcaseFillPromo('homePromoBottomSelect',config.promo_product_ids[1]||'');
+  homeShowcaseFillPromo('homePromoThirdSelect',config.promo_product_ids[2]||'');
+  if($('homeCarouselSeconds'))$('homeCarouselSeconds').value=String(config.carousel_seconds||5);
+  homeShowcaseCount();homeShowcaseBottomCount();
+}
+function openHomeShowcase(){renderHomeShowcaseDialog();showDialog('dlgHomeShowcase');}
+async function saveHomeShowcase(){
+  const heroIds=homeShowcaseDraftIds(),bottomIds=homeShowcaseBottomDraftIds();
+  if(heroIds.length<3)return toast('Selecciona al menos 3 productos para el carrusel','bad');
+  if(heroIds.length>5)return toast('El carrusel admite un máximo de 5 productos','bad');
+  if(bottomIds.length>4)return toast('La fila inferior admite un máximo de 4 productos','bad');
+  const promoIds=[
+    String($('homePromoTopSelect')?.value||''),
+    String($('homePromoBottomSelect')?.value||''),
+    String($('homePromoThirdSelect')?.value||'')
+  ].filter(Boolean);
+  if(new Set(promoIds).size!==promoIds.length)return toast('No repitas el mismo producto en las promociones laterales','bad');
+  const seconds=Math.min(10,Math.max(3,Number($('homeCarouselSeconds')?.value||5)||5));
+  const value={
+    version:6,
+    hero_product_ids:heroIds,
+    promo_product_ids:promoIds,
+    promo_top_product_id:promoIds[0]||'',
+    promo_bottom_product_id:promoIds[1]||'',
+    promo_third_product_id:promoIds[2]||'',
+    bottom_product_ids:bottomIds,
+    carousel_seconds:seconds,
+    updated_at:new Date().toISOString()
+  };
+  const r=await db.from('app_settings').upsert({key:HOME_SHOWCASE_SETTINGS_KEY,value},{onConflict:'key'});
+  if(r.error)return toast('No se pudo guardar la portada: '+r.error.message,'bad');
+  state.settings=[...(state.settings||[]).filter(s=>s.key!==HOME_SHOWCASE_SETTINGS_KEY),{key:HOME_SHOWCASE_SETTINGS_KEY,value}];
+  publishAdminChange('app_settings','UPSERT',{key:HOME_SHOWCASE_SETTINGS_KEY});
+  renderProducts();closeDialog('dlgHomeShowcase');
+  toast('Portada guardada. Se actualizará automáticamente en la tienda','ok');
 }
 
 function isTotpFriendlyPlan(p){
@@ -6469,6 +6669,10 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dat
 ['btnOpsDashboardRefresh','btnReload2','btnReload3','btnReload4','btnReloadClients','btnSyncAll'].forEach(id=>{const el=$(id);if(el)el.onclick=loadAll});
 
 $('btnNewProduct').onclick=blankProduct;
+$('btnHomeShowcase').onclick=openHomeShowcase;
+$('btnSaveHomeShowcase').onclick=saveHomeShowcase;
+$('homeShowcaseProductList')?.addEventListener('change',homeShowcaseCount);
+$('homeShowcaseBottomList')?.addEventListener('change',homeShowcaseBottomCount);
 $('btnNewPlan').onclick=()=>blankPlan();
 $('productForm').onsubmit=saveProduct;
 $('btnDeleteProduct').onclick=deleteProduct;
@@ -14662,5 +14866,68 @@ INNOV IA V62 - TOTP original + selección real
 
 <!-- Innov IA Admin — Recordatorios: interfaz móvil compacta y filtros por día calendario.
      Mantiene la lectura del estado real del núcleo sin alterar Supabase ni SQL. -->
+
+<script id="innov-store-social-v5">
+(function(){
+  'use strict';
+  const KEY='social_public';
+  const DEFAULTS={
+    whatsapp_url:'https://wa.me/51991564053',
+    support_whatsapp_url:'51991564053',
+    support_message:'Hola, quisiera apoyo con un servicio.\nProducto o pedido: _____.\nConsulta: _____.\nGracias.',
+    facebook_url:'https://www.facebook.com/profile.php?id=61585560703359',
+    tiktok_url:'https://www.tiktok.com/@innoovia',
+    instagram_url:'https://www.instagram.com/innov_iaa/'
+  };
+  const byId=id=>document.getElementById(id);
+  const clean=value=>String(value||'').trim();
+  const read=()=>{try{const raw=(typeof state!=='undefined'&&Array.isArray(state.settings))?state.settings.find(item=>item&&item.key===KEY)?.value:null;return raw&&typeof raw==='object'&&!Array.isArray(raw)?{...DEFAULTS,...raw}:{...DEFAULTS};}catch(_){return {...DEFAULTS};}};
+  const put=(id,value)=>{const el=byId(id);if(el)el.value=value||'';};
+  function render(){
+    const data=read();
+    put('setStoreWhatsapp',data.whatsapp_url||data.whatsapp_link||data.whatsapp||'');
+    put('setStoreSupportWhatsapp',data.support_whatsapp_url||data.support_whatsapp||data.whatsapp_url||'');
+    put('setStoreSupportMessage',data.support_message||DEFAULTS.support_message);
+    put('setStoreFacebook',data.facebook_url||data.facebook||'');
+    put('setStoreTikTok',data.tiktok_url||data.tiktok||'');
+    put('setStoreInstagram',data.instagram_url||data.instagram||'');
+  }
+  function normalizeUrl(value,label,optional=true){
+    const raw=clean(value);if(!raw)return optional?'':null;
+    if((label==='WhatsApp'||label==='Soporte')&&/^\+?\d{7,15}$/.test(raw))return 'https://wa.me/'+raw.replace(/\D+/g,'');
+    const href=/^https?:\/\//i.test(raw)?raw:'https://'+raw.replace(/^\/+/, '');
+    try{const parsed=new URL(href);if(!/^https?:$/i.test(parsed.protocol))throw new Error();return parsed.href;}catch(_){throw new Error('Revisa el enlace de '+label+'. Debe empezar con https://');}
+  }
+  async function save(){
+    let value;
+    try{
+      value={
+        whatsapp_url:normalizeUrl(byId('setStoreWhatsapp')?.value,'WhatsApp'),
+        support_whatsapp_url:normalizeUrl(byId('setStoreSupportWhatsapp')?.value,'Soporte'),
+        support_message:clean(byId('setStoreSupportMessage')?.value)||DEFAULTS.support_message,
+        facebook_url:normalizeUrl(byId('setStoreFacebook')?.value,'Facebook'),
+        tiktok_url:normalizeUrl(byId('setStoreTikTok')?.value,'TikTok'),
+        instagram_url:normalizeUrl(byId('setStoreInstagram')?.value,'Instagram'),
+        updated_at:new Date().toISOString()
+      };
+    }catch(error){if(typeof toast==='function')toast(error.message,'bad');else alert(error.message);return;}
+    try{
+      const payload={key:KEY,value,updated_at:new Date().toISOString()};
+      const response=await db.from('app_settings').upsert(payload,{onConflict:'key'}).select().maybeSingle();
+      if(response.error)throw response.error;
+      const row=response.data||payload;
+      if(Array.isArray(state.settings)){const index=state.settings.findIndex(item=>item&&item.key===KEY);if(index>=0)state.settings[index]=row;else state.settings.push(row);}
+      try{if(typeof publishAdminChange==='function')publishAdminChange('app_settings','UPSERT',{key:KEY});}catch(_){ }
+      if(typeof toast==='function')toast('Redes y soporte de la tienda guardados','ok');
+    }catch(error){if(typeof toast==='function')toast('No se pudieron guardar las redes: '+(error?.message||error),'bad');else alert('No se pudieron guardar las redes');}
+  }
+  const previous=window.renderSettings;
+  window.renderSettings=function(){if(typeof previous==='function')previous();render();};
+  document.addEventListener('click',function(event){const button=event.target.closest('#btnSaveStoreSocial');if(button){event.preventDefault();save();}});
+  setTimeout(render,0);
+})();
+</script>
+
 </body>
 </html>
+
