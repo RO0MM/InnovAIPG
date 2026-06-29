@@ -446,7 +446,179 @@
 
     .cart-badge-pop{ animation:pop .45s cubic-bezier(.2,.7,.2,1.2); }
     @keyframes pop{ 0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)} }
-  </style>
+  
+
+    /* ===========================================================
+       INNOV HOME SHOWCASE — portada dinámica conectada a Supabase
+       Carrusel + promociones configurables desde Admin > Productos
+       =========================================================== */
+    :root{
+      --home-ink:#172033;
+      --home-muted:#657084;
+      --home-accent:#ffcc27;
+      --home-accent-ink:#202633;
+      --home-surface:#ffffff;
+      --home-line:rgba(27,38,58,.10);
+      --home-shadow:0 18px 42px rgba(21,34,55,.10);
+    }
+    .nav-shop-spotlight{
+      position:relative;
+      margin:7px 0 7px 6px !important;
+      padding:9px 15px !important;
+      border-radius:11px;
+      border:1px solid rgba(255,214,46,.78) !important;
+      background:linear-gradient(135deg,#ffdc4c,#ffc928) !important;
+      color:#1d2635 !important;
+      font-weight:900 !important;
+      box-shadow:0 0 0 0 rgba(255,205,38,.34), 0 7px 16px rgba(0,0,0,.17);
+      transition:transform .2s ease, filter .2s ease, box-shadow .2s ease !important;
+      animation:shopSpotlight 2.8s ease-in-out infinite;
+    }
+    .nav-shop-spotlight:hover{
+      transform:translateY(-2px) !important;
+      color:#151b27 !important;
+      filter:brightness(1.03);
+      box-shadow:0 0 0 7px rgba(255,205,38,.14), 0 10px 21px rgba(0,0,0,.21);
+    }
+    .nav-shop-spotlight::after{
+      content:'VER CATÁLOGO';
+      position:absolute;
+      left:50%;
+      bottom:-18px;
+      transform:translateX(-50%);
+      padding:3px 7px;
+      border-radius:999px;
+      background:#fff;
+      color:#344054;
+      font-size:8px;
+      line-height:1;
+      letter-spacing:.07em;
+      white-space:nowrap;
+      font-weight:900;
+      box-shadow:0 5px 12px rgba(0,0,0,.15);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
+    }
+    .nav-shop-spotlight:hover::after{opacity:1;transform:translateX(-50%) translateY(2px)}
+    @keyframes shopSpotlight{
+      0%,100%{box-shadow:0 0 0 0 rgba(255,205,38,.30),0 7px 16px rgba(0,0,0,.17)}
+      50%{box-shadow:0 0 0 6px rgba(255,205,38,.08),0 8px 18px rgba(0,0,0,.20)}
+    }
+
+    .home-stage{padding-top:14px;padding-bottom:5px}
+    .home-hero-shell{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--home-line);
+      border-radius:22px;
+      background:linear-gradient(118deg,#f8fcff 0%,#eef9ff 48%,#fbfcff 100%);
+      box-shadow:var(--home-shadow);
+    }
+    .home-hero-shell::before{
+      content:'';
+      position:absolute;
+      width:360px;height:360px;border-radius:50%;
+      left:-160px;top:-200px;
+      background:radial-gradient(circle,rgba(31,202,234,.22),rgba(31,202,234,0));
+      pointer-events:none;
+    }
+    .home-hero-shell::after{
+      content:'';
+      position:absolute;
+      width:300px;height:300px;border-radius:50%;
+      right:-120px;bottom:-180px;
+      background:radial-gradient(circle,rgba(13,110,253,.16),rgba(13,110,253,0));
+      pointer-events:none;
+    }
+    .home-hero-shell .carousel-inner{position:relative;z-index:1}
+    .home-hero-item{padding:17px}
+    .home-hero-media{
+      position:relative;
+      min-height:315px;
+      height:315px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      border-radius:16px;
+      background:linear-gradient(145deg,#101827,#263c55);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 14px 28px rgba(31,43,68,.15);
+      isolation:isolate;
+    }
+    .home-hero-media::after,.home-promo-media::after{
+      content:'';position:absolute;inset:0;z-index:3;pointer-events:none;
+      background:linear-gradient(135deg,rgba(255,255,255,.06),transparent 42%,rgba(0,0,0,.10));
+    }
+    .home-visual-fallback{
+      position:absolute;inset:0;z-index:1;
+      display:flex;align-items:center;justify-content:center;
+      padding:20px;
+      background:radial-gradient(circle at 20% 20%,rgba(61,195,255,.35),transparent 36%),linear-gradient(145deg,#172b49,#0a1525);
+    }
+    .home-visual-fallback img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 16px 24px rgba(0,0,0,.25))}
+    .home-monogram{
+      width:112px;height:112px;border-radius:31px;
+      display:grid;place-items:center;
+      font-size:2.5rem;font-weight:900;letter-spacing:-.08em;
+      color:#fff;background:linear-gradient(145deg,#27c8ee,#2c64da);
+      box-shadow:0 18px 44px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.25);
+    }
+    .home-media-video{position:absolute;inset:0;z-index:2;width:100%;height:100%;border:0;object-fit:cover;background:#0b1422;pointer-events:none}
+    .home-media-video.home-fit-contain{object-fit:contain;background:#0b1422}
+    iframe.home-media-video{width:178%;height:100%;min-width:100%;min-height:178%;left:50%;top:50%;transform:translate(-50%,-50%) scale(1.04);position:absolute}
+    .home-hero-copy{
+      position:relative;
+      border:1px solid rgba(24,37,59,.08);
+      border-radius:16px;
+      padding:20px;
+      background:rgba(255,255,255,.88);
+      box-shadow:0 12px 28px rgba(18,34,56,.07);
+      backdrop-filter:blur(12px);
+    }
+    .home-eyebrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+    .home-category,.home-live{
+      display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;
+      font-size:.72rem;font-weight:900;line-height:1;color:#445069;background:#fff;border:1px solid var(--home-line);
+    }
+    .home-category i{color:#0d6efd}.home-live{color:#177944;background:rgba(35,183,94,.10);border-color:rgba(35,183,94,.25)}
+    .home-live.is-consult{color:#a15c08;background:rgba(242,177,42,.12);border-color:rgba(242,177,42,.30)}
+    .home-hero-title{margin:0;color:var(--home-ink);font-size:1.47rem;line-height:1.12;font-weight:950;letter-spacing:-.035em;text-transform:uppercase}
+    .home-price-row{display:flex;align-items:baseline;gap:8px;margin:12px 0 10px}
+    .home-price-row strong{font-size:1.75rem;line-height:1;font-weight:950;letter-spacing:-.055em;color:#263144}
+    .home-price-row span{font-size:.80rem;color:var(--home-muted);font-weight:800}
+    .home-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+    .home-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#f8fafc;border:1px solid rgba(24,37,59,.09);font-size:.71rem;line-height:1;color:#5b6576;font-weight:800;white-space:nowrap}
+    .home-chip i{font-size:.66rem;color:#2681e9}.home-chip.is-good{color:#187b45;background:rgba(35,183,94,.10);border-color:rgba(35,183,94,.25)}.home-chip.is-good i{color:#1fa15a}
+    .home-hero-description{margin:0;color:#5d697b;font-size:.89rem;line-height:1.48;font-weight:600;min-height:2.96em}
+    .home-hero-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+    .home-hero-actions .btn{border-radius:11px;padding:.58rem .85rem;font-weight:900;box-shadow:none}
+    .home-hero-actions .btn-primary{background:#ffca2c;border-color:#ffca2c;color:#202733}.home-hero-actions .btn-primary:hover{background:#ffd54d;border-color:#ffd54d;color:#202733}
+    .home-hero-actions .btn-outline-dark{border-color:#cad2dd;color:#354052;background:#fff}.home-hero-actions .btn-outline-dark:hover{background:#f5f7fa;color:#202733}
+    .home-mini-trust{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:15px}
+    .home-mini-trust div{display:flex;align-items:center;gap:7px;padding:8px;border:1px dashed rgba(24,37,59,.17);border-radius:10px;background:rgba(248,250,252,.72);font-size:.70rem;color:#687385;font-weight:800}.home-mini-trust i{color:#2380e7}
+    .home-hero-shell .carousel-control-prev,.home-hero-shell .carousel-control-next{width:45px;opacity:1;z-index:5}
+    .home-hero-shell .carousel-control-prev i,.home-hero-shell .carousel-control-next i{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#fff;color:#1e293b;border:1px solid rgba(24,37,59,.10);box-shadow:0 7px 18px rgba(25,35,52,.15);font-size:18px}
+    .home-hero-shell .carousel-control-prev{left:4px}.home-hero-shell .carousel-control-next{right:4px}
+    .home-hero-shell .carousel-indicators{bottom:3px;margin-bottom:2px;z-index:7}.home-hero-shell .carousel-indicators li{width:22px;height:4px;border:0;border-radius:999px;background:rgba(31,42,60,.24)}.home-hero-shell .carousel-indicators .active{background:#0d6efd}
+    .home-hero-shell .carousel-progress{z-index:6;height:3px;background:rgba(13,110,253,.11)}.home-hero-shell .carousel-progress>span{background:linear-gradient(90deg,#26c6ee,#2474e8)}
+    .home-empty{min-height:360px;display:grid;place-content:center;text-align:center;padding:34px;color:var(--home-muted);gap:10px}.home-empty i{font-size:2rem;color:#0d6efd}.home-empty strong{font-size:1.03rem;color:var(--home-ink)}.home-empty p{margin:0;font-weight:600}.home-empty .btn{justify-self:center;border-radius:11px;font-weight:900}
+    .home-promo-rail{display:grid;gap:13px;height:100%}
+    .home-promo-card{position:relative;min-height:164px;border:1px solid var(--home-line);border-radius:18px;overflow:hidden;background:#111c2c;box-shadow:0 15px 32px rgba(20,34,55,.10);isolation:isolate}
+    .home-promo-media{position:absolute;inset:0;overflow:hidden;background:linear-gradient(135deg,#172c49,#0e1727)}
+    .home-promo-media .home-visual-fallback{padding:12px}.home-promo-media .home-visual-fallback img{filter:blur(.4px) saturate(1.05) brightness(.78);transform:scale(1.04);object-fit:cover}.home-promo-media .home-monogram{transform:scale(.75);opacity:.82}
+    .home-promo-media::before{content:'';position:absolute;inset:0;z-index:4;background:linear-gradient(90deg,rgba(5,12,23,.82),rgba(5,12,23,.36) 62%,rgba(5,12,23,.12))}
+    .home-promo-copy{position:relative;z-index:6;display:flex;min-height:164px;height:100%;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:15px;color:#fff}
+    .home-promo-copy small{font-size:.70rem;color:rgba(255,255,255,.84);font-weight:800;line-height:1.15}.home-promo-copy h3{margin:5px 0 10px;color:#fff;font-weight:950;letter-spacing:-.025em;font-size:1.14rem;line-height:1.05;text-transform:uppercase}.home-promo-copy .btn{border-radius:10px;padding:.47rem .72rem;font-size:.78rem;font-weight:900;background:#ffca2c;border-color:#ffca2c;color:#202733}.home-promo-copy .btn:hover{background:#ffd54d;border-color:#ffd54d;color:#202733}
+    .home-promo-skeleton{animation:homeShimmer 1.4s infinite linear;background:linear-gradient(90deg,#f1f4f7 25%,#fafbfd 37%,#f1f4f7 63%);background-size:400% 100%}@keyframes homeShimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+    .home-discovery{margin:22px 0 12px;border:1px solid var(--home-line);border-radius:20px;background:var(--home-surface);box-shadow:0 14px 34px rgba(20,34,55,.07);overflow:hidden}
+    .home-discovery-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;padding:19px 20px 13px;border-bottom:1px solid var(--home-line)}.home-discovery-eyebrow{display:flex;align-items:center;gap:6px;text-transform:uppercase;color:#287de8;font-weight:950;font-size:.65rem;letter-spacing:.08em}.home-discovery-title{margin:5px 0 0;color:var(--home-ink);font-size:1.20rem;font-weight:950;letter-spacing:-.03em}.home-discovery-head p{margin:0;color:var(--home-muted);font-size:.80rem;font-weight:600;max-width:460px}.home-discovery-head .btn{border-radius:11px;white-space:nowrap;font-weight:900}
+    .home-product-spotlight{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:14px 20px}
+    .home-spot-card{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:center;min-width:0;padding:10px;border:1px solid var(--home-line);border-radius:14px;background:linear-gradient(180deg,#fff,#fbfcfe);text-decoration:none!important;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.home-spot-card:hover{transform:translateY(-2px);border-color:rgba(13,110,253,.34);box-shadow:0 10px 18px rgba(20,34,55,.08)}.home-spot-thumb{width:52px;height:52px;display:grid;place-items:center;overflow:hidden;border-radius:12px;background:linear-gradient(145deg,#1d2d47,#307fe5)}.home-spot-thumb img{width:100%;height:100%;object-fit:contain;padding:5px}.home-spot-thumb span{color:#fff;font-weight:900;font-size:1rem}.home-spot-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#263144;font-size:.80rem;line-height:1.15;font-weight:900}.home-spot-price{margin-top:4px;color:#287de8;font-size:.74rem;font-weight:900}.home-spot-meta{margin-top:3px;color:var(--home-muted);font-size:.65rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .home-service-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--home-line);background:#fbfcfe}.home-service-point{display:flex;align-items:center;gap:9px;padding:12px 20px;border-right:1px solid var(--home-line);color:#687385;font-size:.74rem;font-weight:750}.home-service-point:last-child{border-right:0}.home-service-point i{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:rgba(13,110,253,.09);color:#287de8;font-size:.84rem}
+    @media(max-width:991px){.home-hero-media{height:285px;min-height:285px}.home-promo-rail{margin-top:14px;grid-template-columns:1fr 1fr}.home-promo-card,.home-promo-copy{min-height:150px}.home-product-spotlight{grid-template-columns:repeat(2,minmax(0,1fr))}.nav-shop-spotlight::after{display:none}}
+    @media(max-width:575px){.home-stage{padding-top:8px}.home-hero-item{padding:10px}.home-hero-media{height:215px;min-height:215px;border-radius:13px}.home-hero-copy{padding:15px;border-radius:13px}.home-hero-title{font-size:1.15rem}.home-price-row strong{font-size:1.42rem}.home-hero-description{font-size:.80rem;min-height:auto}.home-mini-trust{grid-template-columns:1fr}.home-hero-shell .carousel-control-prev,.home-hero-shell .carousel-control-next{width:38px}.home-hero-shell .carousel-control-prev i,.home-hero-shell .carousel-control-next i{width:31px;height:31px;font-size:15px}.home-promo-rail{grid-template-columns:1fr}.home-promo-card,.home-promo-copy{min-height:137px}.home-discovery{margin-top:15px;border-radius:16px}.home-discovery-head{padding:15px;display:block}.home-discovery-head .btn{margin-top:10px}.home-product-spotlight{grid-template-columns:1fr;padding:10px 15px}.home-service-points{grid-template-columns:1fr}.home-service-point{border-right:0;border-bottom:1px solid var(--home-line);padding:10px 15px}.home-service-point:last-child{border-bottom:0}.home-empty{min-height:300px}.nav-shop-spotlight{margin:5px 0 !important;padding:8px 11px !important}}
+</style>
 </head>
 
 <body>
@@ -563,7 +735,7 @@
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
               <div class="navbar-nav mr-auto py-0">
                 <a href="index.html" class="nav-item nav-link active">Inicio</a>
-                <a href="shop.html" class="nav-item nav-link">Tienda</a>
+                <a href="shop.html" class="nav-item nav-link nav-shop-spotlight">Tienda</a>
                 <a href="detail.html" class="nav-item nav-link">Detalle</a>
                 <div class="nav-item dropdown">
                   <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Páginas <i class="fa fa-angle-down mt-1"></i></a>
@@ -595,557 +767,68 @@
     <!-- Navbar End -->
   </header>
 
-  <!-- ===========================
-       HERO + PROMOS
-       =========================== -->
-  <div class="container-fluid mb-3">
+  <!-- ===========================================================
+       PORTADA DINÁMICA — se alimenta de Supabase y Admin > Productos
+       =========================================================== -->
+  <div class="container-fluid home-stage">
     <div class="row px-xl-5">
-      <!-- Hero carousel -->
-      <div class="col-lg-8 mb-30 mb-lg-0">
-        <div id="heroCarousel" class="carousel slide hero-carousel" data-ride="carousel" data-interval="5000">
-
-          <ol class="carousel-indicators">
-            <li data-target="#heroCarousel" data-slide-to="0" class="active"></li>
-            <li data-target="#heroCarousel" data-slide-to="1"></li>
-            <li data-target="#heroCarousel" data-slide-to="2"></li>
-            <li data-target="#heroCarousel" data-slide-to="3"></li>
-            <li data-target="#heroCarousel" data-slide-to="4"></li>
-          </ol>
-
-          <div class="hero-shell">
-            <div class="carousel-inner">
-
-              <!-- Slide 1: ChatGPT (imagen tuya) -->
+      <div class="col-lg-8 mb-3 mb-lg-0">
+        <section class="home-hero-shell" aria-label="Servicios seleccionados">
+          <div id="heroCarousel" class="carousel slide hero-carousel" data-ride="carousel" data-interval="5400">
+            <ol class="carousel-indicators" id="homeHeroIndicators" aria-label="Slides del carrusel"></ol>
+            <div class="carousel-inner" id="homeHeroSlides">
               <div class="carousel-item active">
-                <div class="hero-inner">
-                  <div class="row align-items-center">
-                    <div class="col-lg-6 mb-3 mb-lg-0">
-                      <div class="hero-media">
-                        <!-- RECOMENDACIÓN: estas imágenes de FB pueden expirar; ideal descargarlas y guardarlas en /img -->
-                        <img
-                          referrerpolicy="no-referrer"
-                          src="https://scontent-mia5-2.xx.fbcdn.net/v/t39.30808-6/614890632_122107293237185356_158634127337289793_n.jpg?stp=dst-jpg_s590x590_tt6&amp;_nc_cat=100&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=dITOmr9geNYQ7kNvwHPpo_R&amp;_nc_oc=AdnBB0heRphhr1RMjRSlc7dJUfU7t6dBF7DcMwTmg41NR3g1s2tW9YkpQ0QdFXcOm6Q&amp;_nc_zt=23&amp;_nc_ht=scontent-mia5-2.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfreeTW5-dFKQk2NvyIAInZ9dZGRq12DG0Iuw6ShD7jn3A&amp;oe=69687941"
-                          alt="ChatGPT Plus"
-                          onerror="this.onerror=null;this.src='img/product-1.jpg';"
-                        />
-                      </div>
-                    </div>
-
-                    <div class="col-lg-6">
-                      <div class="hero-info">
-                        <div class="hero-topline">
-                          <span class="tag"><i class="fa fa-robot"></i> IA</span>
-                          <span class="tag"><i class="fa fa-store"></i> Ver en tienda</span>
-                        </div>
-
-                        <h2 class="hero-title">ChatGPT Plus — Planes Mensuales</h2>
-
-                        <div class="hero-price">
-                          <div class="pen">Desde S/ 8</div>
-                          <div class="note">/ mensual</div>
-                        </div>
-
-                        <div class="pill-row">
-                          <span class="pill ok"><i class="fa fa-circle"></i> Disponible</span>
-                          <span class="pill"><i class="fa fa-users"></i> Más usuarios</span>
-                          <span class="pill"><i class="fa fa-calendar-alt"></i> Mensual</span>
-                          <span class="pill"><i class="fa fa-laptop"></i> PC / Celular</span>
-                        </div>
-
-                        <p class="hero-desc">
-                          Elige tu plan ideal: <strong>S/8</strong>, <strong>S/12</strong> (solo celular) o <strong>S/18</strong> (solo PC + regalo Perplexity).
-                          Entrega inmediata y soporte 24/7.
-                        </p>
-
-                        <div class="hero-ctas">
-                          <a href="shop.html#chatgpt-plus" class="btn btn-primary">
-                            <i class="fa fa-store mr-2"></i> Ver planes en Tienda
-                          </a>
-                          <a href="#" class="btn btn-outline-dark js-hero-add"
-                             data-id="gpt-plus-8" data-name="ChatGPT Plus — S/8 (Mensual)" data-price="8"
-                             data-image="https://scontent-mia5-2.xx.fbcdn.net/v/t39.30808-6/614890632_122107293237185356_158634127337289793_n.jpg?stp=dst-jpg_s590x590_tt6&amp;_nc_cat=100&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=dITOmr9geNYQ7kNvwHPpo_R&amp;_nc_oc=AdnBB0heRphhr1RMjRSlc7dJUfU7t6dBF7DcMwTmg41NR3g1s2tW9YkpQ0QdFXcOm6Q&amp;_nc_zt=23&amp;_nc_ht=scontent-mia5-2.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfreeTW5-dFKQk2NvyIAInZ9dZGRq12DG0Iuw6ShD7jn3A&amp;oe=69687941"
-                             data-emoji="🤖">
-                            <i class="fa fa-shopping-cart mr-2"></i> Agregar S/8
-                          </a>
-                        </div>
-
-                        <div class="hero-mini-grid">
-                          <div class="mini-box">
-                            <i class="fa fa-bolt"></i>
-                            <div>
-                              <p class="t">Entrega</p>
-                              <p class="s">WhatsApp / correo</p>
-                            </div>
-                          </div>
-                          <div class="mini-box">
-                            <i class="fa fa-headset"></i>
-                            <div>
-                              <p class="t">Soporte</p>
-                              <p class="s">24/7 por WhatsApp</p>
-                            </div>
-                          </div>
-                          <div class="mini-box">
-                            <i class="fa fa-shield-alt"></i>
-                            <div>
-                              <p class="t">Garantía</p>
-                              <p class="s">Ayuda en activación</p>
-                            </div>
-                          </div>
-                          <div class="mini-box">
-                            <i class="fa fa-tags"></i>
-                            <div>
-                              <p class="t">Catálogo</p>
-                              <p class="s">Ver todos en tienda</p>
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-
-                  </div>
+                <div class="home-empty">
+                  <i class="fa fa-circle-notch fa-spin" aria-hidden="true"></i>
+                  <strong>Preparando los servicios de la tienda</strong>
+                  <p>Conectando la portada con el catálogo actual.</p>
                 </div>
               </div>
-
-              <!-- Slide 2: Gemini (imagen tuya) -->
-              <div class="carousel-item">
-                <div class="hero-inner">
-                  <div class="row align-items-center">
-                    <div class="col-lg-6 mb-3 mb-lg-0">
-                      <div class="hero-media">
-                        <img
-                          referrerpolicy="no-referrer"
-                          src="https://scontent-mia5-1.xx.fbcdn.net/v/t39.30808-6/614433413_122107293267185356_734168746950920252_n.jpg?stp=dst-jpg_p370x247_tt6&amp;_nc_cat=102&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=9xD5zGkv6BsQ7kNvwENzPbF&amp;_nc_oc=AdlexCMxDJ3KAYWMV1tI2F3PfV3OTw6EgOiXtb8odBlwl1Ea7CFwsF1U4mNp5Oq0ZC0&amp;_nc_zt=23&amp;_nc_ht=scontent-mia5-1.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfojoMhfd3pMGL0OtbwKID-eNVh3k4D-9Q-cjde2rnNYog&amp;oe=69689692"
-                          alt="Gemini Pro"
-                          onerror="this.onerror=null;this.src='img/cat-gemini.jpg';"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-lg-6">
-                      <div class="hero-info">
-                        <div class="hero-topline">
-                          <span class="tag"><i class="fa fa-cloud"></i> Google One</span>
-                          <span class="tag"><i class="fa fa-lock"></i> En tu Gmail</span>
-                        </div>
-
-                        <h2 class="hero-title">Gemini PRO + 2TB Google One</h2>
-
-                        <div class="hero-price">
-                          <div class="pen">S/ 15</div>
-                          <div class="note">/ 1 año</div>
-                        </div>
-
-                        <div class="pill-row">
-                          <span class="pill ok"><i class="fa fa-circle"></i> Disponible</span>
-                          <span class="pill"><i class="fa fa-hdd"></i> 2 TB</span>
-                          <span class="pill"><i class="fa fa-envelope"></i> Gmail propio</span>
-                          <span class="pill"><i class="fa fa-magic"></i> IA completa</span>
-                        </div>
-
-                        <p class="hero-desc">
-                          Activación en tu propio correo. Incluye Gemini Pro (IA), creación de videos, automatización y IA en Gmail/Docs/Meet.
-                        </p>
-
-                        <div class="hero-ctas">
-                          <a href="shop.html#gemini-pro" class="btn btn-primary">
-                            <i class="fa fa-store mr-2"></i> Ver en Tienda
-                          </a>
-                          <a href="#" class="btn btn-outline-dark js-hero-add"
-                             data-id="gemini-2tb-1y" data-name="Gemini PRO + 2TB Google One — 1 año" data-price="15"
-                             data-image="https://scontent-mia5-1.xx.fbcdn.net/v/t39.30808-6/614433413_122107293267185356_734168746950920252_n.jpg?stp=dst-jpg_p370x247_tt6&amp;_nc_cat=102&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=9xD5zGkv6BsQ7kNvwENzPbF&amp;_nc_oc=AdlexCMxDJ3KAYWMV1tI2F3PfV3OTw6EgOiXtb8odBlwl1Ea7CFwsF1U4mNp5Oq0ZC0&amp;_nc_zt=23&amp;_nc_ht=scontent-mia5-1.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfojoMhfd3pMGL0OtbwKID-eNVh3k4D-9Q-cjde2rnNYog&amp;oe=69689692"
-                             data-emoji="✨">
-                            <i class="fa fa-shopping-cart mr-2"></i> Agregar
-                          </a>
-                        </div>
-
-                        <div class="hero-mini-grid">
-                          <div class="mini-box">
-                            <i class="fa fa-check-circle"></i>
-                            <div><p class="t">Incluye</p><p class="s">Gemini + Google One</p></div>
-                          </div>
-                          <div class="mini-box">
-                            <i class="fa fa-bolt"></i>
-                            <div><p class="t">Entrega</p><p class="s">Inmediata</p></div>
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Slide 3: Perplexity (imagen tuya) -->
-              <div class="carousel-item">
-                <div class="hero-inner">
-                  <div class="row align-items-center">
-                    <div class="col-lg-6 mb-3 mb-lg-0">
-                      <div class="hero-media">
-                        <img
-                          referrerpolicy="no-referrer"
-                          src="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/612846523_122107293171185356_2153152585508812796_n.jpg?stp=dst-jpg_s590x590_tt6&amp;_nc_cat=107&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=j127xVvXBdkQ7kNvwED-3dg&amp;_nc_oc=AdnZFTFkc87ysaPcVrFmH3dYmGZt-gumkK_0Ke9rFomcxs5xXuQ35OkW6--DJfpv6Mc&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfoiUVurKl2g4uD-n6WwOI29i6rr7Bdyeh_GUE-AcIIWSA&amp;oe=69689664"
-                          alt="Perplexity"
-                          onerror="this.onerror=null;this.src='img/cat-2.jpg';"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-lg-6">
-                      <div class="hero-info">
-                        <div class="hero-topline">
-                          <span class="tag"><i class="fa fa-search"></i> Investigación</span>
-                          <span class="tag"><i class="fa fa-user-shield"></i> En tu cuenta</span>
-                        </div>
-
-                        <h2 class="hero-title">Perplexity — 1 año</h2>
-
-                        <div class="hero-price">
-                          <div class="pen">S/ 15</div>
-                          <div class="note">/ 1 año</div>
-                        </div>
-
-                        <div class="pill-row">
-                          <span class="pill ok"><i class="fa fa-circle"></i> Disponible</span>
-                          <span class="pill"><i class="fa fa-link"></i> Fuentes reales</span>
-                          <span class="pill"><i class="fa fa-rocket"></i> IA avanzadas</span>
-                          <span class="pill"><i class="fa fa-lock"></i> Activación directa</span>
-                        </div>
-
-                        <p class="hero-desc">
-                          Respuestas rápidas, precisas y profesionales con búsquedas inteligentes y citas. Ideal para trabajos, tesis y negocios.
-                        </p>
-
-                        <div class="hero-ctas">
-                          <a href="shop.html#perplexity" class="btn btn-primary"><i class="fa fa-store mr-2"></i> Ver en Tienda</a>
-                          <a href="#" class="btn btn-outline-dark js-hero-add"
-                             data-id="perplexity-1y" data-name="Perplexity — 1 año" data-price="15"
-                             data-image="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/612846523_122107293171185356_2153152585508812796_n.jpg?stp=dst-jpg_s590x590_tt6&amp;_nc_cat=107&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=j127xVvXBdkQ7kNvwED-3dg&amp;_nc_oc=AdnZFTFkc87ysaPcVrFmH3dYmGZt-gumkK_0Ke9rFomcxs5xXuQ35OkW6--DJfpv6Mc&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfoiUVurKl2g4uD-n6WwOI29i6rr7Bdyeh_GUE-AcIIWSA&amp;oe=69689664"
-                             data-emoji="🔎">
-                            <i class="fa fa-shopping-cart mr-2"></i> Agregar
-                          </a>
-                        </div>
-
-                        <div class="hero-mini-grid">
-                          <div class="mini-box">
-                            <i class="fa fa-bolt"></i>
-                            <div><p class="t">Entrega</p><p class="s">Inmediata</p></div>
-                          </div>
-                          <div class="mini-box">
-                            <i class="fa fa-headset"></i>
-                            <div><p class="t">Soporte</p><p class="s">24/7</p></div>
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Slide 4: Netflix (imagen tuya) -->
-              <div class="carousel-item">
-                <div class="hero-inner">
-                  <div class="row align-items-center">
-                    <div class="col-lg-6 mb-3 mb-lg-0">
-                      <div class="hero-media">
-                        <img
-                          referrerpolicy="no-referrer"
-                          src="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/615089435_122107293993185356_1513716576314674137_n.jpg?&amp;_nc_cat=103&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=MuVkjPglmP4Q7kNvwHQyfGN&amp;_nc_oc=AdmXbL8cfaX0hLQjMaYqliC9fCMTEMJjth5b5afvb2Vl-sEuHC2sCQn3SEwda3VPhf4&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=RnQ_yuHok_DVc9E54zUAPw&amp;oh=00_AfpVAEKFWJ_LOtz480QilF1m-v4BCo6IKy6S02l2GrEEag&amp;oe=6968BA93"
-                          alt="Netflix"
-                          onerror="this.onerror=null;this.src='img/product-4.jpg';"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-lg-6">
-                      <div class="hero-info">
-                        <div class="hero-topline">
-                          <span class="tag"><i class="fa fa-tv"></i> Streaming</span>
-                          <span class="tag"><i class="fa fa-bolt"></i> Entrega inmediata</span>
-                        </div>
-
-                        <h2 class="hero-title">Netflix Premium — 1 mes</h2>
-
-                        <div class="hero-price">
-                          <div class="pen">Desde S/ 10</div>
-                          <div class="note">/ mensual</div>
-                        </div>
-
-                        <div class="pill-row">
-                          <span class="pill ok"><i class="fa fa-circle"></i> Disponible</span>
-                          <span class="pill"><i class="fa fa-user"></i> Perfil propio</span>
-                          <span class="pill"><i class="fa fa-calendar-alt"></i> Mensual</span>
-                          <span class="pill"><i class="fa fa-headset"></i> Soporte</span>
-                        </div>
-
-                        <p class="hero-desc">
-                          Mira en tu TV, celular o PC. Te activamos rápido y te ayudamos si se presenta cualquier problema.
-                        </p>
-
-                        <div class="hero-ctas">
-                          <a href="shop.html#streaming" class="btn btn-primary"><i class="fa fa-store mr-2"></i> Ver en Tienda</a>
-                          <a href="#" class="btn btn-outline-dark js-hero-add"
-                             data-id="netflix-1m" data-name="Netflix Premium — 1 mes" data-price="10"
-                             data-image="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/615089435_122107293993185356_1513716576314674137_n.jpg?&amp;_nc_cat=103&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=MuVkjPglmP4Q7kNvwHQyfGN&amp;_nc_oc=AdmXbL8cfaX0hLQjMaYqliC9fCMTEMJjth5b5afvb2Vl-sEuHC2sCQn3SEwda3VPhf4&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=RnQ_yuHok_DVc9E54zUAPw&amp;oh=00_AfpVAEKFWJ_LOtz480QilF1m-v4BCo6IKy6S02l2GrEEag&amp;oe=6968BA93"
-                             data-emoji="🎬">
-                            <i class="fa fa-shopping-cart mr-2"></i> Agregar
-                          </a>
-                        </div>
-
-                        <div class="hero-mini-grid">
-                          <div class="mini-box">
-                            <i class="fa fa-check"></i>
-                            <div><p class="t">Activación</p><p class="s">Guiada</p></div>
-                          </div>
-                          <div class="mini-box">
-                            <i class="fab fa-whatsapp"></i>
-                            <div><p class="t">Soporte</p><p class="s">WhatsApp 24/7</p></div>
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Slide 5: Disney (imagen tuya) -->
-              <div class="carousel-item">
-                <div class="hero-inner">
-                  <div class="row align-items-center">
-                    <div class="col-lg-6 mb-3 mb-lg-0">
-                      <div class="hero-media">
-                        <img
-                          referrerpolicy="no-referrer"
-                          src="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/614075205_122107294203185356_6186339951253264426_n.jpg?&amp;_nc_cat=105&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=okHtA9Hy_rsQ7kNvwFOh3U9&amp;_nc_oc=AdktL8iNuq8EO458m1TpvXDmYvhlt9NWPba5gm2biLbAYaMZG6A1NQe5N0pXe-AwqSc&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=1QprF9dn6I2JPwFeGv0Lrg&amp;oh=00_AfpMiMu3OC5UJQDEyTtMD7aTwD4tE9xaqB1YZ0KnOcGkJQ&amp;oe=696890B6"
-                          alt="Disney+"
-                          onerror="this.onerror=null;this.src='img/cat-3.jpg';"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-lg-6">
-                      <div class="hero-info">
-                        <div class="hero-topline">
-                          <span class="tag"><i class="fa fa-film"></i> Streaming</span>
-                          <span class="tag"><i class="fa fa-star"></i> Premium</span>
-                        </div>
-
-                        <h2 class="hero-title">Disney+ Premium — 1 mes</h2>
-
-                        <div class="hero-price">
-                          <div class="pen">S/ 8</div>
-                          <div class="note">/ mensual</div>
-                        </div>
-
-                        <div class="pill-row">
-                          <span class="pill ok"><i class="fa fa-circle"></i> Disponible</span>
-                          <span class="pill"><i class="fa fa-user"></i> Perfil propio</span>
-                          <span class="pill"><i class="fa fa-calendar-alt"></i> Mensual</span>
-                          <span class="pill"><i class="fa fa-headset"></i> Soporte</span>
-                        </div>
-
-                        <p class="hero-desc">
-                          Disney, Pixar, Marvel, Star Wars y más. Activación rápida y soporte si lo necesitas.
-                        </p>
-
-                        <div class="hero-ctas">
-                          <a href="shop.html#streaming" class="btn btn-primary"><i class="fa fa-store mr-2"></i> Ver en Tienda</a>
-                          <a href="#" class="btn btn-outline-dark js-hero-add"
-                             data-id="disney-1m" data-name="Disney+ Premium — 1 mes" data-price="8"
-                             data-image="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/614075205_122107294203185356_6186339951253264426_n.jpg?&amp;_nc_cat=105&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=okHtA9Hy_rsQ7kNvwFOh3U9&amp;_nc_oc=AdktL8iNuq8EO458m1TpvXDmYvhlt9NWPba5gm2biLbAYaMZG6A1NQe5N0pXe-AwqSc&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=1QprF9dn6I2JPwFeGv0Lrg&amp;oh=00_AfpMiMu3OC5UJQDEyTtMD7aTwD4tE9xaqB1YZ0KnOcGkJQ&amp;oe=696890B6"
-                             data-emoji="🎞️">
-                            <i class="fa fa-shopping-cart mr-2"></i> Agregar
-                          </a>
-                        </div>
-
-                        <div class="hero-mini-grid">
-                          <div class="mini-box">
-                            <i class="fa fa-bolt"></i>
-                            <div><p class="t">Entrega</p><p class="s">Inmediata</p></div>
-                          </div>
-                          <div class="mini-box">
-                            <i class="fab fa-whatsapp"></i>
-                            <div><p class="t">Soporte</p><p class="s">WhatsApp 24/7</p></div>
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div><!-- /carousel-inner -->
-
-            <!-- Progress bar -->
+            </div>
             <div class="carousel-progress" aria-hidden="true"><span id="carouselProgressBar"></span></div>
-
-            <!-- Controls -->
-            <a class="carousel-control-prev" href="#heroCarousel" role="button" data-slide="prev" aria-label="Anterior">
-              <i class="fa fa-angle-left"></i>
-            </a>
-            <a class="carousel-control-next" href="#heroCarousel" role="button" data-slide="next" aria-label="Siguiente">
-              <i class="fa fa-angle-right"></i>
-            </a>
-
-          </div><!-- /hero-shell -->
-        </div>
+            <a class="carousel-control-prev" href="#heroCarousel" role="button" data-slide="prev" aria-label="Servicio anterior"><i class="fa fa-angle-left"></i></a>
+            <a class="carousel-control-next" href="#heroCarousel" role="button" data-slide="next" aria-label="Siguiente servicio"><i class="fa fa-angle-right"></i></a>
+          </div>
+        </section>
       </div>
 
-      <!-- Promos laterales -->
-      <div class="col-lg-4">
-        <div class="promo-card mb-30">
-          <img referrerpolicy="no-referrer"
-               src="https://scontent-mia5-2.xx.fbcdn.net/v/t39.30808-6/614890632_122107293237185356_158634127337289793_n.jpg?stp=dst-jpg_s590x590_tt6&amp;_nc_cat=100&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=dITOmr9geNYQ7kNvwHPpo_R&amp;_nc_oc=AdnBB0heRphhr1RMjRSlc7dJUfU7t6dBF7DcMwTmg41NR3g1s2tW9YkpQ0QdFXcOm6Q&amp;_nc_zt=23&amp;_nc_ht=scontent-mia5-2.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfreeTW5-dFKQk2NvyIAInZ9dZGRq12DG0Iuw6ShD7jn3A&amp;oe=69687941"
-               alt="ChatGPT Plus" onerror="this.onerror=null;this.src='img/offer-1.jpg';">
-          <div class="promo-overlay">
-            <div>
-              <p class="sub">IA • Planes desde S/8</p>
-              <p class="title">ChatGPT Plus</p>
-              <a class="btn btn-primary" href="shop.html#chatgpt-plus"><i class="fa fa-store mr-2"></i> Ver en tienda</a>
-            </div>
-          </div>
+      <aside class="col-lg-4" aria-label="Promociones seleccionadas">
+        <div class="home-promo-rail" id="homePromoRail">
+          <div class="home-promo-card home-promo-skeleton" aria-hidden="true"></div>
+          <div class="home-promo-card home-promo-skeleton" aria-hidden="true"></div>
         </div>
-
-        <div class="promo-card mb-30">
-          <img referrerpolicy="no-referrer"
-               src="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/612846523_122107293171185356_2153152585508812796_n.jpg?stp=dst-jpg_s590x590_tt6&amp;_nc_cat=107&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=j127xVvXBdkQ7kNvwED-3dg&amp;_nc_oc=AdnZFTFkc87ysaPcVrFmH3dYmGZt-gumkK_0Ke9rFomcxs5xXuQ35OkW6--DJfpv6Mc&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfoiUVurKl2g4uD-n6WwOI29i6rr7Bdyeh_GUE-AcIIWSA&amp;oe=69689664"
-               alt="Perplexity" onerror="this.onerror=null;this.src='img/offer-2.jpg';">
-          <div class="promo-overlay">
-            <div>
-              <p class="sub">Investigación • 1 año</p>
-              <p class="title">Perplexity</p>
-              <a class="btn btn-primary" href="shop.html#perplexity"><i class="fa fa-store mr-2"></i> Ver en tienda</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      </aside>
     </div>
   </div>
 
-  <!-- ===========================
-       BENEFICIOS (igual estilo)
-       =========================== -->
-  <div class="container-fluid pt-4">
-    <div class="row px-xl-5 pb-2">
-      <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
-        <div class="d-flex align-items-center bg-light mb-4" style="padding:26px;border-radius:16px;border:1px solid rgba(0,0,0,.06);box-shadow:0 12px 28px rgba(0,0,0,.06);">
-          <h1 class="fa fa-check text-primary m-0 mr-3"></h1>
-          <div>
-            <h5 class="font-weight-semi-bold m-0">100% Digital</h5>
-            <small class="text-muted">Entrega inmediata</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
-        <div class="d-flex align-items-center bg-light mb-4" style="padding:26px;border-radius:16px;border:1px solid rgba(0,0,0,.06);box-shadow:0 12px 28px rgba(0,0,0,.06);">
-          <h1 class="fa fa-bolt text-primary m-0 mr-3"></h1>
-          <div>
-            <h5 class="font-weight-semi-bold m-0">Activación guiada</h5>
-            <small class="text-muted">Paso a paso</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
-        <div class="d-flex align-items-center bg-light mb-4" style="padding:26px;border-radius:16px;border:1px solid rgba(0,0,0,.06);box-shadow:0 12px 28px rgba(0,0,0,.06);">
-          <h1 class="fa fa-shield-alt text-primary m-0 mr-3"></h1>
-          <div>
-            <h5 class="font-weight-semi-bold m-0">Garantía</h5>
-            <small class="text-muted">Soporte real</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
-        <div class="d-flex align-items-center bg-light mb-4" style="padding:26px;border-radius:16px;border:1px solid rgba(0,0,0,.06);box-shadow:0 12px 28px rgba(0,0,0,.06);">
-          <h1 class="fa fa-headset text-primary m-0 mr-3"></h1>
-          <div>
-            <h5 class="font-weight-semi-bold m-0">Soporte 24/7</h5>
-            <small class="text-muted">WhatsApp</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===========================
-       CTA A TIENDA (para que sí o sí vayan a shop)
-       =========================== -->
-  <div class="container-fluid pb-3">
+  <!-- Selección viva del catálogo: sustituye los antiguos logos y bloques genéricos -->
+  <section class="container-fluid">
     <div class="row px-xl-5">
       <div class="col-12">
-        <div class="bg-light p-4" style="border-radius:18px;border:1px solid rgba(0,0,0,.06);box-shadow:0 18px 40px rgba(0,0,0,.06);">
-          <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
-            <div class="mb-3 mb-md-0">
-              <h4 class="mb-1" style="font-weight:900;">🔥 Catálogo completo en la Tienda</h4>
-              <div class="text-muted" style="font-weight:600;">
-                Encuentra IA, streaming, diseño, VPN y planes para proveedores. Todo ordenado y con info clara.
-              </div>
-            </div>
+        <div class="home-discovery">
+          <div class="home-discovery-head">
             <div>
-              <a href="shop.html" class="btn btn-primary py-2 px-4" style="border-radius:12px;font-weight:900;">
-                Ir a la tienda <i class="fa fa-arrow-right ml-2"></i>
-              </a>
-              <a href="contact.html" class="btn btn-outline-dark py-2 px-4 ml-md-2 mt-2 mt-md-0" style="border-radius:12px;font-weight:900;">
-                Soporte por WhatsApp <i class="fab fa-whatsapp ml-2"></i>
-              </a>
+              <div class="home-discovery-eyebrow"><i class="fa fa-th-large"></i> Catálogo en movimiento</div>
+              <h2 class="home-discovery-title">Encuentra el servicio que necesitas</h2>
+              <p>La selección se actualiza desde los productos publicados; cada acceso te lleva directo a su detalle dentro de la tienda.</p>
             </div>
+            <a class="btn btn-primary" href="shop.html"><i class="fa fa-store mr-2"></i> Abrir catálogo</a>
+          </div>
+          <div class="home-product-spotlight" id="homeProductSpotlight">
+            <div class="home-spot-card home-promo-skeleton" aria-hidden="true"></div>
+            <div class="home-spot-card home-promo-skeleton" aria-hidden="true"></div>
+            <div class="home-spot-card home-promo-skeleton" aria-hidden="true"></div>
+            <div class="home-spot-card home-promo-skeleton" aria-hidden="true"></div>
+          </div>
+          <div class="home-service-points">
+            <div class="home-service-point"><i class="fa fa-bolt"></i><span>Activación digital con indicaciones claras.</span></div>
+            <div class="home-service-point"><i class="fa fa-shield-alt"></i><span>Compra desde el catálogo y revisa cada plan antes de pagar.</span></div>
+            <div class="home-service-point"><i class="fa fa-headset"></i><span>Soporte disponible por los canales de la tienda.</span></div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- ===========================
-       PRODUCTOS DESTACADOS (compactos + llamativos)
-       =========================== -->
-  <div class="container-fluid pt-4 pb-3">
-    <div class="d-flex align-items-center justify-content-between mx-xl-5 mb-3">
-      <h2 class="section-title position-relative text-uppercase mb-0">
-        <span class="bg-secondary pr-3">Destacados</span>
-      </h2>
-      <a class="btn btn-sm btn-primary" href="shop.html">Ver todos</a>
-    </div>
-
-    <div class="row px-xl-5" id="innovFeaturedRow" data-innov-dynamic="featured">
-      <div class="col-12 py-3 text-muted">Cargando destacados desde la tienda...</div>
-    </div>
-  </div>
-
-  <!-- ===========================
-       Vendor / Marcas (ya no vacío)
-       =========================== -->
-  <div class="container-fluid py-5">
-    <div class="row px-xl-5">
-      <div class="col">
-        <div class="owl-carousel vendor-carousel">
-          <div class="brand-tile">
-            <img referrerpolicy="no-referrer"
-                 src="https://scontent-mia5-2.xx.fbcdn.net/v/t39.30808-6/614890632_122107293237185356_158634127337289793_n.jpg?stp=dst-jpg_s590x590_tt6&amp;_nc_cat=100&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=dITOmr9geNYQ7kNvwHPpo_R&amp;_nc_oc=AdnBB0heRphhr1RMjRSlc7dJUfU7t6dBF7DcMwTmg41NR3g1s2tW9YkpQ0QdFXcOm6Q&amp;_nc_zt=23&amp;_nc_ht=scontent-mia5-2.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfreeTW5-dFKQk2NvyIAInZ9dZGRq12DG0Iuw6ShD7jn3A&amp;oe=69687941"
-                 alt="ChatGPT" onerror="this.onerror=null;this.src='img/vendor-1.jpg';">
-          </div>
-          <div class="brand-tile">
-            <img referrerpolicy="no-referrer"
-                 src="https://scontent-mia5-1.xx.fbcdn.net/v/t39.30808-6/614433413_122107293267185356_734168746950920252_n.jpg?stp=dst-jpg_p370x247_tt6&amp;_nc_cat=102&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=9xD5zGkv6BsQ7kNvwENzPbF&amp;_nc_oc=AdlexCMxDJ3KAYWMV1tI2F3PfV3OTw6EgOiXtb8odBlwl1Ea7CFwsF1U4mNp5Oq0ZC0&amp;_nc_zt=23&amp;_nc_ht=scontent-mia5-1.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfojoMhfd3pMGL0OtbwKID-eNVh3k4D-9Q-cjde2rnNYog&amp;oe=69689692"
-                 alt="Gemini" onerror="this.onerror=null;this.src='img/vendor-2.jpg';">
-          </div>
-          <div class="brand-tile">
-            <img referrerpolicy="no-referrer"
-                 src="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/612846523_122107293171185356_2153152585508812796_n.jpg?stp=dst-jpg_s590x590_tt6&amp;_nc_cat=107&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=j127xVvXBdkQ7kNvwED-3dg&amp;_nc_oc=AdnZFTFkc87ysaPcVrFmH3dYmGZt-gumkK_0Ke9rFomcxs5xXuQ35OkW6--DJfpv6Mc&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=oLnPNs1nxJgUWEYXNBfyYw&amp;oh=00_AfoiUVurKl2g4uD-n6WwOI29i6rr7Bdyeh_GUE-AcIIWSA&amp;oe=69689664"
-                 alt="Perplexity" onerror="this.onerror=null;this.src='img/vendor-3.jpg';">
-          </div>
-          <div class="brand-tile">
-            <img referrerpolicy="no-referrer"
-                 src="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/615089435_122107293993185356_1513716576314674137_n.jpg?&amp;_nc_cat=103&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=MuVkjPglmP4Q7kNvwHQyfGN&amp;_nc_oc=AdmXbL8cfaX0hLQjMaYqliC9fCMTEMJjth5b5afvb2Vl-sEuHC2sCQn3SEwda3VPhf4&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=RnQ_yuHok_DVc9E54zUAPw&amp;oh=00_AfpVAEKFWJ_LOtz480QilF1m-v4BCo6IKy6S02l2GrEEag&amp;oe=6968BA93"
-                 alt="Netflix" onerror="this.onerror=null;this.src='img/vendor-4.jpg';">
-          </div>
-          <div class="brand-tile">
-            <img referrerpolicy="no-referrer"
-                 src="https://scontent-mia3-2.xx.fbcdn.net/v/t39.30808-6/614075205_122107294203185356_6186339951253264426_n.jpg?&amp;_nc_cat=105&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_ohc=okHtA9Hy_rsQ7kNvwFOh3U9&amp;_nc_oc=AdktL8iNuq8EO458m1TpvXDmYvhlt9NWPba5gm2biLbAYaMZG6A1NQe5N0pXe-AwqSc&amp;_nc_zt=23&amp;_nc_ht=scontent-mia3-2.xx&amp;_nc_gid=1QprF9dn6I2JPwFeGv0Lrg&amp;oh=00_AfpMiMu3OC5UJQDEyTtMD7aTwD4tE9xaqB1YZ0KnOcGkJQ&amp;oe=696890B6"
-                 alt="Disney+" onerror="this.onerror=null;this.src='img/vendor-5.jpg';">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  </section>
 
   <!-- ===========================
        FOOTER (con redes reales)
@@ -1235,7 +918,6 @@
        =========================== -->
   <!-- Catálogo compartido: usa la misma fuente de shop.html/Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/innov_catalog_bridge.js"></script>
 
   <script>
     (function(){
@@ -1424,6 +1106,315 @@
         });
       }
 
+
+
+      /* ===========================================================
+         HOME SHOWCASE DINÁMICO
+         Fuente: RPC get_public_catalog + configuración home_showcase
+         Configurada desde Innov IA Admin > Productos > Portada.
+         =========================================================== */
+      const HOME_SUPABASE_URL = 'https://rfjvskrimsoqlyofhidj.supabase.co';
+      const HOME_SUPABASE_KEY = 'sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
+      const HOME_CONFIG_RPC = 'get_public_home_showcase';
+      const HOME_DEFAULT_IMG = '';
+      const homeRuntime = { client:null, byId:new Map(), products:[], config:{}, carouselBound:false };
+
+      function homeEsc(value){
+        return String(value == null ? '' : value).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[ch]));
+      }
+      function homeAttr(value){ return homeEsc(value); }
+      function homeJson(value){
+        if(!value) return {};
+        if(typeof value === 'object') return value;
+        try { return JSON.parse(value); } catch(_) { return {}; }
+      }
+      function homeArray(value){
+        if(Array.isArray(value)) return value;
+        if(typeof value === 'string'){
+          try { const parsed=JSON.parse(value); return Array.isArray(parsed)?parsed:[]; } catch(_) { return value ? [value] : []; }
+        }
+        return [];
+      }
+      function homeBool(value, fallback=true){
+        if(value === false || value === 0 || String(value).toLowerCase()==='false') return false;
+        if(value == null || value === '') return fallback;
+        return true;
+      }
+      function homeSafeUrl(value){
+        const url=String(value||'').trim();
+        return /^(https?:\/\/|\/|\.\/|\.\.\/|data:image\/)/i.test(url) ? url : '';
+      }
+      function homeInitials(name){
+        return String(name||'IA').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x.charAt(0)).join('').toUpperCase() || 'IA';
+      }
+      function homeCategoryLabel(cat){
+        const c=String(cat||'otros').toLowerCase();
+        return c==='ai'?'IA':c==='streaming'?'Streaming':c==='musica'?'Edición y video':c==='otros'?'Herramientas':c.toUpperCase();
+      }
+      function homeCategoryIcon(cat){
+        const c=String(cat||'otros').toLowerCase();
+        return c==='ai'?'fa-robot':c==='streaming'?'fa-tv':c==='musica'?'fa-magic':'fa-layer-group';
+      }
+      function homeMoney(value, currency='PEN'){
+        const number=Number(value);
+        if(!Number.isFinite(number)) return 'Consultar';
+        return (String(currency||'PEN').toUpperCase()==='USD'?'US$':'S/')+' '+number.toLocaleString('es-PE',{minimumFractionDigits:number%1?2:0,maximumFractionDigits:2});
+      }
+      function homePlanAvailable(plan){
+        if(!plan || plan.active===false) return false;
+        const status=String(plan.availabilityStatus||'available').toLowerCase();
+        const mode=String(plan.stockMode||'controlled').toLowerCase();
+        const stock=Number(plan.availableStock||0);
+        if(status==='unavailable') return false;
+        if(status==='consult' || mode==='unlimited') return true;
+        if(mode==='manual' || mode==='preorder') return !!plan.allowPurchaseWithoutStock || status==='available' || stock>0;
+        return stock>0 || !!plan.allowPurchaseWithoutStock;
+      }
+      function homePreferredPlan(product){
+        const plans=(product?.plans||[]).slice().sort((a,b)=>Number(a.priority||100)-Number(b.priority||100));
+        return plans.find(homePlanAvailable) || plans[0] || null;
+      }
+      function homeProductAvailable(product){ return (product?.plans||[]).some(homePlanAvailable); }
+      function homeProductPrice(product){
+        const prices=(product?.plans||[]).map(p=>Number(p.price)).filter(v=>Number.isFinite(v));
+        return prices.length?Math.min(...prices):null;
+      }
+      function homeBuildCatalog(rows){
+        const map=new Map();
+        (rows||[]).forEach(row=>{
+          if(!homeBool(row.product_active,true)) return;
+          const productId=String(row.product_id||row.product_slug||'').trim();
+          if(!productId) return;
+          if(!map.has(productId)){
+            const slug=String(row.product_slug||productId);
+            map.set(productId,{
+              id:productId,
+              slug,
+              shopId:'db-'+slug,
+              name:row.product_name||'Producto',
+              description:row.product_description||'',
+              category:row.category||'otros',
+              priority:Number(row.product_priority||100),
+              image:row.image_url||'',
+              videoUrl:row.product_video_url||row.video_url||'',
+              videoType:row.product_video_type||row.video_type||'auto',
+              videoFit:row.product_video_fit||row.video_fit||'cover',
+              videoEnabled:homeBool(row.product_video_enabled,true),
+              saleMode:row.sale_mode||'retail',
+              plans:[]
+            });
+          }
+          const product=map.get(productId);
+          const planId=String(row.plan_id||'').trim();
+          if(planId){
+            product.plans.push({
+              id:planId,
+              name:row.plan_name||'Plan',
+              price:row.price==null?null:Number(row.price),
+              currency:row.currency||'PEN',
+              period:row.period||'',
+              priority:Number(row.plan_priority||100),
+              active:homeBool(row.plan_active,true),
+              stockMode:row.stock_mode||'controlled',
+              availableStock:Number(row.available_stock||0),
+              availabilityStatus:row.availability_status||'available',
+              allowPurchaseWithoutStock:!!row.allow_purchase_without_stock,
+              chips:homeArray(row.chips),
+              benefits:homeArray(row.benefits),
+              image:row.plan_image_url||row.image_url||'',
+              videoUrl:row.plan_video_url||row.product_video_url||row.video_url||'',
+              videoType:row.plan_video_type||row.product_video_type||row.video_type||'auto',
+              videoFit:row.plan_video_fit||row.product_video_fit||row.video_fit||'cover',
+              videoEnabled:homeBool(row.plan_video_enabled,true) && homeBool(row.product_video_enabled,true)
+            });
+          }
+        });
+        return Array.from(map.values()).sort((a,b)=>a.priority-b.priority || a.name.localeCompare(b.name,'es'));
+      }
+      function homeConfig(raw){
+        const parsed=homeJson(raw);
+        const ids=Array.isArray(parsed.hero_product_ids)?parsed.hero_product_ids:(Array.isArray(parsed.hero_ids)?parsed.hero_ids:[]);
+        return {
+          heroIds:[...new Set(ids.map(String).filter(Boolean))].slice(0,5),
+          promoTop:String(parsed.promo_top_product_id||parsed.promo_top_id||''),
+          promoBottom:String(parsed.promo_bottom_product_id||parsed.promo_bottom_id||'')
+        };
+      }
+      function homePickProducts(products, config){
+        const active=(products||[]).filter(p=>p && p.saleMode!=='wholesale');
+        const index=new Map(active.map(p=>[String(p.id),p]));
+        const hero=[];
+        (config.heroIds||[]).forEach(id=>{const p=index.get(String(id));if(p && !hero.some(x=>x.id===p.id)) hero.push(p);});
+        for(const p of active){ if(hero.length>=3) break; if(!hero.some(x=>x.id===p.id)) hero.push(p); }
+        const pool=[...active.filter(p=>!hero.some(h=>h.id===p.id)),...hero];
+        const promos=[];
+        [config.promoTop,config.promoBottom].forEach(id=>{const p=index.get(String(id));if(p && !promos.some(x=>x.id===p.id)) promos.push(p);});
+        for(const p of pool){ if(promos.length>=2) break; if(!promos.some(x=>x.id===p.id)) promos.push(p); }
+        return {hero:hero.slice(0,5),promos:promos.slice(0,2)};
+      }
+      function homeYouTubeId(url){
+        const m=String(url||'').match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);
+        return m?m[1]:'';
+      }
+      function homeVimeoId(url){ const m=String(url||'').match(/vimeo\.com\/(?:video\/)?(\d+)/i); return m?m[1]:''; }
+      function homeMedia(product, compact=false){
+        const plan=homePreferredPlan(product);
+        const image=homeSafeUrl(plan?.image||product.image||HOME_DEFAULT_IMG);
+        const video=homeSafeUrl(plan?.videoUrl||product.videoUrl||'');
+        const videoEnabled=(plan?plan.videoEnabled:product.videoEnabled)!==false;
+        const fit=(plan?.videoFit||product.videoFit||'cover')==='contain'?' home-fit-contain':'';
+        const fallback=image
+          ? `<img src="${homeAttr(image)}" alt="${homeAttr(product.name)}" loading="lazy" onerror="this.style.display='none'">`
+          : `<span class="home-monogram">${homeEsc(homeInitials(product.name))}</span>`;
+        let videoHtml='';
+        if(video && videoEnabled){
+          const yt=homeYouTubeId(video), vm=homeVimeoId(video);
+          if(yt){
+            videoHtml=`<iframe class="home-media-video${fit}" src="https://www.youtube-nocookie.com/embed/${homeAttr(yt)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${homeAttr(yt)}&playsinline=1&rel=0&modestbranding=1" title="Video de ${homeAttr(product.name)}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>`;
+          }else if(vm){
+            videoHtml=`<iframe class="home-media-video${fit}" src="https://player.vimeo.com/video/${homeAttr(vm)}?autoplay=1&muted=1&loop=1&background=1&dnt=1" title="Video de ${homeAttr(product.name)}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>`;
+          }else if(/\.(mp4|webm|ogg)(?:[?#].*)?$/i.test(video)){
+            videoHtml=`<video class="home-media-video${fit}" muted playsinline loop autoplay preload="metadata" poster="${homeAttr(image)}"><source src="${homeAttr(video)}"></video>`;
+          }
+        }
+        return `<div class="home-visual-fallback">${fallback}</div>${videoHtml}`;
+      }
+      function homeLink(product){ return 'shop.html#p='+encodeURIComponent(product.shopId); }
+      function homePriceHtml(product){
+        const plan=homePreferredPlan(product), lowest=homeProductPrice(product);
+        if(lowest==null) return `<strong>Consultar</strong><span>por disponibilidad</span>`;
+        const plans=(product.plans||[]).filter(p=>Number.isFinite(Number(p.price)));
+        const prefix=plans.length>1?'Desde ':'';
+        return `<strong>${homeEsc(prefix+homeMoney(lowest, plan?.currency||'PEN'))}</strong><span>${homeEsc(plan?.period ? '/ '+plan.period : 'precio del plan')}</span>`;
+      }
+      function homeChipHtml(product){
+        const plan=homePreferredPlan(product), available=homeProductAvailable(product);
+        const raw=[...(plan?.chips||[]), plan?.period||'', plan?.stockMode==='unlimited'?'Uso sin límite':''];
+        const chips=[...new Set(raw.map(x=>String(x||'').trim()).filter(Boolean))].slice(0,3);
+        return `<span class="home-chip ${available?'is-good':''}"><i class="fa ${available?'fa-check-circle':'fa-info-circle'}"></i>${available?'Disponible':'Consultar'}</span>`+
+          chips.map(ch=>`<span class="home-chip"><i class="fa fa-circle"></i>${homeEsc(ch)}</span>`).join('');
+      }
+      function homeHeroSlide(product, index){
+        const plan=homePreferredPlan(product);
+        const canAdd=plan && homePlanAvailable(plan) && Number.isFinite(Number(plan.price));
+        const desc=String(product.description||'').trim() || 'Revisa sus planes, elige la opción que más te conviene y compra desde la tienda.';
+        const period=plan?.period||'Plan disponible';
+        return `<div class="carousel-item ${index===0?'active':''}">
+          <div class="home-hero-item"><div class="row align-items-center">
+            <div class="col-lg-6 mb-3 mb-lg-0"><div class="home-hero-media">${homeMedia(product)}</div></div>
+            <div class="col-lg-6"><div class="home-hero-copy">
+              <div class="home-eyebrow"><span class="home-category"><i class="fa ${homeCategoryIcon(product.category)}"></i>${homeEsc(homeCategoryLabel(product.category))}</span><span class="home-live ${homeProductAvailable(product)?'':'is-consult'}"><i class="fa fa-circle"></i>${homeProductAvailable(product)?'En línea':'Consultar'}</span></div>
+              <h2 class="home-hero-title">${homeEsc(product.name)}</h2>
+              <div class="home-price-row">${homePriceHtml(product)}</div>
+              <div class="home-chip-row">${homeChipHtml(product)}</div>
+              <p class="home-hero-description">${homeEsc(desc).slice(0,220)}</p>
+              <div class="home-hero-actions"><a class="btn btn-primary" href="${homeAttr(homeLink(product))}"><i class="fa fa-store mr-2"></i> Ver planes</a>${canAdd?`<button class="btn btn-outline-dark" type="button" data-home-add="${homeAttr(product.id)}"><i class="fa fa-shopping-cart mr-2"></i> Agregar ${homeEsc(homeMoney(plan.price,plan.currency))}</button>`:''}</div>
+              <div class="home-mini-trust"><div><i class="fa fa-bolt"></i> Activación digital</div><div><i class="fa fa-headset"></i> Soporte de tienda</div></div>
+            </div></div>
+          </div></div>
+        </div>`;
+      }
+      function homePromoCard(product){
+        const plan=homePreferredPlan(product), detail=plan?.period?`${homeCategoryLabel(product.category)} · ${plan.period}`:homeCategoryLabel(product.category);
+        return `<article class="home-promo-card"><div class="home-promo-media">${homeMedia(product,true)}</div><div class="home-promo-copy"><small>${homeEsc(detail)}</small><h3>${homeEsc(product.name)}</h3><a class="btn" href="${homeAttr(homeLink(product))}"><i class="fa fa-store mr-2"></i> Ver en tienda</a></div></article>`;
+      }
+      function homeSpotCard(product){
+        const plan=homePreferredPlan(product), image=homeSafeUrl(plan?.image||product.image||'');
+        const thumb=image?`<img src="${homeAttr(image)}" alt="" loading="lazy" onerror="this.style.display='none'">`:`<span>${homeEsc(homeInitials(product.name))}</span>`;
+        return `<a class="home-spot-card" href="${homeAttr(homeLink(product))}"><span class="home-spot-thumb">${thumb}</span><span><span class="home-spot-name">${homeEsc(product.name)}</span><span class="home-spot-price">${homeEsc(homeProductPrice(product)==null?'Consultar':homeMoney(homeProductPrice(product),plan?.currency||'PEN'))}</span><span class="home-spot-meta">${homeEsc(plan?.period||homeCategoryLabel(product.category))}</span></span></a>`;
+      }
+      function homeRenderEmpty(){
+        const slides=document.getElementById('homeHeroSlides'), indicators=document.getElementById('homeHeroIndicators'), promos=document.getElementById('homePromoRail'), spot=document.getElementById('homeProductSpotlight');
+        if(slides)slides.innerHTML=`<div class="carousel-item active"><div class="home-empty"><i class="fa fa-store" aria-hidden="true"></i><strong>El catálogo estará disponible en unos momentos</strong><p>Ingresa a la tienda para revisar los productos publicados.</p><a class="btn btn-primary" href="shop.html">Abrir tienda</a></div></div>`;
+        if(indicators)indicators.innerHTML='';
+        if(promos)promos.innerHTML='';
+        if(spot)spot.innerHTML='<div class="home-empty" style="grid-column:1/-1;min-height:130px"><i class="fa fa-layer-group"></i><strong>Los productos aparecerán aquí</strong><p>Esta zona se llena desde el catálogo publicado.</p></div>';
+      }
+      function homeSyncVideos(){
+        document.querySelectorAll('#heroCarousel video.home-media-video').forEach(video=>{
+          const active=video.closest('.carousel-item')?.classList.contains('active');
+          if(active) video.play?.().catch(()=>{}); else video.pause?.();
+        });
+      }
+      function homeResetCarousel(){
+        const el=document.getElementById('heroCarousel');
+        if(!el || !window.jQuery) return;
+        try{$('#heroCarousel').carousel('dispose');}catch(_){}
+        try{$('#heroCarousel').carousel({interval:5400,pause:'hover',ride:false});}catch(_){}
+        $('#heroCarousel').off('slid.bs.carousel.homeShowcase').on('slid.bs.carousel.homeShowcase',homeSyncVideos);
+        homeSyncVideos();
+      }
+      function homeShowMessage(button, text){
+        if(!button) return;
+        const original=button.innerHTML;
+        button.innerHTML=`<i class="fa fa-check mr-2"></i>${homeEsc(text)}`;
+        button.disabled=true;
+        setTimeout(()=>{button.innerHTML=original;button.disabled=false;},1350);
+      }
+      function homeAddToCart(button){
+        const product=homeRuntime.byId.get(String(button?.dataset?.homeAdd||''));
+        const plan=homePreferredPlan(product);
+        if(!product || !plan || !homePlanAvailable(plan) || !Number.isFinite(Number(plan.price))){
+          if(product) window.location.href=homeLink(product);
+          return;
+        }
+        const image=homeSafeUrl(plan.image||product.image||'');
+        const payload={
+          id:`${product.shopId}__db-plan-${plan.id}`,
+          nombre:`${product.name} — ${plan.name}`,
+          precio:Number(plan.price),
+          imagen:image,
+          qty:1,
+          source:'supabase',
+          product_id:product.id,
+          plan_id:plan.id,
+          plan_name:plan.name,
+          stock_control:'supabase',
+          meta:{cat:product.category||'',period:plan.period||'',cupo:Number.isFinite(Number(plan.availableStock))?Number(plan.availableStock):null}
+        };
+        Cart.add(payload);syncHeaderBadges();
+        const origin=button.closest('.carousel-item')?.querySelector('.home-hero-media')||button;
+        flyToCart({originEl:origin,emoji:'',imgUrl:image});
+        homeShowMessage(button,'Añadido');
+      }
+      function homeBindActions(){
+        if(homeRuntime.carouselBound) return;
+        homeRuntime.carouselBound=true;
+        document.addEventListener('click',event=>{
+          const add=event.target.closest('[data-home-add]');
+          if(!add) return;
+          event.preventDefault();homeAddToCart(add);
+        });
+      }
+      function homeRender(products, config){
+        const selected=homePickProducts(products,config);
+        homeRuntime.byId=new Map(products.map(p=>[String(p.id),p]));
+        homeRuntime.products=products;homeRuntime.config=config;
+        if(!selected.hero.length){homeRenderEmpty();return;}
+        const slides=document.getElementById('homeHeroSlides'), indicators=document.getElementById('homeHeroIndicators'), promos=document.getElementById('homePromoRail'), spot=document.getElementById('homeProductSpotlight');
+        if(slides)slides.innerHTML=selected.hero.map(homeHeroSlide).join('');
+        if(indicators)indicators.innerHTML=selected.hero.map((_,i)=>`<li data-target="#heroCarousel" data-slide-to="${i}" class="${i===0?'active':''}" aria-label="Servicio ${i+1}"></li>`).join('');
+        if(promos)promos.innerHTML=selected.promos.map(homePromoCard).join('');
+        if(spot)spot.innerHTML=[...selected.hero,...products.filter(p=>!selected.hero.some(h=>h.id===p.id))].slice(0,4).map(homeSpotCard).join('');
+        homeResetCarousel();homeBindActions();
+      }
+      async function initHomeShowcase(){
+        if(!window.supabase) {homeRenderEmpty();return;}
+        try{
+          homeRuntime.client=window.supabase.createClient(HOME_SUPABASE_URL,HOME_SUPABASE_KEY);
+          const catalogReq=homeRuntime.client.rpc('get_public_catalog');
+          const configReq=homeRuntime.client.rpc(HOME_CONFIG_RPC);
+          const [catalogRes,configRes]=await Promise.all([catalogReq,configReq]);
+          if(catalogRes.error) throw catalogRes.error;
+          const products=homeBuildCatalog(catalogRes.data||[]);
+          const config=configRes?.error?homeConfig({}):homeConfig(configRes.data);
+          homeRender(products,config);
+        }catch(error){
+          console.warn('No se pudo cargar la portada dinámica',error);
+          homeRenderEmpty();
+        }
+      }
+
       /* ===== WhatsApp badge persistencia ===== */
       (function(){
         var btn = document.getElementById('whatsappFab');
@@ -1475,6 +1466,7 @@
       bindHeroAdd();
       bindProductCards();
       initCarouselProgress();
+      initHomeShowcase();
 
       window.addEventListener('storage', function(e){
         if(e.key === CART_KEY){ syncHeaderBadges(); }
@@ -1483,6 +1475,10 @@
   </script>
 </body>
 </html>
+
+
+
+
 
 
 
