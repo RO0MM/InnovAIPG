@@ -618,6 +618,137 @@
     .home-service-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--home-line);background:#fbfcfe}.home-service-point{display:flex;align-items:center;gap:9px;padding:12px 20px;border-right:1px solid var(--home-line);color:#687385;font-size:.74rem;font-weight:750}.home-service-point:last-child{border-right:0}.home-service-point i{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:rgba(13,110,253,.09);color:#287de8;font-size:.84rem}
     @media(max-width:991px){.home-hero-media{height:285px;min-height:285px}.home-promo-rail{margin-top:14px;grid-template-columns:1fr 1fr}.home-promo-card,.home-promo-copy{min-height:150px}.home-product-spotlight{grid-template-columns:repeat(2,minmax(0,1fr))}.nav-shop-spotlight::after{display:none}}
     @media(max-width:575px){.home-stage{padding-top:8px}.home-hero-item{padding:10px}.home-hero-media{height:215px;min-height:215px;border-radius:13px}.home-hero-copy{padding:15px;border-radius:13px}.home-hero-title{font-size:1.15rem}.home-price-row strong{font-size:1.42rem}.home-hero-description{font-size:.80rem;min-height:auto}.home-mini-trust{grid-template-columns:1fr}.home-hero-shell .carousel-control-prev,.home-hero-shell .carousel-control-next{width:38px}.home-hero-shell .carousel-control-prev i,.home-hero-shell .carousel-control-next i{width:31px;height:31px;font-size:15px}.home-promo-rail{grid-template-columns:1fr}.home-promo-card,.home-promo-copy{min-height:137px}.home-discovery{margin-top:15px;border-radius:16px}.home-discovery-head{padding:15px;display:block}.home-discovery-head .btn{margin-top:10px}.home-product-spotlight{grid-template-columns:1fr;padding:10px 15px}.home-service-points{grid-template-columns:1fr}.home-service-point{border-right:0;border-bottom:1px solid var(--home-line);padding:10px 15px}.home-service-point:last-child{border-bottom:0}.home-empty{min-height:300px}.nav-shop-spotlight{margin:5px 0 !important;padding:8px 11px !important}}
+
+
+    /* ===========================================================
+       PORTADA REAL V2 — compatibilidad visual y navegación al detalle
+       Todo el contenido dinámico se genera desde get_public_catalog().
+       =========================================================== */
+    .home-stage,
+    #homeCatalogStage,
+    .home-stage *,
+    #homeCatalogStage *{font-family:'Roboto',Arial,sans-serif}
+
+    /* La portada no depende de Bootstrap para alinearse correctamente. */
+    .home-stage > .row,
+    #homeCatalogStage > .row{
+      display:grid;
+      grid-template-columns:minmax(0,2fr) minmax(300px,1fr);
+      gap:16px;
+      margin:0!important;
+      padding:0 clamp(10px,3.5vw,44px)!important;
+    }
+    .home-stage > .row > [class*="col-"],
+    #homeCatalogStage > .row > [class*="col-"]{
+      width:auto!important;
+      max-width:none!important;
+      padding:0!important;
+      margin:0!important;
+    }
+    #homeCatalogStage > .row{display:block}
+    #homeCatalogStage .col-12{display:block!important}
+
+    /* Fallback de carrusel: funciona también si Bootstrap JS no está disponible. */
+    .home-hero-shell .carousel-inner{position:relative!important}
+    .home-hero-shell .carousel-item{display:none!important;float:none!important;width:100%!important;margin-right:0!important}
+    .home-hero-shell .carousel-item.active{display:block!important;animation:homeV2SlideIn .36s ease both}
+    @keyframes homeV2SlideIn{from{opacity:.18;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+
+    .home-hero-item.home-openable{cursor:pointer;outline:none}
+    .home-hero-item.home-openable:focus-visible .home-hero-copy,
+    .home-hero-item.home-openable:hover .home-hero-copy{border-color:rgba(13,110,253,.34);box-shadow:0 15px 34px rgba(17,50,92,.12)}
+    .home-hero-item.home-openable:hover .home-hero-media{transform:translateY(-1px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),0 18px 32px rgba(31,43,68,.20)}
+    .home-hero-media{transition:transform .22s ease,box-shadow .22s ease}
+    .home-open-hint{display:inline-flex;align-items:center;gap:6px;margin:0 0 8px;color:#517195;font-size:.68rem;font-weight:900;letter-spacing:.025em}
+    .home-open-hint i{color:#0d6efd}
+
+    .home-cta{
+      display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;
+      min-height:40px!important;padding:9px 13px!important;border-radius:11px!important;
+      border:1px solid #f2bf13!important;background:#ffcb2f!important;color:#202733!important;
+      font-family:'Roboto',Arial,sans-serif!important;font-size:.84rem!important;font-weight:900!important;
+      line-height:1!important;text-decoration:none!important;box-shadow:0 7px 15px rgba(201,151,0,.18)!important;
+      transition:transform .18s ease,filter .18s ease,box-shadow .18s ease!important;
+    }
+    .home-cta:hover,.home-cta:focus{color:#161d29!important;text-decoration:none!important;transform:translateY(-2px);filter:brightness(1.04);box-shadow:0 10px 20px rgba(201,151,0,.24)!important}
+    .home-cta.home-cta-quiet{background:#fff!important;border-color:#cbd4df!important;color:#273549!important;box-shadow:none!important}
+
+    .home-visual-fallback img.home-media-img{display:block;background:transparent}
+    .home-promo-card{display:block;text-decoration:none!important;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+    .home-promo-card:hover{transform:translateY(-2px);box-shadow:0 19px 38px rgba(20,34,55,.16);border-color:rgba(13,110,253,.28)}
+    .home-promo-card:focus-visible{outline:3px solid rgba(13,110,253,.34);outline-offset:3px}
+    .home-promo-copy .home-cta{min-height:35px!important;padding:8px 11px!important;font-size:.76rem!important}
+
+    .home-discovery{background:linear-gradient(180deg,#fff 0%,#fbfdff 100%)}
+    .home-discovery-head .home-cta{white-space:nowrap}
+    .home-catalog-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:15px 20px 20px}
+    .home-catalog-card{
+      display:grid;grid-template-rows:142px minmax(0,1fr);min-width:0;overflow:hidden;
+      border:1px solid var(--home-line);border-radius:15px;background:#fff;color:var(--home-ink);
+      text-decoration:none!important;box-shadow:0 7px 17px rgba(20,34,55,.055);
+      transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+    }
+    .home-catalog-card:hover{transform:translateY(-3px);border-color:rgba(13,110,253,.35);box-shadow:0 14px 25px rgba(20,34,55,.12);text-decoration:none!important}
+    .home-catalog-card:focus-visible{outline:3px solid rgba(13,110,253,.34);outline-offset:3px}
+    .home-catalog-media{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(145deg,#eaf4ff,#f9fbff);padding:12px}
+    .home-catalog-media::after{content:'';position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.23),transparent 55%,rgba(13,110,253,.04));pointer-events:none}
+    .home-catalog-media img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 16px rgba(22,42,70,.15))}
+    .home-catalog-monogram{position:relative;z-index:1;display:grid;place-items:center;width:68px;height:68px;border-radius:21px;color:#fff;background:linear-gradient(135deg,#2376dd,#22c8df);font-size:1.35rem;font-weight:950;box-shadow:0 12px 22px rgba(13,110,253,.2)}
+    .home-catalog-body{display:flex;flex-direction:column;min-width:0;padding:12px}
+    .home-catalog-cat{display:flex;align-items:center;gap:5px;color:#5180b7;font-size:.62rem;font-weight:950;letter-spacing:.06em;text-transform:uppercase}
+    .home-catalog-name{display:block;min-height:2.35em;margin:6px 0 7px;overflow:hidden;color:#243247;font-size:.88rem;font-weight:950;line-height:1.16;letter-spacing:-.012em}
+    .home-catalog-price{display:flex;align-items:baseline;gap:6px;min-width:0;color:#126ccf}
+    .home-catalog-price strong{font-size:1rem;font-weight:950;white-space:nowrap}.home-catalog-price span{overflow:hidden;color:var(--home-muted);font-size:.67rem;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+    .home-catalog-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px;min-height:20px}.home-catalog-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;overflow:hidden;padding:4px 6px;border-radius:999px;border:1px solid rgba(24,37,59,.08);background:#f8fafc;color:#647185;font-size:.62rem;font-weight:850;white-space:nowrap;text-overflow:ellipsis}.home-catalog-chip i{font-size:.6rem;color:#1c8bea}
+    .home-catalog-go{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:auto;padding-top:10px;color:#136ed2;font-size:.70rem;font-weight:950}.home-catalog-go i{font-size:.76rem;transition:transform .16s ease}.home-catalog-card:hover .home-catalog-go i{transform:translateX(3px)}
+    .home-catalog-empty{grid-column:1/-1;padding:35px 15px;border:1px dashed var(--home-line);border-radius:14px;color:var(--home-muted);font-size:.84rem;font-weight:700;text-align:center}
+
+    @media(max-width:991px){
+      .home-stage > .row{grid-template-columns:1fr}
+      .home-promo-rail{margin-top:0!important}
+      .home-catalog-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media(max-width:650px){
+      .home-stage > .row{gap:12px;padding-inline:10px!important}
+      #homeCatalogStage > .row{padding-inline:10px!important}
+      .home-discovery-head .home-cta{width:100%;margin-top:11px}
+      .home-catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:10px}
+      .home-catalog-card{grid-template-rows:122px minmax(0,1fr);border-radius:13px}
+      .home-catalog-body{padding:10px}.home-catalog-name{font-size:.78rem}.home-catalog-price strong{font-size:.91rem}.home-catalog-price span{font-size:.59rem}.home-catalog-chips{display:none}
+    }
+    @media(max-width:390px){.home-catalog-grid{grid-template-columns:1fr}.home-catalog-card{grid-template-columns:100px minmax(0,1fr);grid-template-rows:none}.home-catalog-media{min-height:120px}.home-catalog-name{min-height:auto;font-size:.82rem}}
+
+    /* Layout autónomo del hero: conserva dos columnas aunque Bootstrap no cargue. */
+    .home-hero-item > .row{
+      display:grid!important;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+      gap:16px!important;
+      margin:0!important;
+    }
+    .home-hero-item > .row > [class*="col-"]{
+      width:auto!important;
+      max-width:none!important;
+      padding:0!important;
+      margin:0!important;
+    }
+    .home-hero-shell .carousel-control-prev,
+    .home-hero-shell .carousel-control-next{
+      position:absolute!important;
+      top:50%!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      margin:0!important;
+      padding:0!important;
+      border:0!important;
+      background:transparent!important;
+      transform:translateY(-50%)!important;
+    }
+    .home-hero-shell .carousel-control-prev{left:4px!important}
+    .home-hero-shell .carousel-control-next{right:4px!important}
+    .home-hero-shell .carousel-progress{position:absolute!important;left:0!important;right:0!important;bottom:0!important}
+    .home-hero-shell .carousel-indicators{position:absolute!important;left:50%!important;bottom:3px!important;display:flex!important;gap:5px!important;list-style:none!important;padding:0!important;transform:translateX(-50%)!important}
+    @media(max-width:991px){.home-hero-item > .row{grid-template-columns:1fr!important}}
 </style>
 </head>
 
@@ -768,31 +899,31 @@
   </header>
 
   <!-- ===========================================================
-       PORTADA DINÁMICA — se alimenta de Supabase y Admin > Productos
+       PORTADA REAL — destacados administrados desde Productos > ★ Portada
        =========================================================== -->
   <div class="container-fluid home-stage">
     <div class="row px-xl-5">
       <div class="col-lg-8 mb-3 mb-lg-0">
-        <section class="home-hero-shell" aria-label="Servicios seleccionados">
-          <div id="heroCarousel" class="carousel slide hero-carousel" data-ride="carousel" data-interval="5400">
-            <ol class="carousel-indicators" id="homeHeroIndicators" aria-label="Slides del carrusel"></ol>
-            <div class="carousel-inner" id="homeHeroSlides">
+        <section class="home-hero-shell" aria-label="Servicios destacados de Innov AI Tienda">
+          <div id="heroCarousel" class="carousel slide hero-carousel" data-interval="false">
+            <ol class="carousel-indicators" id="homeHeroIndicators" aria-label="Servicios destacados"></ol>
+            <div class="carousel-inner" id="homeHeroSlides" aria-live="polite">
               <div class="carousel-item active">
                 <div class="home-empty">
                   <i class="fa fa-circle-notch fa-spin" aria-hidden="true"></i>
-                  <strong>Preparando los servicios de la tienda</strong>
-                  <p>Conectando la portada con el catálogo actual.</p>
+                  <strong>Actualizando los destacados</strong>
+                  <p>Conectando la portada con los productos publicados.</p>
                 </div>
               </div>
             </div>
             <div class="carousel-progress" aria-hidden="true"><span id="carouselProgressBar"></span></div>
-            <a class="carousel-control-prev" href="#heroCarousel" role="button" data-slide="prev" aria-label="Servicio anterior"><i class="fa fa-angle-left"></i></a>
-            <a class="carousel-control-next" href="#heroCarousel" role="button" data-slide="next" aria-label="Siguiente servicio"><i class="fa fa-angle-right"></i></a>
+            <button class="carousel-control-prev" id="homeCarouselPrev" type="button" aria-label="Servicio anterior"><i class="fa fa-angle-left"></i></button>
+            <button class="carousel-control-next" id="homeCarouselNext" type="button" aria-label="Siguiente servicio"><i class="fa fa-angle-right"></i></button>
           </div>
         </section>
       </div>
 
-      <aside class="col-lg-4" aria-label="Promociones seleccionadas">
+      <aside class="col-lg-4" aria-label="Promociones destacadas">
         <div class="home-promo-rail" id="homePromoRail">
           <div class="home-promo-card home-promo-skeleton" aria-hidden="true"></div>
           <div class="home-promo-card home-promo-skeleton" aria-hidden="true"></div>
@@ -801,29 +932,21 @@
     </div>
   </div>
 
-  <!-- Selección viva del catálogo: sustituye los antiguos logos y bloques genéricos -->
-  <section class="container-fluid">
+  <!-- Solo productos reales del catálogo; no se simulan “más vendidos” ni recomendaciones. -->
+  <section class="container-fluid" id="homeCatalogStage">
     <div class="row px-xl-5">
       <div class="col-12">
         <div class="home-discovery">
           <div class="home-discovery-head">
             <div>
-              <div class="home-discovery-eyebrow"><i class="fa fa-th-large"></i> Catálogo en movimiento</div>
-              <h2 class="home-discovery-title">Encuentra el servicio que necesitas</h2>
-              <p>La selección se actualiza desde los productos publicados; cada acceso te lleva directo a su detalle dentro de la tienda.</p>
+              <div class="home-discovery-eyebrow"><i class="fa fa-layer-group"></i> Más servicios del catálogo</div>
+              <h2 class="home-discovery-title">Descubre más opciones para ti</h2>
+              <p>Productos publicados que no están en el carrusel principal. Cada tarjeta abre directamente sus planes en la tienda.</p>
             </div>
-            <a class="btn btn-primary" href="shop.html"><i class="fa fa-store mr-2"></i> Abrir catálogo</a>
+            <a class="home-cta" href="shop.html"><i class="fa fa-store"></i> Ver todo el catálogo</a>
           </div>
-          <div class="home-product-spotlight" id="homeProductSpotlight">
-            <div class="home-spot-card home-promo-skeleton" aria-hidden="true"></div>
-            <div class="home-spot-card home-promo-skeleton" aria-hidden="true"></div>
-            <div class="home-spot-card home-promo-skeleton" aria-hidden="true"></div>
-            <div class="home-spot-card home-promo-skeleton" aria-hidden="true"></div>
-          </div>
-          <div class="home-service-points">
-            <div class="home-service-point"><i class="fa fa-bolt"></i><span>Activación digital con indicaciones claras.</span></div>
-            <div class="home-service-point"><i class="fa fa-shield-alt"></i><span>Compra desde el catálogo y revisa cada plan antes de pagar.</span></div>
-            <div class="home-service-point"><i class="fa fa-headset"></i><span>Soporte disponible por los canales de la tienda.</span></div>
+          <div class="home-catalog-grid" id="homeProductSpotlight" aria-live="polite">
+            <div class="home-catalog-empty">Cargando productos publicados…</div>
           </div>
         </div>
       </div>
@@ -1109,311 +1232,135 @@
 
 
       /* ===========================================================
-         HOME SHOWCASE DINÁMICO
-         Fuente: RPC get_public_catalog + configuración home_showcase
-         Configurada desde Innov IA Admin > Productos > Portada.
+         PORTADA REAL V2
+         - Catálogo: misma RPC get_public_catalog() que usa shop.html
+         - Selección: home_showcase guardado desde Admin > Productos > ★ Portada
+         - Navegación: toda tarjeta abre shop.html#p=db-{slug}
          =========================================================== */
       const HOME_SUPABASE_URL = 'https://rfjvskrimsoqlyofhidj.supabase.co';
       const HOME_SUPABASE_KEY = 'sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
       const HOME_CONFIG_RPC = 'get_public_home_showcase';
-      const HOME_DEFAULT_IMG = '';
-      const homeRuntime = { client:null, byId:new Map(), products:[], config:{}, carouselBound:false };
+      const HOME_ROTATION_MS = 5600;
+      const homeRuntime = {client:null,byId:new Map(),products:[],config:{},bound:false,carouselIndex:0,carouselTimer:null,progressTimer:null};
 
-      function homeEsc(value){
-        return String(value == null ? '' : value).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[ch]));
+      function homeEsc(value){return String(value==null?'':value).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[ch]));}
+      function homeAttr(value){return homeEsc(value);}
+      function homeJson(value){if(!value)return{};if(typeof value==='object')return value;try{return JSON.parse(value);}catch(_){return{};}}
+      function homeArray(value){if(Array.isArray(value))return value;if(typeof value==='string'){try{const out=JSON.parse(value);return Array.isArray(out)?out:[];}catch(_){return value?[value]:[];}}return[];}
+      function homeBool(value,fallback=true){if(value===false||value===0||String(value).toLowerCase()==='false')return false;if(value==null||value==='')return fallback;return true;}
+      function homeText(value){return String(value==null?'':value).replace(/\s+/g,' ').trim();}
+      function homeMediaUrl(value){
+        const url=homeText(value);
+        if(!url||/^(javascript|vbscript):/i.test(url))return'';
+        if(/^data:/i.test(url)&&!/^data:image\//i.test(url))return'';
+        return url;
       }
-      function homeAttr(value){ return homeEsc(value); }
-      function homeJson(value){
-        if(!value) return {};
-        if(typeof value === 'object') return value;
-        try { return JSON.parse(value); } catch(_) { return {}; }
+      function homeInitials(name){return homeText(name).split(/\s+/).filter(Boolean).slice(0,2).map(x=>x.charAt(0)).join('').toUpperCase()||'IA';}
+      function homeCategoryLabel(cat){const c=homeText(cat).toLowerCase();return c==='ai'?'IA':c==='streaming'?'Streaming':c==='musica'?'Diseño y video':c==='otros'?'Herramientas':(c||'Servicio');}
+      function homeCategoryIcon(cat){const c=homeText(cat).toLowerCase();return c==='ai'?'fa-robot':c==='streaming'?'fa-tv':c==='musica'?'fa-magic':'fa-layer-group';}
+      function homeMoney(value,currency='PEN'){const n=Number(value);if(!Number.isFinite(n))return'Consultar';return(String(currency||'PEN').toUpperCase()==='USD'?'US$':'S/')+' '+n.toLocaleString('es-PE',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2});}
+      function homePlaceholder(name){
+        const initials=homeInitials(name), svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 320"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#16304f"/><stop offset="1" stop-color="#2584e8"/></linearGradient></defs><rect width="420" height="320" rx="30" fill="url(#g)"/><circle cx="328" cy="-6" r="110" fill="#29d0e7" opacity=".28"/><circle cx="56" cy="296" r="120" fill="#fff" opacity=".10"/><rect x="130" y="82" width="160" height="160" rx="46" fill="#fff" opacity=".14"/><text x="210" y="186" text-anchor="middle" font-family="Arial,sans-serif" font-size="76" font-weight="800" fill="#fff">'+homeEsc(initials)+'</text></svg>';
+        return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
       }
-      function homeArray(value){
-        if(Array.isArray(value)) return value;
-        if(typeof value === 'string'){
-          try { const parsed=JSON.parse(value); return Array.isArray(parsed)?parsed:[]; } catch(_) { return value ? [value] : []; }
-        }
-        return [];
-      }
-      function homeBool(value, fallback=true){
-        if(value === false || value === 0 || String(value).toLowerCase()==='false') return false;
-        if(value == null || value === '') return fallback;
-        return true;
-      }
-      function homeSafeUrl(value){
-        const url=String(value||'').trim();
-        return /^(https?:\/\/|\/|\.\/|\.\.\/|data:image\/)/i.test(url) ? url : '';
-      }
-      function homeInitials(name){
-        return String(name||'IA').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x.charAt(0)).join('').toUpperCase() || 'IA';
-      }
-      function homeCategoryLabel(cat){
-        const c=String(cat||'otros').toLowerCase();
-        return c==='ai'?'IA':c==='streaming'?'Streaming':c==='musica'?'Edición y video':c==='otros'?'Herramientas':c.toUpperCase();
-      }
-      function homeCategoryIcon(cat){
-        const c=String(cat||'otros').toLowerCase();
-        return c==='ai'?'fa-robot':c==='streaming'?'fa-tv':c==='musica'?'fa-magic':'fa-layer-group';
-      }
-      function homeMoney(value, currency='PEN'){
-        const number=Number(value);
-        if(!Number.isFinite(number)) return 'Consultar';
-        return (String(currency||'PEN').toUpperCase()==='USD'?'US$':'S/')+' '+number.toLocaleString('es-PE',{minimumFractionDigits:number%1?2:0,maximumFractionDigits:2});
+      function homeImageTag(product,cls='home-media-img'){
+        const plan=homePreferredPlan(product);
+        const src=homeMediaUrl(plan?.image||product.image)||homePlaceholder(product.name);
+        const fallback=homePlaceholder(product.name);
+        return `<img class="${cls}" src="${homeAttr(src)}" alt="${homeAttr(product.name)}" loading="lazy" onerror="this.onerror=null;this.src='${homeAttr(fallback)}'">`;
       }
       function homePlanAvailable(plan){
-        if(!plan || plan.active===false) return false;
-        const status=String(plan.availabilityStatus||'available').toLowerCase();
-        const mode=String(plan.stockMode||'controlled').toLowerCase();
+        if(!plan||plan.active===false)return false;
+        const status=homeText(plan.availabilityStatus||'available').toLowerCase();
+        const mode=homeText(plan.stockMode||'controlled').toLowerCase();
         const stock=Number(plan.availableStock||0);
-        if(status==='unavailable') return false;
-        if(status==='consult' || mode==='unlimited') return true;
-        if(mode==='manual' || mode==='preorder') return !!plan.allowPurchaseWithoutStock || status==='available' || stock>0;
-        return stock>0 || !!plan.allowPurchaseWithoutStock;
+        if(status==='unavailable')return false;
+        if(status==='consult'||mode==='unlimited')return true;
+        if(mode==='manual'||mode==='preorder')return !!plan.allowPurchaseWithoutStock||status==='available'||stock>0;
+        return stock>0||!!plan.allowPurchaseWithoutStock;
       }
-      function homePreferredPlan(product){
-        const plans=(product?.plans||[]).slice().sort((a,b)=>Number(a.priority||100)-Number(b.priority||100));
-        return plans.find(homePlanAvailable) || plans[0] || null;
-      }
-      function homeProductAvailable(product){ return (product?.plans||[]).some(homePlanAvailable); }
-      function homeProductPrice(product){
-        const prices=(product?.plans||[]).map(p=>Number(p.price)).filter(v=>Number.isFinite(v));
-        return prices.length?Math.min(...prices):null;
+      function homeSortedPlans(product){return(product?.plans||[]).filter(p=>p&&p.active!==false).slice().sort((a,b)=>Number(a.priority||100)-Number(b.priority||100)||String(a.name||'').localeCompare(String(b.name||''),'es'));}
+      function homePreferredPlan(product){const plans=homeSortedPlans(product);return plans.find(homePlanAvailable)||plans[0]||null;}
+      function homeProductAvailable(product){return homeSortedPlans(product).some(homePlanAvailable);}
+      function homePriceInfo(product){
+        const plans=homeSortedPlans(product).filter(p=>Number.isFinite(Number(p.price)));
+        const live=plans.filter(homePlanAvailable);
+        const pool=live.length?live:plans;
+        if(!pool.length)return{value:null,plan:null,count:0};
+        pool.sort((a,b)=>Number(a.price)-Number(b.price)||Number(a.priority||100)-Number(b.priority||100));
+        return{value:Number(pool[0].price),plan:pool[0],count:pool.length};
       }
       function homeBuildCatalog(rows){
         const map=new Map();
         (rows||[]).forEach(row=>{
-          if(!homeBool(row.product_active,true)) return;
-          const productId=String(row.product_id||row.product_slug||'').trim();
-          if(!productId) return;
+          if(!homeBool(row.product_active,true))return;
+          const productId=homeText(row.product_id||row.product_slug);
+          if(!productId)return;
           if(!map.has(productId)){
-            const slug=String(row.product_slug||productId);
+            const slug=homeText(row.product_slug||productId);
+            const rawMode=homeText(row.sale_mode||row.product_mode||'retail').toLowerCase();
             map.set(productId,{
-              id:productId,
-              slug,
-              shopId:'db-'+slug,
-              name:row.product_name||'Producto',
-              description:row.product_description||'',
-              category:row.category||'otros',
-              priority:Number(row.product_priority||100),
-              image:row.image_url||'',
-              videoUrl:row.product_video_url||row.video_url||'',
-              videoType:row.product_video_type||row.video_type||'auto',
-              videoFit:row.product_video_fit||row.video_fit||'cover',
-              videoEnabled:homeBool(row.product_video_enabled,true),
-              saleMode:row.sale_mode||'retail',
-              plans:[]
+              id:productId,slug,shopId:'db-'+slug,name:homeText(row.product_name)||'Producto',
+              description:homeText(row.product_description||row.product_desc||''),why:homeText(row.product_why||''),
+              category:homeText(row.category)||'otros',priority:Number(row.product_priority??100),
+              image:homeMediaUrl(row.image_url||row.product_image_url||''),
+              videoUrl:homeMediaUrl(row.product_video_url||row.video_url||''),videoType:row.product_video_type||row.video_type||'auto',videoFit:row.product_video_fit||row.video_fit||'cover',videoEnabled:homeBool(row.product_video_enabled,true),
+              saleMode:rawMode.includes('whole')||rawMode.includes('prove')?'wholesale':'retail',plans:[]
             });
           }
           const product=map.get(productId);
-          const planId=String(row.plan_id||'').trim();
+          const planId=homeText(row.plan_id);
           if(planId){
             product.plans.push({
-              id:planId,
-              name:row.plan_name||'Plan',
-              price:row.price==null?null:Number(row.price),
-              currency:row.currency||'PEN',
-              period:row.period||'',
-              priority:Number(row.plan_priority||100),
-              active:homeBool(row.plan_active,true),
-              stockMode:row.stock_mode||'controlled',
-              availableStock:Number(row.available_stock||0),
-              availabilityStatus:row.availability_status||'available',
-              allowPurchaseWithoutStock:!!row.allow_purchase_without_stock,
-              chips:homeArray(row.chips),
-              benefits:homeArray(row.benefits),
-              image:row.plan_image_url||row.image_url||'',
-              videoUrl:row.plan_video_url||row.product_video_url||row.video_url||'',
-              videoType:row.plan_video_type||row.product_video_type||row.video_type||'auto',
-              videoFit:row.plan_video_fit||row.product_video_fit||row.video_fit||'cover',
-              videoEnabled:homeBool(row.plan_video_enabled,true) && homeBool(row.product_video_enabled,true)
+              id:planId,name:homeText(row.plan_name)||'Plan',price:row.price==null?null:Number(row.price),currency:row.currency||'PEN',period:homeText(row.period||''),priority:Number(row.plan_priority??100),active:homeBool(row.plan_active,true),
+              stockMode:row.stock_mode||'controlled',availableStock:Number(row.available_stock||0),availabilityStatus:row.availability_status||'available',allowPurchaseWithoutStock:!!row.allow_purchase_without_stock,
+              chips:homeArray(row.chips).map(homeText).filter(Boolean),benefits:homeArray(row.benefits).map(homeText).filter(Boolean),description:homeText(row.plan_description||''),why:homeText(row.plan_why||''),
+              image:homeMediaUrl(row.plan_image_url||row.image_url||row.product_image_url||''),
+              videoUrl:homeMediaUrl(row.plan_video_url||row.product_video_url||row.video_url||''),videoType:row.plan_video_type||row.product_video_type||row.video_type||'auto',videoFit:row.plan_video_fit||row.product_video_fit||row.video_fit||'cover',videoEnabled:homeBool(row.plan_video_enabled,true)&&homeBool(row.product_video_enabled,true)
             });
           }
         });
-        return Array.from(map.values()).sort((a,b)=>a.priority-b.priority || a.name.localeCompare(b.name,'es'));
+        return Array.from(map.values()).filter(p=>p.plans.length>0).sort((a,b)=>Number(a.priority||100)-Number(b.priority||100)||String(a.name).localeCompare(String(b.name),'es'));
       }
       function homeConfig(raw){
-        const parsed=homeJson(raw);
-        const ids=Array.isArray(parsed.hero_product_ids)?parsed.hero_product_ids:(Array.isArray(parsed.hero_ids)?parsed.hero_ids:[]);
-        return {
-          heroIds:[...new Set(ids.map(String).filter(Boolean))].slice(0,5),
-          promoTop:String(parsed.promo_top_product_id||parsed.promo_top_id||''),
-          promoBottom:String(parsed.promo_bottom_product_id||parsed.promo_bottom_id||'')
-        };
+        const parsed=homeJson(raw);const ids=Array.isArray(parsed.hero_product_ids)?parsed.hero_product_ids:(Array.isArray(parsed.hero_ids)?parsed.hero_ids:[]);
+        return{heroIds:[...new Set(ids.map(String).filter(Boolean))].slice(0,5),promoTop:String(parsed.promo_top_product_id||parsed.promo_top_id||''),promoBottom:String(parsed.promo_bottom_product_id||parsed.promo_bottom_id||'')};
       }
-      function homePickProducts(products, config){
-        const active=(products||[]).filter(p=>p && p.saleMode!=='wholesale');
-        const index=new Map(active.map(p=>[String(p.id),p]));
-        const hero=[];
-        (config.heroIds||[]).forEach(id=>{const p=index.get(String(id));if(p && !hero.some(x=>x.id===p.id)) hero.push(p);});
-        for(const p of active){ if(hero.length>=3) break; if(!hero.some(x=>x.id===p.id)) hero.push(p); }
-        const pool=[...active.filter(p=>!hero.some(h=>h.id===p.id)),...hero];
-        const promos=[];
-        [config.promoTop,config.promoBottom].forEach(id=>{const p=index.get(String(id));if(p && !promos.some(x=>x.id===p.id)) promos.push(p);});
-        for(const p of pool){ if(promos.length>=2) break; if(!promos.some(x=>x.id===p.id)) promos.push(p); }
-        return {hero:hero.slice(0,5),promos:promos.slice(0,2)};
+      function homePickProducts(products,config){
+        const active=(products||[]).filter(p=>p&&p.saleMode!=='wholesale');const index=new Map(active.map(p=>[String(p.id),p]));const hero=[];
+        (config.heroIds||[]).forEach(id=>{const p=index.get(String(id));if(p&&!hero.some(x=>x.id===p.id))hero.push(p);});
+        for(const p of active){if(hero.length>=3)break;if(!hero.some(x=>x.id===p.id))hero.push(p);}
+        const pool=[...active.filter(p=>!hero.some(h=>h.id===p.id)),...hero];const promos=[];
+        [config.promoTop,config.promoBottom].forEach(id=>{const p=index.get(String(id));if(p&&!promos.some(x=>x.id===p.id))promos.push(p);});
+        for(const p of pool){if(promos.length>=2)break;if(!promos.some(x=>x.id===p.id))promos.push(p);}
+        const rest=[...active.filter(p=>!hero.some(h=>h.id===p.id)&&!promos.some(x=>x.id===p.id)),...active.filter(p=>!hero.some(h=>h.id===p.id))];
+        return{hero:hero.slice(0,5),promos:promos.slice(0,2),rest:[...new Map(rest.map(p=>[p.id,p])).values()].slice(0,8)};
       }
-      function homeYouTubeId(url){
-        const m=String(url||'').match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);
-        return m?m[1]:'';
-      }
-      function homeVimeoId(url){ const m=String(url||'').match(/vimeo\.com\/(?:video\/)?(\d+)/i); return m?m[1]:''; }
-      function homeMedia(product, compact=false){
-        const plan=homePreferredPlan(product);
-        const image=homeSafeUrl(plan?.image||product.image||HOME_DEFAULT_IMG);
-        const video=homeSafeUrl(plan?.videoUrl||product.videoUrl||'');
-        const videoEnabled=(plan?plan.videoEnabled:product.videoEnabled)!==false;
-        const fit=(plan?.videoFit||product.videoFit||'cover')==='contain'?' home-fit-contain':'';
-        const fallback=image
-          ? `<img src="${homeAttr(image)}" alt="${homeAttr(product.name)}" loading="lazy" onerror="this.style.display='none'">`
-          : `<span class="home-monogram">${homeEsc(homeInitials(product.name))}</span>`;
+      function homeYouTubeId(url){const m=String(url||'').match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/i);return m?m[1]:'';}
+      function homeVimeoId(url){const m=String(url||'').match(/vimeo\.com\/(?:video\/)?(\d+)/i);return m?m[1]:'';}
+      function homeMedia(product){
+        const plan=homePreferredPlan(product);const video=homeMediaUrl(plan?.videoUrl||product.videoUrl||'');const enabled=(plan?plan.videoEnabled:product.videoEnabled)!==false;const fit=(plan?.videoFit||product.videoFit||'cover')==='contain'?' home-fit-contain':'';
         let videoHtml='';
-        if(video && videoEnabled){
-          const yt=homeYouTubeId(video), vm=homeVimeoId(video);
-          if(yt){
-            videoHtml=`<iframe class="home-media-video${fit}" src="https://www.youtube-nocookie.com/embed/${homeAttr(yt)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${homeAttr(yt)}&playsinline=1&rel=0&modestbranding=1" title="Video de ${homeAttr(product.name)}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>`;
-          }else if(vm){
-            videoHtml=`<iframe class="home-media-video${fit}" src="https://player.vimeo.com/video/${homeAttr(vm)}?autoplay=1&muted=1&loop=1&background=1&dnt=1" title="Video de ${homeAttr(product.name)}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>`;
-          }else if(/\.(mp4|webm|ogg)(?:[?#].*)?$/i.test(video)){
-            videoHtml=`<video class="home-media-video${fit}" muted playsinline loop autoplay preload="metadata" poster="${homeAttr(image)}"><source src="${homeAttr(video)}"></video>`;
-          }
-        }
-        return `<div class="home-visual-fallback">${fallback}</div>${videoHtml}`;
+        if(video&&enabled){const yt=homeYouTubeId(video),vm=homeVimeoId(video);if(yt)videoHtml=`<iframe class="home-media-video${fit}" src="https://www.youtube-nocookie.com/embed/${homeAttr(yt)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${homeAttr(yt)}&playsinline=1&rel=0&modestbranding=1" title="Video de ${homeAttr(product.name)}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>`;else if(vm)videoHtml=`<iframe class="home-media-video${fit}" src="https://player.vimeo.com/video/${homeAttr(vm)}?autoplay=1&muted=1&loop=1&background=1&dnt=1" title="Video de ${homeAttr(product.name)}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>`;else if(/\.(mp4|webm|ogg)(?:[?#].*)?$/i.test(video))videoHtml=`<video class="home-media-video${fit}" muted playsinline loop autoplay preload="metadata" poster="${homeAttr(homeMediaUrl(plan?.image||product.image)||homePlaceholder(product.name))}"><source src="${homeAttr(video)}"></video>`;}
+        return `<div class="home-visual-fallback">${homeImageTag(product)}</div>${videoHtml}`;
       }
-      function homeLink(product){ return 'shop.html#p='+encodeURIComponent(product.shopId); }
-      function homePriceHtml(product){
-        const plan=homePreferredPlan(product), lowest=homeProductPrice(product);
-        if(lowest==null) return `<strong>Consultar</strong><span>por disponibilidad</span>`;
-        const plans=(product.plans||[]).filter(p=>Number.isFinite(Number(p.price)));
-        const prefix=plans.length>1?'Desde ':'';
-        return `<strong>${homeEsc(prefix+homeMoney(lowest, plan?.currency||'PEN'))}</strong><span>${homeEsc(plan?.period ? '/ '+plan.period : 'precio del plan')}</span>`;
+      function homeLink(product){return 'shop.html#p='+encodeURIComponent(product.shopId);}
+      function homeDescription(product){const plan=homePreferredPlan(product);return homeText(product.description||plan?.description||product.why||plan?.why||'Revisa los planes disponibles y elige la opción que mejor se adapte a ti.');}
+      function homePriceHtml(product){const info=homePriceInfo(product);if(info.value==null)return'<strong>Consultar</strong><span>según disponibilidad</span>';const prefix=info.count>1?'Desde ':'';const note=info.count>1?`${info.count} planes disponibles`:(info.plan?.period||'Plan disponible');return `<strong>${homeEsc(prefix+homeMoney(info.value,info.plan?.currency||'PEN'))}</strong><span>${homeEsc(note)}</span>`;}
+      function homeChipHtml(product){const plan=homePreferredPlan(product),available=homeProductAvailable(product);const raw=[...(plan?.chips||[]),plan?.period||''];const chips=[...new Set(raw.map(homeText).filter(Boolean))].slice(0,3);return `<span class="home-chip ${available?'is-good':''}"><i class="fa ${available?'fa-check-circle':'fa-info-circle'}"></i>${available?'Disponible':'Consultar'}</span>`+chips.map(ch=>`<span class="home-chip"><i class="fa fa-circle"></i>${homeEsc(ch)}</span>`).join('');}
+      function homeHeroSlide(product,index){
+        return `<div class="carousel-item ${index===0?'active':''}"><article class="home-hero-item home-openable" data-home-open="${homeAttr(product.id)}" tabindex="0" role="link" aria-label="Abrir ${homeAttr(product.name)} en la tienda"><div class="row align-items-center"><div class="col-lg-6 mb-3 mb-lg-0"><div class="home-hero-media">${homeMedia(product)}</div></div><div class="col-lg-6"><div class="home-hero-copy"><div class="home-eyebrow"><span class="home-category"><i class="fa ${homeCategoryIcon(product.category)}"></i>${homeEsc(homeCategoryLabel(product.category))}</span><span class="home-live ${homeProductAvailable(product)?'':'is-consult'}"><i class="fa fa-circle"></i>${homeProductAvailable(product)?'Disponible':'Consultar'}</span></div><div class="home-open-hint"><i class="fa fa-hand-pointer"></i> Toca esta tarjeta para ver todos los planes</div><h2 class="home-hero-title">${homeEsc(product.name)}</h2><div class="home-price-row">${homePriceHtml(product)}</div><div class="home-chip-row">${homeChipHtml(product)}</div><p class="home-hero-description">${homeEsc(homeDescription(product)).slice(0,240)}</p><div class="home-hero-actions"><a class="home-cta" href="${homeAttr(homeLink(product))}"><i class="fa fa-store"></i> Ver planes en tienda</a></div><div class="home-mini-trust"><div><i class="fa fa-list-alt"></i> Planes y precios reales</div><div><i class="fa fa-headset"></i> Soporte de tienda</div></div></div></div></div></article></div>`;
       }
-      function homeChipHtml(product){
-        const plan=homePreferredPlan(product), available=homeProductAvailable(product);
-        const raw=[...(plan?.chips||[]), plan?.period||'', plan?.stockMode==='unlimited'?'Uso sin límite':''];
-        const chips=[...new Set(raw.map(x=>String(x||'').trim()).filter(Boolean))].slice(0,3);
-        return `<span class="home-chip ${available?'is-good':''}"><i class="fa ${available?'fa-check-circle':'fa-info-circle'}"></i>${available?'Disponible':'Consultar'}</span>`+
-          chips.map(ch=>`<span class="home-chip"><i class="fa fa-circle"></i>${homeEsc(ch)}</span>`).join('');
-      }
-      function homeHeroSlide(product, index){
-        const plan=homePreferredPlan(product);
-        const canAdd=plan && homePlanAvailable(plan) && Number.isFinite(Number(plan.price));
-        const desc=String(product.description||'').trim() || 'Revisa sus planes, elige la opción que más te conviene y compra desde la tienda.';
-        const period=plan?.period||'Plan disponible';
-        return `<div class="carousel-item ${index===0?'active':''}">
-          <div class="home-hero-item"><div class="row align-items-center">
-            <div class="col-lg-6 mb-3 mb-lg-0"><div class="home-hero-media">${homeMedia(product)}</div></div>
-            <div class="col-lg-6"><div class="home-hero-copy">
-              <div class="home-eyebrow"><span class="home-category"><i class="fa ${homeCategoryIcon(product.category)}"></i>${homeEsc(homeCategoryLabel(product.category))}</span><span class="home-live ${homeProductAvailable(product)?'':'is-consult'}"><i class="fa fa-circle"></i>${homeProductAvailable(product)?'En línea':'Consultar'}</span></div>
-              <h2 class="home-hero-title">${homeEsc(product.name)}</h2>
-              <div class="home-price-row">${homePriceHtml(product)}</div>
-              <div class="home-chip-row">${homeChipHtml(product)}</div>
-              <p class="home-hero-description">${homeEsc(desc).slice(0,220)}</p>
-              <div class="home-hero-actions"><a class="btn btn-primary" href="${homeAttr(homeLink(product))}"><i class="fa fa-store mr-2"></i> Ver planes</a>${canAdd?`<button class="btn btn-outline-dark" type="button" data-home-add="${homeAttr(product.id)}"><i class="fa fa-shopping-cart mr-2"></i> Agregar ${homeEsc(homeMoney(plan.price,plan.currency))}</button>`:''}</div>
-              <div class="home-mini-trust"><div><i class="fa fa-bolt"></i> Activación digital</div><div><i class="fa fa-headset"></i> Soporte de tienda</div></div>
-            </div></div>
-          </div></div>
-        </div>`;
-      }
-      function homePromoCard(product){
-        const plan=homePreferredPlan(product), detail=plan?.period?`${homeCategoryLabel(product.category)} · ${plan.period}`:homeCategoryLabel(product.category);
-        return `<article class="home-promo-card"><div class="home-promo-media">${homeMedia(product,true)}</div><div class="home-promo-copy"><small>${homeEsc(detail)}</small><h3>${homeEsc(product.name)}</h3><a class="btn" href="${homeAttr(homeLink(product))}"><i class="fa fa-store mr-2"></i> Ver en tienda</a></div></article>`;
-      }
-      function homeSpotCard(product){
-        const plan=homePreferredPlan(product), image=homeSafeUrl(plan?.image||product.image||'');
-        const thumb=image?`<img src="${homeAttr(image)}" alt="" loading="lazy" onerror="this.style.display='none'">`:`<span>${homeEsc(homeInitials(product.name))}</span>`;
-        return `<a class="home-spot-card" href="${homeAttr(homeLink(product))}"><span class="home-spot-thumb">${thumb}</span><span><span class="home-spot-name">${homeEsc(product.name)}</span><span class="home-spot-price">${homeEsc(homeProductPrice(product)==null?'Consultar':homeMoney(homeProductPrice(product),plan?.currency||'PEN'))}</span><span class="home-spot-meta">${homeEsc(plan?.period||homeCategoryLabel(product.category))}</span></span></a>`;
-      }
-      function homeRenderEmpty(){
-        const slides=document.getElementById('homeHeroSlides'), indicators=document.getElementById('homeHeroIndicators'), promos=document.getElementById('homePromoRail'), spot=document.getElementById('homeProductSpotlight');
-        if(slides)slides.innerHTML=`<div class="carousel-item active"><div class="home-empty"><i class="fa fa-store" aria-hidden="true"></i><strong>El catálogo estará disponible en unos momentos</strong><p>Ingresa a la tienda para revisar los productos publicados.</p><a class="btn btn-primary" href="shop.html">Abrir tienda</a></div></div>`;
-        if(indicators)indicators.innerHTML='';
-        if(promos)promos.innerHTML='';
-        if(spot)spot.innerHTML='<div class="home-empty" style="grid-column:1/-1;min-height:130px"><i class="fa fa-layer-group"></i><strong>Los productos aparecerán aquí</strong><p>Esta zona se llena desde el catálogo publicado.</p></div>';
-      }
-      function homeSyncVideos(){
-        document.querySelectorAll('#heroCarousel video.home-media-video').forEach(video=>{
-          const active=video.closest('.carousel-item')?.classList.contains('active');
-          if(active) video.play?.().catch(()=>{}); else video.pause?.();
-        });
-      }
-      function homeResetCarousel(){
-        const el=document.getElementById('heroCarousel');
-        if(!el || !window.jQuery) return;
-        try{$('#heroCarousel').carousel('dispose');}catch(_){}
-        try{$('#heroCarousel').carousel({interval:5400,pause:'hover',ride:false});}catch(_){}
-        $('#heroCarousel').off('slid.bs.carousel.homeShowcase').on('slid.bs.carousel.homeShowcase',homeSyncVideos);
-        homeSyncVideos();
-      }
-      function homeShowMessage(button, text){
-        if(!button) return;
-        const original=button.innerHTML;
-        button.innerHTML=`<i class="fa fa-check mr-2"></i>${homeEsc(text)}`;
-        button.disabled=true;
-        setTimeout(()=>{button.innerHTML=original;button.disabled=false;},1350);
-      }
-      function homeAddToCart(button){
-        const product=homeRuntime.byId.get(String(button?.dataset?.homeAdd||''));
-        const plan=homePreferredPlan(product);
-        if(!product || !plan || !homePlanAvailable(plan) || !Number.isFinite(Number(plan.price))){
-          if(product) window.location.href=homeLink(product);
-          return;
-        }
-        const image=homeSafeUrl(plan.image||product.image||'');
-        const payload={
-          id:`${product.shopId}__db-plan-${plan.id}`,
-          nombre:`${product.name} — ${plan.name}`,
-          precio:Number(plan.price),
-          imagen:image,
-          qty:1,
-          source:'supabase',
-          product_id:product.id,
-          plan_id:plan.id,
-          plan_name:plan.name,
-          stock_control:'supabase',
-          meta:{cat:product.category||'',period:plan.period||'',cupo:Number.isFinite(Number(plan.availableStock))?Number(plan.availableStock):null}
-        };
-        Cart.add(payload);syncHeaderBadges();
-        const origin=button.closest('.carousel-item')?.querySelector('.home-hero-media')||button;
-        flyToCart({originEl:origin,emoji:'',imgUrl:image});
-        homeShowMessage(button,'Añadido');
-      }
-      function homeBindActions(){
-        if(homeRuntime.carouselBound) return;
-        homeRuntime.carouselBound=true;
-        document.addEventListener('click',event=>{
-          const add=event.target.closest('[data-home-add]');
-          if(!add) return;
-          event.preventDefault();homeAddToCart(add);
-        });
-      }
-      function homeRender(products, config){
-        const selected=homePickProducts(products,config);
-        homeRuntime.byId=new Map(products.map(p=>[String(p.id),p]));
-        homeRuntime.products=products;homeRuntime.config=config;
-        if(!selected.hero.length){homeRenderEmpty();return;}
-        const slides=document.getElementById('homeHeroSlides'), indicators=document.getElementById('homeHeroIndicators'), promos=document.getElementById('homePromoRail'), spot=document.getElementById('homeProductSpotlight');
-        if(slides)slides.innerHTML=selected.hero.map(homeHeroSlide).join('');
-        if(indicators)indicators.innerHTML=selected.hero.map((_,i)=>`<li data-target="#heroCarousel" data-slide-to="${i}" class="${i===0?'active':''}" aria-label="Servicio ${i+1}"></li>`).join('');
-        if(promos)promos.innerHTML=selected.promos.map(homePromoCard).join('');
-        if(spot)spot.innerHTML=[...selected.hero,...products.filter(p=>!selected.hero.some(h=>h.id===p.id))].slice(0,4).map(homeSpotCard).join('');
-        homeResetCarousel();homeBindActions();
-      }
-      async function initHomeShowcase(){
-        if(!window.supabase) {homeRenderEmpty();return;}
-        try{
-          homeRuntime.client=window.supabase.createClient(HOME_SUPABASE_URL,HOME_SUPABASE_KEY);
-          const catalogReq=homeRuntime.client.rpc('get_public_catalog');
-          const configReq=homeRuntime.client.rpc(HOME_CONFIG_RPC);
-          const [catalogRes,configRes]=await Promise.all([catalogReq,configReq]);
-          if(catalogRes.error) throw catalogRes.error;
-          const products=homeBuildCatalog(catalogRes.data||[]);
-          const config=configRes?.error?homeConfig({}):homeConfig(configRes.data);
-          homeRender(products,config);
-        }catch(error){
-          console.warn('No se pudo cargar la portada dinámica',error);
-          homeRenderEmpty();
-        }
-      }
+      function homePromoCard(product){const plan=homePreferredPlan(product),detail=plan?.period?`${homeCategoryLabel(product.category)} · ${plan.period}`:homeCategoryLabel(product.category);return `<a class="home-promo-card" href="${homeAttr(homeLink(product))}" aria-label="Abrir ${homeAttr(product.name)} en tienda"><div class="home-promo-media"><div class="home-visual-fallback">${homeImageTag(product)}</div></div><div class="home-promo-copy"><small>${homeEsc(detail)}</small><h3>${homeEsc(product.name)}</h3><span class="home-cta"><i class="fa fa-store"></i> Ver planes</span></div></a>`;}
+      function homeCatalogCard(product){const info=homePriceInfo(product),plan=homePreferredPlan(product),chips=[...(plan?.chips||[]),plan?.period||''].map(homeText).filter(Boolean).slice(0,2);const price=info.value==null?'Consultar':(info.count>1?'Desde ':'')+homeMoney(info.value,info.plan?.currency||'PEN');const note=info.value==null?'Ver disponibilidad':(info.count>1?`${info.count} planes`:info.plan?.period||'Plan');const media=homeMediaUrl(plan?.image||product.image)?homeImageTag(product,''):`<span class="home-catalog-monogram">${homeEsc(homeInitials(product.name))}</span>`;return `<a class="home-catalog-card" href="${homeAttr(homeLink(product))}" aria-label="Abrir ${homeAttr(product.name)} en tienda"><span class="home-catalog-media">${media}</span><span class="home-catalog-body"><span class="home-catalog-cat"><i class="fa ${homeCategoryIcon(product.category)}"></i>${homeEsc(homeCategoryLabel(product.category))}</span><strong class="home-catalog-name">${homeEsc(product.name)}</strong><span class="home-catalog-price"><strong>${homeEsc(price)}</strong><span>${homeEsc(note)}</span></span><span class="home-catalog-chips">${chips.map(ch=>`<span class="home-catalog-chip"><i class="fa fa-check-circle"></i>${homeEsc(ch)}</span>`).join('')}</span><span class="home-catalog-go">Ver en tienda <i class="fa fa-arrow-right"></i></span></span></a>`;}
+      function homeRenderEmpty(){const slides=document.getElementById('homeHeroSlides'),indicators=document.getElementById('homeHeroIndicators'),promos=document.getElementById('homePromoRail'),spot=document.getElementById('homeProductSpotlight');if(slides)slides.innerHTML=`<div class="carousel-item active"><div class="home-empty"><i class="fa fa-store"></i><strong>El catálogo aún no está disponible</strong><p>Revisa los productos publicados directamente en la tienda.</p><a class="home-cta" href="shop.html">Abrir tienda</a></div></div>`;if(indicators)indicators.innerHTML='';if(promos)promos.innerHTML='';if(spot)spot.innerHTML='<div class="home-catalog-empty">Los productos publicados aparecerán aquí.</div>';}
+      function homeSyncVideos(){document.querySelectorAll('#heroCarousel video.home-media-video').forEach(video=>{const active=video.closest('.carousel-item')?.classList.contains('active');if(active)video.play?.().catch(()=>{});else video.pause?.();});}
+      function homeRestartProgress(){const bar=document.getElementById('carouselProgressBar');if(!bar)return;bar.style.transition='none';bar.style.width='0%';clearTimeout(homeRuntime.progressTimer);homeRuntime.progressTimer=setTimeout(()=>{bar.style.transition=`width ${HOME_ROTATION_MS-150}ms linear`;bar.style.width='100%';},35);}
+      function homeSetSlide(next){const slides=[...document.querySelectorAll('#homeHeroSlides .carousel-item')];if(!slides.length)return;homeRuntime.carouselIndex=((next%slides.length)+slides.length)%slides.length;slides.forEach((slide,i)=>slide.classList.toggle('active',i===homeRuntime.carouselIndex));document.querySelectorAll('#homeHeroIndicators [data-home-slide]').forEach((dot,i)=>dot.classList.toggle('active',i===homeRuntime.carouselIndex));homeSyncVideos();homeRestartProgress();}
+      function homeResetCarousel(){const root=document.getElementById('heroCarousel');if(!root)return;clearInterval(homeRuntime.carouselTimer);try{if(window.jQuery)window.jQuery('#heroCarousel').carousel('pause');}catch(_){}homeRuntime.carouselIndex=0;const prev=document.getElementById('homeCarouselPrev'),next=document.getElementById('homeCarouselNext');if(prev)prev.onclick=e=>{e.preventDefault();e.stopPropagation();homeSetSlide(homeRuntime.carouselIndex-1);};if(next)next.onclick=e=>{e.preventDefault();e.stopPropagation();homeSetSlide(homeRuntime.carouselIndex+1);};document.querySelectorAll('#homeHeroIndicators [data-home-slide]').forEach(dot=>dot.onclick=e=>{e.preventDefault();homeSetSlide(Number(dot.dataset.homeSlide||0));});homeRuntime.carouselTimer=setInterval(()=>homeSetSlide(homeRuntime.carouselIndex+1),HOME_ROTATION_MS);homeSetSlide(0);}
+      function homeBindActions(){if(homeRuntime.bound)return;homeRuntime.bound=true;document.addEventListener('click',event=>{const card=event.target.closest('[data-home-open]');if(!card||event.target.closest('a,button,input,select,textarea'))return;const product=homeRuntime.byId.get(String(card.dataset.homeOpen||''));if(product)window.location.href=homeLink(product);});document.addEventListener('keydown',event=>{if(event.key!=='Enter'&&event.key!==' ')return;const card=event.target.closest?.('[data-home-open]');if(!card)return;event.preventDefault();const product=homeRuntime.byId.get(String(card.dataset.homeOpen||''));if(product)window.location.href=homeLink(product);});}
+      function homeRender(products,config){const selected=homePickProducts(products,config);homeRuntime.byId=new Map(products.map(p=>[String(p.id),p]));homeRuntime.products=products;homeRuntime.config=config;if(!selected.hero.length){homeRenderEmpty();return;}const slides=document.getElementById('homeHeroSlides'),indicators=document.getElementById('homeHeroIndicators'),promos=document.getElementById('homePromoRail'),spot=document.getElementById('homeProductSpotlight');if(slides)slides.innerHTML=selected.hero.map(homeHeroSlide).join('');if(indicators)indicators.innerHTML=selected.hero.map((_,i)=>`<li data-home-slide="${i}" class="${i===0?'active':''}" aria-label="Ver servicio ${i+1}" role="button" tabindex="0"></li>`).join('');if(promos)promos.innerHTML=selected.promos.map(homePromoCard).join('');if(spot)spot.innerHTML=(selected.rest.length?selected.rest.map(homeCatalogCard).join(''):'<div class="home-catalog-empty">Pronto habrá más servicios en el catálogo.</div>');homeResetCarousel();homeBindActions();}
+      async function initHomeShowcase(){if(!window.supabase){homeRenderEmpty();return;}try{homeRuntime.client=window.supabase.createClient(HOME_SUPABASE_URL,HOME_SUPABASE_KEY);const [catalogRes,configRes]=await Promise.all([homeRuntime.client.rpc('get_public_catalog'),homeRuntime.client.rpc(HOME_CONFIG_RPC)]);if(catalogRes.error)throw catalogRes.error;const products=homeBuildCatalog(catalogRes.data||[]);const config=configRes?.error?homeConfig({}):homeConfig(configRes.data);homeRender(products,config);}catch(error){console.warn('No se pudo cargar la portada dinámica',error);homeRenderEmpty();}}
 
       /* ===== WhatsApp badge persistencia ===== */
       (function(){
@@ -1429,27 +1376,7 @@
       })();
 
       /* ===== Carousel progress ===== */
-      function initCarouselProgress(){
-        const bar = document.getElementById('carouselProgressBar');
-        const el = document.getElementById('heroCarousel');
-        if(!bar || !el) return;
-
-        function restart(){
-          bar.style.transition = 'none';
-          bar.style.width = '0%';
-          // next tick
-          setTimeout(()=>{
-            bar.style.transition = 'width 4.8s linear';
-            bar.style.width = '100%';
-          }, 30);
-        }
-
-        // start
-        restart();
-
-        // on slide change
-        $('#heroCarousel').on('slide.bs.carousel', function(){ restart(); });
-      }
+      function initCarouselProgress(){ homeRestartProgress(); }
 
       /* ===== Back to top suave ===== */
       (function(){
@@ -1475,6 +1402,10 @@
   </script>
 </body>
 </html>
+
+
+
+
 
 
 
