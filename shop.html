@@ -1193,6 +1193,9 @@
   @keyframes innovShopHint{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}@keyframes innovShopSweep{0%{background-position:180% 0;opacity:.45}42%{opacity:1}100%{background-position:-80% 0;opacity:.45}}@keyframes innovShopArrows{0%,100%{opacity:.42;transform:translateY(-50%) translateX(-2px)}50%{opacity:1;transform:translateY(-50%) translateX(3px)}}
   body.innov-public-theme .breadcrumb{margin-top:18px!important;border:1px solid var(--innov-line)!important;border-radius:14px!important;background:#fff!important;box-shadow:0 8px 20px rgba(25,40,60,.05)!important}
   body.innov-public-theme .support-red{top:calc(var(--innov-header-h) + 12px)!important}
+  /* Shop limpio: los productos comienzan inmediatamente bajo la cabecera. */
+  body.innov-public-theme .shop-toolbar{display:none!important}
+  body.innov-public-theme #productsGrid{margin-top:0!important}
   @media(max-width:720px){:root{--innov-header-h:64px}.innov-nav{gap:9px;padding:9px 12px}.innov-brand{font-size:1rem}.innov-brand span{padding:9px 10px}.innov-search{height:38px}.innov-search input{font-size:.72rem!important}.innov-search button{height:38px}.innov-links{display:none}.innov-menu{display:block;margin-left:auto}.innov-header.open .innov-links{position:absolute;z-index:11;left:12px;right:12px;top:calc(100% + 7px);display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:8px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:#162238;box-shadow:0 12px 24px rgba(0,0,0,.24)}.innov-header.open .innov-link{justify-content:center;padding:0 7px;font-size:.75rem}.innov-link.shop .shop-hint{bottom:-10px}.innov-cart{width:40px;height:40px}.innov-link.shop::after{display:none}}
   @media(max-width:390px){.innov-search{display:none}.innov-menu{margin-left:auto}.innov-brand{font-size:.95rem}.innov-brand span{padding:9px 9px}}
   @media(prefers-reduced-motion:reduce){.innov-link.shop::before,.innov-link.shop::after,.innov-link.shop .shop-hint{animation:none!important}}
@@ -1221,19 +1224,6 @@
   </div>
 </header>
   <!-- ===== /HEADER PEGADO ===== -->
-
-  <!-- Breadcrumb -->
-  <div class="container-fluid">
-    <div class="row px-xl-5">
-      <div class="col-12">
-        <nav class="breadcrumb bg-light mb-30">
-          <a class="breadcrumb-item text-dark" href="index.html">Inicio</a>
-          <span class="breadcrumb-item active">Tienda</span>
-        </nav>
-      </div>
-    </div>
-  </div>
-
   <!-- Shop -->
   <div class="container-fluid">
     <div class="row px-xl-5">
