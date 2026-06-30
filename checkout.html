@@ -123,8 +123,39 @@ body{background-color:#f5f7fb;background-image:radial-gradient(rgba(67,81,103,.1
 @media(max-width:720px){.checkout-wrap{padding-top:12px}.card-body{padding:12px}.steps{border-radius:15px}.step-title{display:none}.status-grid{grid-template-columns:1fr}.order-progress{gap:2px}.progress-step{font-size:9.5px}.progress-step:not(:last-child):after{width:72%;left:64%}.payment-box{padding:12px}.delivery-ready-head{align-items:flex-start;flex-direction:column}.summary-list{max-height:250px}}
 
   </style>
+
+<!-- Innov Tienda: cabecera pública unificada -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style id="innov-public-theme">
+  :root{--innov-nav:#121c2b;--innov-nav-2:#1c293b;--innov-ink:#132033;--innov-muted:#69778a;--innov-line:#e5eaf0;--innov-yellow:#ffcb28;--innov-red:#ef4444;--innov-blue:#1578df;--innov-header-h:72px}
+  body.innov-public-theme{font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif!important;color:var(--innov-ink)}
+  body.innov-public-theme h1,body.innov-public-theme h2,body.innov-public-theme h3,body.innov-public-theme h4,body.innov-public-theme h5,body.innov-public-theme h6,body.innov-public-theme .h1,body.innov-public-theme .h2,body.innov-public-theme .h3{font-family:'Manrope','DM Sans',system-ui,sans-serif!important;letter-spacing:-.025em}
+  .innov-header{position:sticky;top:0;z-index:2000;background:rgba(18,28,43,.98);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 5px 18px rgba(7,14,24,.15);border-bottom:1px solid rgba(255,255,255,.08);font-family:'DM Sans',system-ui,sans-serif}
+  .innov-nav{min-height:var(--innov-header-h);width:min(1440px,100%);margin:0 auto;padding:10px clamp(14px,3vw,30px);display:flex;align-items:center;gap:16px}
+  .innov-brand{display:flex;align-items:stretch;flex:none;text-decoration:none!important;border-radius:11px;overflow:hidden;box-shadow:0 5px 13px rgba(0,0,0,.15);font-family:'Manrope',sans-serif;font-size:1.18rem;font-weight:800;line-height:1;letter-spacing:-.055em}
+  .innov-brand span{display:grid;place-items:center;padding:10px 12px}.innov-brand .a{background:#f7f8fa;color:#172236}.innov-brand .b{background:var(--innov-yellow);color:#172236}
+  .innov-search{display:flex;align-items:center;min-width:180px;max-width:360px;flex:1;height:40px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.055);border-radius:12px;overflow:hidden}
+  .innov-search input{flex:1;min-width:0;border:0!important;outline:0!important;padding:0 12px!important;background:transparent!important;color:#f7fbff!important;font-size:.82rem!important;font-weight:700!important;box-shadow:none!important;height:100%!important}.innov-search input::placeholder{color:rgba(238,244,255,.63)!important}
+  .innov-search button{width:43px;height:40px;border:0!important;background:transparent!important;color:var(--innov-yellow)!important;cursor:pointer;font-size:.95rem;padding:0!important;box-shadow:none!important}
+  .innov-links{display:flex;align-items:center;gap:4px;margin-left:auto}.innov-link{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:0 12px;color:rgba(246,249,255,.83)!important;font-size:.83rem;font-weight:800;text-decoration:none!important;border-radius:12px;transition:background .18s,color .18s,transform .18s}.innov-link:hover{background:rgba(255,255,255,.08);color:#fff!important;text-decoration:none!important}.innov-link.active{background:var(--innov-yellow);color:#1a2537!important;box-shadow:0 7px 15px rgba(0,0,0,.18)}
+  .innov-link.shop{overflow:visible;color:#fff!important;border:1px solid rgba(255,93,112,.52);background:rgba(239,68,68,.09);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03)}.innov-link.shop.active{background:var(--innov-yellow);color:#1a2537!important}
+  .innov-link.shop::before{content:'';position:absolute;left:8px;right:8px;bottom:2px;height:2px;border-radius:99px;background:linear-gradient(90deg,transparent,#ff3154,#ff3154,transparent);background-size:180% 100%;animation:innovShopSweep 1.75s linear infinite;pointer-events:none}.innov-link.shop::after{content:'››';position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:#ff6475;font-size:.75rem;letter-spacing:-.22em;font-weight:950;text-shadow:0 0 11px rgba(239,68,68,.58);animation:innovShopArrows 1.25s ease-in-out infinite;pointer-events:none}
+  .innov-link.shop .shop-hint{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid rgba(239,68,68,.25);border-radius:999px;background:#fff;color:#d91d38;font-size:.60rem;font-weight:950;letter-spacing:.035em;white-space:nowrap;box-shadow:0 6px 13px rgba(0,0,0,.18);animation:innovShopHint 1.45s ease-in-out infinite}.innov-link.shop .shop-hint i{font-size:.54rem;color:#ef4444}.innov-link.shop>i{color:var(--innov-yellow)}.innov-link.shop.active>i{color:#1a2537}
+  .innov-cart{width:42px;height:42px;display:grid;place-items:center;position:relative;flex:none;color:var(--innov-yellow)!important;border:1px solid rgba(255,255,255,.16);border-radius:12px;text-decoration:none!important;background:rgba(255,255,255,.04);transition:transform .18s ease,background .18s ease}.innov-cart:hover{transform:translateY(-2px);background:rgba(255,255,255,.08)}.innov-cart b{position:absolute;right:-5px;top:-5px;min-width:19px;height:19px;display:grid;place-items:center;border-radius:99px;background:#fff;color:#233047;font-size:.66rem;box-shadow:0 2px 6px rgba(0,0,0,.2);font-family:'DM Sans',sans-serif}.innov-hidden-counter{display:none!important}
+  .innov-menu{display:none;width:42px;height:42px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:1rem}
+  @keyframes innovShopHint{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}@keyframes innovShopSweep{0%{background-position:180% 0;opacity:.45}42%{opacity:1}100%{background-position:-80% 0;opacity:.45}}@keyframes innovShopArrows{0%,100%{opacity:.42;transform:translateY(-50%) translateX(-2px)}50%{opacity:1;transform:translateY(-50%) translateX(3px)}}
+  body.innov-public-theme .breadcrumb{margin-top:18px!important;border:1px solid var(--innov-line)!important;border-radius:14px!important;background:#fff!important;box-shadow:0 8px 20px rgba(25,40,60,.05)!important}
+  body.innov-public-theme .support-red{top:calc(var(--innov-header-h) + 12px)!important}
+  @media(max-width:720px){:root{--innov-header-h:64px}.innov-nav{gap:9px;padding:9px 12px}.innov-brand{font-size:1rem}.innov-brand span{padding:9px 10px}.innov-search{height:38px}.innov-search input{font-size:.72rem!important}.innov-search button{height:38px}.innov-links{display:none}.innov-menu{display:block;margin-left:auto}.innov-header.open .innov-links{position:absolute;z-index:11;left:12px;right:12px;top:calc(100% + 7px);display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:8px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:#162238;box-shadow:0 12px 24px rgba(0,0,0,.24)}.innov-header.open .innov-link{justify-content:center;padding:0 7px;font-size:.75rem}.innov-link.shop .shop-hint{bottom:-10px}.innov-cart{width:40px;height:40px}.innov-link.shop::after{display:none}}
+  @media(max-width:390px){.innov-search{display:none}.innov-menu{margin-left:auto}.innov-brand{font-size:.95rem}.innov-brand span{padding:9px 9px}}
+  @media(prefers-reduced-motion:reduce){.innov-link.shop::before,.innov-link.shop::after,.innov-link.shop .shop-hint{animation:none!important}}
+</style>
+
 </head>
-<body>
+<body class="innov-public-theme">
   <button class="btn support-red" id="btnOpenSupport" type="button"><i class="fa fa-life-ring"></i> Soporte pedido</button>
   <div id="supportModal" class="support-modal hidden">
     <div class="support-card">
@@ -145,9 +176,24 @@ body{background-color:#f5f7fb;background-image:radial-gradient(rgba(67,81,103,.1
       </div>
     </div>
   </div>
-  <div class="topbar"><div class="container"><div><a href="acerca.html">Acerca de</a><a href="contact.html">Contacto</a><a href="ayuda.html">Ayuda</a><a href="faq.html">Preguntas frecuentes</a></div><div>Servicio al cliente: <b>+51 991564053</b></div></div></div>
-  <header class="head"><div class="container"><a class="shop-logo" href="shop.html" aria-label="Volver a la tienda"><span class="logo-a">INNOV</span><span class="logo-b">TIENDA</span></a><div class="search"><input placeholder="Buscar productos"><button><i class="fa fa-search"></i></button></div><div class="support">Servicio al cliente<br><b>+51 991564053</b></div></div></header>
-  <nav class="nav"><div class="container"><div class="navlinks"><a href="index.html">Inicio</a><a href="shop.html">Tienda</a><a href="contact.html">Contacto</a></div><div class="cartpill"><i class="fa fa-shopping-cart"></i> Carrito <span id="cartCount">0</span></div></div></nav>
+  <!-- Cabecera pública unificada Innov Tienda -->
+<header class="innov-header" id="innovHeader">
+  <div class="innov-nav">
+    <a class="innov-brand" href="index.html" aria-label="Innov Tienda, inicio"><span class="a">INNOV</span><span class="b">TIENDA</span></a>
+    <form class="innov-search" action="shop.html" role="search">
+      <input id="innovSearchInput" name="q" type="search" placeholder="Buscar IA, diseño, streaming…" aria-label="Buscar productos" autocomplete="off">
+      <button type="submit" aria-label="Buscar"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+    <button type="button" class="innov-menu" id="innovMenu" aria-label="Abrir menú" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+    <nav class="innov-links" aria-label="Navegación principal">
+      <a class="innov-link" href="index.html"><i class="fa-solid fa-house"></i> Inicio</a>
+      <a class="innov-link shop" href="shop.html"><i class="fa-solid fa-store"></i> Tienda <span class="shop-hint"><i class="fa-solid fa-chevron-right"></i>Más productos<i class="fa-solid fa-chevron-right"></i></span></a>
+      <a class="innov-link" id="supportHeader" href="https://wa.me/51991564053?text=Hola%2C%20quisiera%20apoyo%20con%20un%20servicio.%0AProducto%20o%20pedido%3A%20_____.%0AConsulta%3A%20_____.%0AGracias." target="_blank" rel="noopener"><i class="fa-solid fa-headset"></i> Soporte</a>
+    </nav>
+    <a class="innov-cart" href="cart.html" aria-label="Ver carrito"><i class="fa-solid fa-cart-shopping"></i><b id="cartCount">0</b><span id="headerCartBadge" class="innov-hidden-counter">0</span><span id="headerCartBadgeSm" class="innov-hidden-counter">0</span><span id="headerCartBadge2" class="innov-hidden-counter">0</span></a>
+    <button id="currencyBtn" class="innov-hidden-counter" type="button" aria-hidden="true">Soles</button>
+  </div>
+</header>
 
   <main class="container checkout-wrap">
     <div class="steps" id="steps">
@@ -1172,7 +1218,48 @@ async function sendPaymentReview(){
     }
     init();
   </script>
+
+<script id="innov-public-header-script">
+(function(){
+  function readCount(){
+    try{
+      var items=JSON.parse(sessionStorage.getItem('innov_cart_v1')||'[]');
+      if(!Array.isArray(items)) return 0;
+      return items.reduce(function(total,item){ return total + Number(item && item.qty || 1); },0);
+    }catch(_){ return 0; }
+  }
+  function sync(){
+    var count=readCount();
+    ['headerCartBadge','headerCartBadgeSm','headerCartBadge2','cartCount'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.textContent=count;
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    var header=document.getElementById('innovHeader');
+    var menu=document.getElementById('innovMenu');
+    if(menu && header){
+      menu.addEventListener('click',function(){
+        var open=header.classList.toggle('open');
+        menu.setAttribute('aria-expanded',String(open));
+      });
+      document.addEventListener('click',function(event){
+        if(!header.contains(event.target)){ header.classList.remove('open'); menu.setAttribute('aria-expanded','false'); }
+      });
+    }
+    sync();
+    var query=new URLSearchParams(location.search).get('q');
+    var shopInput=document.getElementById('shopSearchInput');
+    if(query && shopInput && !shopInput.value){
+      shopInput.value=query;
+      shopInput.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+  });
+  window.addEventListener('storage',sync);
+})();
+</script>
+
 </body>
 </html>
+
 
 
