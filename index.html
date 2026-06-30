@@ -34,6 +34,7 @@
     .innov-search input{flex:1;min-width:0;border:0;outline:0;padding:0 12px;background:transparent;color:#f7fbff;font-size:.82rem;font-weight:700}.innov-search input::placeholder{color:rgba(238,244,255,.63)}
     .innov-search button{width:43px;height:40px;border:0;background:transparent;color:var(--yellow);cursor:pointer;font-size:.95rem}
     .innov-links{display:flex;align-items:center;gap:4px;margin-left:auto}.innov-link{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:0 12px;color:rgba(246,249,255,.83);font-size:.83rem;font-weight:800;text-decoration:none;border-radius:12px;transition:background .18s,color .18s,transform .18s}.innov-link:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}.innov-link.active{background:var(--yellow);color:#1a2537;box-shadow:0 7px 15px rgba(0,0,0,.18)}
+    .innov-socials{display:flex;align-items:center;gap:8px;margin-left:6px}.innov-socials a{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.12);text-decoration:none;box-shadow:0 5px 10px rgba(0,0,0,.14);transition:transform .16s ease,filter .16s ease,box-shadow .16s ease}.innov-socials a:hover{transform:translateY(-2px) scale(1.04);filter:brightness(1.08);box-shadow:0 8px 15px rgba(0,0,0,.22)}.header-social-facebook{background:rgba(24,119,242,.18);border-color:rgba(24,119,242,.52)!important;color:#4b9cff!important}.header-social-instagram{background:linear-gradient(135deg,#833ab4 0%,#fd1d1d 48%,#fcb045 100%);border-color:rgba(255,255,255,.22)!important;color:#fff!important}.header-social-tiktok{background:#111827;color:#fff!important;border-color:rgba(255,255,255,.20)!important}.header-social-tiktok i{text-shadow:-1px -1px 0 #25f4ee,1px 1px 0 #fe2c55}
     .innov-link.shop{overflow:visible;color:#fff;border:1px solid rgba(255,93,112,.52);background:rgba(239,68,68,.09);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03)}
     .innov-link.shop::before{content:'';position:absolute;left:8px;right:8px;bottom:2px;height:2px;border-radius:99px;background:linear-gradient(90deg,transparent,#ff3154,#ff3154,transparent);background-size:180% 100%;animation:shopSweep 1.75s linear infinite;pointer-events:none}
     .innov-link.shop::after{content:'››';position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:#ff6475;font-size:.75rem;letter-spacing:-.22em;font-weight:950;text-shadow:0 0 11px rgba(239,68,68,.58);animation:shopArrows 1.25s ease-in-out infinite;pointer-events:none}
@@ -65,10 +66,121 @@
     .trust-strip{display:grid;grid-template-columns:repeat(3,1fr);margin:17px 0 0;border:1px solid var(--line);border-radius:17px;background:#fff;overflow:hidden;box-shadow:0 7px 18px rgba(28,43,63,.045)}.trust-item{display:flex;align-items:center;gap:10px;padding:13px 16px;border-right:1px solid #edf0f4;color:#5d6a7b;font-size:.77rem;font-weight:800}.trust-item:last-child{border-right:0}.trust-item i{display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:#f1f7ff;color:#1278dc}
     .chosen{margin-top:17px;overflow:hidden;border:1px solid var(--line);border-radius:19px;background:#fff;box-shadow:0 9px 22px rgba(28,43,63,.055)}.chosen[hidden]{display:none}.chosen-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;border-bottom:1px solid #eef1f4}.chosen-eyebrow{display:flex;align-items:center;gap:7px;color:#176cc8;font-size:.63rem;font-weight:950;letter-spacing:.07em;text-transform:uppercase}.chosen h2{margin:4px 0 0;font-family:'Manrope';font-size:1.05rem;font-weight:800;letter-spacing:-.035em}.chosen a{color:#1675d3;text-decoration:none;font-size:.73rem;font-weight:900;white-space:nowrap}.chosen-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.chosen-card{position:relative;display:grid;grid-template-columns:80px minmax(0,1fr);gap:11px;min-width:0;padding:13px;border-right:1px solid #edf0f3;color:#1d2939;text-decoration:none;transition:background .18s ease,transform .18s ease}.chosen-card:last-child{border-right:0}.chosen-card:hover{color:#1d2939;text-decoration:none;background:#fafcff;transform:translateY(-1px)}.chosen-media{position:relative;width:80px;height:80px;overflow:hidden;border-radius:14px;background:#13243d}.chosen-media .hero-fallback{padding:8px}.chosen-media .media-shell{display:none}.chosen-meta{display:flex;flex-direction:column;min-width:0}.chosen-meta small{overflow:hidden;color:#6d7c8f;font-size:.57rem;font-weight:950;letter-spacing:.06em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.chosen-meta strong{display:-webkit-box;overflow:hidden;margin-top:5px;color:#17263a;font-size:.79rem;line-height:1.14;font-weight:900;-webkit-box-orient:vertical;-webkit-line-clamp:2}.chosen-meta b{margin-top:auto;padding-top:9px;color:#1475d4;font-size:.86rem;font-weight:950}.chosen-meta span{color:#7b8796;font-size:.59rem;font-weight:800}.chosen-card>i{position:absolute;right:12px;bottom:13px;color:#afbac5;font-size:.67rem}
 
-    .footer{margin-top:30px;background:#121c2b;color:rgba(240,245,252,.72)}.footer-inner{width:min(1440px,100%);margin:0 auto;padding:36px clamp(14px,3vw,34px) 18px;display:grid;grid-template-columns:1.25fr repeat(3,1fr);gap:25px}.footer h3{margin:0 0 12px;color:#fff;font-family:'Manrope';font-size:.85rem;font-weight:800;text-transform:uppercase}.footer p,.footer a{font-size:.76rem;line-height:1.55}.footer a{display:block;margin:5px 0;color:rgba(240,245,252,.72);text-decoration:none}.footer a:hover{color:#fff}.socials{display:flex;gap:8px}.socials a{display:grid;place-items:center;width:37px;height:37px;margin:0;border:1px solid rgba(255,255,255,.17);border-radius:10px;color:#fff!important;background:rgba(255,255,255,.05)}.footer-bottom{width:min(1440px,100%);margin:0 auto;padding:13px clamp(14px,3vw,34px);border-top:1px solid rgba(255,255,255,.08);font-size:.68rem;font-weight:700}.wa-fab{position:fixed;right:20px;bottom:20px;z-index:120;display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:#25d366;color:#fff;text-decoration:none;font-size:1.7rem;box-shadow:0 15px 28px rgba(0,0,0,.24)}.wa-fab::after{content:'';position:absolute;inset:-7px;border:1px solid rgba(37,211,102,.28);border-radius:50%;animation:waPulse 2.7s ease-out infinite}.wa-fab:hover{color:#fff;transform:translateY(-2px)}@keyframes waPulse{0%{opacity:.8;transform:scale(.82)}85%,100%{opacity:0;transform:scale(1.25)}}
+    /* ================================================================
+       FOOTER V7 — limpio, corto y consistente con la portada
+       ================================================================ */
+    .footer{
+      margin-top:30px;
+      color:rgba(234,241,250,.72);
+      background:
+        radial-gradient(760px 270px at 7% 0%, rgba(31,112,228,.18), transparent 62%),
+        radial-gradient(640px 280px at 96% 100%, rgba(18,157,105,.13), transparent 62%),
+        linear-gradient(115deg,#101a2b 0%,#111d2a 48%,#10231d 100%);
+    }
+    .footer-inner{
+      width:min(1440px,100%);
+      margin:0 auto;
+      padding:28px clamp(14px,3vw,34px) 18px;
+      display:grid;
+      grid-template-columns:1.34fr minmax(0,.82fr) minmax(0,.92fr);
+      gap:42px;
+    }
+    .footer h3{
+      margin:0 0 11px;
+      color:#fff;
+      font-family:'Manrope',system-ui,sans-serif;
+      font-size:.83rem;
+      font-weight:900;
+      letter-spacing:.01em;
+    }
+    .footer p{margin:0;color:rgba(234,241,250,.70);font-size:.78rem;line-height:1.52}
+    .footer a{display:flex;align-items:center;gap:7px;width:max-content;max-width:100%;margin:6px 0;color:rgba(234,241,250,.74);font-size:.76rem;line-height:1.5;text-decoration:none;transition:color .18s ease,transform .18s ease}
+    .footer a:hover{color:#fff;transform:translateX(2px)}
+    .footer-brand{min-width:0}
+    .footer-brand-title{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:#fff;font:900 1.05rem/1.1 'Manrope',system-ui,sans-serif;letter-spacing:-.03em}
+    .footer-brand-title i{color:#ffd333;font-size:.95rem}
+        .footer-contact{display:grid;gap:6px;margin-top:2px}
+    .footer-contact a{margin:0;font-size:.74rem}
+    .footer-contact i{width:15px;color:#ffd333;text-align:center}
+    .footer-list{display:grid;gap:1px}
+    .footer-list a i{font-size:.66rem;color:#ffd333}
+    .footer-mini-note{margin-top:9px;padding:8px 10px;border:1px solid rgba(255,255,255,.10);border-radius:11px;background:rgba(255,255,255,.04);font-size:.68rem;line-height:1.42;color:rgba(234,241,250,.68)}
+    .footer-mini-note b{color:#ffd333}
+    .footer-bottom{
+      width:min(1440px,100%);
+      min-height:58px;
+      margin:0 auto;
+      padding:12px clamp(14px,3vw,34px);
+      border-top:1px solid rgba(255,255,255,.095);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color:rgba(234,241,250,.60);
+      font-size:.68rem;
+      font-weight:750;
+    }
+    .footer-bottom-copy{white-space:nowrap}
+    .footer-bottom-links{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+    .footer-bottom-links a{display:inline-flex;width:auto;margin:0;font-size:.67rem;color:rgba(234,241,250,.68)}
+    .footer-payments{display:flex;align-items:center;justify-content:flex-end;min-width:126px}
+    .footer-payments img{display:block;max-width:142px;max-height:28px;object-fit:contain;opacity:.90;filter:saturate(.92)}
+    .footer-payments img[hidden]{display:none!important}
 
-    @media(max-width:1060px){.home-grid{grid-template-columns:1fr}.promos{grid-template-columns:repeat(3,1fr);grid-template-rows:none}.promo{min-height:150px}.footer-inner{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:720px){:root{--header:64px}.innov-nav{gap:9px;padding:9px 12px}.innov-brand{font-size:1rem}.innov-brand span{padding:9px 10px}.innov-search{height:38px}.innov-search input{font-size:.72rem}.innov-search button{height:38px}.innov-links{display:none}.innov-menu{display:block;margin-left:auto}.innov-header.open .innov-links{position:absolute;z-index:11;left:12px;right:12px;top:calc(100% + 7px);display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:8px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:#162238;box-shadow:0 12px 24px rgba(0,0,0,.24)}.innov-header.open .innov-link{justify-content:center;padding:0 7px}.innov-link.shop .shop-hint{bottom:-10px}.home{padding-top:13px}.hero{min-height:620px;border-radius:19px}.slides{min-height:620px}.slide{grid-template-columns:1fr;grid-template-rows:250px 1fr}.hero-media{min-height:250px}.hero-copy{padding:21px 20px 32px}.hero h1{font-size:1.32rem}.price strong{font-size:1.65rem}.description{font-size:.82rem}.hero-arrow{top:126px;width:34px;height:34px}.hero-arrow.prev{left:8px}.hero-arrow.next{right:8px}.dots{left:13px;bottom:13px}.progress{right:14px;bottom:15px;width:70px}.pause{right:94px;bottom:5px}.promos{grid-template-columns:1fr;gap:10px}.promo{min-height:136px}.trust-strip{grid-template-columns:1fr}.trust-item{border-right:0;border-bottom:1px solid #edf0f4}.trust-item:last-child{border-bottom:0}.chosen-grid{grid-template-columns:1fr 1fr}.chosen-card{border-right:1px solid #edf0f3;border-bottom:1px solid #edf0f3}.chosen-card:nth-child(2n){border-right:0}.chosen-card:nth-last-child(-n+2){border-bottom:0}.footer-inner{grid-template-columns:1fr;gap:19px}.wa-fab{width:56px;height:56px;right:16px;bottom:16px}.chip{font-size:.64rem}.action-note{display:none}}
+    .legal-modal{
+      width:min(760px,calc(100vw - 28px));
+      max-height:min(86vh,760px);
+      padding:0;
+      border:1px solid rgba(15,23,42,.13);
+      border-radius:20px;
+      color:#1d293a;
+      background:#fff;
+      box-shadow:0 28px 90px rgba(2,8,23,.36);
+    }
+    .legal-modal::backdrop{background:rgba(3,12,25,.62);backdrop-filter:blur(5px)}
+    .legal-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:17px 19px 14px;border-bottom:1px solid #e7ebf1;background:linear-gradient(135deg,#f8fbff,#fffdf6)}
+    .legal-modal-head h2{margin:0;color:#162237;font:900 1.06rem/1.2 'Manrope',system-ui,sans-serif;letter-spacing:-.025em}
+    .legal-modal-head p{margin:4px 0 0;color:#68768a;font-size:.75rem;font-weight:700}
+    .legal-close{flex:0 0 auto;width:34px;height:34px;border:1px solid #dbe2ec;border-radius:10px;background:#fff;color:#334155;cursor:pointer;font-size:1rem}
+    .legal-modal-body{padding:17px 20px 20px;overflow:auto;max-height:calc(min(86vh,760px) - 72px);font-size:.82rem;line-height:1.58;color:#405066}
+    .legal-modal-body h3{margin:17px 0 6px;color:#1c2a3d;font-size:.89rem;font-weight:900}
+    .legal-modal-body h3:first-child{margin-top:0}
+    .legal-modal-body ul{margin:7px 0 0;padding-left:18px}
+    .legal-modal-body li{margin:4px 0}
+    .legal-highlight{margin:12px 0;padding:11px 12px;border:1px solid #f5d67a;border-radius:13px;background:#fff9e8;color:#6d5511;font-weight:760}
+
+    /* FAQ y Ayuda dentro del mismo index: ventanas flotantes */
+    .assist-modal{width:min(840px,calc(100vw - 28px))}
+    .assist-modal .legal-modal-body{padding:16px 19px 20px}
+    .assist-intro{margin:0 0 14px;color:#617084;font-size:.78rem;line-height:1.5;font-weight:650}
+    .faq-list{display:grid;gap:8px}
+    .faq-item{border:1px solid #e2e8ef;border-radius:13px;background:#fff;overflow:hidden}
+    .faq-item summary{display:flex;align-items:center;gap:9px;cursor:pointer;list-style:none;padding:12px 13px;color:#1f2d40;font-size:.80rem;font-weight:900}
+    .faq-item summary::-webkit-details-marker{display:none}
+    .faq-item summary::before{content:'+';display:grid;place-items:center;width:21px;height:21px;flex:0 0 auto;border-radius:7px;background:#f1f6fd;color:#1477d4;font-size:.96rem;line-height:1}
+    .faq-item[open] summary{background:#f7fbff;border-bottom:1px solid #e5edf8}
+    .faq-item[open] summary::before{content:'–';background:#fff5d6;color:#a76e00}
+    .faq-answer{padding:11px 13px 13px 43px;color:#5e6c80;font-size:.77rem;line-height:1.52;font-weight:600}
+    .help-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .help-card{display:flex;align-items:flex-start;gap:10px;min-height:128px;padding:13px;border:1px solid #e0e7ef;border-radius:15px;background:linear-gradient(145deg,#fff,#fbfdff);text-decoration:none;color:#203047;transition:transform .17s ease,box-shadow .17s ease,border-color .17s ease}
+    .help-card:hover{color:#203047;text-decoration:none;transform:translateY(-2px);border-color:#bad3f3;box-shadow:0 10px 22px rgba(20,64,111,.09)}
+    .help-icon{display:grid;place-items:center;flex:0 0 auto;width:38px;height:38px;border-radius:12px;background:#edf6ff;color:#1376d4;font-size:.95rem}
+    .help-card:nth-child(2) .help-icon{background:#fff8e4;color:#c18000}
+    .help-card:nth-child(3) .help-icon{background:#effbf4;color:#148b50}
+    .help-card:nth-child(4) .help-icon{background:#fff1f2;color:#dd3150}
+    .help-card strong{display:block;margin:1px 0 4px;font-size:.79rem;font-weight:900}
+    .help-card span{display:block;color:#68778a;font-size:.71rem;line-height:1.42;font-weight:650}
+    .help-before{margin-top:13px;padding:11px 12px;border:1px dashed #cbd8e7;border-radius:13px;background:#f8fbff;color:#5e6d80;font-size:.75rem;line-height:1.5}
+    .help-before b{color:#23334a}
+    @media(max-width:620px){.help-grid{grid-template-columns:1fr}.faq-answer{padding-left:13px}.assist-modal{width:calc(100vw - 18px)}}
+
+    .wa-fab{position:fixed;right:20px;bottom:20px;z-index:120;display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:#25d366;color:#fff;text-decoration:none;font-size:1.7rem;box-shadow:0 15px 28px rgba(0,0,0,.24)}
+    .wa-fab::after{content:'';position:absolute;inset:-7px;border:1px solid rgba(37,211,102,.28);border-radius:50%;animation:waPulse 2.7s ease-out infinite}
+    .wa-fab:hover{color:#fff;transform:translateY(-2px)}
+    @keyframes waPulse{0%{opacity:.8;transform:scale(.82)}85%,100%{opacity:0;transform:scale(1.25)}}
+
+    @media(max-width:1060px){.home-grid{grid-template-columns:1fr}.promos{grid-template-columns:repeat(3,1fr);grid-template-rows:none}.promo{min-height:150px}.footer-inner{grid-template-columns:repeat(2,minmax(0,1fr))}.innov-socials{display:none}}
+    @media(max-width:720px){:root{--header:64px}.innov-nav{gap:9px;padding:9px 12px}.innov-brand{font-size:1rem}.innov-brand span{padding:9px 10px}.innov-search{height:38px}.innov-search input{font-size:.72rem}.innov-search button{height:38px}.innov-links{display:none}.innov-menu{display:block;margin-left:auto}.innov-socials{display:none}.innov-header.open .innov-links{position:absolute;z-index:11;left:12px;right:12px;top:calc(100% + 7px);display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:8px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:#162238;box-shadow:0 12px 24px rgba(0,0,0,.24)}.innov-header.open .innov-link{justify-content:center;padding:0 7px}.innov-link.shop .shop-hint{bottom:-10px}.home{padding-top:13px}.hero{min-height:620px;border-radius:19px}.slides{min-height:620px}.slide{grid-template-columns:1fr;grid-template-rows:250px 1fr}.hero-media{min-height:250px}.hero-copy{padding:21px 20px 32px}.hero h1{font-size:1.32rem}.price strong{font-size:1.65rem}.description{font-size:.82rem}.hero-arrow{top:126px;width:34px;height:34px}.hero-arrow.prev{left:8px}.hero-arrow.next{right:8px}.dots{left:13px;bottom:13px}.progress{right:14px;bottom:15px;width:70px}.pause{right:94px;bottom:5px}.promos{grid-template-columns:1fr;gap:10px}.promo{min-height:136px}.trust-strip{grid-template-columns:1fr}.trust-item{border-right:0;border-bottom:1px solid #edf0f4}.trust-item:last-child{border-bottom:0}.chosen-grid{grid-template-columns:1fr 1fr}.chosen-card{border-right:1px solid #edf0f3;border-bottom:1px solid #edf0f3}.chosen-card:nth-child(2n){border-right:0}.chosen-card:nth-last-child(-n+2){border-bottom:0}.footer-inner{grid-template-columns:1fr;gap:19px}.footer-bottom{align-items:flex-start;flex-direction:column}.footer-bottom-links{justify-content:flex-start}.footer-payments{justify-content:flex-start}.wa-fab{width:56px;height:56px;right:16px;bottom:16px}.chip{font-size:.64rem}.action-note{display:none}}
     @media(max-width:390px){.innov-search{display:none}.innov-menu{margin-left:auto}.chosen-grid{grid-template-columns:1fr}.chosen-card{border-right:0}.chosen-card:last-child{border-bottom:0}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
   </style>
@@ -84,6 +196,11 @@
         <a class="innov-link shop" href="shop.html"><i class="fa-solid fa-store"></i> Tienda <span class="shop-hint"><i class="fa-solid fa-chevron-right"></i>Más productos<i class="fa-solid fa-chevron-right"></i></span></a>
         <a class="innov-link" id="supportHeader" href="https://wa.me/51991564053" target="_blank" rel="noopener"><i class="fa-solid fa-headset"></i> Soporte</a>
       </nav>
+      <div class="innov-socials" aria-label="Redes sociales">
+        <a class="header-social-facebook" href="#" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a class="header-social-instagram" href="#" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a class="header-social-tiktok" href="#" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+      </div>
       <a class="innov-cart" href="cart.html" aria-label="Ver carrito"><i class="fa-solid fa-cart-shopping"></i><b id="cartCount">0</b></a>
     </div>
   </header>
@@ -115,13 +232,131 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <div><h3>Contáctanos</h3><p>Servicios digitales con atención cercana y entrega rápida por WhatsApp.</p><a href="mailto:ainnov611@gmail.com"><i class="fa-solid fa-envelope"></i> ainnov611@gmail.com</a><a href="tel:+51991564053"><i class="fa-solid fa-phone"></i> +51 991564053</a></div>
-      <div><h3>Compra rápida</h3><a href="index.html">Inicio</a><a href="shop.html">Tienda</a><a href="cart.html">Carrito</a><a href="checkout.html">Pagar</a></div>
-      <div><h3>Soporte</h3><a id="supportFooter" href="https://wa.me/51991564053" target="_blank" rel="noopener">Escríbenos por WhatsApp</a><a href="faq.html">Preguntas frecuentes</a><a href="shop.html">Catálogo completo</a></div>
-      <div><h3>Síguenos</h3><p>Promos, novedades y atención rápida.</p><div class="socials"><a id="socialFacebook" href="#" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a><a id="socialTikTok" href="#" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a><a id="socialInstagram" href="#" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a></div></div>
+      <section class="footer-brand" aria-label="Innov AI Tienda">
+        <div class="footer-brand-title"><i class="fa-solid fa-sparkles"></i> Innov AI Tienda</div>
+        <p>Servicios digitales con entrega rápida, condiciones claras y atención cercana por WhatsApp.</p>
+        <div class="footer-contact">
+          <a href="mailto:ainnov611@gmail.com"><i class="fa-solid fa-envelope"></i> ainnov611@gmail.com</a>
+          <a href="tel:+51991564053"><i class="fa-solid fa-phone"></i> +51 991564053</a>
+          <span style="display:flex;align-items:center;gap:7px;font-size:.74rem;color:rgba(234,241,250,.72)"><i class="fa-solid fa-location-dot" style="width:15px;color:#ffd333;text-align:center"></i> Lima — San Isidro — Perú</span>
+        </div>
+      </section>
+
+      <section>
+        <h3>Ayuda y soporte</h3>
+        <div class="footer-list">
+          <a id="supportFooter" href="https://wa.me/51991564053" target="_blank" rel="noopener"><i class="fa-solid fa-headset"></i> Soporte por WhatsApp</a>
+          <a href="#" id="faqLink"><i class="fa-solid fa-chevron-right"></i> Preguntas frecuentes</a>
+          <a href="#" id="helpLink"><i class="fa-solid fa-chevron-right"></i> Ayuda</a>
+        </div>
+        <div class="footer-mini-note"><b>Escríbenos con tranquilidad:</b> cuéntanos brevemente tu consulta y te ayudaremos lo antes posible.</div>
+      </section>
+
+      <section>
+        <h3>Información legal</h3>
+        <div class="footer-list">
+          <a href="#" id="termsLink"><i class="fa-solid fa-file-contract"></i> Términos y condiciones</a>
+          <a href="#" id="privacyLink"><i class="fa-solid fa-shield-halved"></i> Política de privacidad</a>
+        </div>
+        <div class="footer-mini-note"><b>Garantías por plan:</b> 1 mes con garantía comercial; anuales con garantía de activación, según condiciones del plan.</div>
+      </section>
     </div>
-    <div class="footer-bottom">© <span id="year"></span> Innov Tienda. Todos los derechos reservados.</div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-copy">© <span id="year">2026</span> Innov AI Tienda. Todos los derechos reservados.</div>
+      <div class="footer-bottom-links">
+        <a href="#" id="termsBottomLink">Términos</a>
+        <a href="#" id="privacyBottomLink">Privacidad</a>
+      </div>
+      <div class="footer-payments"><img src="img/payments.png" alt="Métodos de pago" onerror="this.hidden=true"></div>
+    </div>
   </footer>
+
+  <dialog class="legal-modal" id="termsModal" aria-labelledby="termsTitle">
+    <div class="legal-modal-head">
+      <div><h2 id="termsTitle">Términos y condiciones</h2><p>Condiciones comerciales de Innov AI Tienda · Vigencia 2026</p></div>
+      <button class="legal-close" type="button" data-close-legal="termsModal" aria-label="Cerrar términos"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="legal-modal-body">
+      <h3>1. Alcance del servicio</h3>
+      <p>Innov AI Tienda ofrece servicios digitales, accesos, activaciones y productos informados en cada ficha de plan. Al realizar una compra, el cliente acepta las condiciones generales y las condiciones específicas visibles del producto seleccionado.</p>
+      <h3>2. Entrega y datos del cliente</h3>
+      <p>La entrega puede realizarse por WhatsApp, correo, instrucciones de activación u otro medio indicado antes de la compra. El cliente es responsable de proporcionar datos correctos y de revisar las instrucciones entregadas.</p>
+      <h3>3. Garantía de planes mensuales</h3>
+      <p>Los planes de 1 mes incluyen garantía comercial por incidencias atribuibles al acceso o entrega durante el periodo mensual contratado, siempre que el cliente respete las condiciones de uso del plan.</p>
+      <h3>4. Garantía de planes anuales</h3>
+      <p>Los planes anuales de hasta 12 meses incluyen garantía de activación. Esta cubre la entrega o activación correcta del acceso inicial, conforme a las condiciones particulares indicadas antes de pagar.</p>
+      <div class="legal-highlight">Antes de comprar un plan anual, revisa su modalidad de acceso, dispositivos permitidos, duración, condiciones de uso y tipo de garantía. La garantía aplicable será la que se muestre en la ficha del plan elegido.</div>
+      <h3>5. Casos no cubiertos por la garantía comercial</h3>
+      <ul>
+        <li>Datos incorrectos proporcionados por el cliente.</li>
+        <li>Cambios no autorizados de correo, contraseña, perfil, recuperación o configuración.</li>
+        <li>Compartir, transferir, revender o usar el acceso fuera de la modalidad indicada.</li>
+        <li>Incumplimiento de instrucciones o de las condiciones comunicadas para el plan.</li>
+        <li>Problemas del equipo, navegador, conexión a internet o aplicaciones del cliente.</li>
+        <li>Restricciones de plataformas externas originadas por uso contrario a sus políticas o por factores ajenos a la entrega realizada.</li>
+      </ul>
+      <h3>6. Soporte y solución de incidencias</h3>
+      <p>Para solicitar soporte, el cliente debe indicar producto, número de pedido y una descripción breve del inconveniente. Cuando la incidencia esté cubierta, Innov AI Tienda podrá evaluar una corrección, reposición, actualización o alternativa equivalente.</p>
+      <h3>7. Limitación razonable de responsabilidad</h3>
+      <p>En la medida permitida por la normativa aplicable, Innov AI Tienda no responde por daños indirectos, pérdida de información, lucro cesante, interrupciones de servicios de terceros ni consecuencias derivadas de un uso fuera de las condiciones informadas. Esta cláusula no limita los derechos irrenunciables que correspondan al consumidor.</p>
+      <h3>8. Cambios y vigencia</h3>
+      <p>Las condiciones aplicables serán las informadas al momento de cada compra. Innov AI Tienda podrá actualizar estos términos para compras futuras cuando sea necesario.</p>
+    </div>
+  </dialog>
+
+  <dialog class="legal-modal" id="privacyModal" aria-labelledby="privacyTitle">
+    <div class="legal-modal-head">
+      <div><h2 id="privacyTitle">Política de privacidad</h2><p>Uso responsable de datos para compras y soporte</p></div>
+      <button class="legal-close" type="button" data-close-legal="privacyModal" aria-label="Cerrar privacidad"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="legal-modal-body">
+      <h3>Datos que podemos solicitar</h3>
+      <p>Podemos solicitar nombre, correo, número de WhatsApp y datos necesarios para procesar una compra, entregar un servicio o brindar soporte.</p>
+      <h3>Finalidad</h3>
+      <p>Usamos dichos datos para gestionar pedidos, verificar la entrega, comunicarnos sobre incidencias y atender consultas relacionadas con los servicios adquiridos.</p>
+      <h3>Protección y terceros</h3>
+      <p>Los datos se utilizan únicamente para fines operativos de la tienda y pueden ser tratados mediante proveedores tecnológicos necesarios para el funcionamiento del pedido, pago o comunicación. No se usan para fines ajenos a la atención comercial sin una base válida.</p>
+      <h3>Contacto</h3>
+      <p>Para consultas relacionadas con datos personales, puedes comunicarte mediante los canales oficiales publicados por Innov AI Tienda.</p>
+    </div>
+  </dialog>
+
+  <dialog class="legal-modal assist-modal" id="faqModal" aria-labelledby="faqTitle">
+    <div class="legal-modal-head">
+      <div><h2 id="faqTitle">Preguntas frecuentes</h2><p>Respuestas rápidas antes o después de tu compra</p></div>
+      <button class="legal-close" type="button" data-close-legal="faqModal" aria-label="Cerrar preguntas frecuentes"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="legal-modal-body">
+      <p class="assist-intro">Revisa estas respuestas antes de escribirnos. Si tu caso es distinto, usa el botón de soporte y envíanos el producto o número de pedido.</p>
+      <div class="faq-list">
+        <details class="faq-item"><summary>¿Cómo realizo una compra?</summary><div class="faq-answer">Elige el producto o plan, revisa su duración, modalidad de acceso y garantía. Luego agrégalo al carrito y continúa al pago.</div></details>
+        <details class="faq-item"><summary>¿Cuánto demora la entrega?</summary><div class="faq-answer">Los servicios digitales suelen entregarse o activarse en un plazo corto. El tiempo exacto depende del producto y de las condiciones indicadas en su ficha.</div></details>
+        <details class="faq-item"><summary>¿Dónde recibiré mi servicio?</summary><div class="faq-answer">La entrega puede realizarse por WhatsApp, correo electrónico o mediante instrucciones de activación, según el plan adquirido.</div></details>
+        <details class="faq-item"><summary>¿Qué garantía tiene un plan de 1 mes?</summary><div class="faq-answer">Incluye garantía comercial durante el periodo mensual contratado, para incidencias atribuibles a la entrega o al acceso, conforme a las condiciones del plan.</div></details>
+        <details class="faq-item"><summary>¿Qué garantía tiene un plan anual?</summary><div class="faq-answer">Los planes anuales incluyen garantía de activación según las condiciones específicas visibles en la ficha del producto antes de pagar.</div></details>
+        <details class="faq-item"><summary>¿Qué no cubre la garantía?</summary><div class="faq-answer">No cubre datos incorrectos, cambios no autorizados, compartir o revender accesos, uso fuera de las condiciones del plan, problemas del equipo o conexión del cliente, ni restricciones externas por incumplir políticas de plataformas.</div></details>
+        <details class="faq-item"><summary>¿Cómo solicito soporte?</summary><div class="faq-answer">Escríbenos indicando producto o pedido y una descripción breve. Esto permite revisar tu caso de manera más rápida y ordenada.</div></details>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="legal-modal assist-modal" id="helpModal" aria-labelledby="helpTitle">
+    <div class="legal-modal-head">
+      <div><h2 id="helpTitle">Centro de ayuda</h2><p>Elige la opción que mejor se ajuste a tu consulta</p></div>
+      <button class="legal-close" type="button" data-close-legal="helpModal" aria-label="Cerrar centro de ayuda"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="legal-modal-body">
+      <div class="help-grid">
+        <a class="help-card" href="shop.html"><div class="help-icon"><i class="fa-solid fa-store"></i></div><div><strong>Quiero comprar un servicio</strong><span>Revisa planes, duración, modalidad de acceso y garantía antes de elegir.</span></div></a>
+        <a class="help-card" href="cart.html"><div class="help-icon"><i class="fa-solid fa-credit-card"></i></div><div><strong>Ya realicé un pago</strong><span>Revisa tu carrito o continúa con el proceso de pedido y pago.</span></div></a>
+        <a class="help-card" id="helpActivationLink" href="#" target="_blank" rel="noopener"><div class="help-icon"><i class="fa-solid fa-bolt"></i></div><div><strong>Necesito ayuda con una activación</strong><span>Ten a la mano el producto adquirido y el correo o pedido utilizado.</span></div></a>
+        <a class="help-card" id="helpSupportLink" href="#" target="_blank" rel="noopener"><div class="help-icon"><i class="fa-solid fa-headset"></i></div><div><strong>Tengo un problema con mi servicio</strong><span>Cuéntanos brevemente qué ocurrió para revisar tu caso según el plan.</span></div></a>
+      </div>
+      <div class="help-before"><b>Antes de escribirnos:</b> indica producto o plan, número de pedido si lo tienes, correo o WhatsApp usado en la compra y una descripción breve de tu consulta.</div>
+    </div>
+  </dialog>
+
 
   <a class="wa-fab" id="whatsappFab" href="https://wa.me/51991564053" target="_blank" rel="noopener" aria-label="Abrir WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
 
@@ -482,20 +717,26 @@
     function external(value){const raw=text(value);if(!raw)return '';const valueWithProtocol=/^https?:\/\//i.test(raw)?raw:'https://'+raw.replace(/^\/+/, '');try{const u=new URL(valueWithProtocol);return /^https?:$/.test(u.protocol)?u.href:'';}catch(_){return '';}}
     function waBase(value){const raw=text(value);if(/^\+?\d{7,15}$/.test(raw))return 'https://wa.me/'+raw.replace(/\D/g,'');const safe=external(raw);if(/wa\.me\/\d+/i.test(safe)||/api\.whatsapp\.com\/send/i.test(safe))return safe;return DEFAULT_SOCIAL.whatsapp_url;}
     function supportUrl(social){const raw=waBase(social.support_whatsapp_url||social.whatsapp_url||DEFAULT_SOCIAL.support_whatsapp_url);const message=String(social.support_message||DEFAULT_SOCIAL.support_message||'').trim();try{const u=new URL(raw);if(/wa\.me$/i.test(u.hostname)&&/^\/\d+\/?$/.test(u.pathname)){u.searchParams.set('text',message);return u.href;}if(/api\.whatsapp\.com$/i.test(u.hostname)&&/\/send/i.test(u.pathname)){u.searchParams.set('text',message);return u.href;}}catch(_){}return raw;}
-    function applySocial(raw){const data={...DEFAULT_SOCIAL,...json(raw)};const wa=waBase(data.whatsapp_url);const sup=supportUrl(data);const set=(id,href)=>{const el=$(id);if(!el)return;if(!href){el.hidden=true;return;}el.hidden=false;el.href=href;};set('whatsappFab',wa);set('supportHeader',sup);set('supportFooter',sup);set('socialFacebook',external(data.facebook_url));set('socialTikTok',external(data.tiktok_url));set('socialInstagram',external(data.instagram_url));}
+    function bindLegalDialogs(){
+      const links={terms:['termsLink','termsBottomLink'],privacy:['privacyLink','privacyBottomLink'],faq:['faqLink'],help:['helpLink']};
+      Object.keys(links).forEach(kind=>{
+        const dialog=$(kind==='terms'?'termsModal':kind==='privacy'?'privacyModal':kind==='faq'?'faqModal':'helpModal');
+        if(!dialog)return;
+        links[kind].forEach(id=>{const link=$(id);if(link)link.addEventListener('click',event=>{event.preventDefault();if(typeof dialog.showModal==='function')dialog.showModal();});});
+        dialog.addEventListener('click',event=>{if(event.target===dialog&&typeof dialog.close==='function')dialog.close();});
+      });
+      document.querySelectorAll('[data-close-legal]').forEach(button=>button.addEventListener('click',()=>{const dialog=$(button.getAttribute('data-close-legal'));if(dialog&&typeof dialog.close==='function')dialog.close();}));
+    }
+    function applySocial(raw){const data={...DEFAULT_SOCIAL,...json(raw)};const wa=waBase(data.whatsapp_url);const sup=supportUrl(data);const set=(id,href)=>{const el=$(id);if(!el)return;if(!href){el.hidden=true;return;}el.hidden=false;el.href=href;};const setClass=(cls,href)=>document.querySelectorAll('.'+cls).forEach(el=>{if(!href){el.hidden=true;return;}el.hidden=false;el.href=href;});set('whatsappFab',wa);set('supportHeader',sup);set('supportFooter',sup);set('helpSupportLink',sup);set('helpActivationLink',sup);setClass('header-social-facebook',external(data.facebook_url));setClass('header-social-tiktok',external(data.tiktok_url));setClass('header-social-instagram',external(data.instagram_url));}
     function cartCount(){try{return JSON.parse(localStorage.getItem(CART_KEY)||'[]').reduce((n,x)=>n+Number(x.qty||1),0);}catch(_){return 0;}}
     function syncCart(){$('cartCount').textContent=cartCount();}
-    async function init(){syncCart();$('year').textContent=new Date().getFullYear();const header=$('innovHeader'),menu=$('innovMenu');menu.addEventListener('click',()=>{const open=header.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));});if(!window.supabase){console.warn('Supabase no cargó');return;}try{const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const [catalog,home,social]=await Promise.all([db.rpc('get_public_catalog'),db.rpc(SETTINGS_RPC),db.rpc(SOCIAL_RPC)]);if(catalog.error)throw catalog.error;applySocial(social&&social.error?{}:social.data);render(buildCatalog(catalog.data||[]),config(home&&home.error?{}:home.data));}catch(error){console.error('No se pudo cargar la portada',error);$('slides').innerHTML='<div class="home-empty" style="min-height:385px;display:grid;place-content:center;gap:10px;text-align:center;color:#69778a"><i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem;color:#e09519"></i><strong style="color:#1c2a3d">No se pudieron actualizar los destacados</strong><span style="font-size:.8rem;font-weight:700">Recarga la página o revisa la configuración de Supabase.</span></div>';}}
+    async function init(){syncCart();$('year').textContent=new Date().getFullYear();const header=$('innovHeader'),menu=$('innovMenu');menu.addEventListener('click',()=>{const open=header.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));});bindLegalDialogs();if(!window.supabase){console.warn('Supabase no cargó');return;}try{const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const [catalog,home,social]=await Promise.all([db.rpc('get_public_catalog'),db.rpc(SETTINGS_RPC),db.rpc(SOCIAL_RPC)]);if(catalog.error)throw catalog.error;applySocial(social&&social.error?{}:social.data);render(buildCatalog(catalog.data||[]),config(home&&home.error?{}:home.data));}catch(error){console.error('No se pudo cargar la portada',error);$('slides').innerHTML='<div class="home-empty" style="min-height:385px;display:grid;place-content:center;gap:10px;text-align:center;color:#69778a"><i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem;color:#e09519"></i><strong style="color:#1c2a3d">No se pudieron actualizar los destacados</strong><span style="font-size:.8rem;font-weight:700">Recarga la página o revisa la configuración de Supabase.</span></div>';}}
     window.addEventListener('storage',e=>{if(e.key===CART_KEY)syncCart();});
     init();
   })();
   </script>
 </body>
 </html>
-
-
-
-
 
 
 
