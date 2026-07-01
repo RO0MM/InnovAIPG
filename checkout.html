@@ -386,16 +386,43 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
     function money(n){ return 'S/ ' + Number(n || 0).toFixed(2); }
     function esc(s){ return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
     function toast(msg){ const el=$('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2600); }
+    /*
+      Alerta interna de Telegram.
+      Importante: la Publishable Key va SOLO en `apikey`.
+      No se usa como Bearer token porque no es un JWT de usuario.
+      Si la alerta falla, no se detiene el pedido ni el pago; el error queda registrado en consola.
+    */
     async function notifyTelegram(event, extra={}){
+      const orderCode = extra.order_code || currentOrder?.order_code || $('lookupOrderCode')?.value || '';
+      if(!orderCode) return { ok:false, skipped:true, reason:'missing_order_code' };
+
       try{
-        const orderCode = extra.order_code || currentOrder?.order_code || $('lookupOrderCode')?.value || '';
-        if(!orderCode) return;
-        await fetch(`${SUPABASE_URL}/functions/v1/send-telegram-alert`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/send-telegram-alert`, {
           method:'POST',
-          headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY },
+          headers:{
+            'Content-Type':'application/json',
+            'apikey':SUPABASE_KEY
+          },
           body: JSON.stringify({ event, order_code:orderCode, ...extra })
         });
-      }catch(e){ console.warn('Telegram alerta no enviada:', e); }
+
+        const result = await response.json().catch(()=>({}));
+        if(!response.ok || result?.ok === false){
+          console.warn('Telegram alerta no enviada:', {
+            event,
+            order_code:orderCode,
+            status:response.status,
+            response:result
+          });
+          return { ok:false, status:response.status, response:result };
+        }
+
+        console.info('Telegram alerta enviada:', { event, order_code:orderCode });
+        return { ok:true, response:result };
+      }catch(error){
+        console.warn('Telegram alerta no enviada:', { event, order_code:orderCode, error:String(error?.message || error) });
+        return { ok:false, error:String(error?.message || error) };
+      }
     }
     function setStep(n){ document.querySelectorAll('[data-step]').forEach(x => x.classList.toggle('active', Number(x.dataset.step) === Number(n))); }
     function subtotal(){ return cart.reduce((a,b)=>a + Number(b.precio || 0) * Number(b.qty || 1), 0); }
@@ -926,6 +953,8 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
       }catch(e){ console.warn('No se pudo guardar datos especiales de respaldo:', e); }
 
       persistOrder();
+      // Alerta 1: se creó el pedido. Esto no reemplaza la alerta de pago a revisión.
+      await notifyTelegram('order_created');
       broadcastCheckoutDataChanged('orders', 'RPC');
       renderCart(currentOrder);
       showGeneratedView(currentOrder);
@@ -1287,6 +1316,12 @@ async function sendPaymentReview(){
 
 </body>
 </html>
+
+
+
+
+
+
 
 
 
