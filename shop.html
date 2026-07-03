@@ -1322,13 +1322,6 @@ body.innov-safe-page[data-innov-page="shop"] .product-item .period-note{
   font-size:.70rem!important;
   font-weight:800!important;
 }
-.shop-card-terms{
-  display:inline-flex;align-items:center;justify-content:center;
-  margin:7px auto 0;padding:0;border:0;background:transparent;color:#8a96a6;
-  font:700 .59rem/1.25 Arial,Helvetica,sans-serif;letter-spacing:.01em;
-  text-decoration:underline;text-underline-offset:2px;cursor:pointer;
-}
-.shop-card-terms:hover{color:#315f9b;}
 
 /* Video original intacto: la imagen queda de respaldo hasta que el reproductor esté listo. */
 body.innov-safe-page[data-innov-page="shop"] .product-img .product-video-shell{background:#091421;}
@@ -1345,6 +1338,12 @@ body.innov-safe-page[data-innov-page="shop"] .product-img .product-logo-img{visi
 #productModal .modal-product-media{margin-top:0!important;}
 #productModal .modal-title{font-family:Arial,Helvetica,sans-serif!important;font-weight:900!important;color:#203650!important;}
 #productModal .modal-header .close{position:relative;z-index:4;}
+/* El aviso legal se muestra solo al abrir la información del producto. */
+#productModal .modal-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 18px;background:#fbfcfe;border-top:1px solid #e8eef5;}
+#modalTermsBtn{padding:0;border:0;background:transparent;color:#7a8797;font:700 .66rem/1.25 Arial,Helvetica,sans-serif;text-decoration:underline;text-underline-offset:2px;cursor:pointer;}
+#modalTermsBtn:hover{color:#315f9b;}
+@media(max-width:575px){#productModal .modal-footer{align-items:flex-start;flex-direction:column;padding:10px 14px;}#modalTermsBtn{font-size:.64rem;}}
+
 @media(max-width:720px){
   #productModal{padding-top:70px!important;}
   #productModal .modal-dialog{min-height:calc(100% - 82px)!important;margin:0 auto 14px!important;padding:0 8px;}
@@ -1854,7 +1853,8 @@ body.innov-safe-page[data-innov-page="shop"] .product-img .product-logo-img{visi
         </div>
 
         <div class="modal-footer small text-muted">
-          Cierra con la <strong>X</strong> o haciendo clic fuera del recuadro.
+          <button id="modalTermsBtn" type="button">Términos y condiciones del servicio</button>
+          <span>Cierra con la <strong>X</strong> o haciendo clic fuera del recuadro.</span>
         </div>
       </div>
     </div>
@@ -5124,17 +5124,9 @@ window.addEventListener('message', function(event){
     if(!dialog) return;
     try{ dialog.showModal(); }catch(_){ dialog.setAttribute('open',''); }
   }
-  function decorateCards(){
-    document.querySelectorAll('#productsGrid .product-item .text-center.py-4').forEach(function(host){
-      if(host.querySelector('.shop-card-terms')) return;
-      var button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'shop-card-terms';
-      button.textContent = 'Aplican términos y condiciones del servicio';
-      button.setAttribute('aria-label','Ver términos y condiciones del servicio');
-      button.addEventListener('click', function(event){ event.preventDefault(); event.stopPropagation(); openTerms(); });
-      host.appendChild(button);
-    });
+  function openProductTerms(){
+    try{ $('#productModal').modal('hide'); }catch(_){}
+    setTimeout(openTerms, 230);
   }
   function pushSearch(value){
     var target = byId('shopSearchInput');
@@ -5206,10 +5198,13 @@ window.addEventListener('message', function(event){
     initMobileSearch();
     initHeaderSearch();
     initMobileSocials();
-    decorateCards();
-    var grid = byId('productsGrid');
-    if(grid && window.MutationObserver){
-      new MutationObserver(function(){ decorateCards(); }).observe(grid,{childList:true,subtree:true});
+    var modalTermsBtn = byId('modalTermsBtn');
+    if(modalTermsBtn && modalTermsBtn.dataset.bound !== '1'){
+      modalTermsBtn.dataset.bound = '1';
+      modalTermsBtn.addEventListener('click', function(event){
+        event.preventDefault();
+        openProductTerms();
+      });
     }
     bindModalMute();
   }
@@ -5220,4 +5215,5 @@ window.addEventListener('message', function(event){
 
 </body>
 </html>
+
 
