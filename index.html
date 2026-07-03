@@ -12,13 +12,20 @@
   (function(){
     try{
       var saved=localStorage.getItem('innov_theme');
-      var theme=(saved==='dark'||saved==='light')
+      var source=localStorage.getItem('innov_theme_source');
+      /* Compatibilidad con la versión anterior: si ya había una elección guardada,
+         se interpreta como elección manual. */
+      var manual=(source==='manual'||(!source&&(saved==='dark'||saved==='light')))
+        && (saved==='dark'||saved==='light');
+      var theme=manual
         ? saved
         : (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
       document.documentElement.dataset.theme=theme;
+      document.documentElement.dataset.themeSource=manual?'manual':'system';
       document.documentElement.style.colorScheme=theme;
     }catch(_){
       document.documentElement.dataset.theme='light';
+      document.documentElement.dataset.themeSource='system';
       document.documentElement.style.colorScheme='light';
     }
   })();
@@ -222,6 +229,9 @@
       opacity:.9;pointer-events:none;
     }
     .innov-theme-toggle i{position:relative;z-index:1;font-size:1rem}
+    .innov-theme-toggle .theme-icon-sun{display:none}
+    html[data-theme="dark"] .innov-theme-toggle .theme-icon-moon{display:none}
+    html[data-theme="dark"] .innov-theme-toggle .theme-icon-sun{display:inline}
     .innov-theme-toggle:hover{transform:translateY(-2px);background:rgba(255,255,255,.12);border-color:rgba(255,220,77,.55)}
     .innov-theme-toggle:focus-visible{outline:3px solid rgba(255,203,40,.52);outline-offset:3px}
     .innov-theme-toggle.is-dark{color:#b9d9ff;background:rgba(93,177,255,.10);border-color:rgba(126,192,255,.34)}
@@ -391,8 +401,9 @@
         <a class="header-social-instagram" href="#" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
         <a class="header-social-tiktok" href="#" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
       </div>
-      <button class="innov-theme-toggle" id="themeToggle" type="button" aria-label="Modo claro" aria-pressed="false" title="Modo claro">
-        <i class="fa-solid fa-sun" aria-hidden="true"></i>
+      <button class="innov-theme-toggle" id="themeToggle" type="button" aria-label="Activar modo oscuro" aria-pressed="false" title="Activar modo oscuro">
+        <i class="fa-solid fa-moon theme-icon-moon" aria-hidden="true"></i>
+        <i class="fa-solid fa-sun theme-icon-sun" aria-hidden="true"></i>
         <span class="sr-only">Cambiar modo de color</span>
       </button>
       <a class="innov-cart" href="cart.html" aria-label="Ver carrito"><i class="fa-solid fa-cart-shopping"></i><b id="cartCount">0</b></a>
@@ -912,19 +923,34 @@
     function waBase(value){const raw=text(value);if(/^\+?\d{7,15}$/.test(raw))return 'https://wa.me/'+raw.replace(/\D/g,'');const safe=external(raw);if(/wa\.me\/\d+/i.test(safe)||/api\.whatsapp\.com\/send/i.test(safe))return safe;return DEFAULT_SOCIAL.whatsapp_url;}
     function supportUrl(social){const raw=waBase(social.support_whatsapp_url||social.whatsapp_url||DEFAULT_SOCIAL.support_whatsapp_url);const message=String(social.support_message||DEFAULT_SOCIAL.support_message||'').trim();try{const u=new URL(raw);if(/wa\.me$/i.test(u.hostname)&&/^\/\d+\/?$/.test(u.pathname)){u.searchParams.set('text',message);return u.href;}if(/api\.whatsapp\.com$/i.test(u.hostname)&&/\/send/i.test(u.pathname)){u.searchParams.set('text',message);return u.href;}}catch(_){}return raw;}
 
-    /* Tema persistente: conserva la elección del visitante y respeta el modo del sistema la primera vez. */
+    /* Tema adaptativo: sigue el modo del dispositivo hasta que el visitante el cambia manualmente. */
     const THEME_KEY='innov_theme';
-    function storedTheme(){
+    const THEME_SOURCE_KEY='innov_theme_source';
+    const systemTheme=()=>{
+      try{
+        return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+      }catch(_){return 'light';}
+    };
+    function manualTheme(){
       try{
         const saved=localStorage.getItem(THEME_KEY);
-        if(saved==='dark'||saved==='light')return saved;
+        const source=localStorage.getItem(THEME_SOURCE_KEY);
+        const valid=saved==='dark'||saved==='light';
+        /* Mantiene una elección manual realizada en la versión anterior. */
+        if(valid&&(source==='manual'||!source)){
+          if(!source)localStorage.setItem(THEME_SOURCE_KEY,'manual');
+          return saved;
+        }
       }catch(_){}
-      return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+      return '';
     }
+    function storedTheme(){return manualTheme()||systemTheme();}
+    function hasManualTheme(){return !!manualTheme();}
     function applyTheme(theme,persist){
       const value=theme==='dark'?'dark':'light';
       const root=document.documentElement;
       root.dataset.theme=value;
+      root.dataset.themeSource=persist?'manual':(hasManualTheme()?'manual':'system');
       root.style.colorScheme=value;
       const meta=document.querySelector('meta[name="theme-color"]');
       if(meta)meta.setAttribute('content',value==='dark'?'#0b1320':'#121c2b');
@@ -933,22 +959,35 @@
         const dark=value==='dark';
         button.classList.toggle('is-dark',dark);
         button.setAttribute('aria-pressed',String(dark));
-        button.setAttribute('aria-label',dark?'Modo oscuro':'Modo claro');
-        button.setAttribute('title',dark?'Modo oscuro':'Modo claro');
-        button.innerHTML=`<i class="fa-solid ${dark?'fa-moon':'fa-sun'}" aria-hidden="true"></i><span class="sr-only">Cambiar modo de color</span>`;
+        /* El icono indica el modo que se activará al tocarlo. */
+        button.setAttribute('aria-label',dark?'Activar modo claro':'Activar modo oscuro');
+        button.setAttribute('title',dark?'Activar modo claro':'Activar modo oscuro');
       }
       if(persist){
-        try{localStorage.setItem(THEME_KEY,value);}catch(_){}
+        try{
+          localStorage.setItem(THEME_KEY,value);
+          localStorage.setItem(THEME_SOURCE_KEY,'manual');
+        }catch(_){}
       }
     }
     function bindThemeToggle(){
       applyTheme(storedTheme(),false);
       const button=$('themeToggle');
-      if(!button)return;
-      button.addEventListener('click',()=>{
-        const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
-        applyTheme(next,true);
-      });
+      if(button){
+        button.addEventListener('click',()=>{
+          const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+          applyTheme(next,true);
+        });
+      }
+      /* Si no hay elección manual, la portada cambia cuando el dispositivo cambia de tema. */
+      try{
+        const media=window.matchMedia('(prefers-color-scheme: dark)');
+        const syncFromDevice=event=>{
+          if(!hasManualTheme()) applyTheme(event.matches?'dark':'light',false);
+        };
+        if(media.addEventListener)media.addEventListener('change',syncFromDevice);
+        else if(media.addListener)media.addListener(syncFromDevice);
+      }catch(_){}
     }
 
     function bindLegalDialogs(){
@@ -971,4 +1010,8 @@
   </script>
 </body>
 </html>
+
+
+
+
 
