@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
+<!-- INNOV THEME BOOTSTRAP v1 — respeta dispositivo hasta que el visitante elija manualmente -->
+<script id="innov-theme-bootstrap">
+(function(){
+  try{
+    var saved=localStorage.getItem('innov_theme');
+    var source=localStorage.getItem('innov_theme_source');
+    var manual=(source==='manual'||(!source&&(saved==='dark'||saved==='light')))
+      && (saved==='dark'||saved==='light');
+    var theme=manual
+      ? saved
+      : (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    document.documentElement.dataset.theme=theme;
+    document.documentElement.dataset.themeSource=manual?'manual':'system';
+    document.documentElement.style.colorScheme=theme;
+  }catch(_){
+    document.documentElement.dataset.theme='light';
+    document.documentElement.dataset.themeSource='system';
+    document.documentElement.style.colorScheme='light';
+  }
+})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -9,7 +32,7 @@
 <title>Innov AI Tienda — Tienda</title>
 <meta name="description" content="Explora Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp.">
 <meta name="keywords" content="Innov AI Tienda, tienda, servicios digitales, Perú, ChatGPT Plus, Gemini Pro, CapCut Pro, Perplexity, Canva, Autodesk, Netflix, Disney, Max, Prime Video, ViX, IPTV, Crunchyroll, Surfshark">
-<meta name="theme-color" content="#0d6efd">
+<meta id="themeColorMeta" name="theme-color" content="#0d6efd">
 <link rel="canonical" href="https://innovia-five.vercel.app/shop.html">
 
 <meta property="og:locale" content="es_PE">
@@ -1370,6 +1393,264 @@ body.innov-safe-page[data-innov-page="shop"] .product-img .product-logo-img{visi
   .innov-mobile-socials .innov-safe-tiktok{background:#111827;color:#fff!important;border:1px solid rgba(255,255,255,.20);}
   .innov-mobile-socials .innov-safe-tiktok i{text-shadow:-1px -1px 0 #25f4ee,1px 1px 0 #fe2c55;}
 }
+</style>
+
+
+
+<!-- INNOV DARK MODE v1 — solo presentación; no modifica carrito, pagos, Supabase, videos ni pedidos -->
+<style id="innov-dark-mode-v1">
+:root{color-scheme:light}
+html[data-theme="dark"]{color-scheme:dark}
+
+/* Botón de tema: luna en claro, sol en oscuro. */
+.innov-theme-toggle{
+  position:relative;display:grid;place-items:center;flex:0 0 auto;
+  width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,.18);
+  border-radius:12px;background:rgba(255,255,255,.055);color:#ffda4d;
+  cursor:pointer;box-shadow:0 5px 12px rgba(0,0,0,.15);
+  transition:transform .18s ease,background .18s ease,border-color .18s ease,color .18s ease;
+}
+.innov-theme-toggle::before{content:"";position:absolute;inset:7px;border-radius:9px;background:radial-gradient(circle at 50% 45%,rgba(255,211,52,.24),transparent 64%);opacity:.9;pointer-events:none}
+.innov-theme-toggle i{position:relative;z-index:1;font-size:1rem}
+.innov-theme-toggle .theme-icon-sun{display:none}
+html[data-theme="dark"] .innov-theme-toggle .theme-icon-moon{display:none}
+html[data-theme="dark"] .innov-theme-toggle .theme-icon-sun{display:inline}
+.innov-theme-toggle:hover{transform:translateY(-2px);background:rgba(255,255,255,.12);border-color:rgba(255,220,77,.55)}
+.innov-theme-toggle:focus-visible{outline:3px solid rgba(255,203,40,.52);outline-offset:3px}
+.innov-theme-toggle.is-dark{color:#b9d9ff;background:rgba(93,177,255,.10);border-color:rgba(126,192,255,.34)}
+.innov-theme-toggle.is-dark::before{background:radial-gradient(circle at 46% 42%,rgba(119,186,255,.24),transparent 64%)}
+
+/* Fondo, tipografía y cabecera */
+html[data-theme="dark"] body{
+  color:#eaf2ff!important;
+  background:
+    radial-gradient(circle at 1px 1px,rgba(170,200,240,.065) 1px,transparent 1px) 0 0/19px 19px,
+    radial-gradient(760px 360px at 7% -3%,rgba(31,112,228,.16),transparent 66%),
+    radial-gradient(670px 360px at 96% 22%,rgba(31,154,92,.11),transparent 67%),
+    #0b1320!important;
+}
+html[data-theme="dark"] .innov-safe-header,
+html[data-theme="dark"] .innov-header{
+  background:rgba(9,17,30,.98)!important;
+  border-bottom-color:rgba(185,214,255,.10)!important;
+  box-shadow:0 6px 22px rgba(0,0,0,.31)!important;
+}
+html[data-theme="dark"] .innov-safe-search,
+html[data-theme="dark"] .innov-search{border-color:rgba(181,211,255,.18)!important;background:rgba(255,255,255,.045)!important}
+html[data-theme="dark"] .innov-safe-search input,
+html[data-theme="dark"] .innov-search input{color:#eff6ff!important}
+html[data-theme="dark"] .innov-safe-link,
+html[data-theme="dark"] .innov-link{color:rgba(235,244,255,.84)!important}
+html[data-theme="dark"] .innov-safe-link:hover,
+html[data-theme="dark"] .innov-link:hover{background:rgba(164,203,255,.10)!important;color:#fff!important}
+html[data-theme="dark"] .innov-safe-link.active,
+html[data-theme="dark"] .innov-link.active{background:#ffcb28!important;color:#172236!important}
+html[data-theme="dark"] .innov-safe-link.shop,
+html[data-theme="dark"] .innov-link.shop{background:rgba(239,68,68,.13)!important;border-color:rgba(255,112,130,.56)!important}
+html[data-theme="dark"] .innov-safe-cart,
+html[data-theme="dark"] .innov-cart{color:#ffdb54!important;border-color:rgba(185,214,255,.18)!important;background:rgba(255,255,255,.045)!important}
+html[data-theme="dark"] .innov-safe-cart b,
+html[data-theme="dark"] .innov-cart b{background:#dce9fb!important;color:#12213a!important}
+
+/* Superficies generales */
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-light,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .comic-card,
+html[data-theme="dark"] .cart-card,
+html[data-theme="dark"] .summary-box,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .shop-toolbar,
+html[data-theme="dark"] .product-item,
+html[data-theme="dark"] .plans-box,
+html[data-theme="dark"] .plan-option,
+html[data-theme="dark"] .extra-box,
+html[data-theme="dark"] .quick-btn,
+html[data-theme="dark"] .info-card,
+html[data-theme="dark"] .empty-box,
+html[data-theme="dark"] .coupon-box,
+html[data-theme="dark"] .lookup-panel,
+html[data-theme="dark"] .payment-box,
+html[data-theme="dark"] .pay-card,
+html[data-theme="dark"] .special-box,
+html[data-theme="dark"] .activation-box,
+html[data-theme="dark"] .chat-box,
+html[data-theme="dark"] .chat-list,
+html[data-theme="dark"] .support-card,
+html[data-theme="dark"] .steps,
+html[data-theme="dark"] .breadcrumb,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-body,
+html[data-theme="dark"] .modal-footer{
+  background:#111d2e!important;
+  color:#eaf2ff!important;
+  border-color:#283d58!important;
+  box-shadow:0 16px 38px rgba(0,0,0,.22)!important;
+}
+html[data-theme="dark"] .summary-head,
+html[data-theme="dark"] .card-head,
+html[data-theme="dark"] .pay-head,
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .support-card-head{
+  background:linear-gradient(135deg,#172a46,#101c2d)!important;
+  border-color:#2c4666!important;
+  color:#dcecff!important;
+}
+html[data-theme="dark"] .support-card-body,
+html[data-theme="dark"] .support-card-actions{background:#111d2e!important;border-color:#2c4666!important;color:#eaf2ff!important}
+html[data-theme="dark"] .product-img,
+html[data-theme="dark"] .product-media,
+html[data-theme="dark"] .media-wrap,
+html[data-theme="dark"] .modal-product-media,
+html[data-theme="dark"] .prod-img{
+  background:linear-gradient(145deg,#15253a,#0b1422)!important;
+  border-color:#2a4260!important;
+}
+html[data-theme="dark"] .modal-product-media #modalImg{background:linear-gradient(145deg,#15253a,#0b1422)!important}
+html[data-theme="dark"] .status-box,
+html[data-theme="dark"] .order-status-card,
+html[data-theme="dark"] .delivery-ready,
+html[data-theme="dark"] .status-note,
+html[data-theme="dark"] .order-id-box,
+html[data-theme="dark"] .thin-note,
+html[data-theme="dark"] .payment-extra-note,
+html[data-theme="dark"] .client-required-note,
+html[data-theme="dark"] .special-notice,
+html[data-theme="dark"] .activation-instructions,
+html[data-theme="dark"] .delivery-data{
+  background:#14253b!important;
+  color:#d9e9fa!important;
+  border-color:#315172!important;
+}
+
+/* Textos, enlaces, divisores */
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6,
+html[data-theme="dark"] .h1,
+html[data-theme="dark"] .h2,
+html[data-theme="dark"] .h3,
+html[data-theme="dark"] .h4,
+html[data-theme="dark"] .h5,
+html[data-theme="dark"] .h6,
+html[data-theme="dark"] .text-dark,
+html[data-theme="dark"] .item-name,
+html[data-theme="dark"] .prod-name,
+html[data-theme="dark"] .quick-title{color:#edf5ff!important}
+html[data-theme="dark"] p,
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .mini-muted,
+html[data-theme="dark"] .prod-meta,
+html[data-theme="dark"] .item-meta,
+html[data-theme="dark"] .quick-sub,
+html[data-theme="dark"] .period-note,
+html[data-theme="dark"] .stock-note,
+html[data-theme="dark"] .status-grid,
+html[data-theme="dark"] .special-subtitle{color:#aebed0!important}
+html[data-theme="dark"] a:not(.btn):not(.innov-safe-brand):not(.innov-brand):not(.innov-safe-link):not(.innov-link):not(.innov-safe-cart):not(.innov-cart){color:#9bc7ff}
+html[data-theme="dark"] hr,
+html[data-theme="dark"] .border,
+html[data-theme="dark"] .border-top,
+html[data-theme="dark"] .border-bottom{border-color:#2b405c!important}
+html[data-theme="dark"] .section-title > span{box-shadow:inset 0 -2px 0 #61a8ff!important;background:#0b1320!important}
+
+/* Formularios y botones secundarios */
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select,
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .custom-select,
+html[data-theme="dark"] .qty-input{
+  color:#eff6ff!important;
+  background:#0d1726!important;
+  border-color:#314b6b!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder{color:#8da0b7!important;opacity:1}
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] select:focus,
+html[data-theme="dark"] .form-control:focus{border-color:#5ca9ff!important;box-shadow:0 0 0 3px rgba(92,169,255,.14)!important}
+html[data-theme="dark"] .btn-outline,
+html[data-theme="dark"] .btn-light,
+html[data-theme="dark"] .btn-secondary,
+html[data-theme="dark"] .qty-btn,
+html[data-theme="dark"] .remove-btn{
+  color:#eaf2ff!important;
+  background:#16263a!important;
+  border-color:#365372!important;
+}
+html[data-theme="dark"] .btn-outline:hover,
+html[data-theme="dark"] .btn-light:hover,
+html[data-theme="dark"] .btn-secondary:hover,
+html[data-theme="dark"] .qty-btn:hover{background:#203753!important;color:#fff!important}
+html[data-theme="dark"] .btn-primary{color:#172236!important}
+html[data-theme="dark"] .btn-dark{background:#243951!important;border-color:#456380!important}
+
+/* Tablas, listado de carrito y chips */
+html[data-theme="dark"] .table,
+html[data-theme="dark"] .table td,
+html[data-theme="dark"] .table th,
+html[data-theme="dark"] .cart-table,
+html[data-theme="dark"] .cart-table tbody tr,
+html[data-theme="dark"] .cart-table tbody tr:hover,
+html[data-theme="dark"] .item,
+html[data-theme="dark"] .summary-row,
+html[data-theme="dark"] .sum-row{color:#e8f0fb!important;background:transparent!important;border-color:#2a405c!important}
+html[data-theme="dark"] .cart-table thead th,
+html[data-theme="dark"] .table thead th{background:#182b43!important;color:#dcecff!important}
+html[data-theme="dark"] .chip,
+html[data-theme="dark"] .cat-chip,
+html[data-theme="dark"] .meta-chip,
+html[data-theme="dark"] .plan-chip,
+html[data-theme="dark"] .product-mini-badge,
+html[data-theme="dark"] .delivery-mode,
+html[data-theme="dark"] .step-pill,
+html[data-theme="dark"] .pill-note{
+  background:#16263a!important;
+  color:#dcecff!important;
+  border-color:#37516e!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .plan-option.active,
+html[data-theme="dark"] .step-pill.active{background:#17345a!important;border-color:#5aa5ff!important;color:#eef6ff!important}
+html[data-theme="dark"] .benefits-list li,
+html[data-theme="dark"] .extra-box details,
+html[data-theme="dark"] .faq-item,
+html[data-theme="dark"] .chat-msg,
+html[data-theme="dark"] .chat-msg.customer,
+html[data-theme="dark"] .chat-msg.admin,
+html[data-theme="dark"] .chat-msg.system{
+  background:#142238!important;
+  color:#dbe9f7!important;
+  border-color:#2d4868!important;
+}
+
+/* Footer y componentes flotantes */
+html[data-theme="dark"] .innov-safe-footer,
+html[data-theme="dark"] .footer-wrap{
+  background:
+    radial-gradient(760px 270px at 7% 0%,rgba(47,129,246,.20),transparent 62%),
+    radial-gradient(640px 280px at 96% 100%,rgba(34,197,94,.12),transparent 62%),
+    linear-gradient(115deg,#07101c 0%,#0b1725 48%,#0b211b 100%)!important;
+}
+html[data-theme="dark"] .footer-wrap .bg-secondary,
+html[data-theme="dark"] .footer-wrap .bg-dark{background:transparent!important}
+html[data-theme="dark"] .toast,
+html[data-theme="dark"] .toast-mini{background:#07121f!important;color:#edf5ff!important;border:1px solid #28435f!important}
+html[data-theme="dark"] .dropdown-menu{background:#111d2e!important;border-color:#2b4563!important}
+html[data-theme="dark"] .dropdown-item{color:#d9e8f8!important}
+html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:#fff!important}
+
+@media(max-width:720px){
+  .innov-theme-toggle{width:40px;height:40px}
+}
+@media(prefers-reduced-motion:reduce){.innov-theme-toggle{transition:none!important}}
 </style>
 
 </head>
@@ -5213,7 +5494,88 @@ window.addEventListener('message', function(event){
 })();
 </script>
 
+
+
+<!-- INNOV DARK MODE v1 — sincroniza con index.html; no toca lógica funcional -->
+<script id="innov-dark-mode-script">
+(function(){
+  'use strict';
+  var THEME_KEY='innov_theme';
+  var SOURCE_KEY='innov_theme_source';
+  var query=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+
+  function valid(value){return value==='dark'||value==='light';}
+  function storedManualTheme(){
+    try{
+      var saved=localStorage.getItem(THEME_KEY);
+      var source=localStorage.getItem(SOURCE_KEY);
+      return (source==='manual'||(!source&&valid(saved)))&&valid(saved)?saved:null;
+    }catch(_){return null;}
+  }
+  function systemTheme(){return query&&query.matches?'dark':'light';}
+  function updateMeta(theme){
+    var meta=document.querySelector('meta[name="theme-color"]');
+    if(meta)meta.setAttribute('content',theme==='dark'?'#0b1320':'#121c2b');
+  }
+  function updateControl(){
+    var btn=document.getElementById('innovThemeToggle');
+    var theme=document.documentElement.dataset.theme==='dark'?'dark':'light';
+    if(!btn)return;
+    btn.classList.toggle('is-dark',theme==='dark');
+    btn.setAttribute('aria-label',theme==='dark'?'Cambiar a modo claro':'Cambiar a modo oscuro');
+    btn.setAttribute('title',theme==='dark'?'Cambiar a modo claro':'Cambiar a modo oscuro');
+  }
+  function apply(theme,source){
+    var next=theme==='dark'?'dark':'light';
+    document.documentElement.dataset.theme=next;
+    document.documentElement.dataset.themeSource=source==='manual'?'manual':'system';
+    document.documentElement.style.colorScheme=next;
+    updateMeta(next);
+    updateControl();
+  }
+  function applyInitial(){
+    var manual=storedManualTheme();
+    apply(manual||systemTheme(),manual?'manual':'system');
+  }
+  function toggle(){
+    var next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+    try{localStorage.setItem(THEME_KEY,next);localStorage.setItem(SOURCE_KEY,'manual');}catch(_){}
+    apply(next,'manual');
+  }
+  function mountToggle(){
+    if(document.getElementById('innovThemeToggle'))return;
+    var nav=document.querySelector('.innov-safe-nav')||document.querySelector('.innov-nav');
+    if(!nav)return;
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.id='innovThemeToggle';
+    btn.className='innov-theme-toggle';
+    btn.innerHTML='<i class="fas fa-moon theme-icon-moon" aria-hidden="true"></i><i class="fas fa-sun theme-icon-sun" aria-hidden="true"></i><span class="sr-only">Cambiar tema</span>';
+    btn.addEventListener('click',toggle);
+    var cart=nav.querySelector('.innov-safe-cart,.innov-cart');
+    if(cart)nav.insertBefore(btn,cart);else nav.appendChild(btn);
+    updateControl();
+  }
+  function init(){
+    applyInitial();
+    mountToggle();
+    if(query){
+      var onSystemChange=function(){if(!storedManualTheme())apply(systemTheme(),'system');};
+      if(typeof query.addEventListener==='function')query.addEventListener('change',onSystemChange);
+      else if(typeof query.addListener==='function')query.addListener(onSystemChange);
+    }
+    window.addEventListener('storage',function(event){
+      if(event.key===THEME_KEY||event.key===SOURCE_KEY)applyInitial();
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
 </body>
 </html>
+
+
+
 
 
