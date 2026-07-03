@@ -5,8 +5,25 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="description" content="Innov Tienda: servicios digitales, IA, streaming y herramientas con atención por WhatsApp.">
-  <meta name="theme-color" content="#121c2b">
+  <meta id="themeColorMeta" name="theme-color" content="#121c2b">
   <title>Innov Tienda — Servicios digitales</title>
+
+  <script id="innov-theme-bootstrap">
+  (function(){
+    try{
+      var saved=localStorage.getItem('innov_theme');
+      var theme=(saved==='dark'||saved==='light')
+        ? saved
+        : (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+      document.documentElement.dataset.theme=theme;
+      document.documentElement.style.colorScheme=theme;
+    }catch(_){
+      document.documentElement.dataset.theme='light';
+      document.documentElement.style.colorScheme='light';
+    }
+  })();
+  </script>
+
   <link rel="icon" type="image/png" href="Diseño sin título.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -183,6 +200,179 @@
     @media(max-width:720px){:root{--header:64px}.innov-nav{gap:9px;padding:9px 12px}.innov-brand{font-size:1rem}.innov-brand span{padding:9px 10px}.innov-search{height:38px}.innov-search input{font-size:.72rem}.innov-search button{height:38px}.innov-links{display:none}.innov-menu{display:block;margin-left:auto}.innov-socials{display:none}.innov-header.open .innov-links{position:absolute;z-index:11;left:12px;right:12px;top:calc(100% + 7px);display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:8px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:#162238;box-shadow:0 12px 24px rgba(0,0,0,.24)}.innov-header.open .innov-link{justify-content:center;padding:0 7px}.innov-link.shop .shop-hint{bottom:-10px}.home{padding-top:13px}.hero{min-height:620px;border-radius:19px}.slides{min-height:620px}.slide{grid-template-columns:1fr;grid-template-rows:250px 1fr}.hero-media{min-height:250px}.hero-copy{padding:21px 20px 32px}.hero h1{font-size:1.32rem}.price strong{font-size:1.65rem}.description{font-size:.82rem}.hero-arrow{top:126px;width:34px;height:34px}.hero-arrow.prev{left:8px}.hero-arrow.next{right:8px}.dots{left:13px;bottom:13px}.progress{right:14px;bottom:15px;width:70px}.pause{right:94px;bottom:5px}.promos{grid-template-columns:1fr;gap:10px}.promo{min-height:136px}.trust-strip{grid-template-columns:1fr}.trust-item{border-right:0;border-bottom:1px solid #edf0f4}.trust-item:last-child{border-bottom:0}.chosen-grid{grid-template-columns:1fr 1fr}.chosen-card{border-right:1px solid #edf0f3;border-bottom:1px solid #edf0f3}.chosen-card:nth-child(2n){border-right:0}.chosen-card:nth-last-child(-n+2){border-bottom:0}.footer-inner{grid-template-columns:1fr;gap:19px}.footer-bottom{align-items:flex-start;flex-direction:column}.footer-bottom-links{justify-content:flex-start}.footer-payments{justify-content:flex-start}.wa-fab{width:56px;height:56px;right:16px;bottom:16px}.chip{font-size:.64rem}.action-note{display:none}}
     @media(max-width:390px){.innov-search{display:none}.innov-menu{margin-left:auto}.chosen-grid{grid-template-columns:1fr}.chosen-card{border-right:0}.chosen-card:last-child{border-bottom:0}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+  
+
+    /* ================================================================
+       MODO CLARO / OSCURO — Innov Tienda
+       Solo presenta el tema: no altera carrusel, videos, Supabase ni carrito.
+       ================================================================ */
+    :root{color-scheme:light}
+    html[data-theme="dark"]{color-scheme:dark}
+
+    .innov-theme-toggle{
+      position:relative;display:grid;place-items:center;flex:0 0 auto;
+      width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,.18);
+      border-radius:12px;background:rgba(255,255,255,.055);color:#ffda4d;
+      cursor:pointer;box-shadow:0 5px 12px rgba(0,0,0,.15);
+      transition:transform .18s ease,background .18s ease,border-color .18s ease,color .18s ease;
+    }
+    .innov-theme-toggle::before{
+      content:"";position:absolute;inset:7px;border-radius:9px;
+      background:radial-gradient(circle at 50% 45%,rgba(255,211,52,.24),transparent 64%);
+      opacity:.9;pointer-events:none;
+    }
+    .innov-theme-toggle i{position:relative;z-index:1;font-size:1rem}
+    .innov-theme-toggle:hover{transform:translateY(-2px);background:rgba(255,255,255,.12);border-color:rgba(255,220,77,.55)}
+    .innov-theme-toggle:focus-visible{outline:3px solid rgba(255,203,40,.52);outline-offset:3px}
+    .innov-theme-toggle.is-dark{color:#b9d9ff;background:rgba(93,177,255,.10);border-color:rgba(126,192,255,.34)}
+    .innov-theme-toggle.is-dark::before{background:radial-gradient(circle at 46% 42%,rgba(119,186,255,.24),transparent 64%)}
+
+    html[data-theme="dark"] body{
+      color:#eaf2ff;
+      background:
+        radial-gradient(circle at 1px 1px,rgba(170,200,240,.065) 1px,transparent 1px) 0 0/19px 19px,
+        radial-gradient(700px 360px at 8% -5%,rgba(31,112,228,.16),transparent 66%),
+        radial-gradient(660px 340px at 96% 28%,rgba(31,154,92,.11),transparent 67%),
+        #0b1320;
+    }
+    html[data-theme="dark"] .innov-header{
+      background:rgba(9,17,30,.97);
+      border-bottom-color:rgba(185,214,255,.10);
+      box-shadow:0 6px 22px rgba(0,0,0,.30);
+    }
+    html[data-theme="dark"] .innov-search{
+      border-color:rgba(181,211,255,.18);
+      background:rgba(255,255,255,.045);
+    }
+    html[data-theme="dark"] .innov-search input{color:#eff6ff}
+    html[data-theme="dark"] .innov-link{color:rgba(235,244,255,.84)}
+    html[data-theme="dark"] .innov-link:hover{background:rgba(164,203,255,.10);color:#fff}
+    html[data-theme="dark"] .innov-link.active{background:#ffcb28;color:#172236}
+    html[data-theme="dark"] .innov-link.shop{background:rgba(239,68,68,.13);border-color:rgba(255,112,130,.56)}
+    html[data-theme="dark"] .innov-cart{
+      color:#ffdb54;border-color:rgba(185,214,255,.18);background:rgba(255,255,255,.045)
+    }
+    html[data-theme="dark"] .innov-cart b{background:#eaf2ff;color:#172236}
+
+    html[data-theme="dark"] .hero{
+      background:#111d2e;border-color:#263950;box-shadow:0 20px 46px rgba(0,0,0,.27)
+    }
+    html[data-theme="dark"] .hero::before{
+      background:radial-gradient(circle at 8% 5%,rgba(70,183,255,.18),transparent 37%),radial-gradient(circle at 92% 91%,rgba(42,190,135,.10),transparent 35%)
+    }
+    html[data-theme="dark"] .hero.is-hovering{box-shadow:0 23px 54px rgba(0,0,0,.35)}
+    html[data-theme="dark"] .hero-copy{
+      background:rgba(16,29,47,.94);
+      border-left:1px solid rgba(173,206,250,.08);
+    }
+    html[data-theme="dark"] .hero h1{color:#f2f7ff}
+    html[data-theme="dark"] .price strong{color:#64b0ff}
+    html[data-theme="dark"] .price span{color:#aebbd0}
+    html[data-theme="dark"] .tag,
+    html[data-theme="dark"] .chip{
+      color:#bac8db;background:rgba(255,255,255,.045);border-color:#2d4058
+    }
+    html[data-theme="dark"] .availability{
+      color:#72d79e;background:rgba(31,154,92,.14);border-color:rgba(85,212,139,.30)
+    }
+    html[data-theme="dark"] .availability.off{
+      color:#ffc56e;background:rgba(255,188,72,.10);border-color:rgba(255,194,91,.28)
+    }
+    html[data-theme="dark"] .description{color:#b6c4d6}
+    html[data-theme="dark"] .description-toggle{color:#79baff}
+    html[data-theme="dark"] .action-note{color:#9eacc1}
+    html[data-theme="dark"] .trust-mini{
+      color:#9daec3;border-top-color:#293a51
+    }
+    html[data-theme="dark"] .trust-mini i{color:#67aeff}
+    html[data-theme="dark"] .hero-arrow{
+      color:#dbe9fb;border-color:#30445e;background:#18263a;box-shadow:0 8px 17px rgba(0,0,0,.28)
+    }
+    html[data-theme="dark"] .hero-arrow:hover{background:#223650}
+    html[data-theme="dark"] .progress{background:#33445a}
+    html[data-theme="dark"] .dot{background:#52647a}
+    html[data-theme="dark"] .dot.active{background:#6ab4ff}
+
+    html[data-theme="dark"] .promo{border-color:#263950;box-shadow:0 14px 30px rgba(0,0,0,.22)}
+    html[data-theme="dark"] .promo:hover{box-shadow:0 20px 38px rgba(0,0,0,.34)}
+    html[data-theme="dark"] .trust-strip,
+    html[data-theme="dark"] .chosen{
+      background:#111d2e;border-color:#263950;box-shadow:0 10px 24px rgba(0,0,0,.17)
+    }
+    html[data-theme="dark"] .trust-item{
+      color:#b7c5d8;border-right-color:#263950
+    }
+    html[data-theme="dark"] .trust-item i{background:#173250;color:#77bcff}
+    html[data-theme="dark"] .chosen-head{border-bottom-color:#263950}
+    html[data-theme="dark"] .chosen-eyebrow{color:#77bcff}
+    html[data-theme="dark"] .chosen h2{color:#edf4ff}
+    html[data-theme="dark"] .chosen a{color:#79baff}
+    html[data-theme="dark"] .chosen-card{color:#eef5ff;border-right-color:#263950}
+    html[data-theme="dark"] .chosen-card:hover{color:#eef5ff;background:#17263a}
+    html[data-theme="dark"] .chosen-media{background:#0c1726}
+    html[data-theme="dark"] .chosen-meta small,
+    html[data-theme="dark"] .chosen-meta span{color:#a8b8cc}
+    html[data-theme="dark"] .chosen-meta strong{color:#eff5ff}
+    html[data-theme="dark"] .chosen-meta b{color:#79baff}
+    html[data-theme="dark"] .chosen-card>i{color:#71839a}
+
+    html[data-theme="dark"] .footer{
+      background:
+        radial-gradient(760px 270px at 7% 0%,rgba(33,128,255,.17),transparent 62%),
+        radial-gradient(640px 280px at 96% 100%,rgba(25,190,125,.12),transparent 62%),
+        linear-gradient(115deg,#09111f 0%,#0d1928 48%,#0b211b 100%);
+    }
+    html[data-theme="dark"] .footer-bottom{border-top-color:rgba(186,217,255,.10)}
+
+    html[data-theme="dark"] .legal-modal{
+      color:#dbe8f9;background:#111d2e;border-color:#2d425c;box-shadow:0 28px 90px rgba(0,0,0,.56)
+    }
+    html[data-theme="dark"] .legal-modal-head{
+      background:linear-gradient(135deg,#16263d,#111d2e);border-bottom-color:#293c54
+    }
+    html[data-theme="dark"] .legal-modal-head h2{color:#f0f6ff}
+    html[data-theme="dark"] .legal-modal-head p{color:#aab9cc}
+    html[data-theme="dark"] .legal-close{
+      color:#dce9fa;background:#17263a;border-color:#354963
+    }
+    html[data-theme="dark"] .legal-modal-body{color:#b9c8da}
+    html[data-theme="dark"] .legal-modal-body h3{color:#f0f6ff}
+    html[data-theme="dark"] .legal-highlight{
+      color:#ffe3a0;background:rgba(247,186,44,.10);border-color:rgba(255,207,95,.36)
+    }
+    html[data-theme="dark"] .faq-item{background:#15243a;border-color:#2d425c}
+    html[data-theme="dark"] .faq-item summary{color:#edf4ff}
+    html[data-theme="dark"] .faq-item[open] summary{background:#1a2c45;border-bottom-color:#314963}
+    html[data-theme="dark"] .faq-answer{color:#b7c6d8}
+    html[data-theme="dark"] .help-card{
+      color:#eaf3ff;background:linear-gradient(145deg,#16263d,#132137);border-color:#2d425c
+    }
+    html[data-theme="dark"] .help-card:hover{color:#f4f8ff;border-color:#4a77a8;box-shadow:0 10px 22px rgba(0,0,0,.28)}
+    html[data-theme="dark"] .help-card span{color:#b3c2d4}
+    html[data-theme="dark"] .help-before{
+      color:#b9c8da;background:#15243a;border-color:#36516e
+    }
+    html[data-theme="dark"] .help-before b{color:#eff5ff}
+
+    html[data-theme="dark"] .home-empty{color:#afbdd0!important}
+    html[data-theme="dark"] .home-empty strong{color:#edf4ff!important}
+    html[data-theme="dark"] .home-empty span{color:#afbdd0!important}
+
+    .innov-header,.hero,.hero-copy,.trust-strip,.chosen,.chosen-card,.legal-modal,.legal-modal-head,
+    .faq-item,.help-card,.help-before,.innov-search,.innov-cart,.innov-theme-toggle{
+      transition:background-color .24s ease,border-color .24s ease,color .24s ease,box-shadow .24s ease;
+    }
+
+    @media(max-width:720px){
+      .innov-theme-toggle{width:40px;height:40px;border-radius:11px}
+      html[data-theme="dark"] .innov-header.open .innov-links{background:#101c2e;border-color:rgba(185,214,255,.13)}
+      html[data-theme="dark"] .trust-item{border-bottom-color:#263950}
+      html[data-theme="dark"] .chosen-card{border-bottom-color:#263950}
+    }
+    @media(max-width:390px){
+      .innov-theme-toggle{width:38px;height:38px}
+    }
+
   </style>
 </head>
 <body>
@@ -201,6 +391,10 @@
         <a class="header-social-instagram" href="#" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
         <a class="header-social-tiktok" href="#" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
       </div>
+      <button class="innov-theme-toggle" id="themeToggle" type="button" aria-label="Modo claro" aria-pressed="false" title="Modo claro">
+        <i class="fa-solid fa-sun" aria-hidden="true"></i>
+        <span class="sr-only">Cambiar modo de color</span>
+      </button>
       <a class="innov-cart" href="cart.html" aria-label="Ver carrito"><i class="fa-solid fa-cart-shopping"></i><b id="cartCount">0</b></a>
     </div>
   </header>
@@ -717,6 +911,46 @@
     function external(value){const raw=text(value);if(!raw)return '';const valueWithProtocol=/^https?:\/\//i.test(raw)?raw:'https://'+raw.replace(/^\/+/, '');try{const u=new URL(valueWithProtocol);return /^https?:$/.test(u.protocol)?u.href:'';}catch(_){return '';}}
     function waBase(value){const raw=text(value);if(/^\+?\d{7,15}$/.test(raw))return 'https://wa.me/'+raw.replace(/\D/g,'');const safe=external(raw);if(/wa\.me\/\d+/i.test(safe)||/api\.whatsapp\.com\/send/i.test(safe))return safe;return DEFAULT_SOCIAL.whatsapp_url;}
     function supportUrl(social){const raw=waBase(social.support_whatsapp_url||social.whatsapp_url||DEFAULT_SOCIAL.support_whatsapp_url);const message=String(social.support_message||DEFAULT_SOCIAL.support_message||'').trim();try{const u=new URL(raw);if(/wa\.me$/i.test(u.hostname)&&/^\/\d+\/?$/.test(u.pathname)){u.searchParams.set('text',message);return u.href;}if(/api\.whatsapp\.com$/i.test(u.hostname)&&/\/send/i.test(u.pathname)){u.searchParams.set('text',message);return u.href;}}catch(_){}return raw;}
+
+    /* Tema persistente: conserva la elección del visitante y respeta el modo del sistema la primera vez. */
+    const THEME_KEY='innov_theme';
+    function storedTheme(){
+      try{
+        const saved=localStorage.getItem(THEME_KEY);
+        if(saved==='dark'||saved==='light')return saved;
+      }catch(_){}
+      return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+    }
+    function applyTheme(theme,persist){
+      const value=theme==='dark'?'dark':'light';
+      const root=document.documentElement;
+      root.dataset.theme=value;
+      root.style.colorScheme=value;
+      const meta=document.querySelector('meta[name="theme-color"]');
+      if(meta)meta.setAttribute('content',value==='dark'?'#0b1320':'#121c2b');
+      const button=$('themeToggle');
+      if(button){
+        const dark=value==='dark';
+        button.classList.toggle('is-dark',dark);
+        button.setAttribute('aria-pressed',String(dark));
+        button.setAttribute('aria-label',dark?'Modo oscuro':'Modo claro');
+        button.setAttribute('title',dark?'Modo oscuro':'Modo claro');
+        button.innerHTML=`<i class="fa-solid ${dark?'fa-moon':'fa-sun'}" aria-hidden="true"></i><span class="sr-only">Cambiar modo de color</span>`;
+      }
+      if(persist){
+        try{localStorage.setItem(THEME_KEY,value);}catch(_){}
+      }
+    }
+    function bindThemeToggle(){
+      applyTheme(storedTheme(),false);
+      const button=$('themeToggle');
+      if(!button)return;
+      button.addEventListener('click',()=>{
+        const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+        applyTheme(next,true);
+      });
+    }
+
     function bindLegalDialogs(){
       const links={terms:['termsLink','termsBottomLink'],privacy:['privacyLink','privacyBottomLink'],faq:['faqLink'],help:['helpLink']};
       Object.keys(links).forEach(kind=>{
@@ -730,14 +964,11 @@
     function applySocial(raw){const data={...DEFAULT_SOCIAL,...json(raw)};const wa=waBase(data.whatsapp_url);const sup=supportUrl(data);const set=(id,href)=>{const el=$(id);if(!el)return;if(!href){el.hidden=true;return;}el.hidden=false;el.href=href;};const setClass=(cls,href)=>document.querySelectorAll('.'+cls).forEach(el=>{if(!href){el.hidden=true;return;}el.hidden=false;el.href=href;});set('whatsappFab',wa);set('supportHeader',sup);set('supportFooter',sup);set('helpSupportLink',sup);set('helpActivationLink',sup);setClass('header-social-facebook',external(data.facebook_url));setClass('header-social-tiktok',external(data.tiktok_url));setClass('header-social-instagram',external(data.instagram_url));}
     function cartCount(){try{return JSON.parse(localStorage.getItem(CART_KEY)||'[]').reduce((n,x)=>n+Number(x.qty||1),0);}catch(_){return 0;}}
     function syncCart(){$('cartCount').textContent=cartCount();}
-    async function init(){syncCart();$('year').textContent=new Date().getFullYear();const header=$('innovHeader'),menu=$('innovMenu');menu.addEventListener('click',()=>{const open=header.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));});bindLegalDialogs();if(!window.supabase){console.warn('Supabase no cargó');return;}try{const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const [catalog,home,social]=await Promise.all([db.rpc('get_public_catalog'),db.rpc(SETTINGS_RPC),db.rpc(SOCIAL_RPC)]);if(catalog.error)throw catalog.error;applySocial(social&&social.error?{}:social.data);render(buildCatalog(catalog.data||[]),config(home&&home.error?{}:home.data));}catch(error){console.error('No se pudo cargar la portada',error);$('slides').innerHTML='<div class="home-empty" style="min-height:385px;display:grid;place-content:center;gap:10px;text-align:center;color:#69778a"><i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem;color:#e09519"></i><strong style="color:#1c2a3d">No se pudieron actualizar los destacados</strong><span style="font-size:.8rem;font-weight:700">Recarga la página o revisa la configuración de Supabase.</span></div>';}}
+    async function init(){bindThemeToggle();syncCart();$('year').textContent=new Date().getFullYear();const header=$('innovHeader'),menu=$('innovMenu');menu.addEventListener('click',()=>{const open=header.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));});bindLegalDialogs();if(!window.supabase){console.warn('Supabase no cargó');return;}try{const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const [catalog,home,social]=await Promise.all([db.rpc('get_public_catalog'),db.rpc(SETTINGS_RPC),db.rpc(SOCIAL_RPC)]);if(catalog.error)throw catalog.error;applySocial(social&&social.error?{}:social.data);render(buildCatalog(catalog.data||[]),config(home&&home.error?{}:home.data));}catch(error){console.error('No se pudo cargar la portada',error);$('slides').innerHTML='<div class="home-empty" style="min-height:385px;display:grid;place-content:center;gap:10px;text-align:center;color:#69778a"><i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem;color:#e09519"></i><strong style="color:#1c2a3d">No se pudieron actualizar los destacados</strong><span style="font-size:.8rem;font-weight:700">Recarga la página o revisa la configuración de Supabase.</span></div>';}}
     window.addEventListener('storage',e=>{if(e.key===CART_KEY)syncCart();});
     init();
   })();
   </script>
 </body>
 </html>
-
-
-
 
