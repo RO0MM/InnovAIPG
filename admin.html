@@ -14928,6 +14928,212 @@ INNOV IA V62 - TOTP original + selección real
 })();
 </script>
 
+
+<!-- ===================================================================
+     INNOV IA V80 — APROBACIÓN AUTOMÁTICA Y ENTREGA MANUAL COMPACTA
+     Este bloque se carga al final para reemplazar solo el flujo de pedidos.
+     =================================================================== -->
+<style id="innov-v80-delivery-ui">
+  #dlgManual.v80-compact .v80-hide{display:none!important}
+  #dlgManual.v80-compact .v80-manual-summary{
+    display:grid;gap:4px;margin:0 0 12px;padding:12px 13px;
+    border:1px solid rgba(30,64,175,.25);border-left:4px solid var(--primary);
+    border-radius:13px;background:var(--primary-alpha2);color:var(--card-ink);
+  }
+  #dlgManual.v80-compact .v80-manual-summary b{font-size:.93rem}
+  #dlgManual.v80-compact .v80-manual-summary span{font-size:.80rem;color:var(--muted)}
+  #dlgManual.v80-compact .v80-auto-note{font-size:.78rem;color:var(--muted);margin:0 0 10px;line-height:1.4}
+  #dlgManual.v80-compact .grid.grid-2{margin-top:4px}
+  #dlgManual.v80-compact .modal-actions{grid-template-columns:1fr!important}
+  #dlgManual.v80-compact #btnSaveManualDelivery{min-height:42px}
+  @media(min-width:640px){
+    #dlgManual.v80-compact .modal-actions{display:flex!important;justify-content:flex-end}
+    #dlgManual.v80-compact #btnSaveManualDelivery{min-width:220px}
+  }
+</style>
+<script id="innov-v80-delivery-flow">
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const txt=value=>String(value??'').trim();
+  const arr=value=>Array.isArray(value)?value:[];
+  const same=(a,b)=>txt(a)===txt(b);
+  const say=(message,type='ok')=>{ try{window.toast?.(message,type);}catch(_){alert(message);} };
+  const esc=value=>String(value??'').replace(/[&<>'"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[c]));
+  const rpc=async(name,args)=>{
+    const response=await window.db.rpc(name,args);
+    if(response.error) throw response.error;
+    return Array.isArray(response.data)?response.data[0]:response.data;
+  };
+  const openDialog=id=>{ const d=$(id); if(!d)return; try{window.showDialog?.(id);}catch(_){ } if(!d.open) try{d.showModal();}catch(_){ } };
+  const closeDialog=id=>{try{window.closeDialog?.(id);}catch(_){ } const d=$(id); if(d?.open) try{d.close();}catch(_){ }};
+  const planLabel=planId=>{try{return window.planName?.(planId)||arr(window.state?.plans).find(p=>same(p.id,planId))?.name||'Plan';}catch(_){return 'Plan';}};
+  const productLabel=planId=>{try{return window.planProductName?.(planId)||planLabel(planId);}catch(_){return planLabel(planId);}};
+
+  async function pendingManualForOrder(orderId){
+    const response=await window.db.from('order_item_fulfillments')
+      .select('id,order_id,order_item_id,plan_id,unit_no,delivery_mode,payment_state,fulfillment_status,created_at')
+      .eq('order_id',orderId)
+      .eq('fulfillment_status','waiting_manual_delivery')
+      .order('created_at',{ascending:true})
+      .order('unit_no',{ascending:true})
+      .limit(1)
+      .maybeSingle();
+    if(response.error) throw response.error;
+    return response.data||null;
+  }
+
+  async function fulfillmentById(fulfillmentId){
+    const response=await window.db.from('order_item_fulfillments')
+      .select('id,order_id,order_item_id,plan_id,unit_no,delivery_mode,payment_state,fulfillment_status,created_at')
+      .eq('id',fulfillmentId)
+      .maybeSingle();
+    if(response.error) throw response.error;
+    return response.data||null;
+  }
+
+  function groupForInput(id){
+    const el=$(id);
+    if(!el)return null;
+    return el.closest('.grid > div')||el.parentElement;
+  }
+  function hideGroup(id,hide=true){
+    const group=groupForInput(id);
+    if(group)group.classList.toggle('v80-hide',hide);
+  }
+  function ensureSummary(){
+    const body=$('dlgManual')?.querySelector('.dlg-body');
+    if(!body)return null;
+    let box=$('v80ManualSummary');
+    if(!box){box=document.createElement('div');box.id='v80ManualSummary';box.className='v80-manual-summary';body.insertBefore(box,body.firstChild?.nextSibling||body.firstChild);}
+    return box;
+  }
+  function selectedTemplate(planId){
+    try{return window.defaultDeliveryTemplateForPlan?.(planId)||arr(window.state?.deliveryTemplates).find(t=>t.is_default)||arr(window.state?.deliveryTemplates)[0]||null;}catch(_){return null;}
+  }
+  function fieldNeeds(template,key){
+    const body=String(template?.body||'').toLowerCase();
+    const type=String(template?.template_key||'').toLowerCase();
+    return body.includes('{'+key+'}') || body.includes('{{'+key+'}}') || type.includes('streaming_profile');
+  }
+  function compactManualDialog(fulfillment,order){
+    const dialog=$('dlgManual'); if(!dialog)return;
+    dialog.classList.add('v80-compact');
+    const planId=txt(fulfillment.plan_id);
+    const template=selectedTemplate(planId);
+    const summary=ensureSummary();
+    if(summary){
+      summary.innerHTML=`<b>📦 Entrega manual requerida</b><span>${esc(productLabel(planId))} — ${esc(planLabel(planId))} · unidad ${esc(fulfillment.unit_no||1)}</span><span>Cliente: ${esc(order?.customer_name||'Cliente')} · El sistema crea fecha, plantilla y recordatorio automáticamente.</span>`;
+    }
+    const planBox=$('manualPlan')?.closest('.dlg-body > div[style]');
+    if(planBox)planBox.classList.add('v80-hide');
+    hideGroup('manualTemplate',true); hideGroup('manualStartDate',true);
+    hideGroup('manualGroup',true); hideGroup('manualUrl',true); hideGroup('manualNote',true); hideGroup('manualRestrictions',true);
+    const stockPicker=$('manualStockPickBox'); if(stockPicker)stockPicker.classList.add('v80-hide');
+    const stockHint=$('manualStockHint'); if(stockHint)stockHint.classList.add('v80-hide');
+    const totpInfo=$('manualTotpInfo'); if(totpInfo)totpInfo.classList.add('v80-hide');
+    const message=$('manualMessage'); if(message){message.classList.add('v80-hide'); const label=message.previousElementSibling; if(label)label.classList.add('v80-hide');}
+    $('manualPreview')?.classList.add('v80-hide');
+    $('btnGenerateManualMsg')?.classList.add('v80-hide');
+    $('btnCopyManualMsg')?.classList.add('v80-hide');
+    hideGroup('manualProfile',!fieldNeeds(template,'perfil'));
+    hideGroup('manualPin',!fieldNeeds(template,'pin'));
+    const note=$('v80ManualNote')||document.createElement('p');
+    note.id='v80ManualNote';note.className='v80-auto-note';note.textContent='Solo completa las credenciales reales de esta entrega. No se guardarán como inventario para reutilizar.';
+    const grid=dialog.querySelector('.grid.grid-2');if(grid && !note.isConnected)grid.insertAdjacentElement('beforebegin',note);
+    const title=dialog.querySelector('.modal-header strong');if(title)title.textContent='📦 Completar entrega manual';
+  }
+
+  async function openManualForFulfillment(fulfillmentId){
+    try{
+      const fulfillment=await fulfillmentById(fulfillmentId);
+      if(!fulfillment){say('Esta unidad ya no está pendiente.','bad');return;}
+      if(fulfillment.fulfillment_status!=='waiting_manual_delivery'){say('Esta unidad ya fue entregada o no está lista.','bad');return;}
+      const order=arr(window.state?.orders).find(o=>same(o.id,fulfillment.order_id))||{};
+      const planSelect=$('manualPlan');
+      if(planSelect){planSelect.innerHTML=`<option value="${esc(fulfillment.plan_id)}">${esc(planLabel(fulfillment.plan_id))}</option>`;planSelect.value=fulfillment.plan_id;}
+      $('manualOrderId').value=fulfillment.order_id;
+      $('manualFulfillmentId').value=fulfillment.id;
+      $('manualStockId').value='';
+      ['manualUser','manualPass','manualProfile','manualPin','manualGroup','manualUrl','manualCode','manualNote'].forEach(id=>{const el=$(id);if(el)el.value='';});
+      $('manualStartDate').value=new Date().toISOString().slice(0,10);
+      try{window.deliveryTemplateOptions?.();}catch(_){ }
+      const template=selectedTemplate(fulfillment.plan_id);
+      if(template && $('manualTemplate'))$('manualTemplate').value=template.id||'';
+      if($('manualRestrictions'))$('manualRestrictions').value=template?.restrictions||'';
+      try{window.renderDeliveryMessage?.();}catch(_){ }
+      compactManualDialog(fulfillment,order);
+      openDialog('dlgManual');
+    }catch(error){say('No se pudo abrir la entrega: '+(error?.message||error),'bad');}
+  }
+
+  async function openManualForOrder(orderId){
+    try{
+      const fulfillment=await pendingManualForOrder(orderId);
+      if(!fulfillment){say('Este pedido no tiene entregas manuales pendientes.','bad');return;}
+      await openManualForFulfillment(fulfillment.id);
+    }catch(error){say('No se pudo cargar la entrega pendiente: '+(error?.message||error),'bad');}
+  }
+
+  async function approveOrderV80(orderId){
+    if(!confirm('¿Aprobar pago? Las unidades con cupo real se entregarán automáticamente.'))return;
+    try{
+      const result=await rpc('admin_v80_approve_payment_and_fulfill',{p_order_id:orderId})||{};
+      await window.loadAll?.();
+      const manual=Number(result.manual_pending||0);
+      const auto=Number(result.auto_delivered||0);
+      if(manual>0){
+        say(result.message||'Pago aprobado. Completa la entrega manual pendiente.','ok');
+        const fulfillment=await pendingManualForOrder(orderId);
+        if(fulfillment)await openManualForFulfillment(fulfillment.id);
+        return;
+      }
+      say(result.message||`Pago aprobado. ${auto?auto+' entrega(s) automática(s) completada(s).':''}`,'ok');
+    }catch(error){say('No se pudo aprobar el pago: '+(error?.message||error),'bad');}
+  }
+
+  async function saveManualV80(){
+    const fulfillmentId=txt($('manualFulfillmentId')?.value);
+    if(!fulfillmentId){say('No se encontró la unidad manual a entregar.','bad');return;}
+    const email=txt($('manualUser')?.value);
+    const pass=txt($('manualPass')?.value);
+    if(!email || !pass){say('Completa correo / usuario y contraseña para registrar la entrega.','bad');return;}
+    const data={correo:email,clave:pass};
+    const profile=txt($('manualProfile')?.value); if(profile)data.perfil=profile;
+    const pin=txt($('manualPin')?.value); if(pin)data.pin=pin;
+    try{
+      const result=await rpc('admin_v80_complete_manual_fulfillment',{p_fulfillment_id:fulfillmentId,p_delivery_data:data})||{};
+      const orderId=txt($('manualOrderId')?.value);
+      closeDialog('dlgManual');
+      await window.loadAll?.();
+      say(result.reused?'La entrega ya estaba registrada; no se duplicó.':'Entrega registrada y próximo recordatorio creado.','ok');
+      try{window.openDeliveredOrderWhatsApp?.(orderId);}catch(_){ }
+    }catch(error){say('No se registró la entrega: '+(error?.message||error),'bad');}
+  }
+
+  function bindManualButton(){
+    const old=$('btnSaveManualDelivery');
+    if(!old || old.dataset.v80Bound==='1')return;
+    const fresh=old.cloneNode(true);
+    fresh.dataset.v80Bound='1';
+    old.replaceWith(fresh);
+    fresh.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();saveManualV80();},true);
+  }
+
+  function install(){
+    window.approveOrder=approveOrderV80; try{approveOrder=approveOrderV80;}catch(_){ }
+    window.openManualDelivery=openManualForOrder; try{openManualDelivery=openManualForOrder;}catch(_){ }
+    window.openControlCManualFulfillment=openManualForFulfillment;
+    bindManualButton();
+    window.INNOV_V80_DELIVERY={approve:approveOrderV80,openManual:openManualForFulfillment,saveManual:saveManualV80};
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,2500),{once:true});
+  else setTimeout(install,2500);
+})();
+</script>
+
 </body>
 </html>
+
+
 
