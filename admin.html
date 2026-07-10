@@ -2223,21 +2223,11 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
             </div>
             <div class="totp-kpis">
               <div class="totp-kpi"><div class="v" id="totpKpiAccounts">0</div><div class="l">Cuentas</div></div>
-              <div class="totp-kpi"><div class="v" id="totpKpiCodes">0</div><div class="l">Cuentas</div></div>
+              <div class="totp-kpi"><div class="v" id="totpKpiCodes">0</div><div class="l">Códigos</div></div>
               <div class="totp-kpi"><div class="v" id="totpKpiUsed">0</div><div class="l">Usados</div></div>
               <div class="totp-kpi"><div class="v" id="totpKpiExpired">0</div><div class="l">Vencidos</div></div>
             </div>
-          </div>
-          <div class="card">
-            <strong>🔗 Flujo conectado a Supabase</strong>
-            <div class="totp-mini-help" style="margin-top:10px">
-              1) Agrega una cuenta con su secreto TOTP.<br>
-              2) Crea un código de acceso y vincúlalo a la cuenta.<br>
-              3) El cliente usa el código en la web TOTP limpia.<br>
-              4) Aquí verás si ya fue usado, cuántas veces y cuándo vence.<br><br><b>V58:</b> si la web pública no valida un código existente, ejecuta el SQL V58 incluido en el ZIP.
-            </div>
-          </div>
-        </div>
+          </div></div>
 
         <div class="admin-toolbar">
           <div class="input-wrap"><input class="input" id="totpSearch" type="search" placeholder="🔍 Buscar cuenta, código, cliente, WhatsApp..."></div>
@@ -15132,8 +15122,400 @@ INNOV IA V62 - TOTP original + selección real
 })();
 </script>
 
+
+<style id="innov-v83-totp-visual-polish">
+/* =========================================================
+   V83 — TOTP visual polish: limpieza, orden y móvil real
+   ========================================================= */
+#tab-totp{padding-bottom:96px}
+#tab-totp .totp-hero{grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);align-items:stretch;gap:14px}
+#tab-totp .totp-hero>.card{min-height:100%}
+#tab-totp .totp-side-card{display:flex;flex-direction:column;justify-content:center;background:linear-gradient(135deg,var(--card),var(--primary-alpha2));border:1px solid var(--border);box-shadow:var(--shadow-xs)}
+#tab-totp .totp-side-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+#tab-totp .totp-quick-list{display:grid;gap:9px}
+#tab-totp .totp-quick-pill{display:flex;align-items:flex-start;gap:8px;padding:11px 12px;border-radius:13px;border:1px solid var(--border);background:var(--card2);font-size:.84rem;font-weight:700;line-height:1.35;color:var(--text)}
+#tab-totp .totp-kpi{box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+#tab-totp .totp-kpi .v{font-size:1.35rem}
+#tab-totp .totp-v62-toolbar{gap:10px;margin:10px 0 12px}
+#tab-totp .totp-v62-toolbar .btn{min-height:38px;padding:8px 12px;font-weight:800}
+#tab-totp .totp-v62-toolbar .v62-help-pill{padding:6px 11px;font-size:.76rem}
+#tab-totp .totp-results-chip{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--primary-alpha2);color:var(--primary);font-weight:800;font-size:.78rem;white-space:nowrap}
+#tab-totp .totp-v62-list{display:grid;gap:12px;padding-bottom:92px}
+#tab-totp .totp-v62-row{grid-template-columns:38px minmax(180px,1.2fr) minmax(170px,.95fr) minmax(170px,1fr) minmax(245px,auto);gap:12px;align-items:start;padding:14px 14px 13px;border-radius:18px;background:linear-gradient(180deg,var(--card),var(--card2));border-color:var(--border);box-shadow:var(--shadow)}
+#tab-totp .totp-v62-row:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);border-color:var(--border2)}
+#tab-totp .totp-v62-row>div{min-width:0}
+#tab-totp .v62-select-btn{width:30px;height:30px;margin-top:2px;box-shadow:var(--shadow-xs)}
+#tab-totp .v62-title{font-size:.98rem;line-height:1.18;white-space:normal;overflow:visible;text-overflow:clip}
+#tab-totp .v62-sub{font-size:.79rem;line-height:1.32;white-space:normal;overflow:visible;text-overflow:clip;margin-top:5px}
+#tab-totp .v62-meta{gap:7px}
+#tab-totp .totp-v62-row .badge{border-radius:999px;padding:4px 9px;font-size:.72rem;font-weight:800;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tab-totp .v62-progress{position:relative;height:12px;width:min(240px,100%);margin-top:8px;border-radius:999px;border:1px solid var(--border);background:linear-gradient(180deg,var(--bg2),var(--border));overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.10)}
+#tab-totp .v62-progress::after{content:'';position:absolute;inset:0;border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22);pointer-events:none}
+#tab-totp .v62-progress span{background:linear-gradient(90deg,var(--primary),var(--primary-light));box-shadow:0 0 12px rgba(59,130,246,.28)}
+#tab-totp .v62-actions{gap:8px;justify-content:flex-end;align-self:center}
+#tab-totp .v62-actions .btn{min-height:38px;padding:8px 10px;font-size:.76rem;font-weight:800;border-radius:11px}
+#tab-totp .totp-v62-event{padding:13px 14px;border-radius:18px;align-items:start;box-shadow:var(--shadow)}
+#tab-totp .totp-v62-event .v62-title{white-space:normal}
+#tab-totp .totp-v62-event .v62-sub{white-space:normal}
+#tab-totp .totp-v62-event .v62-actions .btn{min-height:36px;border-radius:11px}
+#tab-totp .totp-v62-row .mono{display:inline-flex;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:6px 10px;border-radius:999px;border:1px dashed var(--border);background:var(--card2)}
+@media(max-width:1100px){
+  #tab-totp .totp-hero{grid-template-columns:1fr}
+  #tab-totp .totp-v62-row,#tab-totp .totp-v62-event{grid-template-columns:38px minmax(0,1fr);gap:9px}
+  #tab-totp .totp-v62-row>div:nth-child(n+3),#tab-totp .totp-v62-event>div:nth-child(n+3){grid-column:2/-1}
+  #tab-totp .v62-actions{justify-content:flex-start}
+}
+@media(max-width:800px){
+  #tab-totp{padding-bottom:110px}
+  #tab-totp .totp-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  #tab-totp .totp-v62-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  #tab-totp .totp-v62-toolbar .v62-help-pill{grid-column:1/-1;justify-content:center;text-align:center}
+  #tab-totp .totp-results-chip{grid-column:1/-1;width:100%}
+  #tab-totp .totp-v62-list{gap:10px;padding-bottom:108px}
+  #tab-totp .totp-v62-row,#tab-totp .totp-v62-event{padding:12px 11px;border-radius:16px}
+  #tab-totp .v62-progress{width:100%;max-width:none}
+  #tab-totp .v62-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  #tab-totp .v62-actions .btn{width:100%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+@media(max-width:480px){
+  #tab-totp .admin-toolbar{padding:8px!important}
+  #tab-totp .totp-v62-row,#tab-totp .totp-v62-event{grid-template-columns:34px minmax(0,1fr);padding:11px 10px;border-radius:15px}
+  #tab-totp .v62-select-btn{width:28px;height:28px}
+  #tab-totp .v62-title{font-size:.93rem}
+  #tab-totp .v62-sub{font-size:.76rem}
+  #tab-totp .totp-v62-toolbar .btn{width:100%;font-size:.72rem;padding:8px 6px}
+  #tab-totp .v62-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  #tab-totp .v62-actions .btn{min-height:36px;font-size:.7rem;padding:7px 6px}
+  #tab-totp .totp-v62-row .badge{white-space:normal;line-height:1.2}
+}
+</style>
+<script id="innov-v83-totp-visual-js">
+(function(){
+  function ensureResultsChip(){
+    const actions=document.querySelector('#tab-totp .admin-toolbar .actions');
+    if(!actions || document.getElementById('totpResultsInfo')) return;
+    const chip=document.createElement('span');
+    chip.id='totpResultsInfo';
+    chip.className='totp-results-chip';
+    chip.textContent='0 resultados';
+    actions.prepend(chip);
+  }
+  function updateResultsChip(){
+    const chip=document.getElementById('totpResultsInfo');
+    const grid=document.getElementById('totpGrid');
+    if(!chip || !grid) return;
+    const count=grid.querySelectorAll('.totp-v62-row,.totp-v62-event,.totp-row,.totp-card').length;
+    const view=(window.state && state.totpView) ? state.totpView : 'codes';
+    const label=view==='events' ? 'eventos' : (view==='accounts' ? 'cuentas' : 'resultados');
+    chip.textContent=count+' '+label;
+  }
+  function applyStaticTweaks(){
+    const search=document.getElementById('totpSearch');
+    if(search) search.placeholder='🔍 Buscar código, cuenta, cliente o WhatsApp...';
+    const help=document.querySelector('#tab-totp .totp-title p.help');
+    if(help) help.textContent='Administra cuentas TOTP, códigos de acceso, usos y actividad del cliente con una vista más clara.';
+    const kpiCodes=document.querySelector('#totpKpiCodes');
+    if(kpiCodes && kpiCodes.nextElementSibling) kpiCodes.nextElementSibling.textContent='Códigos';
+    ensureResultsChip();
+  }
+  const prevRender=window.renderTotp;
+  if(typeof prevRender==='function'){
+    window.renderTotp=function(){
+      const out=prevRender.apply(this, arguments);
+      setTimeout(updateResultsChip, 0);
+      return out;
+    };
+    try{ renderTotp = window.renderTotp; }catch(_){ }
+  }
+  function init(){
+    applyStaticTweaks();
+    const grid=document.getElementById('totpGrid');
+    if(grid && !grid._v83Observer){
+      const mo=new MutationObserver(()=>updateResultsChip());
+      mo.observe(grid,{childList:true,subtree:true});
+      grid._v83Observer=mo;
+    }
+    updateResultsChip();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,300));
+  else setTimeout(init,300);
+})();
+</script>
+
+
+<style id="innov-v84-totp-compact-css">
+/* V84 — TOTP más compacto: sin Vista rápida y KPIs reducidos */
+#tab-totp .totp-side-card,
+#tab-totp #totpQuickCard{display:none!important}
+#tab-totp .totp-hero{display:block!important;margin-bottom:10px!important}
+#tab-totp .totp-hero>.card{padding:14px!important;border-radius:16px!important;box-shadow:var(--shadow-xs)!important}
+#tab-totp .totp-title{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;gap:10px!important}
+#tab-totp .totp-title h2{font-size:1.05rem!important;line-height:1.18!important;margin:0!important}
+#tab-totp .totp-title p.help{font-size:.76rem!important;line-height:1.25!important;margin-top:3px!important;max-width:680px!important}
+#tab-totp .totp-title>div:last-child{display:flex!important;gap:6px!important;flex-wrap:wrap!important;justify-content:flex-end!important}
+#tab-totp .totp-title>div:last-child .btn{min-height:34px!important;padding:7px 11px!important;border-radius:10px!important;font-size:.78rem!important;font-weight:850!important}
+#tab-totp .totp-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin-top:10px!important}
+#tab-totp .totp-kpi{padding:8px 10px!important;border-radius:12px!important;min-height:58px!important;background:linear-gradient(180deg,var(--card),var(--card2))!important}
+#tab-totp .totp-kpi .v{font-size:1.12rem!important;line-height:1!important;font-weight:950!important}
+#tab-totp .totp-kpi .l{font-size:.61rem!important;line-height:1.1!important;margin-top:4px!important;letter-spacing:.045em!important}
+#tab-totp .admin-toolbar{margin-bottom:9px!important}
+#tab-totp .totp-tabs{margin-bottom:9px!important}
+@media(max-width:800px){
+  #tab-totp .totp-hero{margin-bottom:8px!important}
+  #tab-totp .totp-hero>.card{padding:12px!important;border-radius:15px!important}
+  #tab-totp .totp-title{grid-template-columns:1fr!important;gap:8px!important}
+  #tab-totp .totp-title h2{font-size:1rem!important}
+  #tab-totp .totp-title p.help{font-size:.73rem!important;line-height:1.22!important}
+  #tab-totp .totp-title>div:last-child{display:grid!important;grid-template-columns:1fr 1fr!important;width:100%!important;gap:7px!important}
+  #tab-totp .totp-title>div:last-child .btn{width:100%!important;min-height:35px!important;padding:7px 8px!important;font-size:.73rem!important}
+  #tab-totp #btnTotpPlanAccess{grid-column:1/-1!important}
+  #tab-totp .totp-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;margin-top:8px!important}
+  #tab-totp .totp-kpi{min-height:50px!important;padding:7px 5px!important;text-align:center!important;border-radius:11px!important}
+  #tab-totp .totp-kpi .v{font-size:.98rem!important;line-height:1!important}
+  #tab-totp .totp-kpi .l{font-size:.52rem!important;line-height:1.05!important;margin-top:3px!important;letter-spacing:.02em!important}
+  #tab-totp .admin-toolbar{padding:8px!important;margin-bottom:8px!important}
+}
+@media(max-width:390px){
+  #tab-totp .totp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #tab-totp .totp-kpi{min-height:48px!important;text-align:left!important;padding:7px 9px!important}
+}
+</style>
+<script id="innov-v84-totp-compact-js">
+(function(){
+  function compactTotpHeader(){
+    const card=document.getElementById('totpQuickCard');
+    if(card) card.remove();
+    const kpiCodes=document.getElementById('totpKpiCodes');
+    if(kpiCodes && kpiCodes.nextElementSibling) kpiCodes.nextElementSibling.textContent='Códigos';
+    const help=document.querySelector('#tab-totp .totp-title p.help');
+    if(help) help.textContent='Gestiona códigos TOTP, usos y vencimientos.';
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(compactTotpHeader,100));
+  else setTimeout(compactTotpHeader,100);
+})();
+</script>
+
+
+
+<!-- ===================================================================
+     INNOV IA V85 — Orden A-Z, posición Shop y búsqueda por cuenta asociada
+     Solo mejora visual/búsqueda. No cambia pagos, entregas ni SQL.
+     =================================================================== -->
+<style id="innov-v85-admin-order-search-css">
+  .v85-shop-chip{background:linear-gradient(135deg,var(--primary-alpha),var(--success-alpha));color:var(--primary);border:1px solid rgba(96,165,250,.28)!important;font-weight:950!important}
+  .v85-priority-chip{background:var(--card2);color:var(--muted);border:1px dashed var(--border)!important}
+  .v85-position-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  .v85-position-actions .btn{padding:5px 8px!important;font-size:.72rem!important;border-radius:9px!important;min-height:30px!important}
+  .v85-product-card .mini-head{align-items:flex-start}
+  .v85-product-card .v85-product-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap;line-height:1.25}
+  .v85-product-card .v85-product-title b{font-size:.98rem}
+  .v85-plan-sub{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .v85-account-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(185,28,28,.25);background:var(--danger-alpha);color:var(--danger);border-radius:999px;padding:3px 8px;font-size:.70rem;font-weight:900;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v85-account-chip .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}
+  .v85-search-note{margin:0 0 10px;padding:8px 10px;border-left:3px solid var(--primary);border-radius:11px;background:var(--primary-alpha2);color:var(--muted);font-size:.78rem;font-weight:750}
+  .v85-card-mail{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+  .v85-card-mail .mail{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 8px;font-size:.68rem;font-weight:900;background:var(--success-alpha);color:var(--success);border:1px solid rgba(21,128,61,.22);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v85-card-mail .assoc{background:var(--danger-alpha);color:var(--danger);border-color:rgba(185,28,28,.24)}
+  @media(max-width:800px){
+    .v85-position-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+    .v85-position-actions .btn{width:100%}
+    .v85-product-card .line-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    .v85-account-chip .txt{max-width:210px}
+  }
+</style>
+<script id="innov-v85-admin-order-search-js">
+(function(){
+  'use strict';
+  if(window.__innovV85OrderSearch)return; window.__innovV85OrderSearch=true;
+  const byId=id=>document.getElementById(id);
+  const txt=v=>String(v==null?'':v).trim();
+  const esc=v=>txt(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  const clean=v=>txt(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const same=(a,b)=>txt(a)===txt(b);
+  const stateObj=()=>{try{if(typeof state!=='undefined'&&state)return state}catch(_){ }return window.state||{};};
+  const list=v=>Array.isArray(v)?v:[];
+  const say=(m,t='ok')=>{try{window.toast(m,t)}catch(_){console.log(m)}};
+  const moneySafe=v=>{try{return window.money(v)}catch(_){return v==null||v===''?'—':'S/ '+Number(v||0).toFixed(2)}};
+  const prodSafe=id=>{try{return window.prodName(id)}catch(_){return (list(stateObj().products).find(p=>same(p.id,id))||{}).name||'Producto'}};
+  const planById=id=>{try{return window.plan(id)}catch(_){return list(stateObj().plans).find(p=>same(p.id,id))||null}};
+  const productById=id=>{try{return window.prod(id)}catch(_){return list(stateObj().products).find(p=>same(p.id,id))||null}};
+  const slugSafe=v=>{try{return window.slugify(v)}catch(_){return clean(v).replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}};
+  const priorityOf=p=>{const n=Number(p?.priority);return Number.isFinite(n)?n:100};
+  function retailVisibleProduct(p){return p&&p.active!==false&&!clean(p.sale_mode||'retail').includes('whole');}
+  function shopOrder(){return list(stateObj().products).filter(retailVisibleProduct).slice().sort((a,b)=>priorityOf(a)-priorityOf(b)||clean(a.name).localeCompare(clean(b.name),'es'));}
+  function alphaProducts(){return list(stateObj().products).slice().sort((a,b)=>clean(a.name).localeCompare(clean(b.name),'es')||priorityOf(a)-priorityOf(b));}
+  function shopPosition(id){const idx=shopOrder().findIndex(p=>same(p.id,id));return idx>=0?idx+1:null;}
+  function alphaPlans(){return list(stateObj().plans).slice().sort((a,b)=>clean(prodSafe(a.product_id)).localeCompare(clean(prodSafe(b.product_id)),'es')||clean(a.name).localeCompare(clean(b.name),'es')||priorityOf(a)-priorityOf(b));}
+  function visibleStockSafe(p){try{return window.visibleStock(p)}catch(_){return Number(p?.manual_stock_count||0)}}
+  function typeBadgeSafe(p){try{return window.typeBadge(p)}catch(_){return p?.stock_mode==='controlled'?'b-ok':'b-warn'}}
+  function typeLabelSafe(p){try{return window.typeLabel(p)}catch(_){return p?.stock_mode==='controlled'?'Automático':'Manual'}}
+  function planTotpIdSafe(p){try{return window.planTotpAccountId(p)}catch(_){return ''}}
+  function homeIds(){try{return window.homeShowcaseHeroIds()}catch(_){return []}}
+  window.innovV85ShopPosition=shopPosition;
+  window.innovV85MoveProduct=async function(id,dir){
+    const order=shopOrder(); const idx=order.findIndex(p=>same(p.id,id));
+    if(idx<0)return say('Este producto no está visible en Shop. Actívalo para moverlo.','bad');
+    const next=order[idx+Number(dir||0)]; if(!next)return say('Ya está en el límite de la lista Shop','bad');
+    const cur=order[idx]; const a=priorityOf(cur), b=priorityOf(next);
+    const newA=(a===b)?(idx+1)*10:b; const newB=(a===b)?(idx)*10:a;
+    try{
+      let r=await db.from('products').update({priority:newA}).eq('id',cur.id); if(r.error)throw r.error;
+      r=await db.from('products').update({priority:newB}).eq('id',next.id); if(r.error)throw r.error;
+      say('Posición intercambiada en Shop','ok'); await window.loadAll?.(); window.switchTab?.('products');
+    }catch(e){say('No se pudo cambiar la posición: '+(e?.message||e),'bad')}
+  };
+  window.renderProducts=function(){
+    const q=clean(byId('productSearch')?.value||'');
+    let arr=alphaProducts().filter(p=>clean((p.name||'')+' '+(p.slug||'')+' '+(p.category||'')).includes(q));
+    const hero=homeIds().map(String);
+    const shop=shopOrder();
+    const total=shop.length;
+    const host=byId('productsGrid'); if(!host)return;
+    host.innerHTML=arr.map(p=>{
+      const pls=list(stateObj().plans).filter(x=>same(x.product_id,p.id)).sort((a,b)=>clean(a.name).localeCompare(clean(b.name),'es'));
+      const cups=pls.reduce((a,pl)=>a+(visibleStockSafe(pl)>=999999?0:visibleStockSafe(pl)),0);
+      const pos=shopPosition(p.id);
+      const posText=pos?`Shop #${String(pos).padStart(2,'0')} de ${total}`:'No visible en Shop';
+      return `<div class="mini-card v85-product-card">
+        <div class="mini-head">
+          <div><div class="v85-product-title"><b>${esc(p.name)}</b><span class="badge v85-shop-chip">${esc(posText)}</span></div><div class="help">${esc(p.category||'otros')} · ${esc(p.sale_mode||'retail')}</div></div>
+          <img class="thumb" src="${esc(p.image_url||'img/placeholder.jpg')}" onerror="this.src='img/placeholder.jpg'" loading="lazy">
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
+          <span class="badge">${pls.length} planes</span>
+          <span class="badge b-ok">${cups} cupos</span>
+          <span class="badge v85-priority-chip">Prioridad ${priorityOf(p)}</span>
+          ${hero.includes(String(p.id))?'<span class="badge home-showcase-card-flag">★ Portada</span>':''}
+          ${p.video_url?'<span class="badge video-badge">🎬 Video</span>':''}
+        </div>
+        <p class="help">${esc(p.description||'Sin descripción').slice(0,120)}</p>
+        <div class="v85-position-actions">
+          <button class="btn" type="button" onclick="innovV85MoveProduct('${esc(p.id)}',-1)">↑ Subir Shop</button>
+          <button class="btn" type="button" onclick="innovV85MoveProduct('${esc(p.id)}',1)">↓ Bajar Shop</button>
+        </div>
+        <div class="line-actions">
+          <button class="btn btn-primary" onclick="editProduct('${esc(p.id)}')">Editar</button>
+          <button class="btn" onclick="newPlanFor('${esc(p.id)}')">＋ Plan</button>
+          <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="toggleProduct('${esc(p.id)}')">${p.active?'Ocultar':'Activar'}</button>
+          <button class="btn btn-danger" onclick="quickDeleteProduct('${esc(p.id)}')">Elim.</button>
+        </div>
+      </div>`;
+    }).join('')||'<div class="empty-state"><span class="icon">🧩</span><p>No hay productos.</p></div>';
+  };
+  try{renderProducts=window.renderProducts}catch(_){ }
+  window.renderPlans=function(){
+    const q=clean(byId('planSearch')?.value||'');
+    let arr=alphaPlans().filter(p=>clean((p.name||'')+' '+prodSafe(p.product_id)).includes(q));
+    if(stateObj().onlyEmpty)arr=arr.filter(p=>visibleStockSafe(p)<=0);
+    const host=byId('plansGrid'); if(!host)return;
+    host.innerHTML=arr.map(p=>{
+      const stock=visibleStockSafe(p); const pos=shopPosition(p.product_id);
+      return `<div class="mini-card">
+        <div class="mini-head">
+          <div><b>${esc(prodSafe(p.product_id))}</b><div>${esc(p.name)}</div><div class="help">${moneySafe(p.price)} · ${esc(p.period||'')}</div><div class="v85-plan-sub"><span class="badge v85-shop-chip">${pos?'Producto Shop #'+String(pos).padStart(2,'0'):'Producto no visible en Shop'}</span><span class="badge v85-priority-chip">Orden plan ${priorityOf(p)}</span></div></div>
+          <span class="badge ${typeBadgeSafe(p)}">${typeLabelSafe(p)}</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          <span class="badge ${stock>0?'b-ok':'b-bad'}">${stock} cupos</span>
+          <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
+          <span class="badge">${esc(p.availability_status||'available')}</span>
+          ${planTotpIdSafe(p)?`<span class="badge b-purple">🛡 Access TOTP</span>`:''}
+        </div>
+        <div class="line-actions">
+          <button class="btn btn-primary" onclick="editPlan('${esc(p.id)}')">Editar</button>
+          <button class="btn btn-success" onclick="openPlanManualDelivery('${esc(p.id)}')">Entregar</button>
+          <button class="btn" onclick="addStockForPlan('${esc(p.id)}')">＋ Agregar</button>
+          <button class="btn" onclick="openPlanAccounts('${esc(p.id)}')">▾ Cuentas</button>
+          <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${esc(p.id)}')">${p.active?'Ocultar':'Activar'}</button>
+          <button class="btn btn-danger" onclick="quickDeletePlan('${esc(p.id)}')">Elim.</button>
+        </div>
+      </div>`;
+    }).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
+  };
+  try{renderPlans=window.renderPlans}catch(_){ }
+  const oldPlanStockFiltered=window.planStockFilteredRows || (typeof planStockFilteredRows==='function'?planStockFilteredRows:null);
+  window.planStockFilteredRows=function(){
+    let rows=[];
+    if(typeof oldPlanStockFiltered==='function')rows=oldPlanStockFiltered();
+    const val=x=>{try{const d=window.opsSecret(x)||{};return clean(d.correo||d.email||d.usuario||x?.title||d.perfil||'')}catch(_){return clean(x?.title||'')}};
+    return list(rows).slice().sort((a,b)=>val(a).localeCompare(val(b),'es')||String(a.created_at||'').localeCompare(String(b.created_at||'')));
+  };
+  try{planStockFilteredRows=window.planStockFilteredRows}catch(_){ }
+
+  /* Recordatorios: búsqueda por correo asociado y chip visible solo cuando exista cuenta asociada */
+  function customerOf(r){return list(stateObj().customers).find(c=>same(c.id,r?.customer_id))||{};}
+  function assignmentOf(r){return list(stateObj().assignments).find(a=>same(a.id,r?.assignment_id)||same(a.reminder_id,r?.id))||null;}
+  function stockById(id){return list(stateObj().stock).find(s=>same(s.id,id))||null;}
+  function secretOf(s){try{return s?window.opsSecret(s):{}}catch(_){return {}}}
+  function snapshotOf(r){const s=r?.linked_account_snapshot;return s&&typeof s==='object'&&!Array.isArray(s)?s:{};}
+  function associatedEmail(r){
+    const a=assignmentOf(r)||{}; const stock=stockById(r?.stock_item_id||a.stock_item_id); const d=secretOf(stock); const snap=snapshotOf(r); const meta=a.metadata&&typeof a.metadata==='object'?a.metadata:{}; const ac=meta.access_context&&typeof meta.access_context==='object'?meta.access_context:{};
+    return txt(r?.linked_account_email||a.linked_account_email||ac.login||d.correo||d.email||d.usuario||d.family_admin_email||d.correo_admin||snap.correo||snap.email||snap.usuario||snap.family_admin_email||snap.correo_admin||'');
+  }
+  function clientEmail(r,c){c=c||customerOf(r);const snap=snapshotOf(r);try{return txt(window.customerGmail(c)||c.email||r?.customer_email||snap.client_email||snap.cliente_gmail||snap.family_client_email||'')}catch(_){return txt(c.email||r?.customer_email||snap.client_email||snap.cliente_gmail||snap.family_client_email||'')}}
+  function status(r){return clean(r?.status||'pending')}
+  const paid=new Set(['paid','pagado','renewed','renovado']);
+  const hardClosed=new Set(['cancelled','canceled','deleted','eliminado','archived','archivado','no_renovo']);
+  function operational(r){const a=assignmentOf(r);if(clean(a?.status)==='active')return true;return !hardClosed.has(status(r));}
+  function calDiff(r){try{const n=Number(window.localCalendarDiffFromToday?.(r?.due_date));if(Number.isFinite(n))return n}catch(_){ }const iso=txt(r?.due_date).slice(0,10);if(!iso)return null;const a=new Date(iso+'T12:00:00'),b=new Date(new Date().toISOString().slice(0,10)+'T12:00:00');return Math.round((a-b)/86400000)}
+  function effDiff(r){try{const n=Number(window.reminderEffectiveDaysLeft?.(r?.due_date));if(Number.isFinite(n))return n}catch(_){ }return calDiff(r)}
+  function dateLabel(r){const raw=txt(r?.due_date).slice(0,10);const m=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:(raw||'Sin fecha')}
+  function dateNote(r){const d=effDiff(r),c=calDiff(r);if(d==null)return 'Requiere fecha';if(d<0){if(c===0)return 'venció hoy';const n=Math.abs(c);return `hace ${n} día${n===1?'':'s'}`;}if(c===0)return 'vence hoy';return `en ${c} día${c===1?'':'s'}`}
+  function statusInfo(r){const st=status(r),effective=effDiff(r),calendar=calDiff(r);if(paid.has(st))return['Pago registrado','b-purple','renew'];if(calendar==null)return['Sin fecha','b-pagado','review'];if(calendar===0)return[effective<0?'Venció hoy':'Vence hoy',effective<0?'b-bad':'b-warn','today'];if(calendar<0)return['Vencido','b-bad','overdue'];if(calendar<=7)return['Por vencer','b-warn',''];return['En curso','b-ok',''];}
+  function queryMatch(r,q){
+    q=clean(q); if(!q)return true;
+    const c=customerOf(r),p=planById(r?.plan_id)||{},a=assignmentOf(r)||{},acc=associatedEmail(r),cli=clientEmail(r,c);
+    const deliveries=list(stateObj().deliveries).filter(d=>same(d.order_id,r?.order_id)).map(d=>`${d.delivered_message||''} ${d.message||''} ${JSON.stringify(d.delivery_data||{})}`).join(' ');
+    const content=[r?.service_name,r?.status,r?.due_date,r?.amount,r?.order_id,c?.name,c?.email,c?.phone_e164,c?.phone_raw,cli,acc,p?.name,p?.period,a?.status,deliveries].map(txt).join(' ');
+    return q.split(/\s+/).filter(Boolean).every(part=>clean(content).includes(part));
+  }
+  function group(query=''){
+    const rows=list(stateObj().reminders).filter(r=>queryMatch(r,query)).filter(operational);
+    const active=rows.filter(r=>!paid.has(status(r)));
+    const order=(a,b)=>{const da=calDiff(a),db=calDiff(b);if(da==null&&db!=null)return 1;if(db==null&&da!=null)return -1;if(da!==db)return Number(da)-Number(db);return txt(a?.due_date).localeCompare(txt(b?.due_date));};
+    return {today:active.filter(r=>calDiff(r)===0).sort(order),overdue:active.filter(r=>{const d=calDiff(r);return d!=null&&d<0}).sort(order),next7:active.filter(r=>{const d=calDiff(r);return d!=null&&d>0&&d<=7}).sort(order),later:active.filter(r=>{const d=calDiff(r);return d!=null&&d>7}).sort(order),paid:rows.filter(r=>paid.has(status(r))).sort(order)};
+  }
+  function row(r){
+    const c=customerOf(r),p=planById(r?.plan_id)||{},info=statusInfo(r),id=esc(r?.id),kind=info[2];
+    const service=esc(r?.service_name||p?.name||'Servicio'),client=esc(c?.name||'Cliente sin nombre'),phone=esc(c?.phone_e164||c?.phone_raw||'Sin WhatsApp');
+    const cli=clientEmail(r,c),acc=associatedEmail(r);
+    const extra=(cli||acc)?`<div class="v85-card-mail">${cli?`<span class="mail">🟢 ${esc(cli)}</span>`:''}${acc?`<span class="mail assoc">🔴 ${esc(acc)}</span>`:''}</div>`:'';
+    const hist=c?.id?`<button class="btn" type="button" title="Ver historial del cliente" onclick="event.stopPropagation();window.showClientHistory?.('${esc(c.id)}')">◷ Hist.</button>`:'';
+    return `<div class="v68-row ${kind}" data-reminder-id="${id}">
+      <div class="v68-main"><div class="v68-title">${kind==='overdue'?'🚨':kind==='today'?'⏰':kind==='renew'?'🧾':'📌'} ${service}</div><div class="v68-client">${client} · ${phone}</div>${extra}<div class="v68-sub">${kind==='renew'?'Pago registrado: falta crear el próximo vencimiento.':kind==='review'?'Servicio activo sin fecha de vencimiento: revísalo.':'Periodo: '+esc(p?.period||'Mensual')}</div></div>
+      <div class="v68-meta"><span class="badge ${info[1]}">${info[0]}</span><span class="badge">${moneySafe(r?.amount)}</span>${r?.last_sent_at?'<span class="badge b-pagado">WhatsApp enviado</span>':''}</div>
+      <div class="v68-date"><b>📅 ${dateLabel(r)}</b><span>${esc(dateNote(r))}</span></div>
+      <div class="v68-actions"><button class="btn btn-success" type="button" onclick="event.stopPropagation();window.openReminderWhatsApp?.('${id}')">💬 WhatsApp</button><button class="btn v68-renew" type="button" onclick="event.stopPropagation();window.markReminderPaid('${id}')">✓ Renovar</button><button class="btn btn-primary" type="button" onclick="event.stopPropagation();window.editReminder?.('${id}')">✎ Editar</button>${hist}<button class="btn btn-danger" type="button" onclick="event.stopPropagation();window.quickDeleteReminder?.('${id}')">🗑 Borrar</button></div>
+    </div>`;
+  }
+  function section(icon,title,sub,rows,badge){if(!rows?.length)return '';return `<div class="v68-section"><div class="v68-section-main"><span>${icon}</span><span>${title}</span><small>${sub||''}</small></div><span class="badge ${badge||''}">${rows.length}</span></div>${rows.map(row).join('')}`}
+  function content(g,filter){
+    filter=['all','today','overdue','renew','upcoming'].includes(filter)?filter:'all';
+    if(filter==='today')return section('⏰','Vencen hoy','prioridad de cobro',g.today,'b-warn')||'<div class="v68-empty">✅ No hay pagos que vencen hoy.</div>';
+    if(filter==='overdue')return section('🚨','Vencidos','requieren seguimiento',g.overdue,'b-bad')||'<div class="v68-empty">✅ No hay pagos vencidos.</div>';
+    if(filter==='renew')return section('🧾','Pagos por renovar','crear el siguiente vencimiento',g.paid,'b-purple')||'<div class="v68-empty">✅ No hay pagos pendientes de renovar.</div>';
+    if(filter==='upcoming')return section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok')||'<div class="v68-empty">No hay próximos pagos.</div>';
+    return section('⏰','Vencen hoy','atiéndelos primero',g.today,'b-warn')+section('🚨','Vencidos','continúa la cobranza',g.overdue,'b-bad')+section('🧾','Pagos por renovar','crea el siguiente vencimiento',g.paid,'b-purple')+section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok')||'<div class="v68-empty">✅ No hay recordatorios operativos para mostrar.</div>';
+  }
+  function bind(root){root?.querySelectorAll('[data-v68-filter]').forEach(b=>b.onclick=()=>{stateObj().v68Filter=b.dataset.v68Filter||'all';renderRemindersV85();});}
+  function renderRemindersV85(){
+    const host=byId('remindersGrid'),merged=byId('remindersMergedGrid'); if(!host&&!merged)return;
+    const input=byId('reminderSearch')||byId('clientSearch'); if(byId('reminderSearch'))byId('reminderSearch').placeholder='🔍 Buscar servicio, nombre, celular, correo cliente o cuenta asociada...';
+    const q=txt(input?.value||''),g=group(q),filter=stateObj().v68Filter||'all';
+    let html=content(g,filter); if(q)html='<div class="v85-search-note">Buscando también por correo asociado a la cuenta entregada.</div>'+html;
+    if(host){host.innerHTML=html;bind(host)} if(merged){merged.innerHTML=html;bind(merged)}
+    const urgent=g.today.length+g.overdue.length+g.paid.length;['tbReminders','mbReminders'].forEach(k=>{const el=byId(k);if(el){el.textContent=urgent>999?'999+':String(urgent);el.style.display=urgent?'':'none'}});
+  }
+  window.renderReminders=renderRemindersV85; try{renderReminders=window.renderReminders}catch(_){ }
+  function refreshVisible(){try{if(byId('tab-products')?.classList.contains('active'))window.renderProducts();if(byId('tab-inventory')?.classList.contains('active'))window.renderPlans();if(byId('tab-reminders')?.classList.contains('active'))window.renderReminders();}catch(_){ }}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refreshVisible,500));else setTimeout(refreshVisible,500);
+})();
+</script>
+
 </body>
 </html>
+
 
 
 
