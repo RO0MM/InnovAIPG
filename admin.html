@@ -2143,20 +2143,6 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
             <button class="btn chip" id="btnOnlySupport" type="button" aria-pressed="false">Soporte / chat</button>
           </div>
         </div>
-        <!-- Centro Operativo C: cola oficial por unidad de entrega manual -->
-        <div class="card control-c-queue" id="controlCManualQueue">
-          <div class="control-c-queue-head">
-            <div>
-              <strong>📦 Cola de entregas manuales</strong>
-              <div class="help">Cada fila representa una unidad pendiente. Al completar la entrega, el núcleo crea el servicio, el cupo, la plantilla y su recordatorio en una sola operación.</div>
-            </div>
-            <div class="control-c-queue-actions">
-              <span class="badge b-warn" id="controlCQueueCount">0 pendientes</span>
-              <button class="btn btn-sm" id="btnControlCQueueRefresh" type="button">↻ Actualizar</button>
-            </div>
-          </div>
-          <div class="control-c-queue-list" id="controlCQueueList"><div class="help">Cargando cola segura…</div></div>
-        </div>
         <div class="line-list orders-line-list" id="ordersGrid"></div>
       </section>
 
@@ -2268,7 +2254,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
         <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
           <strong>📝 Variables disponibles</strong>
           <p class="help" style="margin:6px 0 0;line-height:1.8">
-            <strong>Pago:</strong> <span class="mono">{cliente}</span> <span class="mono">{servicio}</span> <span class="mono">{monto}</span> <span class="mono">{vence}</span> <span class="mono">{dias}</span> <span class="mono">{pedido}</span> <span class="mono">{telefono}</span> <span class="mono">{yape}</span> <span class="mono">{tienda}</span><br>
+            <strong>Pago:</strong> <span class="mono">{cliente}</span> <span class="mono">{servicio}</span> <span class="mono">{monto}</span> <span class="mono">{vence}</span> <span class="mono">{dias}</span> <span class="mono">{pedido}</span> <span class="mono">{telefono}</span> <span class="mono">{yape}</span> <span class="mono">{tienda}</span> <span class="mono">{cuenta_vinculada}</span><br>
             <strong>Entrega:</strong> <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{restricciones}</span>
           </p>
         </div>
@@ -2711,7 +2697,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
       </div>
       <div class="full"><label class="subtle">Cuerpo de plantilla *</label><textarea class="input" id="dtBody" style="min-height:220px" required></textarea></div>
       <div class="full"><label class="subtle">Restricciones por defecto</label><textarea class="input" id="dtRestrictions" style="min-height:110px"></textarea></div>
-      <div class="full"><p class="help" style="line-height:1.8">Variables: <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{plan}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{codigo_acceso}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{cliente}</span> <span class="mono">{telefono}</span> <span class="mono">{monto}</span> <span class="mono">{cliente_gmail}</span> <span class="mono">{correo_admin}</span> <span class="mono">{grupo_familiar}</span> <span class="mono">{codigo_2fa}</span> <span class="mono">{restricciones}</span> <span class="mono">{soporte}</span> <span class="mono">{tienda}</span></p></div>
+      <div class="full"><p class="help" style="line-height:1.8">Variables: <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{plan}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{codigo_acceso}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{cliente}</span> <span class="mono">{telefono}</span> <span class="mono">{monto}</span> <span class="mono">{cliente_gmail}</span> <span class="mono">{correo_admin}</span> <span class="mono">{grupo_familiar}</span> <span class="mono">{codigo_2fa}</span> <span class="mono">{restricciones}</span> <span class="mono">{soporte}</span> <span class="mono">{tienda}</span> <span class="mono">{cuenta_vinculada}</span></p></div>
     </div>
   </form>
   <div class="modal-actions">
@@ -4557,13 +4543,46 @@ function buildCheckoutMetadata(base={}, productName='', planName=''){
   return rule ? {...current, ...rule} : current;
 }
 
+async function syncPlanAllocationRule(planId, allocationMode, options={}){
+  const planKey=String(planId||'').trim();
+  if(!planKey)throw new Error('Falta el plan para sincronizar su regla de cupos');
+  const mode=allocationMode==='stock_item'?'stock_item':(allocationMode==='manual_counter'?'manual_counter':'none');
+  const existing=(state.serviceRules||[]).find(row=>String(row?.plan_id||'')===planKey)||{};
+  if(options.syncPlanRow){
+    const planPayload=mode==='stock_item'
+      ? {stock_mode:'controlled',delivery_mode:'auto',manual_stock_count:null,allow_purchase_without_stock:false}
+      : mode==='manual_counter'
+        ? {stock_mode:'manual',delivery_mode:'manual'}
+        : {};
+    if(Object.keys(planPayload).length){
+      const planResult=await db.from('product_plans').update(planPayload).eq('id',planKey);
+      if(planResult.error)throw planResult.error;
+    }
+  }
+  const ruleResult=await db.rpc('admin_v73_upsert_plan_rule',{
+    p_plan_id:planKey,
+    p_allocation_mode:mode,
+    p_release_stock_on_cancel:existing.release_stock_on_cancel!==false,
+    p_auto_create_reminder:existing.auto_create_reminder!==false,
+    p_allow_multiple_assignments:existing.allow_multiple_assignments!==false,
+    p_active:true
+  });
+  if(ruleResult.error)throw ruleResult.error;
+  return ruleResult.data;
+}
+window.syncPlanAllocationRule=syncPlanAllocationRule;
+
 async function saveProduct(ev){
   ev.preventDefault();
   const id=$('pId').value;const name=$('pName').value.trim();if(!name)return toast('Falta nombre','bad');
   const currentProduct=id?prod(id):{};const payload={name,slug:$('pSlug').value.trim()||slugify(name),category:$('pCategory').value,sale_mode:$('pSale').value,image_url:$('pImage').value.trim()||null,video_url:$('pVideo').value.trim()||null,video_type:$('pVideoType').value||'auto',video_enabled:$('pVideoEnabled').value==='true',description:$('pDesc').value.trim()||null,priority:Number($('pPriority').value||100),active:$('pActive').value==='true',metadata:buildCheckoutMetadata(currentProduct?.metadata||{},name,'')};
   let r=id?await db.from('products').update(payload).eq('id',id).select().single():await db.from('products').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
-  if(!id&&$('pBasePlan').checked){await db.from('product_plans').insert({product_id:r.data.id,name:'Plan principal',slug:'plan-principal',price:0,currency:'PEN',period:'Mensual',stock_mode:'manual',manual_stock_count:0,availability_status:'consult',delivery_mode:'manual',active:true,priority:1,benefits:[],chips:['Nuevo']})}
+  if(!id&&$('pBasePlan').checked){
+    const base=await db.from('product_plans').insert({product_id:r.data.id,name:'Plan principal',slug:'plan-principal',price:0,currency:'PEN',period:'Mensual',stock_mode:'manual',manual_stock_count:0,availability_status:'consult',delivery_mode:'manual',active:true,priority:1,benefits:[],chips:['Nuevo']}).select().single();
+    if(base.error)return toast('Producto creado, pero falló el plan base: '+base.error.message,'bad');
+    try{await syncPlanAllocationRule(base.data.id,'manual_counter')}catch(error){return toast('Producto y plan creados, pero no se sincronizó la regla: '+(error?.message||error),'bad')}
+  }
   closeDialog('dlgProduct');toast('Producto guardado','ok');await loadAll();switchTab('products');
 }
 async function toggleProduct(id){const p=prod(id);const r=await db.from('products').update({active:!p.active}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}
@@ -4621,7 +4640,14 @@ async function savePlan(ev){
   const payload={product_id:$('plProduct').value,name,slug:$('plSlug').value.trim()||slugify(name),price:$('plPrice').value===''?null:Number($('plPrice').value),currency:'PEN',period:getPlanPeriodValue(),image_url:$('plImage').value.trim()||null,video_url:$('plVideo').value.trim()||null,video_type:$('plVideoType').value||'auto',video_enabled:$('plVideoEnabled').value==='true',description:$('plDesc').value.trim()||null,benefits:arrLines($('plBenefits').value),chips:arrCsv($('plChips').value),stock_mode:isAuto?'controlled':'manual',manual_stock_count:isAuto?null:Number($('plManualStock').value||0),availability_status:$('plAvailability').value,delivery_mode:isAuto?'auto':'manual',delivery_eta_minutes:0,allow_purchase_without_stock:false,priority:Number($('plPriority').value||100),active:$('plActive').value==='true',metadata};
   let r=id?await db.from('product_plans').update(payload).eq('id',id).select().single():await db.from('product_plans').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
-  $('plId').value=r.data.id;closeDialog('dlgPlan');toast('Plan guardado','ok');await loadAll();switchTab('inventory');
+  try{
+    await syncPlanAllocationRule(r.data.id,isAuto?'stock_item':'manual_counter');
+  }catch(error){
+    $('plId').value=r.data.id;
+    await loadAll();
+    return toast('El plan se guardó, pero su regla de cupos no se sincronizó: '+(error?.message||error),'bad');
+  }
+  $('plId').value=r.data.id;closeDialog('dlgPlan');toast('Plan y regla de cupos guardados','ok');await loadAll();switchTab('inventory');
 }
 async function togglePlan(id){const p=plan(id);const r=await db.from('product_plans').update({active:!p.active}).eq('id',id);if(r.error)return toast(r.error.message,'bad');await loadAll()}
 async function deletePlan(){const id=$('plId').value;if(!id)return;if(!confirm('¿Eliminar plan y stock relacionado?'))return;const r=await db.from('product_plans').delete().eq('id',id);if(r.error)return toast(r.error.message,'bad');closeDialog('dlgPlan');await loadAll()}
@@ -5893,6 +5919,11 @@ async function saveOpsStock(ev){
   };
   const r=id?await db.from('stock_items').update(payload).eq('id',id).select().single():await db.from('stock_items').insert(payload).select().single();
   if(r.error)return toast(r.error.message,'bad');
+  try{
+    await syncPlanAllocationRule(planId,'stock_item',{syncPlanRow:true});
+  }catch(error){
+    return toast('La cuenta se guardó, pero el plan no quedó habilitado para usar cuentas: '+(error?.message||error),'bad');
+  }
   if(d.totp_account_id){
     const made=await createStockTotpCodesForItem(r.data, d.max_uses);
     if(!made.ok)return toast('Cuenta guardada, pero no se pudieron crear códigos TOTP: '+made.error,'bad');
@@ -12493,7 +12524,8 @@ INNOV IA V62 - TOTP original + selección real
     if(x==='profile'&&!M.slots.length)return say('Agrega al menos un perfil','bad');
     try{
       await rpc('core1_upsert_account',{p_stock_item_id:txt($('c103ItemId').value)||null,p_plan_id:M.planId,p_alias:username||group||'Cuenta',p_username:username||null,p_password:password||null,p_group_url:group||null,p_totp_account_id:totpAccountId||null,p_state:$('c103State').value,p_capacity:Number($('c103Capacity').value||1),p_slots:x==='profile'?M.slots:[]});
-      close('dlgCore1AccountEditor');say('Cuenta guardada');await load(M.planId,false);
+      if(typeof window.syncPlanAllocationRule==='function')await window.syncPlanAllocationRule(M.planId,'stock_item',{syncPlanRow:true});
+      close('dlgCore1AccountEditor');say('Cuenta guardada y plan sincronizado');await load(M.planId,false);
     }catch(err){say(err.message||String(err),'bad')}
   }
   async function remove(id){if(!confirm('¿Eliminar esta cuenta de la lista? Solo se permite si no tiene clientes, recordatorios ni reservas que ocupan cupo.'))return;try{await rpc('core1_delete_account',{p_stock_item_id:id});say('Cuenta archivada');await load(M.planId,false)}catch(err){say(err.message||String(err),'bad')}}
@@ -15513,8 +15545,715 @@ INNOV IA V62 - TOTP original + selección real
 })();
 </script>
 
+
+<style id="innov-v88-stable-delivery-selector-css">
+#dlgOpsDeliver .v88-loading-select{opacity:.78;cursor:progress;background:var(--card2)}
+#dlgOpsDeliver .v88-sync-state{display:flex;align-items:center;gap:7px;margin-top:6px;font-weight:700}
+#dlgOpsDeliver .v88-sync-state::before{content:' ';width:8px;height:8px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 4px var(--primary-alpha);flex:0 0 auto}
+#dlgOpsDeliver .v88-sync-state.is-ok::before{background:var(--success);box-shadow:0 0 0 4px var(--success-alpha)}
+#dlgOpsDeliver .v88-sync-state.is-bad::before{background:var(--danger);box-shadow:0 0 0 4px var(--danger-alpha)}
+</style>
+<script id="innov-v88-stable-delivery-selector-js">
+/* =====================================================================
+   V88 — Selector de entrega estable
+   - Elimina la vista falsa de cuentas locales antes de validar Supabase.
+   - Usa core11_delivery_options/context como única fuente visible.
+   - Al guardar o abrir, pide al núcleo crear SOLO el slot por defecto faltante
+     mediante core1_ensure_default_slot (operación idempotente del propio Core).
+   - No crea reglas, no elimina datos y no instala paneles de reparación.
+   ===================================================================== */
+(function(){
+  'use strict';
+  if(window.__innovV88StableDeliverySelector)return;
+  window.__innovV88StableDeliverySelector=true;
+
+  const byId=id=>document.getElementById(id);
+  const clean=v=>String(v==null?'':v).trim();
+  const rows=v=>Array.isArray(v)?v:[];
+  const same=(a,b)=>clean(a)===clean(b);
+  let openSeq=0;
+
+  function getDb(){
+    try{if(window.db&&typeof window.db.rpc==='function')return window.db;}catch(_){ }
+    try{if(typeof db!=='undefined'&&db&&typeof db.rpc==='function')return db;}catch(_){ }
+    return window.INNOV_SUPABASE_CLIENT||null;
+  }
+  async function rpc(name,args){
+    const c=getDb();
+    if(!c)throw new Error('Supabase todavía no está listo');
+    const r=await c.rpc(name,args);
+    if(r?.error)throw r.error;
+    return Array.isArray(r?.data)?r.data[0]:r?.data;
+  }
+  function toastSafe(message,type='ok'){
+    try{if(typeof window.coreToast==='function')return window.coreToast(message,type);}catch(_){ }
+    try{if(typeof window.toast==='function')return window.toast(message,type);}catch(_){ }
+    console[type==='bad'?'error':'log'](message);
+  }
+  function planIdNow(){
+    const direct=clean(byId('opsDeliverPlanId')?.value);
+    if(direct)return direct;
+    const stockId=clean(byId('opsDeliverStockId')?.value||byId('opsDeliverStockSelect')?.value);
+    try{return clean(rows(window.state?.stock||state?.stock).find(x=>same(x.id,stockId))?.plan_id);}catch(_){return '';}
+  }
+  function secret(item){
+    try{if(typeof window.opsSecret==='function')return window.opsSecret(item)||{};}catch(_){ }
+    return item?.secret_data&&typeof item.secret_data==='object'?item.secret_data:{};
+  }
+  function localStock(){
+    try{return rows(window.state?.stock||state?.stock);}catch(_){return [];}
+  }
+  function likelyUsable(item,planId){
+    if(!item||!same(item.plan_id,planId)||!item.id)return false;
+    const d=secret(item);
+    const stateName=clean(d.core_state||'active').toLowerCase();
+    const status=clean(item.status||'available').toLowerCase();
+    if(['archived','suspended','maintenance','inactive'].includes(stateName))return false;
+    if(['archived','deleted','cancelled','canceled'].includes(status))return false;
+    const max=Math.max(1,Number(d.max_uses||1)||1);
+    const used=Math.max(0,Number(d.used_count||0)||0);
+    return used<max;
+  }
+  function ensureSelector(){
+    return byId('opsDeliverStockSelect');
+  }
+  function setLoading(message='Verificando cuentas y perfiles disponibles en Supabase…'){
+    const select=ensureSelector();
+    if(select){
+      select.replaceChildren();
+      const option=document.createElement('option');
+      option.value='';option.textContent='Verificando cuentas disponibles…';option.selected=true;
+      select.appendChild(option);
+      select.disabled=true;
+      select.classList.add('v88-loading-select');
+    }
+    const hidden=byId('opsDeliverStockId');if(hidden)hidden.value='';
+    const hint=byId('opsDeliverStockHint');
+    if(hint){hint.textContent=message;hint.classList.add('v88-sync-state');hint.classList.remove('is-ok','is-bad');}
+    const save=byId('btnOpsSaveDeliver');if(save){save.disabled=true;save.dataset.v88Locked='1';}
+  }
+  function finishState(ok,message){
+    const select=ensureSelector();
+    if(select){select.disabled=!ok;select.classList.remove('v88-loading-select');}
+    const hint=byId('opsDeliverStockHint');
+    if(hint){hint.textContent=message;hint.classList.add('v88-sync-state');hint.classList.toggle('is-ok',!!ok);hint.classList.toggle('is-bad',!ok);}
+    const save=byId('btnOpsSaveDeliver');if(save){save.disabled=!ok;delete save.dataset.v88Locked;}
+  }
+  async function ensureDefaultSlots(planId){
+    const candidates=localStock().filter(item=>likelyUsable(item,planId));
+    if(!candidates.length)return {attempted:0,errors:[]};
+    const errors=[];
+    for(const item of candidates){
+      try{await rpc('core1_ensure_default_slot',{p_stock_item_id:item.id});}
+      catch(error){errors.push(clean(error?.message||error));}
+    }
+    return {attempted:candidates.length,errors};
+  }
+  async function validateAndShow(seq){
+    const planId=planIdNow();
+    if(!planId){finishState(false,'No se pudo identificar el plan de esta entrega.');return;}
+    try{
+      let model=await rpc('core11_delivery_options',{p_plan_id:planId});
+      if(seq!==openSeq)return;
+      if(model?.requires_stock===false){
+        finishState(false,'Este plan no está configurado para entregar desde cuentas/cupos.');
+        return;
+      }
+      let accounts=rows(model?.accounts).filter(a=>a?.eligible!==false&&rows(a?.slots).some(s=>s?.eligible!==false&&Number(s?.free_count||0)>0));
+      if(!accounts.length){
+        setLoading('Sincronizando perfiles/cupos faltantes con el núcleo…');
+        await ensureDefaultSlots(planId);
+        if(seq!==openSeq)return;
+      }
+      const core=window.INNOV_CORE113;
+      if(!core||typeof core.refresh!=='function')throw new Error('El selector autoritativo todavía no está listo');
+      await core.refresh('ops');
+      if(seq!==openSeq)return;
+      const select=ensureSelector();
+      const available=select?Array.from(select.options).filter(o=>o.value).length:0;
+      if(!available){
+        finishState(false,'No hay cuentas con perfil/cupo libre para este plan. La cuenta puede existir, pero necesita un perfil activo o ya alcanzó su capacidad.');
+        return;
+      }
+      finishState(true,available===1?'✅ 1 cuenta validada y lista para entregar.':`✅ ${available} cuentas validadas y listas para entregar.`);
+    }catch(error){
+      if(seq!==openSeq)return;
+      const message=clean(error?.message||error)||'No se pudo validar el stock';
+      const select=ensureSelector();if(select){select.replaceChildren();const o=document.createElement('option');o.textContent='Sin cuentas validadas';select.appendChild(o);}
+      finishState(false,'No se pudo validar: '+message);
+    }
+  }
+  function wrapOpen(){
+    const current=window.openOpsDeliver;
+    if(typeof current!=='function'||current.__v88Wrapped)return false;
+    const wrapped=function(){
+      const result=current.apply(this,arguments);
+      const seq=++openSeq;
+      /* Se limpia en el mismo ciclo antes del primer pintado: desaparece el falso 0/6. */
+      setLoading();
+      Promise.resolve().then(()=>validateAndShow(seq));
+      return result;
+    };
+    wrapped.__v88Wrapped=true;
+    window.openOpsDeliver=wrapped;
+    try{openOpsDeliver=wrapped;}catch(_){ }
+    return true;
+  }
+  function wrapSaveStock(){
+    const form=byId('opsStockForm');
+    if(!form||form.dataset.v88Wrapped==='1')return false;
+    const original=form.onsubmit||window.saveOpsStock;
+    if(typeof original!=='function')return false;
+    form.dataset.v88Wrapped='1';
+    form.onsubmit=async function(event){
+      const planId=clean(byId('opsStockPlan')?.value);
+      await original.call(this,event);
+      if(planId){
+        try{
+          const result=await ensureDefaultSlots(planId);
+          if(result.errors.length)console.warn('V88: algunas cuentas no pudieron sincronizar su slot',result.errors);
+        }catch(error){console.warn('V88: sincronización posterior al guardado',error);}
+      }
+    };
+    return true;
+  }
+  function install(attempt=0){
+    const a=wrapOpen();
+    const b=wrapSaveStock();
+    if((!a||!b)&&attempt<20)setTimeout(()=>install(attempt+1),250);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>install(),2100),{once:true});
+  else setTimeout(()=>install(),2100);
+})();
+</script>
+
+<style id="innov-v89-product-plan-identity-css">
+/* V89 — Identidad visible por producto + plan. No modifica datos. */
+.v89-identity{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;
+  margin:0 0 12px;padding:10px 12px;border:1px solid var(--border);border-left:4px solid var(--primary);
+  border-radius:13px;background:linear-gradient(135deg,var(--primary-alpha2),var(--card2));
+}
+.v89-identity-main{min-width:0}.v89-identity-title{font-weight:900;color:var(--card-ink);line-height:1.2;word-break:break-word}
+.v89-identity-sub{margin-top:3px;color:var(--muted);font-size:.76rem;line-height:1.35}
+.v89-plan-code{font-family:var(--mono);font-size:.68rem;color:var(--muted);border:1px solid var(--border);background:var(--card);padding:4px 7px;border-radius:999px;white-space:nowrap}
+.v89-product-badge{display:inline-flex;align-items:center;gap:4px;margin-bottom:5px;padding:3px 8px;border:1px solid rgba(30,64,175,.22);border-radius:999px;background:var(--primary-alpha);color:var(--primary);font-size:.69rem;font-weight:900;max-width:100%;white-space:normal;line-height:1.2}
+.v89-account-usage{margin-top:7px;padding:8px 10px;border:1px dashed var(--border);border-radius:10px;background:var(--card2);font-size:.75rem;line-height:1.35;color:var(--muted)}
+.v89-account-usage.is-warn{border-color:rgba(180,83,9,.35);background:var(--warning-alpha);color:var(--warning)}
+.v89-account-usage.is-bad{border-color:rgba(185,28,28,.35);background:var(--danger-alpha);color:var(--danger)}
+#opsDeliverStockSelect option{font-weight:600}
+@media(max-width:700px){.v89-identity{grid-template-columns:1fr}.v89-plan-code{justify-self:start}}
+</style>
+<script id="innov-v89-product-plan-identity-js">
+(function(){
+  'use strict';
+  if(window.__innovV89ProductPlanIdentity)return;
+  window.__innovV89ProductPlanIdentity=true;
+
+  const byId=id=>document.getElementById(id);
+  const clean=v=>String(v==null?'':v).trim();
+  const list=v=>Array.isArray(v)?v:[];
+  const same=(a,b)=>clean(a)===clean(b);
+  const esc=v=>clean(v).replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
+  let accountsPlanId='';
+  let deliveryPlanId='';
+
+  function stateRows(key){
+    try{return list((window.state||state||{})[key]);}catch(_){return []}
+  }
+  function planRow(planId){return stateRows('plans').find(p=>same(p?.id,planId))||null}
+  function productRow(productId){return stateRows('products').find(p=>same(p?.id,productId))||null}
+  function identity(planId){
+    const pl=planRow(planId); const product=productRow(pl?.product_id);
+    return {
+      planId:clean(planId),
+      planName:clean(pl?.name)||'Plan sin nombre',
+      productId:clean(pl?.product_id),
+      productName:clean(product?.name)||'Producto sin identificar'
+    };
+  }
+  function shortId(value){const v=clean(value);return v?v.slice(0,8).toUpperCase():'—'}
+  function identityText(planId){const x=identity(planId);return `${x.productName} — ${x.planName}`}
+  function currentDeliveryPlan(){
+    const direct=clean(byId('opsDeliverPlanId')?.value);
+    if(direct)return direct;
+    const stockId=clean(byId('opsDeliverStockId')?.value||byId('opsDeliverStockSelect')?.value);
+    return clean(stateRows('stock').find(x=>same(x?.id,stockId))?.plan_id);
+  }
+  function ensureIdentity(host,id){
+    if(!host)return null;
+    let box=byId(id);
+    if(!box){box=document.createElement('div');box.id=id;box.className='v89-identity';host.prepend(box)}
+    return box;
+  }
+  function fillIdentity(box,planId,scope){
+    if(!box)return;
+    const x=identity(planId);
+    box.innerHTML=`<div class="v89-identity-main"><div class="v89-identity-title">${esc(x.productName)} <span class="subtle">—</span> ${esc(x.planName)}</div><div class="v89-identity-sub">${scope==='delivery'?'La entrega solo mostrará cuentas vinculadas exactamente a este producto y plan.':'Las cuentas de esta ventana pertenecen únicamente a este producto y plan.'} El mismo correo puede existir en otros productos sin mezclarse.</div></div><span class="v89-plan-code">Plan ${esc(shortId(x.planId))}</span>`;
+  }
+  function renderAccountsIdentity(planId=accountsPlanId){
+    if(!planId)return; accountsPlanId=clean(planId);
+    const x=identity(planId);
+    const title=byId('c103Title'); if(title)title.textContent=`Cuentas y cupos · ${x.productName} — ${x.planName}`;
+    const name=byId('c103PlanName'); if(name)name.textContent=`${x.productName} — ${x.planName}`;
+    const body=byId('dlgCore1Accounts')?.querySelector('.dlg-body');
+    const box=ensureIdentity(body,'v89AccountsIdentity'); fillIdentity(box,planId,'accounts');
+    decorateAccountCards();
+  }
+  function decorateAccountCards(){
+    if(!accountsPlanId)return;
+    const x=identity(accountsPlanId);
+    document.querySelectorAll('#c103List .c103-card').forEach(card=>{
+      let badge=card.querySelector('.v89-product-badge');
+      if(!badge){badge=document.createElement('div');badge.className='v89-product-badge';const email=card.querySelector('.c103-email');(email?.parentElement||card).prepend(badge)}
+      badge.textContent=`📦 ${x.productName} · ${x.planName}`;
+      card.dataset.planId=x.planId; card.dataset.productId=x.productId;
+    });
+  }
+  function renderDeliveryIdentity(planId=deliveryPlanId||currentDeliveryPlan()){
+    if(!planId)return; deliveryPlanId=clean(planId);
+    const x=identity(planId);
+    const header=byId('dlgOpsDeliver')?.querySelector('.modal-header strong');
+    if(header)header.textContent=`Entregar · ${x.productName} — ${x.planName}`;
+    const body=byId('dlgOpsDeliver')?.querySelector('.dlg-body');
+    const box=ensureIdentity(body,'v89DeliveryIdentity'); fillIdentity(box,planId,'delivery');
+    relabelDeliveryOptions();
+  }
+  function relabelDeliveryOptions(){
+    const select=byId('opsDeliverStockSelect');
+    const planId=deliveryPlanId||currentDeliveryPlan();
+    if(!select||!planId)return;
+    const x=identity(planId);
+    Array.from(select.options).forEach(option=>{
+      if(!option.value)return;
+      if(!option.dataset.v89BaseLabel)option.dataset.v89BaseLabel=option.textContent;
+      option.textContent=`${x.productName} · ${x.planName} · ${option.dataset.v89BaseLabel}`;
+    });
+    select.dataset.planId=planId;
+    guardDeliverySelection();
+  }
+  function notify(message,type='bad'){
+    try{if(typeof window.coreToast==='function')return window.coreToast(message,type)}catch(_){ }
+    try{if(typeof window.toast==='function')return window.toast(message,type)}catch(_){ }
+    console[type==='bad'?'error':'log'](message);
+  }
+  function guardDeliverySelection(){
+    const select=byId('opsDeliverStockSelect');
+    const planId=deliveryPlanId||currentDeliveryPlan();
+    const stockId=clean(select?.value);
+    if(!select||!planId||!stockId)return true;
+    const item=stateRows('stock').find(x=>same(x?.id,stockId));
+    if(item&&item.plan_id&&!same(item.plan_id,planId)){
+      select.value=''; const hidden=byId('opsDeliverStockId');if(hidden)hidden.value='';
+      notify('La cuenta pertenece a otro producto/plan y fue retirada de esta entrega.','bad');
+      return false;
+    }
+    return true;
+  }
+  function updateEditorIdentity(){
+    const planId=accountsPlanId||clean(byId('c103PlanId')?.value);
+    if(!planId)return;
+    const x=identity(planId); const title=byId('c103EditorTitle');
+    if(title){const action=clean(byId('c103ItemId')?.value)?'Editar cuenta':'Agregar cuenta';title.textContent=`${action} · ${x.productName} — ${x.planName}`}
+    const input=byId('c103Username'); if(!input)return;
+    let hint=byId('v89AccountUsageHint');
+    if(!hint){hint=document.createElement('div');hint.id='v89AccountUsageHint';hint.className='v89-account-usage';input.insertAdjacentElement('afterend',hint)}
+    const email=clean(input.value).toLowerCase();
+    if(!email){hint.textContent=`Esta cuenta se guardará en ${x.productName} — ${x.planName}.`;hint.className='v89-account-usage';return}
+    const currentId=clean(byId('c103ItemId')?.value);
+    const matches=stateRows('stock').filter(row=>{
+      if(currentId&&same(row?.id,currentId))return false;
+      let sec=row?.secret_data&&typeof row.secret_data==='object'?row.secret_data:{};
+      const login=clean(sec.correo||sec.email||sec.usuario||sec.username||row?.title).toLowerCase();
+      return login===email;
+    });
+    const samePlan=matches.filter(row=>same(row?.plan_id,planId)&&!['archived','deleted','cancelled','canceled'].includes(clean(row?.status).toLowerCase()));
+    const otherPlans=matches.filter(row=>!same(row?.plan_id,planId)).map(row=>identity(row?.plan_id));
+    const unique=[]; const seen=new Set(); otherPlans.forEach(item=>{const key=item.planId;if(key&&!seen.has(key)){seen.add(key);unique.push(item)}});
+    if(samePlan.length){hint.className='v89-account-usage is-bad';hint.textContent=`Atención: ya existe otra cuenta activa con este correo en ${x.productName} — ${x.planName}. Revisa antes de guardar un duplicado.`;return}
+    if(unique.length){hint.className='v89-account-usage is-warn';hint.textContent=`Este correo también se usa en: ${unique.map(i=>`${i.productName} — ${i.planName}`).join(' · ')}. Se mantendrá separado porque cada registro usa su propio plan.`;return}
+    hint.className='v89-account-usage';hint.textContent=`Correo nuevo para ${x.productName} — ${x.planName}.`;
+  }
+  function labelPlanSelect(select){
+    if(!select)return;
+    Array.from(select.options).forEach(option=>{
+      const pl=planRow(option.value); if(!pl)return;
+      if(!option.dataset.v89BasePlanLabel)option.dataset.v89BasePlanLabel=option.textContent;
+      option.textContent=identityText(pl.id);
+    });
+  }
+  function refreshPlanSelects(){['opsStockPlan','manualPlan','rPlan','opsPlanFilter'].forEach(id=>labelPlanSelect(byId(id)))}
+
+  function wrapFunction(name,after){
+    const current=window[name];
+    if(typeof current!=='function'||current.__v89Wrapped)return false;
+    const wrapped=function(){
+      const args=Array.from(arguments); const result=current.apply(this,args);
+      try{after(args,result)}catch(error){console.warn('V89 '+name,error)}
+      return result;
+    };
+    wrapped.__v89Wrapped=true; wrapped.__v89Original=current; window[name]=wrapped;
+    try{eval(name+'=wrapped')}catch(_){ }
+    return true;
+  }
+  function installWrappers(){
+    wrapFunction('openPlanStockView',(args,result)=>{
+      accountsPlanId=clean(args[0]);
+      setTimeout(()=>renderAccountsIdentity(accountsPlanId),0);
+      Promise.resolve(result).finally(()=>setTimeout(()=>renderAccountsIdentity(accountsPlanId),0));
+    });
+    wrapFunction('openOpsDeliver',(args)=>{
+      const stockId=clean(args[0]); const forced=clean(args[1]);
+      const stock=stateRows('stock').find(x=>same(x?.id,stockId));
+      deliveryPlanId=clean(stock?.plan_id||forced||currentDeliveryPlan());
+      if(deliveryPlanId&&byId('opsDeliverPlanId'))byId('opsDeliverPlanId').value=deliveryPlanId;
+      setTimeout(()=>renderDeliveryIdentity(deliveryPlanId),0);
+      setTimeout(()=>renderDeliveryIdentity(deliveryPlanId),350);
+      setTimeout(()=>renderDeliveryIdentity(deliveryPlanId),1200);
+    });
+  }
+  function observe(){
+    const accountList=byId('c103List');
+    if(accountList&&!accountList.dataset.v89Observed){new MutationObserver(()=>setTimeout(()=>renderAccountsIdentity(),0)).observe(accountList,{childList:true,subtree:true});accountList.dataset.v89Observed='1'}
+    const accountTitle=byId('c103Title');
+    if(accountTitle&&!accountTitle.dataset.v89Observed){new MutationObserver(()=>{if(accountsPlanId&&!accountTitle.textContent.includes(identity(accountsPlanId).productName))setTimeout(()=>renderAccountsIdentity(),0)}).observe(accountTitle,{childList:true,characterData:true,subtree:true});accountTitle.dataset.v89Observed='1'}
+    const deliverSelect=byId('opsDeliverStockSelect');
+    if(deliverSelect&&!deliverSelect.dataset.v89Observed){new MutationObserver(()=>setTimeout(relabelDeliveryOptions,0)).observe(deliverSelect,{childList:true});deliverSelect.addEventListener('change',()=>{guardDeliverySelection();relabelDeliveryOptions()});deliverSelect.dataset.v89Observed='1'}
+    const editor=byId('c103Username');
+    if(editor&&!editor.dataset.v89Observed){editor.addEventListener('input',updateEditorIdentity);editor.addEventListener('focus',updateEditorIdentity);editor.dataset.v89Observed='1'}
+    ['opsStockPlan','manualPlan','rPlan','opsPlanFilter'].forEach(id=>{const s=byId(id);if(s&&!s.dataset.v89Observed){new MutationObserver(()=>labelPlanSelect(s)).observe(s,{childList:true});s.dataset.v89Observed='1'}});
+  }
+  function tick(){installWrappers();observe();refreshPlanSelects();if(accountsPlanId)renderAccountsIdentity(accountsPlanId);if(deliveryPlanId)renderDeliveryIdentity(deliveryPlanId)}
+  function start(){let n=0;tick();const timer=setInterval(()=>{tick();if(++n>=24)clearInterval(timer)},500)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(start,2800),{once:true});else setTimeout(start,2800);
+})();
+</script>
+
+<script>console.info('Innov IA Admin V90 · reglas de stock sincronizadas');</script>
+
+<style id="innov-v91-reminder-dashboard-css">
+/* =====================================================================
+   V91 — Dashboard basado en recordatorios + búsqueda profunda + marca
+   ===================================================================== */
+.v91-brand-lockup{display:inline-flex!important;align-items:stretch!important;width:auto!important;height:38px!important;border-radius:11px!important;overflow:hidden!important;background:transparent!important;box-shadow:0 3px 10px rgba(15,23,42,.16)!important;font-size:.78rem!important;line-height:1!important;flex:0 0 auto!important}
+.v91-brand-lockup .v91-brand-a,.v91-brand-lockup .v91-brand-b{display:grid;place-items:center;padding:0 11px;font-weight:950;letter-spacing:-.035em}
+.v91-brand-lockup .v91-brand-a{background:#fff;color:#0f172a}
+.v91-brand-lockup .v91-brand-b{background:#facc15;color:#0f172a}
+.auth-logo.v91-brand-lockup{width:156px!important;height:48px!important;border-radius:13px!important;margin-bottom:18px!important}
+.sidenav .auth-logo.v91-brand-lockup{width:118px!important;height:38px!important;margin:0!important}
+header.app .app-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+header.app .app-sub{display:none!important}
+@media(max-width:540px){.v91-brand-lockup{height:34px!important}.v91-brand-lockup .v91-brand-a,.v91-brand-lockup .v91-brand-b{padding-inline:8px;font-size:.68rem}header.app .app-title{display:none}}
+
+#tab-dashboard .v91-dash{display:grid;gap:12px}
+.v91-dash-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:4px 2px 12px;border-bottom:1px solid var(--border)}
+.v91-dash-head h1{margin:4px 0 3px;font-size:1.35rem;line-height:1.1;color:var(--card-ink);letter-spacing:-.035em}
+.v91-dash-head p{margin:0;color:var(--muted);font-size:.8rem;max-width:700px}
+.v91-dash-kicker{color:var(--primary);font-size:.68rem;font-weight:950;text-transform:uppercase;letter-spacing:.085em}
+.v91-dash-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.v91-dash-filter{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:9px;border:1px solid var(--border);background:linear-gradient(180deg,var(--card),var(--card2));padding:9px;border-radius:15px;box-shadow:var(--shadow-xs)}
+.v91-filter-chips{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.v91-filter-btn{border:1px solid transparent;background:transparent;color:var(--muted);padding:7px 10px;border-radius:9px;font-size:.72rem;font-weight:900;cursor:pointer}
+.v91-filter-btn:hover{color:var(--primary);background:var(--primary-alpha2)}
+.v91-filter-btn.active{background:var(--primary);color:#fff;box-shadow:0 6px 14px rgba(30,64,175,.18)}
+.v91-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.v91-kpi{position:relative;overflow:hidden;border:1px solid var(--border);background:var(--card);border-radius:16px;padding:13px;box-shadow:var(--shadow-xs);min-height:112px}
+.v91-kpi::after{content:'';position:absolute;right:-32px;bottom:-48px;width:100px;height:100px;border-radius:50%;background:var(--primary-alpha);pointer-events:none}
+.v91-kpi.warn::after{background:var(--warning-alpha)}.v91-kpi.bad::after{background:var(--danger-alpha)}.v91-kpi.ok::after{background:var(--success-alpha)}
+.v91-kpi-top{display:flex;align-items:center;justify-content:space-between;gap:7px;color:var(--muted);font-size:.69rem;font-weight:900;text-transform:uppercase;letter-spacing:.035em}
+.v91-kpi-icon{font-size:1rem}.v91-kpi-value{font-size:1.45rem;line-height:1;font-weight:950;margin-top:14px;color:var(--card-ink);font-variant-numeric:tabular-nums;letter-spacing:-.04em}.v91-kpi-sub{font-size:.67rem;color:var(--muted);font-weight:760;margin-top:8px}
+.v91-dash-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:11px;align-items:start}
+.v91-panel{border:1px solid var(--border);background:var(--card);border-radius:17px;box-shadow:var(--shadow-xs);overflow:hidden}
+.v91-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;padding:13px 14px 10px;border-bottom:1px solid var(--border)}
+.v91-panel-head h3{margin:0;font-size:.9rem;color:var(--card-ink)}.v91-panel-head p{margin:3px 0 0;color:var(--muted);font-size:.68rem}.v91-panel-body{padding:11px 13px}
+.v91-pipeline{display:grid;gap:9px}.v91-pipe-row{display:grid;grid-template-columns:minmax(100px,.8fr) minmax(120px,1.4fr) auto;gap:8px;align-items:center}.v91-pipe-label{font-size:.72rem;font-weight:850;color:var(--card-ink)}.v91-pipe-track{height:9px;border-radius:999px;background:var(--card2);overflow:hidden;border:1px solid var(--border)}.v91-pipe-fill{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--primary),var(--primary-light))}.v91-pipe-row.bad .v91-pipe-fill{background:linear-gradient(90deg,var(--danger),var(--danger-light))}.v91-pipe-row.warn .v91-pipe-fill{background:linear-gradient(90deg,var(--warning),var(--warning-light))}.v91-pipe-row.ok .v91-pipe-fill{background:linear-gradient(90deg,var(--success),var(--success-light))}.v91-pipe-value{font-size:.7rem;font-weight:950;color:var(--card-ink);white-space:nowrap}
+.v91-service-list,.v91-urgent-list{display:grid;gap:7px}.v91-service-row,.v91-urgent-row{border:1px solid var(--border);background:var(--card2);border-radius:12px;padding:9px 10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.v91-service-name,.v91-urgent-title{font-size:.76rem;font-weight:900;color:var(--card-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-service-meta,.v91-urgent-sub{font-size:.65rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-service-amount,.v91-urgent-amount{font-size:.76rem;font-weight:950;color:var(--primary);white-space:nowrap}.v91-urgent-row{cursor:pointer;border-left:4px solid var(--warning)}.v91-urgent-row.overdue{border-left-color:var(--danger)}.v91-urgent-row:hover{background:var(--primary-alpha2)}
+.v91-account-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.v91-account-stat{border:1px solid var(--border);background:var(--card2);border-radius:12px;padding:10px;text-align:center}.v91-account-stat b{display:block;font-size:1.05rem;color:var(--card-ink)}.v91-account-stat span{font-size:.61rem;color:var(--muted);font-weight:850;text-transform:uppercase}
+.v91-empty{border:1px dashed var(--border);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:.78rem}
+
+/* Recordatorios compactos, copiables y adaptables */
+#tab-reminders .v91-section{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 2px 6px;font-weight:950;color:var(--card-ink)}
+#tab-reminders .v91-section small{font-size:.67rem;color:var(--muted);font-weight:700;margin-left:6px}
+#tab-reminders .v91-reminder-row{display:grid;grid-template-columns:minmax(210px,1.25fr) minmax(130px,.7fr) minmax(130px,.65fr) minmax(245px,auto);gap:9px;align-items:center;border:1px solid var(--border);background:var(--card);border-radius:14px;padding:10px 11px;box-shadow:var(--shadow-xs);margin-bottom:7px}
+#tab-reminders .v91-reminder-row.overdue{border-color:rgba(185,28,28,.34);background:color-mix(in srgb,var(--danger-alpha) 26%,var(--card))}
+#tab-reminders .v91-reminder-row.today{border-color:rgba(180,83,9,.34);background:color-mix(in srgb,var(--warning-alpha) 24%,var(--card))}
+.v91-rem-main{min-width:0}.v91-rem-title{font-size:.87rem;font-weight:950;color:var(--card-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-rem-client{font-size:.72rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-rem-chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.v91-copy-chip{appearance:none;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:3px 7px;font-size:.64rem;font-weight:850;cursor:pointer;max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-copy-chip:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-alpha2)}.v91-copy-chip.account{background:var(--danger-alpha);color:var(--danger);border-color:rgba(185,28,28,.2)}.v91-copy-chip.mail{background:var(--success-alpha);color:var(--success);border-color:rgba(21,128,61,.2)}
+.v91-rem-meta{display:flex;gap:5px;flex-wrap:wrap}.v91-rem-date{display:grid;gap:2px;font-size:.72rem}.v91-rem-date b{color:var(--card-ink)}.v91-rem-date span{color:var(--muted);font-size:.65rem}.v91-rem-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.v91-rem-actions .btn{min-width:0;width:100%;height:31px;padding:4px 6px;font-size:.65rem;border-radius:8px;overflow:hidden;text-overflow:ellipsis}
+.v91-search-note{border:1px solid var(--border);border-left:3px solid var(--primary);background:var(--primary-alpha2);border-radius:11px;padding:8px 10px;margin-bottom:8px;font-size:.72rem;color:var(--muted)}
+
+/* Historial V91 */
+#dlgClientHistory{width:min(900px,97vw)}
+.v91-history-hero{border:1px solid var(--border);background:linear-gradient(135deg,var(--primary-alpha2),var(--card));border-radius:15px;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}.v91-history-name{font-size:1.02rem;font-weight:950;color:var(--card-ink)}.v91-history-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.v91-history-stats{display:flex;gap:6px;flex-wrap:wrap}.v91-history-stat{border:1px solid var(--border);background:var(--card);border-radius:10px;padding:6px 9px;text-align:center;min-width:65px}.v91-history-stat b{display:block;font-size:.95rem}.v91-history-stat span{font-size:.58rem;color:var(--muted);text-transform:uppercase;font-weight:900}.v91-history-search{position:sticky;top:0;z-index:2;background:var(--card);padding:8px 0}.v91-history-list{display:grid;gap:8px}.v91-history-item{border:1px solid var(--border);background:var(--card);border-radius:13px;padding:10px;border-left:4px solid var(--primary)}.v91-history-item.overdue{border-left-color:var(--danger)}.v91-history-item.delivery{border-left-color:var(--success)}.v91-history-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.v91-history-title{font-size:.82rem;font-weight:950;color:var(--card-ink)}.v91-history-sub{font-size:.67rem;color:var(--muted);margin-top:3px}.v91-history-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}.v91-history-kv{border:1px solid var(--border);background:var(--card2);border-radius:10px;padding:7px;min-width:0}.v91-history-kv span{display:block;font-size:.57rem;color:var(--muted);font-weight:900;text-transform:uppercase}.v91-history-kv b{display:block;font-size:.7rem;color:var(--card-ink);margin-top:2px;word-break:break-word}.v91-history-details{margin-top:7px;border:1px dashed var(--border);border-radius:10px;background:var(--card2)}.v91-history-details summary{cursor:pointer;padding:7px 9px;font-size:.68rem;font-weight:900}.v91-history-details pre{margin:0;padding:9px;border-top:1px dashed var(--border);white-space:pre-wrap;max-height:180px;overflow:auto;font-size:.7rem}.v91-history-hidden{display:none!important}
+
+#v91TelegramCard .v91-tg-status{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--card2);border-radius:11px;padding:9px;margin:10px 0;font-size:.76rem;font-weight:800}.v91-tg-dot{width:9px;height:9px;border-radius:50%;background:var(--warning);box-shadow:0 0 0 4px var(--warning-alpha)}.v91-tg-status.ok .v91-tg-dot{background:var(--success);box-shadow:0 0 0 4px var(--success-alpha)}.v91-tg-status.bad .v91-tg-dot{background:var(--danger);box-shadow:0 0 0 4px var(--danger-alpha)}
+
+@media(max-width:980px){.v91-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.v91-dash-grid{grid-template-columns:1fr}#tab-reminders .v91-reminder-row{grid-template-columns:1fr 1fr}.v91-rem-main{grid-column:1/-1}.v91-rem-actions{grid-column:1/-1}}
+@media(max-width:700px){.v91-dash-head{display:grid}.v91-dash-tools{justify-content:flex-start}.v91-dash-filter{grid-template-columns:1fr}.v91-filter-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.v91-filter-btn{padding:7px 5px}.v91-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.v91-kpi{min-height:100px;padding:10px}.v91-kpi-value{font-size:1.14rem}.v91-account-stats{grid-template-columns:repeat(3,minmax(0,1fr))}#tab-reminders .v91-reminder-row{grid-template-columns:1fr;padding:9px}.v91-rem-main,.v91-rem-actions{grid-column:auto}.v91-rem-actions{grid-template-columns:repeat(3,minmax(0,1fr))}.v91-copy-chip{max-width:160px}.v91-history-hero{grid-template-columns:1fr}.v91-history-grid{grid-template-columns:1fr 1fr}.v91-history-stats{justify-content:flex-start}}
+@media(max-width:420px){.v91-filter-chips{grid-template-columns:repeat(2,minmax(0,1fr))}.v91-kpis{grid-template-columns:1fr 1fr}.v91-kpi-top{font-size:.58rem}.v91-rem-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.v91-history-grid{grid-template-columns:1fr}.v91-account-stats{grid-template-columns:1fr 1fr 1fr}}
+</style>
+<script id="innov-v91-reminder-dashboard-js">
+(function(){
+  'use strict';
+  if(window.__innovV91ReminderDashboard)return;
+  window.__innovV91ReminderDashboard=true;
+  const byId=id=>document.getElementById(id);
+  const stateOf=()=>{try{if(typeof state!=='undefined'&&state)return state}catch(_){ }return window.state||{}};
+  const rows=v=>Array.isArray(v)?v:[];
+  const text=v=>String(v==null?'':v).trim();
+  const norm=v=>text(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const same=(a,b)=>text(a)===text(b);
+  const html=v=>String(v==null?'':v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  const emailOk=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(text(v));
+  const moneyV=v=>{try{return window.money(Number(v||0))}catch(_){return 'S/ '+Number(v||0).toFixed(2)}};
+  const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+  const dayDiff=v=>{const s=text(v).slice(0,10);if(!s)return null;const a=new Date(s+'T12:00:00'),b=new Date(today()+'T12:00:00');const n=Math.round((a-b)/86400000);return Number.isFinite(n)?n:null};
+  const dateLabel=v=>{const s=text(v).slice(0,10),m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:(s||'Sin fecha')};
+  const customer=r=>rows(stateOf().customers).find(c=>same(c.id,r?.customer_id))||{};
+  const assignment=r=>rows(stateOf().assignments).find(a=>same(a.id,r?.assignment_id)||same(a.reminder_id,r?.id))||{};
+  const stockBy=id=>rows(stateOf().stock).find(s=>same(s.id,id))||{};
+  const secret=s=>{const d=s?.secret_data;return d&&typeof d==='object'&&!Array.isArray(d)?d:{}};
+  const snapshot=r=>{const d=r?.linked_account_snapshot;return d&&typeof d==='object'&&!Array.isArray(d)?d:{}};
+  const assignmentMeta=a=>{const d=a?.metadata;return d&&typeof d==='object'&&!Array.isArray(d)?d:{}};
+  function deliveryDataV92(d){
+    const raw=d?.delivery_data;
+    if(raw&&typeof raw==='object'&&!Array.isArray(raw))return raw;
+    if(typeof raw==='string'){try{return JSON.parse(raw)}catch(_){}}
+    return {};
+  }
+  function latestDeliveryV92(r){
+    const a=assignment(r), orderId=text(r?.order_id||a?.order_id), itemId=text(r?.order_item_id||a?.order_item_id), planId=text(r?.plan_id||a?.plan_id);
+    return rows(stateOf().deliveries).filter(d=>{
+      if(itemId&&same(d?.order_item_id,itemId))return true;
+      if(orderId&&same(d?.order_id,orderId)&&(!planId||!d?.plan_id||same(d?.plan_id,planId)))return true;
+      if(a?.id&&same(d?.assignment_id,a.id))return true;
+      return false;
+    }).sort((x,y)=>text(y?.created_at).localeCompare(text(x?.created_at)))[0]||{};
+  }
+  function firstEmailV92(values){for(const v of values){const x=text(v);if(emailOk(x))return x}return ''}
+  function linkedRaw(r){
+    const a=assignment(r),m=assignmentMeta(a),ac=m.access_context&&typeof m.access_context==='object'?m.access_context:{},md=m.delivery_data&&typeof m.delivery_data==='object'?m.delivery_data:{},del=latestDeliveryV92(r),dd=deliveryDataV92(del);
+    const primaryStock=stockBy(a?.stock_item_id||r?.stock_item_id||dd?.stock_id||del?.stock_item_id),primarySecret=secret(primaryStock);
+    const deliveryStock=stockBy(dd?.stock_id||del?.stock_item_id),deliverySecret=secret(deliveryStock);
+    const snap=a?.access_snapshot&&typeof a.access_snapshot==='object'?a.access_snapshot:{};
+    /* La fuente principal es la cuenta realmente asignada. Se omiten a propósito
+       linked_account_email/customer_email porque en datos antiguos pueden guardar
+       el correo del cliente y no la cuenta entregada. */
+    return firstEmailV92([
+      deliverySecret.correo,deliverySecret.email,deliverySecret.usuario,deliverySecret.username,deliverySecret.family_admin_email,deliverySecret.correo_admin,
+      primarySecret.correo,primarySecret.email,primarySecret.usuario,primarySecret.username,primarySecret.family_admin_email,primarySecret.correo_admin,
+      ac.login,ac.correo,ac.email,ac.usuario,
+      dd.correo,dd.email,dd.usuario,dd.username,dd.cuenta,dd.login,dd.family_admin_email,dd.correo_admin,
+      md.correo,md.email,md.usuario,md.login,
+      snap.correo,snap.email,snap.usuario,snap.login,snap.family_admin_email,snap.correo_admin
+    ]);
+  }
+  function linkedEmail(r){const v=linkedRaw(r);return emailOk(v)?v:''}
+  function customerEmail(r,c=customer(r)){const snap=snapshot(r);let v='';try{v=text(window.customerGmail?.(c)||c?.email||r?.customer_email||snap.client_email||snap.cliente_gmail||snap.family_client_email||'')}catch(_){v=text(c?.email||r?.customer_email||snap.client_email||snap.cliente_gmail||'')}return emailOk(v)?v:''}
+  function profile(r){const a=assignment(r),m=assignmentMeta(a),ac=m.access_context&&typeof m.access_context==='object'?m.access_context:{},snap=a?.access_snapshot&&typeof a.access_snapshot==='object'?a.access_snapshot:{},s=stockBy(r?.stock_item_id||a?.stock_item_id),d=secret(s);return text(ac.profile||snap.slot_label||d.perfil||d.profile||'')}
+  function productName(r){const p=rows(stateOf().plans).find(x=>same(x.id,r?.plan_id))||{};return text(rows(stateOf().products).find(x=>same(x.id,p.product_id))?.name||'')}
+  function planNameV(r){return text(rows(stateOf().plans).find(x=>same(x.id,r?.plan_id))?.name||'')}
+  function orderFor(r){return rows(stateOf().orders).find(o=>same(o.id,r?.order_id))||{}}
+  function deliveryTextFor(r){return rows(stateOf().deliveries).filter(d=>same(d.order_id,r?.order_id)||same(d.order_item_id,r?.order_item_id)).map(d=>`${text(d.delivered_message)} ${text(d.message)} ${JSON.stringify(d.delivery_data||{})}`).join(' ')}
+  const paidSet=new Set(['paid','pagado','renewed','renovado']);
+  const closedSet=new Set(['cancelled','canceled','deleted','eliminado','archived','archivado','no_renovo','expired','completed']);
+  const status=r=>norm(r?.status||'pending');
+  const operational=r=>{const a=assignment(r);if(norm(a?.status)==='active')return true;return !closedSet.has(status(r))};
+  function searchBlob(r){const c=customer(r),a=assignment(r),o=orderFor(r),s=stockBy(r?.stock_item_id||a?.stock_item_id),d=secret(s),m=assignmentMeta(a);return [r?.service_name,r?.status,r?.due_date,r?.amount,r?.currency,r?.order_id,r?.order_item_id,r?.whatsapp_message,c?.name,c?.phone_e164,c?.phone_raw,c?.email,customerEmail(r,c),linkedRaw(r),profile(r),productName(r),planNameV(r),a?.status,a?.source,JSON.stringify(m),o?.order_code,o?.customer_name,o?.customer_whatsapp,d?.correo,d?.email,d?.usuario,d?.perfil,d?.pin,deliveryTextFor(r)].map(text).join(' ')}
+  function matches(r,q){const parts=norm(q).split(/\s+/).filter(Boolean);const blob=norm(searchBlob(r));return parts.every(x=>blob.includes(x))}
+  function statusInfo(r){const st=status(r),d=dayDiff(r?.due_date);if(paidSet.has(st))return['Pago registrado','b-purple','renew'];if(d==null)return['Sin fecha','b-pagado','review'];if(d<0)return['Vencido','b-bad','overdue'];if(d===0)return['Vence hoy','b-warn','today'];if(d<=7)return['Por vencer','b-warn','upcoming'];return['En curso','b-ok','later']}
+  function dayNote(r){const d=dayDiff(r?.due_date);if(d==null)return 'sin fecha';if(d===0)return 'vence hoy';if(d<0){const n=Math.abs(d);return `hace ${n} día${n===1?'':'s'}`}return `en ${d} día${d===1?'':'s'}`}
+  function enc(v){return encodeURIComponent(text(v))}
+  function copyChip(value,label,kind,icon){if(!value)return '';return `<button type="button" class="v91-copy-chip ${kind||''}" data-v91-copy="${html(enc(value))}" data-v91-copy-label="${html(label||'Dato')}">${icon||'⧉'} ${html(value)}</button>`}
+  window.innovV91Copy=async function(value,label='Dato'){value=text(value);if(!value)return;try{await navigator.clipboard.writeText(value)}catch(_){const ta=document.createElement('textarea');ta.value=value;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}try{window.toast?.(`${label} copiado`,'ok')}catch(_){ }};
+  document.addEventListener('click',e=>{const el=e.target.closest('[data-v91-copy]');if(!el)return;e.preventDefault();e.stopPropagation();let v='';try{v=decodeURIComponent(el.dataset.v91Copy||'')}catch(_){v=el.dataset.v91Copy||''}window.innovV91Copy(v,el.dataset.v91CopyLabel||'Dato')});
+
+  function groupReminders(query=''){const all=rows(stateOf().reminders).filter(operational).filter(r=>matches(r,query));const active=all.filter(r=>!paidSet.has(status(r))),sort=(a,b)=>(dayDiff(a?.due_date)??99999)-(dayDiff(b?.due_date)??99999)||text(a?.service_name).localeCompare(text(b?.service_name),'es');return {all,today:active.filter(r=>dayDiff(r?.due_date)===0).sort(sort),overdue:active.filter(r=>(dayDiff(r?.due_date)??0)<0).sort(sort),next7:active.filter(r=>{const d=dayDiff(r?.due_date);return d!=null&&d>0&&d<=7}).sort(sort),later:active.filter(r=>{const d=dayDiff(r?.due_date);return d!=null&&d>7}).sort(sort),paid:all.filter(r=>paidSet.has(status(r))).sort(sort)}}
+  function reminderRow(r){
+    const c=customer(r),info=statusInfo(r),id=html(r?.id||''),phone=text(c?.phone_e164||c?.phone_raw||''),account=linkedEmail(r),prof=profile(r),service=text(r?.service_name||planNameV(r)||'Servicio'),client=text(c?.name||'Cliente sin nombre'),hist=c?.id?`<button class="btn" type="button" onclick="event.stopPropagation();window.showClientHistory?.('${html(c.id)}')">◷ Hist.</button>`:'';
+    return `<div class="reminder-row v91-reminder-row ${info[2]}" data-reminder-id="${id}"><div class="v91-rem-main"><div class="v91-rem-title">${info[2]==='overdue'?'🚨':info[2]==='today'?'⏰':info[2]==='renew'?'🧾':'📌'} ${html(service)}</div><div class="v91-rem-client">${html(client)} · ${html(productName(r)||planNameV(r)||'Servicio')}</div><div class="v91-rem-chips">${copyChip(phone,'WhatsApp','','📱')}${copyChip(account,'Cuenta vinculada','account','🔗')}${copyChip(prof,'Perfil','','👤')}</div></div><div class="v91-rem-meta"><span class="badge ${info[1]}">${html(info[0])}</span><span class="badge">${html(moneyV(r?.amount))}</span>${r?.last_sent_at?'<span class="badge b-pagado">WhatsApp enviado</span>':''}</div><div class="v91-rem-date"><b>📅 ${html(dateLabel(r?.due_date))}</b><span>${html(dayNote(r))}</span></div><div class="v91-rem-actions"><button class="btn btn-success" type="button" onclick="event.stopPropagation();window.openReminderWhatsApp?.('${id}')">💬 WhatsApp</button><button class="btn" type="button" onclick="event.stopPropagation();window.markReminderPaid?.('${id}')">✓ Renovar</button><button class="btn btn-primary" type="button" onclick="event.stopPropagation();window.editReminder?.('${id}')">✎ Editar</button>${hist}<button class="btn btn-danger" type="button" onclick="event.stopPropagation();window.quickDeleteReminder?.('${id}')">🗑 Borrar</button></div></div>`;
+  }
+  function section(icon,title,sub,list,badge){if(!list.length)return '';return `<div class="v91-section"><span>${icon} ${html(title)} <small>${html(sub)}</small></span><span class="badge ${badge||''}">${list.length}</span></div>${list.map(reminderRow).join('')}`}
+  function renderRemindersV91(){const host=byId('remindersGrid'),merged=byId('remindersMergedGrid');if(!host&&!merged)return;const input=byId('reminderSearch')||byId('clientSearch');if(byId('reminderSearch'))byId('reminderSearch').placeholder='🔍 Buscar cliente, celular, correo del cliente, cuenta vinculada, perfil, producto, plan, monto, fecha o pedido...';const q=text(input?.value||''),g=groupReminders(q),filter=stateOf().v68Filter||'all';let out='';if(filter==='today')out=section('⏰','Vencen hoy','prioridad',g.today,'b-warn');else if(filter==='overdue'||stateOf().onlyDue)out=section('🚨','Vencidos','cobranza pendiente',g.overdue,'b-bad');else if(filter==='renew')out=section('🧾','Pagos por renovar','crear próximo vencimiento',g.paid,'b-purple');else if(filter==='upcoming')out=section('📆','Próximos 7 días','seguimiento',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');else out=section('⏰','Vencen hoy','atiéndelos primero',g.today,'b-warn')+section('🚨','Vencidos','continúa la cobranza',g.overdue,'b-bad')+section('🧾','Pagos por renovar','crea el siguiente vencimiento',g.paid,'b-purple')+section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');if(!out)out='<div class="v91-empty">✅ No hay recordatorios para mostrar.</div>';if(q)out=`<div class="v91-search-note">Búsqueda profunda activa: cliente, WhatsApp, correos, cuenta vinculada, perfil, producto, plan, monto, fecha, pedido y datos de entrega.</div>${out}`;if(host)host.innerHTML=out;if(merged)merged.innerHTML=out;const urgent=g.today.length+g.overdue.length+g.paid.length;['tbReminders','mbReminders'].forEach(k=>{const el=byId(k);if(el){el.textContent=urgent>999?'999+':String(urgent);el.style.display=urgent?'':'none'}});try{window.updateReminderBulkBar?.()}catch(_){ }}
+  window.renderReminders=renderRemindersV91;try{renderReminders=window.renderReminders}catch(_){ }
+
+  function dashData(query=''){const g=groupReminders(query),active=g.all.filter(r=>!paidSet.has(status(r))),sum=x=>x.reduce((a,r)=>a+Number(r?.amount||0),0),next30=active.filter(r=>{const d=dayDiff(r?.due_date);return d!=null&&d>0&&d<=30}),month=today().slice(0,7),collected=g.all.filter(r=>text(r?.fecha_pago).slice(0,7)===month||paidSet.has(status(r))),linked=active.filter(r=>!!linkedEmail(r));return {g,active,next30,collected,linked,sum,totalAmount:sum(active),overdueAmount:sum(g.overdue),todayAmount:sum(g.today),next7Amount:sum(g.next7),next30Amount:sum(next30),collectedAmount:sum(collected)}}
+  function routeReminder(filter,query=''){stateOf().v68Filter=filter||'all';if(byId('reminderSearch'))byId('reminderSearch').value=query||'';try{window.switchTab?.('reminders')}catch(_){ }setTimeout(()=>window.renderReminders?.(),30)}
+  function dashFilterRows(d,filter){if(filter==='overdue')return d.g.overdue;if(filter==='today')return d.g.today;if(filter==='7')return d.g.next7;if(filter==='30')return d.next30;return d.active.slice().sort((a,b)=>(dayDiff(a?.due_date)??99999)-(dayDiff(b?.due_date)??99999))}
+  function topServices(active){const map=new Map();active.forEach(r=>{const key=productName(r)||r?.service_name||planNameV(r)||'Servicio';const x=map.get(key)||{name:key,amount:0,count:0};x.amount+=Number(r?.amount||0);x.count++;map.set(key,x)});return [...map.values()].sort((a,b)=>b.amount-a.amount||b.count-a.count).slice(0,7)}
+  function pipelineRow(label,count,amount,max,cls){return `<div class="v91-pipe-row ${cls||''}"><span class="v91-pipe-label">${html(label)} · ${count}</span><span class="v91-pipe-track"><span class="v91-pipe-fill" style="width:${amount?Math.max(5,Math.round(amount/Math.max(max,1)*100)):0}%"></span></span><span class="v91-pipe-value">${html(moneyV(amount))}</span></div>`}
+  function dashboardV91(){const host=byId('pbi5Dashboard');if(!host)return;const ui=stateOf().v91Dashboard||(stateOf().v91Dashboard={filter:'all',query:''}),d=dashData(ui.query),agenda=dashFilterRows(d,ui.filter),top=topServices(d.active),maxPipe=Math.max(d.overdueAmount,d.todayAmount,d.next7Amount,d.next30Amount,1),linked=d.linked.length,without=Math.max(0,d.active.length-linked),whats=d.active.filter(r=>r?.last_sent_at).length;host.className='v91-dash';host.innerHTML=`<header class="v91-dash-head"><div><span class="v91-dash-kicker">🔔 Centro financiero de recordatorios</span><h1>Cobranzas y renovaciones</h1><p>Panel calculado desde los recordatorios, sus montos, fechas, clientes y cuentas vinculadas.</p></div><div class="v91-dash-tools"><span class="badge b-ok">${d.active.length} servicios activos</span><button class="btn btn-primary" id="v91DashRefresh" type="button">↻ Actualizar</button></div></header><section class="v91-dash-filter"><input class="input" id="v91DashSearch" type="search" value="${html(ui.query)}" placeholder="Buscar cliente, servicio, correo, cuenta o celular..."><div class="v91-filter-chips">${[['all','Todos'],['overdue','Vencidos'],['today','Hoy'],['7','7 días'],['30','30 días']].map(x=>`<button type="button" class="v91-filter-btn ${ui.filter===x[0]?'active':''}" data-v91-dash-filter="${x[0]}">${x[1]}</button>`).join('')}</div></section><section class="v91-kpis"><article class="v91-kpi"><div class="v91-kpi-top"><span>Valor mensual activo</span><span class="v91-kpi-icon">💰</span></div><div class="v91-kpi-value">${html(moneyV(d.totalAmount))}</div><div class="v91-kpi-sub">Suma de recordatorios operativos</div></article><article class="v91-kpi bad"><div class="v91-kpi-top"><span>Cartera vencida</span><span class="v91-kpi-icon">🚨</span></div><div class="v91-kpi-value">${html(moneyV(d.overdueAmount))}</div><div class="v91-kpi-sub">${d.g.overdue.length} cobro(s) pendientes</div></article><article class="v91-kpi warn"><div class="v91-kpi-top"><span>Vence hoy</span><span class="v91-kpi-icon">⏰</span></div><div class="v91-kpi-value">${html(moneyV(d.todayAmount))}</div><div class="v91-kpi-sub">${d.g.today.length} cliente(s) por atender</div></article><article class="v91-kpi ok"><div class="v91-kpi-top"><span>Próximos 7 días</span><span class="v91-kpi-icon">📆</span></div><div class="v91-kpi-value">${html(moneyV(d.next7Amount))}</div><div class="v91-kpi-sub">${d.g.next7.length} renovación(es) próximas</div></article></section><section class="v91-dash-grid"><div style="display:grid;gap:11px"><article class="v91-panel"><div class="v91-panel-head"><div><h3>Flujo de cobranza</h3><p>Montos programados por urgencia.</p></div><button class="btn btn-sm" type="button" data-v91-route="reminders">Ver recordatorios</button></div><div class="v91-panel-body"><div class="v91-pipeline">${pipelineRow('Vencidos',d.g.overdue.length,d.overdueAmount,maxPipe,'bad')}${pipelineRow('Vence hoy',d.g.today.length,d.todayAmount,maxPipe,'warn')}${pipelineRow('Próximos 7 días',d.g.next7.length,d.next7Amount,maxPipe,'ok')}${pipelineRow('Próximos 30 días',d.next30.length,d.next30Amount,maxPipe,'')}</div></div></article><article class="v91-panel"><div class="v91-panel-head"><div><h3>Agenda prioritaria</h3><p>${agenda.length} registro(s) según el filtro actual.</p></div></div><div class="v91-panel-body"><div class="v91-urgent-list">${agenda.slice(0,10).map(r=>{const c=customer(r),dd=dayDiff(r?.due_date);return `<div class="v91-urgent-row ${dd!=null&&dd<0?'overdue':''}" data-v91-reminder-open="${html(r?.id||'')}"><div><div class="v91-urgent-title">${html(r?.service_name||planNameV(r)||'Servicio')} · ${html(c?.name||'Cliente')}</div><div class="v91-urgent-sub">${html(dateLabel(r?.due_date))} · ${html(dayNote(r))}${linkedEmail(r)?' · '+html(linkedEmail(r)):''}</div></div><span class="v91-urgent-amount">${html(moneyV(r?.amount))}</span></div>`}).join('')||'<div class="v91-empty">No hay recordatorios en este filtro.</div>'}</div></div></article></div><div style="display:grid;gap:11px"><article class="v91-panel"><div class="v91-panel-head"><div><h3>Servicios por ingreso recurrente</h3><p>Ranking según los montos de recordatorios activos.</p></div></div><div class="v91-panel-body"><div class="v91-service-list">${top.map(x=>`<div class="v91-service-row"><div><div class="v91-service-name">${html(x.name)}</div><div class="v91-service-meta">${x.count} cliente(s)</div></div><span class="v91-service-amount">${html(moneyV(x.amount))}</span></div>`).join('')||'<div class="v91-empty">Sin servicios activos.</div>'}</div></div></article><article class="v91-panel"><div class="v91-panel-head"><div><h3>Calidad de la información</h3><p>Datos útiles para atender sin abrir varios módulos.</p></div></div><div class="v91-panel-body"><div class="v91-account-stats"><div class="v91-account-stat"><b>${linked}</b><span>con cuenta</span></div><div class="v91-account-stat"><b>${without}</b><span>sin cuenta</span></div><div class="v91-account-stat"><b>${whats}</b><span>WhatsApp enviado</span></div></div><div class="v91-search-note" style="margin-top:10px">Cobrado o renovado este mes: <b>${html(moneyV(d.collectedAmount))}</b>. Las cuentas vinculadas se muestran solo como correo y se copian al tocarlas.</div></div></article></div></section>`;host.onclick=e=>{const f=e.target.closest('[data-v91-dash-filter]');if(f){ui.filter=f.dataset.v91DashFilter||'all';dashboardV91();return}if(e.target.closest('#v91DashRefresh')){window.loadAll?.();return}if(e.target.closest('[data-v91-route]')){routeReminder('all',ui.query);return}const rr=e.target.closest('[data-v91-reminder-open]');if(rr){routeReminder('all',ui.query);setTimeout(()=>document.querySelector(`[data-reminder-id="${CSS.escape(rr.dataset.v91ReminderOpen||'')}"]`)?.scrollIntoView({behavior:'smooth',block:'center'}),120)}};const search=byId('v91DashSearch');if(search)search.oninput=()=>{ui.query=search.value;clearTimeout(window.__v91DashTimer);window.__v91DashTimer=setTimeout(()=>{dashboardV91();const n=byId('v91DashSearch');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}},170)}}
+  window.renderDashboard=dashboardV91;try{renderDashboard=window.renderDashboard}catch(_){ }
+
+  const previousBuild=window.buildTemplateMessage||(typeof buildTemplateMessage==='function'?buildTemplateMessage:null);
+  if(typeof previousBuild==='function'&&!previousBuild.__v91){const wrapped=function(template,customerObj,reminder){const base=previousBuild.apply(this,arguments),account=linkedEmail(reminder);return String(base||'').replace(/\{\{\s*(cuenta_vinculada|cuenta_asociada|correo_cuenta)\s*\}\}/gi,account).replace(/\{\s*(cuenta_vinculada|cuenta_asociada|correo_cuenta)\s*\}/gi,account)};wrapped.__v91=true;window.buildTemplateMessage=wrapped;try{buildTemplateMessage=wrapped}catch(_){ }}
+
+  function historyItemReminder(r){const c=customer(r),a=assignment(r),acc=linkedEmail(r),mail=customerEmail(r,c),prof=profile(r),info=statusInfo(r),hay=norm(searchBlob(r));return `<article class="v91-history-item ${info[2]==='overdue'?'overdue':''}" data-v91-history-item data-v91-haystack="${html(enc(hay))}"><div class="v91-history-top"><div><div class="v91-history-title">🔔 ${html(r?.service_name||planNameV(r)||'Servicio')}</div><div class="v91-history-sub">${html(dateLabel(r?.due_date))} · ${html(info[0])}</div></div><span class="badge ${info[1]}">${html(moneyV(r?.amount))}</span></div><div class="v91-rem-chips">${copyChip(c?.phone_e164||c?.phone_raw,'WhatsApp','','📱')}${copyChip(mail,'Correo del cliente','mail','✉')}${copyChip(acc,'Cuenta vinculada','account','🔗')}${copyChip(prof,'Perfil','','👤')}</div><div class="v91-history-grid"><div class="v91-history-kv"><span>Producto / plan</span><b>${html(productName(r)||'—')} · ${html(planNameV(r)||'—')}</b></div><div class="v91-history-kv"><span>Estado</span><b>${html(info[0])}</b></div><div class="v91-history-kv"><span>Pedido</span><b>${html(orderFor(r)?.order_code||r?.order_id||'—')}</b></div></div>${r?.whatsapp_message?`<details class="v91-history-details"><summary>Ver mensaje de WhatsApp</summary><pre>${html(r.whatsapp_message)}</pre></details>`:''}</article>`}
+  function historyItemDelivery(d){const data=d?.delivery_data&&typeof d.delivery_data==='object'?d.delivery_data:{},order=rows(stateOf().orders).find(o=>same(o.id,d?.order_id))||{},login=text(data.correo||data.email||data.usuario||''),prof=text(data.perfil||data.profile||''),raw=text(d?.delivered_message||d?.message||''),hay=norm(`${JSON.stringify(data)} ${raw} ${order.order_code||''}`);return `<article class="v91-history-item delivery" data-v91-history-item data-v91-haystack="${html(enc(hay))}"><div class="v91-history-top"><div><div class="v91-history-title">📦 Entrega registrada</div><div class="v91-history-sub">${html(new Date(d?.created_at||Date.now()).toLocaleString('es-PE'))} · ${html(order?.order_code||'Sin pedido')}</div></div><span class="badge b-ok">Entregado</span></div><div class="v91-rem-chips">${copyChip(login,'Cuenta entregada','account','🔗')}${copyChip(prof,'Perfil','','👤')}${copyChip(data.pin,'PIN','','🔢')}</div><div class="v91-history-grid"><div class="v91-history-kv"><span>Cliente</span><b>${html(order?.customer_name||'—')}</b></div><div class="v91-history-kv"><span>WhatsApp</span><b>${html(order?.customer_whatsapp||'—')}</b></div><div class="v91-history-kv"><span>Fecha</span><b>${html(dateLabel(d?.created_at))}</b></div></div>${raw?`<details class="v91-history-details"><summary>Ver entrega completa</summary><pre>${html(raw)}</pre></details>`:''}</article>`}
+  window.showClientHistory=function(customerId){const c=rows(stateOf().customers).find(x=>same(x.id,customerId))||{};if(!c.id)return;const rem=rows(stateOf().reminders).filter(r=>same(r.customer_id,c.id)).sort((a,b)=>text(b?.due_date).localeCompare(text(a?.due_date))),orderIds=new Set(rem.map(r=>text(r?.order_id)).filter(Boolean)),phone=text(c.phone_e164||c.phone_raw).replace(/\D/g,'');rows(stateOf().orders).filter(o=>text(o?.customer_whatsapp).replace(/\D/g,'')===phone).forEach(o=>orderIds.add(text(o.id)));const del=rows(stateOf().deliveries).filter(d=>orderIds.has(text(d?.order_id))).sort((a,b)=>text(b?.created_at).localeCompare(text(a?.created_at))),open=rem.filter(operational).length,over=rem.filter(r=>(dayDiff(r?.due_date)??0)<0&&operational(r)).length,linked=[...new Set(rem.map(linkedEmail).filter(Boolean))],target=byId('clientHistoryBody');if(byId('clientHistoryTitle'))byId('clientHistoryTitle').textContent='Historial · '+(c.name||'Cliente');if(target)target.innerHTML=`<div class="v91-history-hero"><div><div class="v91-history-name">${html(c.name||'Cliente')}</div><div class="v91-history-chips">${copyChip(c.phone_e164||c.phone_raw,'WhatsApp','','📱')}${copyChip(c.email,'Correo del cliente','mail','✉')}${linked.map(x=>copyChip(x,'Cuenta vinculada','account','🔗')).join('')}</div></div><div class="v91-history-stats"><div class="v91-history-stat"><b>${open}</b><span>servicios</span></div><div class="v91-history-stat"><b>${over}</b><span>vencidos</span></div><div class="v91-history-stat"><b>${del.length}</b><span>entregas</span></div></div></div><div class="v91-history-search"><input class="input" id="v91HistorySearch" type="search" placeholder="Buscar servicio, cuenta, correo, perfil, pedido o mensaje..."></div><div class="v91-history-list" id="v91HistoryList">${rem.map(historyItemReminder).join('')}${del.map(historyItemDelivery).join('')||(!rem.length?'<div class="v91-empty">Sin historial registrado.</div>':'')}</div>`;try{window.showDialog?.('dlgClientHistory')}catch(_){byId('dlgClientHistory')?.showModal?.()}const input=byId('v91HistorySearch');if(input)input.oninput=()=>{const q=norm(input.value);byId('v91HistoryList')?.querySelectorAll('[data-v91-history-item]').forEach(el=>{let hay='';try{hay=decodeURIComponent(el.dataset.v91Haystack||'')}catch(_){hay=el.dataset.v91Haystack||''}el.classList.toggle('v91-history-hidden',q&&!hay.includes(q))})}};try{showClientHistory=window.showClientHistory}catch(_){ }
+
+  function applyBrand(){document.querySelectorAll('.logo,.auth-logo').forEach(el=>{if(el.classList.contains('v91-brand-lockup'))return;el.classList.add('v91-brand-lockup');el.innerHTML='<span class="v91-brand-a">INNOV</span><span class="v91-brand-b">TIENDA</span>'});document.querySelectorAll('.app-title').forEach(el=>el.textContent='Admin');const at=document.querySelector('.auth-title');if(at)at.textContent='Innov Tienda Admin'}
+  function ensureTelegramCard(){if(byId('v91TelegramCard'))return;const grid=byId('tab-settings')?.querySelector('.grid.grid-2');if(!grid)return;const card=document.createElement('div');card.className='card';card.id='v91TelegramCard';card.innerHTML='<strong>📨 Alertas de pedidos por Telegram</strong><p class="help" style="margin:6px 0 0">Comprueba la función <b>smooth-worker</b>, que recibe los avisos del checkout.</p><div class="v91-tg-status" id="v91TelegramStatus"><span class="v91-tg-dot"></span><span>Sin verificar</span></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="btn" id="v91TelegramHealth" type="button">Verificar conexión</button><button class="btn btn-primary" id="v91TelegramTest" type="button">Enviar prueba</button></div><div class="help" id="v91TelegramLog" style="margin-top:8px"></div>';grid.appendChild(card);byId('v91TelegramHealth').onclick=telegramHealth;byId('v91TelegramTest').onclick=telegramTest}
+  async function telegramHealth(){const box=byId('v91TelegramStatus'),log=byId('v91TelegramLog');if(box){box.className='v91-tg-status';box.querySelector('span:last-child').textContent='Verificando…'}try{const r=await fetch(`${SUPABASE_URL}/functions/v1/smooth-worker`,{headers:{apikey:SUPABASE_KEY}}),j=await r.json();const ok=r.ok&&j?.ok&&j?.configured?.bot&&j?.configured?.chat&&j?.configured?.service;if(box){box.className='v91-tg-status '+(ok?'ok':'bad');box.querySelector('span:last-child').textContent=ok?'Función y secretos principales listos':'Configuración incompleta'}if(log)log.textContent=`Versión: ${j?.version||'—'} · Bot: ${j?.configured?.bot?'sí':'no'} · Chat: ${j?.configured?.chat?'sí':'no'} · Base: ${j?.configured?.service?'sí':'no'}`}catch(e){if(box){box.className='v91-tg-status bad';box.querySelector('span:last-child').textContent='No responde smooth-worker'}if(log)log.textContent=text(e?.message||e)}}
+  async function telegramTest(){const latest=rows(stateOf().orders).find(o=>text(o?.order_code));if(!latest)return window.toast?.('No hay un pedido para usar en la prueba','bad');const btn=byId('v91TelegramTest');if(btn)btn.disabled=true;try{const session=await db.auth.getSession(),token=session?.data?.session?.access_token||'';const r=await fetch(`${SUPABASE_URL}/functions/v1/smooth-worker`,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_KEY,...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({event:'test',order_code:latest.order_code,message:'Prueba enviada desde Innov Tienda Admin V91'})}),j=await r.json();if(!r.ok||j?.ok===false)throw new Error(j?.error||`HTTP ${r.status}`);window.toast?.('Prueba enviada a Telegram','ok');telegramHealth()}catch(e){window.toast?.('Telegram: '+text(e?.message||e),'bad')}finally{if(btn)btn.disabled=false}}
+
+  window.cleanupExpiredReofferReminders=async()=>undefined;try{cleanupExpiredReofferReminders=window.cleanupExpiredReofferReminders}catch(_){ }
+  function init(){applyBrand();ensureTelegramCard();dashboardV91();renderRemindersV91();const help=document.querySelector('#tab-templates .card .help');if(help&&!help.textContent.includes('{cuenta_vinculada}'))help.insertAdjacentHTML('beforeend',' <span class="mono">{cuenta_vinculada}</span>');}
+  const oldLoad=window.loadAll;if(typeof oldLoad==='function'&&!oldLoad.__v91){const wrapped=async function(){const result=await oldLoad.apply(this,arguments);setTimeout(init,80);return result};wrapped.__v91=true;window.loadAll=wrapped;try{loadAll=wrapped}catch(_){ }}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,650),{once:true});else setTimeout(init,650);
+})();
+</script>
+
+
+<style id="innov-v92-admin-css">
+/* V92 — Recordatorios exactos, pagos directos y seguridad */
+#controlCManualQueue,#v91TelegramCard{display:none!important}
+.v92-linked-label{font-size:.57rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.v92-payment-toast{max-width:430px}
+.v92-security-card{border-left:4px solid var(--primary)}
+.v92-security-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.v92-security-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.v92-security-box{border:1px solid var(--border);background:var(--card2);border-radius:13px;padding:11px;min-width:0}
+.v92-security-box strong{display:block;margin-bottom:5px;color:var(--card-ink)}
+.v92-device-list{display:grid;gap:7px;margin-top:9px}
+.v92-device{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid var(--border);background:var(--card);border-radius:11px;padding:9px}
+.v92-device-title{font-size:.78rem;font-weight:900;color:var(--card-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v92-device-sub{font-size:.65rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v92-current{border-color:rgba(21,128,61,.35);background:var(--success-alpha)}
+.v92-security-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.v92-security-actions .btn{flex:1 1 150px}
+.v92-password-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin-top:8px}
+.v92-recovery-note{border-left:3px solid var(--warning);background:var(--warning-alpha);border-radius:11px;padding:9px;color:var(--muted);font-size:.76rem;margin-bottom:10px}
+.v92-delivery-result{width:min(660px,96vw)}
+.v92-delivery-message{white-space:pre-wrap;background:#052e1a;color:#ecfdf5;border-radius:13px;padding:12px;font-family:var(--mono);font-size:.78rem;line-height:1.45;max-height:42vh;overflow:auto}
+@media(max-width:700px){.v92-security-grid{grid-template-columns:1fr}.v92-password-grid{grid-template-columns:1fr}.v92-security-actions{display:grid;grid-template-columns:1fr 1fr}.v92-security-actions .btn{width:100%;min-width:0}.v92-device{grid-template-columns:1fr}.v92-delivery-result{width:100vw!important}}
+</style>
+<script id="innov-v92-admin-js">
+(function(){
+  'use strict';
+  const $v=id=>document.getElementById(id);
+  const txt=v=>String(v==null?'':v).trim();
+  const escV=v=>String(v==null?'':v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  function decodeJwt(token){try{let p=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');p+='='.repeat((4-p.length%4)%4);return JSON.parse(atob(p))}catch(_){return {}}}
+  function deviceName(){const ua=navigator.userAgent||'',platform=navigator.userAgentData?.platform||navigator.platform||'Dispositivo';if(/Android/i.test(ua))return 'Android';if(/iPhone|iPad|iPod/i.test(ua))return 'iPhone / iPad';if(/Windows/i.test(ua))return 'PC Windows';if(/Macintosh|Mac OS/i.test(ua))return 'Mac';if(/Linux/i.test(ua))return 'Linux';return platform}
+  function browserName(){const ua=navigator.userAgent||'';if(/Edg\//.test(ua))return 'Microsoft Edge';if(/OPR\//.test(ua))return 'Opera';if(/Chrome\//.test(ua))return 'Google Chrome';if(/Firefox\//.test(ua))return 'Firefox';if(/Safari\//.test(ua))return 'Safari';return 'Navegador'}
+  async function currentSessionInfo(){const r=await db.auth.getSession();const s=r?.data?.session||null,p=decodeJwt(s?.access_token||'');return {session:s,payload:p,sid:txt(p.session_id||p.jti),uid:txt(s?.user?.id),email:txt(s?.user?.email)}}
+  async function recordDevice(){try{const x=await currentSessionInfo();if(!x.sid||!x.uid)return;await db.from('admin_device_sessions').upsert({session_id:x.sid,user_id:x.uid,device_label:deviceName()+' · '+browserName(),platform:navigator.userAgentData?.platform||navigator.platform||'',user_agent:navigator.userAgent||'',last_seen:new Date().toISOString(),revoked_at:null},{onConflict:'session_id'})}catch(_){}}
+  function fmtDate(v){try{return new Date(v).toLocaleString('es-PE')}catch(_){return txt(v)||'—'}}
+  async function loadDevices(){const host=$v('v92DeviceList');if(!host)return;host.innerHTML='<div class="help">Cargando dispositivos observados…</div>';try{const x=await currentSessionInfo();const r=await db.from('admin_device_sessions').select('*').eq('user_id',x.uid).order('last_seen',{ascending:false}).limit(20);if(r.error)throw r.error;const now=Date.now(),list=Array.isArray(r.data)?r.data:[];host.innerHTML=list.map(d=>{const current=txt(d.session_id)===x.sid,recent=!d.revoked_at&&(now-new Date(d.last_seen).getTime()<20*60*1000);return `<div class="v92-device ${current?'v92-current':''}"><div><div class="v92-device-title">${current?'✅ ':recent?'🟢 ':'⚪ '}${escV(d.device_label||'Dispositivo')}</div><div class="v92-device-sub">Última actividad: ${escV(fmtDate(d.last_seen))}${d.revoked_at?' · marcado como cerrado':''}</div></div><span class="badge ${current?'b-ok':recent?'b-warn':''}">${current?'Actual':recent?'Reciente':'Anterior'}</span></div>`}).join('')||'<div class="help">Aún no hay dispositivos registrados.</div>'}catch(e){host.innerHTML='<div class="help">Ejecuta el SQL de seguridad V92 para activar esta lista.</div>'}}
+  async function changePassword(){const input=$v('v92NewPassword'),confirmInput=$v('v92ConfirmPassword'),p=txt(input?.value),c=txt(confirmInput?.value);if(p.length<10)return window.toast?.('La contraseña debe tener al menos 10 caracteres','bad');if(p!==c)return window.toast?.('Las contraseñas no coinciden','bad');const btn=$v('v92ChangePassword');if(btn)btn.disabled=true;try{const r=await db.auth.updateUser({password:p});if(r.error)throw r.error;input.value='';confirmInput.value='';window.toast?.('Contraseña actualizada correctamente','ok')}catch(e){window.toast?.('No se pudo cambiar: '+txt(e?.message||e),'bad')}finally{if(btn)btn.disabled=false}}
+  async function signOutOthers(){if(!confirm('¿Cerrar todas las otras sesiones y conservar este dispositivo?'))return;const x=await currentSessionInfo();const r=await db.auth.signOut({scope:'others'});if(r.error)return window.toast?.(r.error.message,'bad');try{await db.from('admin_device_sessions').update({revoked_at:new Date().toISOString()}).eq('user_id',x.uid).neq('session_id',x.sid)}catch(_){}window.toast?.('Las otras sesiones fueron cerradas','ok');loadDevices()}
+  async function signOutAll(){if(!confirm('¿Cerrar la sesión en todos los dispositivos, incluido este?'))return;const x=await currentSessionInfo();try{await db.from('admin_device_sessions').update({revoked_at:new Date().toISOString()}).eq('user_id',x.uid)}catch(_){}const r=await db.auth.signOut({scope:'global'});if(r.error)return window.toast?.(r.error.message,'bad');location.reload()}
+  function ensureSecurityCard(){if($v('v92SecurityCard'))return;const grid=$v('tab-settings')?.querySelector('.grid.grid-2');if(!grid)return;const card=document.createElement('div');card.id='v92SecurityCard';card.className='card v92-security-card full';card.innerHTML=`<div class="v92-security-head"><div><strong>🔐 Seguridad del administrador</strong><p class="help" style="margin:4px 0 0">Cambia tu contraseña, cierra sesiones y revisa los dispositivos que este panel ha observado.</p></div><button class="btn" id="v92RefreshDevices" type="button">↻ Actualizar</button></div><div class="v92-security-grid"><div class="v92-security-box"><strong>Cambiar contraseña</strong><div class="v92-password-grid"><input class="input" id="v92NewPassword" type="password" autocomplete="new-password" placeholder="Nueva contraseña (10+ caracteres)"><button class="btn btn-primary" id="v92ChangePassword" type="button">Guardar</button></div><input class="input" id="v92ConfirmPassword" type="password" autocomplete="new-password" placeholder="Confirmar contraseña" style="margin-top:7px"><div class="v92-security-actions"><button class="btn" id="v92SignOutOthers" type="button">Cerrar otras sesiones</button><button class="btn btn-danger" id="v92SignOutAll" type="button">Cerrar todas</button></div></div><div class="v92-security-box"><strong>Dispositivos observados</strong><p class="help" style="margin:0">Se basa en accesos registrados por este admin. “Reciente” indica actividad durante los últimos 20 minutos.</p><div class="v92-device-list" id="v92DeviceList"></div></div></div>`;grid.appendChild(card);$v('v92ChangePassword').onclick=changePassword;$v('v92SignOutOthers').onclick=signOutOthers;$v('v92SignOutAll').onclick=signOutAll;$v('v92RefreshDevices').onclick=async()=>{await recordDevice();loadDevices()};recordDevice().then(loadDevices)}
+  function ensureRecoveryUi(){
+    const help=$v('btnLoginHelp');if(help&&!$v('v92RecoverBtn')){const b=document.createElement('button');b.className='btn btn-ghost';b.id='v92RecoverBtn';b.type='button';b.textContent='Recuperar con Telegram';help.insertAdjacentElement('afterend',b);b.onclick=()=>showRecovery()}
+    if($v('dlgV92Recovery'))return;const d=document.createElement('dialog');d.id='dlgV92Recovery';d.className='v92-delivery-result';d.innerHTML=`<div class="modal-header"><strong>🔐 Recuperar acceso con Telegram</strong><button class="btn btn-ghost btn-icon" type="button" id="v92RecoveryClose">✕</button></div><div class="dlg-body"><div class="v92-recovery-note">El código se envía únicamente al chat de Telegram configurado para el administrador. No se muestran claves ni secretos en esta página.</div><label class="subtle">Correo administrador</label><input class="input" id="v92RecoveryEmail" type="email" placeholder="admin@correo.com"><button class="btn" id="v92RequestCode" type="button" style="margin-top:8px">Enviar código a Telegram</button><div style="height:1px;background:var(--border);margin:14px 0"></div><div class="grid grid-2"><div><label class="subtle">Código</label><input class="input" id="v92RecoveryCode" inputmode="numeric" maxlength="6" placeholder="000000"></div><div><label class="subtle">Nueva contraseña</label><input class="input" id="v92RecoveryPassword" type="password" placeholder="10+ caracteres"></div></div></div><div class="modal-actions"><button class="btn" id="v92RecoveryCancel" type="button">Cancelar</button><button class="btn btn-primary" id="v92VerifyRecovery" type="button">Cambiar contraseña</button></div>`;document.body.appendChild(d);$v('v92RecoveryClose').onclick=$v('v92RecoveryCancel').onclick=()=>d.close();$v('v92RequestCode').onclick=requestRecovery;$v('v92VerifyRecovery').onclick=verifyRecovery
+  }
+  function showRecovery(){ensureRecoveryUi();const email=$v('loginEmail')?.value||'';$v('v92RecoveryEmail').value=email;$v('dlgV92Recovery').showModal()}
+  async function recoveryCall(payload){const r=await fetch(`${SUPABASE_URL}/functions/v1/admin-recovery`,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_KEY},body:JSON.stringify(payload)}),j=await r.json().catch(()=>({}));if(!r.ok||j?.ok===false)throw new Error(j?.error||`HTTP ${r.status}`);return j}
+  async function requestRecovery(){const email=txt($v('v92RecoveryEmail')?.value);if(!email)return alert('Escribe el correo administrador.');const b=$v('v92RequestCode');b.disabled=true;try{await recoveryCall({action:'request',email});alert('Si el correo corresponde al administrador, el código fue enviado a Telegram.')}catch(e){alert('No se pudo solicitar el código: '+txt(e?.message||e))}finally{b.disabled=false}}
+  async function verifyRecovery(){const email=txt($v('v92RecoveryEmail')?.value),code=txt($v('v92RecoveryCode')?.value),password=txt($v('v92RecoveryPassword')?.value);if(!email||!/^[0-9]{6}$/.test(code)||password.length<10)return alert('Completa correo, código de 6 dígitos y contraseña de 10 o más caracteres.');const b=$v('v92VerifyRecovery');b.disabled=true;try{await recoveryCall({action:'verify',email,code,password});alert('Contraseña cambiada. Ya puedes iniciar sesión.');$v('dlgV92Recovery').close();if($v('loginEmail'))$v('loginEmail').value=email;if($v('loginPass')){$v('loginPass').value='';$v('loginPass').focus()}}catch(e){alert('No se pudo cambiar: '+txt(e?.message||e))}finally{b.disabled=false}}
+  function ensureDeliveryResultDialog(){if($v('dlgV92DeliveryResult'))return;const d=document.createElement('dialog');d.id='dlgV92DeliveryResult';d.className='v92-delivery-result';d.innerHTML=`<div class="modal-header"><strong>✅ Entrega registrada</strong><button class="btn btn-ghost btn-icon" id="v92DeliveryClose" type="button">✕</button></div><div class="dlg-body"><div class="v92-delivery-message" id="v92DeliveryMessage"></div></div><div class="modal-actions"><button class="btn" id="v92DeliveryCopy" type="button">📋 Copiar</button><button class="btn btn-success" id="v92DeliveryWhatsapp" type="button">💬 Abrir WhatsApp</button><button class="btn btn-primary" id="v92DeliveryOk" type="button">Listo</button></div>`;document.body.appendChild(d);$v('v92DeliveryClose').onclick=$v('v92DeliveryOk').onclick=()=>d.close()}
+  function normalizeResult(data){if(Array.isArray(data))return data[0]||{};return data&&typeof data==='object'?data:{}}
+  async function rpcFirst(orderId){const calls=['admin_v92_approve_payment_and_fulfill','admin_v81_approve_payment_and_fulfill','admin_v80_approve_payment_and_fulfill'];let last=null;for(const fn of calls){const r=await db.rpc(fn,{p_order_id:orderId});if(!r.error)return normalizeResult(r.data);last=r.error;const msg=txt(r.error?.message).toLowerCase();if(!msg.includes('function')&&!msg.includes('does not exist')&&!msg.includes('not found'))throw r.error}throw last||new Error('No existe la función de aprobación automática V80/V81/V92')}
+  function latestDeliveryMessage(orderId){return (state?.deliveries||[]).filter(d=>txt(d?.order_id)===txt(orderId)).sort((a,b)=>txt(b?.created_at).localeCompare(txt(a?.created_at))).map(d=>txt(d?.delivered_message||d?.message)).find(Boolean)||''}
+  function showDeliveryResult(order,msg){ensureDeliveryResultDialog();$v('v92DeliveryMessage').textContent=msg||'Entrega registrada.';const phone=txt(order?.customer_whatsapp),open=()=>{try{const n=window.normalizePhone?.(phone);const e164=n?.ok?n.e164:phone.replace(/\D/g,'');const url=window.waLink?.(e164,msg);if(url&&url!=='#')window.open(url,'_blank','noopener,noreferrer');else window.toast?.('WhatsApp inválido','bad')}catch(e){window.toast?.('No se pudo abrir WhatsApp','bad')}};$v('v92DeliveryCopy').onclick=()=>window.innovV91Copy?.(msg,'Entrega');$v('v92DeliveryWhatsapp').onclick=open;$v('dlgV92DeliveryResult').showModal();open()}
+  window.approveOrder=async function(id){const order=(state?.orders||[]).find(o=>txt(o?.id)===txt(id))||{};if(!confirm(`¿Aprobar el pago del pedido ${order.order_code||''}? Si existe stock, se entregará y descontará automáticamente.`))return;window.toast?.('Aprobando pago, validando cupo y preparando entrega…','ok');try{const result=await rpcFirst(id);await window.loadAll?.();const refreshed=(state?.orders||[]).find(o=>txt(o?.id)===txt(id))||order;const manual=Number(result?.manual_pending||0);const delivered=Number(result?.delivered_units||result?.auto_delivered||0);const msg=txt(result?.delivery_message)||latestDeliveryMessage(id);if(manual>0){window.toast?.(result?.message||'Pago aprobado. La entrega requiere datos manuales.','ok');setTimeout(()=>window.openManualDelivery?.(id),80);return}if(delivered>0||msg){window.toast?.('Pago aprobado y entrega registrada','ok');showDeliveryResult(refreshed,msg);return}window.toast?.(result?.message||'Pago aprobado. No se encontró mensaje de entrega; revisa el stock del plan.','bad')}catch(e){window.toast?.('No se pudo aprobar y entregar: '+txt(e?.message||e),'bad')}};
+  try{approveOrder=window.approveOrder}catch(_){ }
+  function removeObsolete(){document.getElementById('v91TelegramCard')?.remove();document.getElementById('controlCManualQueue')?.remove()}
+  function init(){removeObsolete();ensureRecoveryUi();ensureSecurityCard();recordDevice();setInterval(recordDevice,5*60*1000)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,500),{once:true});else setTimeout(init,500);
+})();
+</script>
+<script>console.info('Innov IA Admin V92 · cuenta vinculada real, aprobación directa y seguridad');</script>
+
+
+<style id="innov-v94-payment-css">
+#dlgV94AutoIssue{width:min(680px,96vw)}
+.v94-auto-note{border-left:4px solid var(--warning);background:var(--warning-alpha);border-radius:14px;padding:12px 14px;color:var(--card-ink);line-height:1.45}
+.v94-auto-errors{display:grid;gap:8px;margin-top:12px}
+.v94-auto-error{border:1px solid var(--border);background:var(--card2);border-radius:12px;padding:10px;font-size:.82rem;color:var(--text);word-break:break-word}
+.v94-auto-error b{display:block;color:var(--danger);margin-bottom:3px}
+@media(max-width:600px){#dlgV94AutoIssue{width:100vw!important}.v94-auto-note{font-size:.82rem}}
+</style>
+<script id="innov-v94-payment-js">
+(function(){
+  const t=v=>String(v??'').trim();
+  const el=id=>document.getElementById(id);
+  function normal(data){return Array.isArray(data)?(data[0]||{}):(data&&typeof data==='object'?data:{})}
+  async function rpcV94(orderId){
+    const calls=['admin_v94_approve_payment_and_fulfill','admin_v93_approve_payment_and_fulfill','admin_v92_approve_payment_and_fulfill','admin_v81_approve_payment_and_fulfill','admin_v80_approve_payment_and_fulfill'];
+    let last=null;
+    for(const fn of calls){
+      const r=await db.rpc(fn,{p_order_id:orderId});
+      if(!r.error)return normal(r.data);
+      last=r.error;
+      const m=t(r.error?.message).toLowerCase();
+      if(!m.includes('function')&&!m.includes('does not exist')&&!m.includes('not found'))throw r.error;
+    }
+    throw last||new Error('No existe la función de aprobación automática');
+  }
+  function latestMsg(orderId){return (state?.deliveries||[]).filter(d=>t(d?.order_id)===t(orderId)).sort((a,b)=>t(b?.created_at).localeCompare(t(a?.created_at))).map(d=>t(d?.delivered_message||d?.message)).find(Boolean)||''}
+  function ensureIssue(){
+    if(el('dlgV94AutoIssue'))return;
+    const d=document.createElement('dialog');d.id='dlgV94AutoIssue';d.innerHTML=`<div class="modal-header"><strong>⚠️ Entrega automática pendiente</strong><button class="btn btn-ghost btn-icon" id="v94IssueClose" type="button">✕</button></div><div class="dlg-body"><div class="v94-auto-note" id="v94IssueNote"></div><div class="v94-auto-errors" id="v94IssueErrors"></div></div><div class="modal-actions"><button class="btn" id="v94IssueCancel" type="button">Cerrar</button><button class="btn btn-primary" id="v94IssueRetry" type="button">↻ Reintentar entrega</button></div>`;document.body.appendChild(d);el('v94IssueClose').onclick=el('v94IssueCancel').onclick=()=>d.close();
+  }
+  function showIssue(orderId,result){
+    ensureIssue();
+    const errors=Array.isArray(result?.auto_errors)?result.auto_errors:[];
+    el('v94IssueNote').innerHTML=`El pago ya quedó aprobado, pero <b>no se cambió a entrega manual</b> porque Supabase todavía detecta cupos automáticos. Puedes corregir el dato indicado y reintentar sin cobrar ni entregar dos veces.`;
+    el('v94IssueErrors').innerHTML=errors.length?errors.map((x,i)=>`<div class="v94-auto-error"><b>Unidad ${x?.unit_no||i+1}</b>${String(x?.error||'Error de validación automática').replace(/[<>]/g,'')}</div>`).join(''):'<div class="v94-auto-error"><b>Validación pendiente</b>No se recibió el detalle del servidor.</div>';
+    el('v94IssueRetry').onclick=()=>{el('dlgV94AutoIssue').close();setTimeout(()=>window.approveOrder(orderId),80)};
+    el('dlgV94AutoIssue').showModal();
+  }
+  function deliveryDialog(order,msg){
+    if(typeof window.showDeliveryResult==='function'){window.showDeliveryResult(order,msg);return}
+    try{window.innovV91Copy?.(msg,'Entrega')}catch(_){ }
+    const phone=t(order?.customer_whatsapp).replace(/\D/g,'');
+    if(phone&&msg)window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank','noopener,noreferrer');
+  }
+  window.approveOrder=async function(id){
+    const order=(state?.orders||[]).find(o=>t(o?.id)===t(id))||{};
+    if(!confirm(`¿Aprobar el pago del pedido ${order.order_code||''}? El sistema probará todas las cuentas y perfiles libres antes de pedir una entrega manual.`))return;
+    window.toast?.('Aprobando pago y buscando un cupo automático válido…','ok');
+    try{
+      const result=await rpcV94(id);
+      await window.loadAll?.();
+      const refreshed=(state?.orders||[]).find(o=>t(o?.id)===t(id))||order;
+      const manual=Number(result?.manual_pending||0);
+      const autoPending=Number(result?.auto_pending||0);
+      const delivered=Number(result?.delivered_units||result?.auto_delivered||0);
+      const msg=t(result?.delivery_message)||latestMsg(id);
+      if(autoPending>0){
+        window.toast?.('El pago fue aprobado, pero la entrega automática sigue pendiente. Revisa el detalle.','bad');
+        showIssue(id,result);
+        return;
+      }
+      if(manual>0){
+        window.toast?.(result?.message||'No existe un cupo automático disponible; completa la entrega manual.','ok');
+        setTimeout(()=>window.openManualDelivery?.(id),100);
+        return;
+      }
+      if(delivered>0||msg){
+        window.toast?.(result?.message||'Pago aprobado y entrega registrada automáticamente.','ok');
+        deliveryDialog(refreshed,msg||'Entrega registrada.');
+        return;
+      }
+      window.toast?.(result?.message||'Pago aprobado y procesado.','ok');
+    }catch(e){
+      window.toast?.('No se pudo procesar la entrega: '+t(e?.message||e),'bad');
+    }
+  };
+  try{approveOrder=window.approveOrder}catch(_){ }
+})();
+</script>
+<script>console.info('Innov IA Admin V94 · pago automático resistente');</script>
+
 </body>
 </html>
+
+
+
+
 
 
 
