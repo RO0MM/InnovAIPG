@@ -7291,11 +7291,8 @@ function planStockFilteredRows(){
     return (`${x.title||''} ${x.notes||''} ${opsAvailableStatus(x)} ${d.correo||''} ${d.usuario||''} ${d.clave||''} ${d.perfil||''} ${d.pin||''} ${d.family_admin_email||''} ${d.correo_admin||''} ${d.twofa_code||''} ${d.codigo_2fa||''} ${d.reserved_for||''} ${d.reserved_phone||''} ${hist}`).toLowerCase().includes(q);
   });
   rows.sort((a,b)=>{
-    const aDate=Date.parse(a.created_at||'')||0;
-    const bDate=Date.parse(b.created_at||'')||0;
-    if(aDate!==bDate)return bDate-aDate; // cuentas más recientes primero
     const order={available:0,reserved:1,used:2,delivered:2};
-    return (order[opsAvailableStatus(a)]??3)-(order[opsAvailableStatus(b)]??3);
+    return (order[opsAvailableStatus(a)]??3)-(order[opsAvailableStatus(b)]??3)||String(a.created_at||'').localeCompare(String(b.created_at||''));
   });
   return rows;
 }
@@ -7356,11 +7353,10 @@ function renderPlanStockView(){
     const d=opsSecret(x), st=opsAvailableStatus(x);
     const pass=d.clave||d.pass||'';
     const remaining=stockRemainingUses(x);
-    const addedAt=x.created_at?new Date(x.created_at).toLocaleString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Sin fecha';
     return `<div class="plan-stock-row">
       <div class="plan-stock-main">
         <div class="plan-stock-title">${esc(x.title||d.correo||'Cuenta')}</div>
-        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(stockUsedCount(x))}/${esc(stockMaxUses(x))}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span> <span class="badge v95-stock-added">📅 Agregada ${esc(addedAt)}</span>${stockTotpAccountId(x)?` <span class="badge b-purple">🛡 TOTP</span>`:''}${stockIsFamilyInvite(x)?` <span class="badge b-purple">👨‍👩‍👧 Familiar</span>`:''}</div>
+        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(stockUsedCount(x))}/${esc(stockMaxUses(x))}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span>${stockTotpAccountId(x)?` <span class="badge b-purple">🛡 TOTP</span>`:''}${stockIsFamilyInvite(x)?` <span class="badge b-purple">👨‍👩‍👧 Familiar</span>`:''}</div>
         <div class="plan-stock-secret"><span class="mono">📧 ${esc(d.family_admin_email||d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${esc(pass)}</span>`:''}${d.twofa_code?`<span class="mono">2FA ${esc(d.twofa_code)}</span>`:''}${d.perfil?`<span class="mono">👤 ${esc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${esc(d.pin)}</span>`:''}</div>
         ${compactHistoryHtml(x)}
       </div>
@@ -12469,18 +12465,13 @@ INNOV IA V62 - TOTP original + selección real
   }
   const login=a=>txt(a?.login)||txt(a?.secret_data?.correo)||txt(a?.secret_data?.email)||txt(a?.secret_data?.usuario)||txt(a?.alias)||'Cuenta';
   function clientText(a){return arr(a.clients).map(c=>`${c.customer_name||'Cliente'}${c.slot_label?` (${c.slot_label})`:''}${c.source==='reserved_legacy'?' · reservado':''}`).join(' · ')}
-  function stockRow(a){return arr(state?.stock).find(x=>String(x?.id||'')===String(a?.stock_item_id||a?.id||''))||{}}
-  function addedRaw(a){const s=stockRow(a);return txt(a?.created_at||a?.stock_created_at||a?.item_created_at||s?.created_at||'')}
-  function addedTime(a){const d=new Date(addedRaw(a)||0);return Number.isFinite(d.getTime())?d.getTime():0}
-  function addedLabel(a){const raw=addedRaw(a);if(!raw)return 'Sin fecha';const d=new Date(raw);return Number.isFinite(d.getTime())?d.toLocaleString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):raw}
   function render(){
-    const m=M.model;if(!m)return;const as=arr(m.accounts).slice().sort((a,b)=>addedTime(b)-addedTime(a)||login(a).localeCompare(login(b),'es')),
-      used=as.reduce((n,a)=>n+Number(a.used_count||0),0),free=as.reduce((n,a)=>n+Number(a.free_count||0),0),cap=as.reduce((n,a)=>n+Number(a.capacity||0),0),res=as.reduce((n,a)=>n+Number(a.reservation_count||0),0);
+    const m=M.model;if(!m)return;const as=arr(m.accounts),used=as.reduce((n,a)=>n+Number(a.used_count||0),0),free=as.reduce((n,a)=>n+Number(a.free_count||0),0),cap=as.reduce((n,a)=>n+Number(a.capacity||0),0),res=as.reduce((n,a)=>n+Number(a.reservation_count||0),0);
     $('c103Title').textContent='Cuentas y cupos · '+(m.plan_name||'Plan');$('c103PlanName').textContent=m.plan_name||'Plan';$('c103Kpis').innerHTML=chip(`${free} libres`,'ok')+chip(`${used} usados`,'bad')+chip(`${cap} cupos`)+(res?chip(`${res} reservados`,'warn'):'');
     const q=txt($('c103Search').value).toLowerCase(), show=as.filter(a=>JSON.stringify(a).toLowerCase().includes(q));
     $('c103List').innerHTML=show.length?show.map(a=>{
       const hasRes=Number(a.reservation_count||0)>0, full=String(a.availability)==='full', maint=a.core_state!=='active';const state=maint?(a.core_state==='maintenance'?'Mantenimiento':'Suspendida'):(hasRes?'Reservada':(full?'Completa':'Disponible'));const k=maint||full?'bad':hasRes?'warn':'ok';const cli=clientText(a);
-      return `<article class="c103-card ${full?'full':''} ${hasRes?'reserved':''} ${maint?'maintenance':''}"><div class="c103-row"><div><div class="c103-email">${esc(login(a))}</div><div class="c103-meta">${chip(state,k)}${chip(`${Number(a.used_count||0)}/${Number(a.capacity||0)} usos`,full||hasRes?'bad':'ok')}${chip(`${Number(a.free_count||0)} libres`,Number(a.free_count||0)>0&&!hasRes?'ok':'bad')}${chip(`📅 Agregada ${addedLabel(a)}`,'date')}</div></div></div>${cli?`<div class="c103-clients">Clientes vinculados: ${esc(cli)}</div>`:''}<div class="c103-actions"><button class="btn" type="button" data-c103-history="${esc(a.stock_item_id)}">Historial</button><button class="btn" type="button" data-c103-edit="${esc(a.stock_item_id)}">✏️ Editar</button><button class="btn btn-danger" type="button" data-c103-delete="${esc(a.stock_item_id)}">Eliminar</button></div></article>`;
+      return `<article class="c103-card ${full?'full':''} ${hasRes?'reserved':''} ${maint?'maintenance':''}"><div class="c103-row"><div><div class="c103-email">${esc(login(a))}</div><div class="c103-meta">${chip(state,k)}${chip(`${Number(a.used_count||0)}/${Number(a.capacity||0)} usos`,full||hasRes?'bad':'ok')}${chip(`${Number(a.free_count||0)} libres`,Number(a.free_count||0)>0&&!hasRes?'ok':'bad')}</div></div></div>${cli?`<div class="c103-clients">Clientes vinculados: ${esc(cli)}</div>`:''}<div class="c103-actions"><button class="btn" type="button" data-c103-history="${esc(a.stock_item_id)}">Historial</button><button class="btn" type="button" data-c103-edit="${esc(a.stock_item_id)}">✏️ Editar</button><button class="btn btn-danger" type="button" data-c103-delete="${esc(a.stock_item_id)}">Eliminar</button></div></article>`;
     }).join(''):'<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas para este plan.</p></div>';
     document.querySelectorAll('[data-c103-history]').forEach(b=>b.onclick=()=>history(b.dataset.c103History));document.querySelectorAll('[data-c103-edit]').forEach(b=>b.onclick=()=>editor(b.dataset.c103Edit));document.querySelectorAll('[data-c103-delete]').forEach(b=>b.onclick=()=>remove(b.dataset.c103Delete));
   }
@@ -16040,30 +16031,21 @@ header.app .app-sub{display:none!important}
   }
   function firstEmailV92(values){for(const v of values){const x=text(v);if(emailOk(x))return x}return ''}
   function linkedRaw(r){
-    const s=stateOf(), c=customer(r), customerMail=text(c?.email||r?.customer_email||'').toLowerCase();
-    const candidates=[];
-    const push=v=>{const x=text(v).toLowerCase();if(emailOk(x)&&x!==customerMail&&!candidates.includes(x))candidates.push(x)};
-    const addSecret=obj=>{const z=secret(obj);[z.correo,z.email,z.usuario,z.username,z.family_admin_email,z.correo_admin].forEach(push)};
-    const addDelivery=d=>{const dd=deliveryDataV92(d);[dd.correo,dd.email,dd.usuario,dd.username,dd.cuenta,dd.login,dd.family_admin_email,dd.correo_admin].forEach(push);addSecret(stockBy(dd.stock_id||d?.stock_item_id));const raw=text(d?.delivered_message||d?.message||'');(raw.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/ig)||[]).forEach(push)};
-    const assignments=rows(s.assignments).filter(a=>
-      same(a?.id,r?.assignment_id)||same(a?.reminder_id,r?.id)||same(a?.order_item_id,r?.order_item_id)||
-      (r?.order_id&&same(a?.order_id,r?.order_id)&&(!r?.plan_id||same(a?.plan_id,r?.plan_id)))||
-      (r?.customer_id&&r?.plan_id&&same(a?.customer_id,r?.customer_id)&&same(a?.plan_id,r?.plan_id))
-    ).sort((x,y)=>text(y?.created_at).localeCompare(text(x?.created_at)));
-    assignments.forEach(a=>{
-      addSecret(stockBy(a?.stock_item_id));
-      const m=assignmentMeta(a), ac=m.access_context&&typeof m.access_context==='object'?m.access_context:{}, md=m.delivery_data&&typeof m.delivery_data==='object'?m.delivery_data:{}, snap=a?.access_snapshot&&typeof a.access_snapshot==='object'?a.access_snapshot:{};
-      [ac.login,ac.correo,ac.email,ac.usuario,md.correo,md.email,md.usuario,md.login,snap.correo,snap.email,snap.usuario,snap.login,snap.family_admin_email,snap.correo_admin].forEach(push);
-    });
-    addSecret(stockBy(r?.stock_item_id));
-    rows(s.deliveries).filter(d=>
-      (r?.order_item_id&&same(d?.order_item_id,r?.order_item_id))||
-      (r?.order_id&&same(d?.order_id,r?.order_id)&&(!r?.plan_id||!d?.plan_id||same(d?.plan_id,r?.plan_id)))||
-      assignments.some(a=>same(d?.assignment_id,a?.id))
-    ).sort((x,y)=>text(y?.created_at).localeCompare(text(x?.created_at))).forEach(addDelivery);
-    try{const linked=window.findLinkedStockForReminder?.(r);if(linked?.item)addSecret(linked.item)}catch(_){ }
-    const rs=snapshot(r);[rs.correo,rs.email,rs.usuario,rs.login,rs.family_admin_email,rs.correo_admin].forEach(push);
-    return candidates[0]||'';
+    const a=assignment(r),m=assignmentMeta(a),ac=m.access_context&&typeof m.access_context==='object'?m.access_context:{},md=m.delivery_data&&typeof m.delivery_data==='object'?m.delivery_data:{},del=latestDeliveryV92(r),dd=deliveryDataV92(del);
+    const primaryStock=stockBy(a?.stock_item_id||r?.stock_item_id||dd?.stock_id||del?.stock_item_id),primarySecret=secret(primaryStock);
+    const deliveryStock=stockBy(dd?.stock_id||del?.stock_item_id),deliverySecret=secret(deliveryStock);
+    const snap=a?.access_snapshot&&typeof a.access_snapshot==='object'?a.access_snapshot:{};
+    /* La fuente principal es la cuenta realmente asignada. Se omiten a propósito
+       linked_account_email/customer_email porque en datos antiguos pueden guardar
+       el correo del cliente y no la cuenta entregada. */
+    return firstEmailV92([
+      deliverySecret.correo,deliverySecret.email,deliverySecret.usuario,deliverySecret.username,deliverySecret.family_admin_email,deliverySecret.correo_admin,
+      primarySecret.correo,primarySecret.email,primarySecret.usuario,primarySecret.username,primarySecret.family_admin_email,primarySecret.correo_admin,
+      ac.login,ac.correo,ac.email,ac.usuario,
+      dd.correo,dd.email,dd.usuario,dd.username,dd.cuenta,dd.login,dd.family_admin_email,dd.correo_admin,
+      md.correo,md.email,md.usuario,md.login,
+      snap.correo,snap.email,snap.usuario,snap.login,snap.family_admin_email,snap.correo_admin
+    ]);
   }
   function linkedEmail(r){const v=linkedRaw(r);return emailOk(v)?v:''}
   function customerEmail(r,c=customer(r)){const snap=snapshot(r);let v='';try{v=text(window.customerGmail?.(c)||c?.email||r?.customer_email||snap.client_email||snap.cliente_gmail||snap.family_client_email||'')}catch(_){v=text(c?.email||r?.customer_email||snap.client_email||snap.cliente_gmail||'')}return emailOk(v)?v:''}
@@ -16265,16 +16247,6 @@ header.app .app-sub{display:none!important}
 })();
 </script>
 <script>console.info('Innov IA Admin V94 · pago automático resistente');</script>
-
-
-
-
-<style id="innov-v96-recordatorio-cuentas-css">
-/* V96 — corrección directa de cuenta vinculada y fecha real de cuentas */
-.c103-chip.date{color:var(--primary);background:var(--primary-alpha2);border-color:var(--border)}
-@media(max-width:680px){.c103-chip.date{white-space:normal;line-height:1.2}}
-</style>
-<script>console.info('Innov IA Admin V96 · cuenta vinculada autoritativa y cuentas por fecha');</script>
 
 </body>
 </html>
