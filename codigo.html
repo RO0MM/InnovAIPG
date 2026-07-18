@@ -563,6 +563,33 @@
       font-variant-numeric:tabular-nums;
     }
 
+    .clockStatus{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:30px;
+      margin:9px auto 0;
+      padding:5px 10px;
+      border-radius:999px;
+      border:1px solid rgba(134,239,172,.34);
+      background:rgba(11,72,40,.24);
+      color:#bbf7d0;
+      font-size:11px;
+      font-weight:900;
+      line-height:1.2;
+    }
+    .clockStatus.syncing{
+      border-color:rgba(186,230,253,.36);
+      background:rgba(6,57,84,.28);
+      color:#dff4ff;
+    }
+    .clockStatus.warn{
+      border-color:rgba(253,226,168,.35);
+      background:rgba(88,56,8,.28);
+      color:#ffe9b3;
+    }
+
     .thanksGifWrap{
       width:min(100%, 290px);
       margin:6px auto 18px;
@@ -706,6 +733,7 @@
         <h3>Preparando tu código...</h3>
         <p>Quédate atento para copiar el código antes de que caduque. Estamos esperando que el contador inicie desde 0 segundos.</p>
         <div class="countBadge" id="waitCounter">-- s</div>
+        <div class="clockStatus syncing" id="waitingClockStatus">⏱ Sincronizando hora segura…</div>
         <div class="tipBox">📌 Recomendación: deja abierta la pantalla donde te piden el código y cópialo apenas aparezca.</div>
       </div>
 
@@ -718,6 +746,7 @@
           </div>
           <div class="timerBar"><div class="timerFill" id="timerFill"></div></div>
           <div class="timerText" id="timerText">Tiempo restante: -- s</div>
+          <div class="clockStatus syncing" id="clockStatus">⏱ Verificando hora segura…</div>
           <button class="mainBtn" id="copyBtn">Copiar código</button>
           <button class="secondaryBtn" id="hideBtn">Cerrar</button>
         </div>
@@ -745,14 +774,113 @@
   const $=id=>document.getElementById(id);
   let activeAccount=null, activeAccess=null, timerId=null, waitingId=null, thanksTimeout=null, thanksProgressId=null;
 
+  /*
+   * El TOTP ya no usa la hora del PC/celular.
+   * Se crea un reloj monotónico sincronizado con Supabase y se avanza con
+   * performance.now(), evitando zonas horarias, cambios manuales y relojes atrasados.
+   */
+  const secureClock={
+    ready:false,
+    anchorServerMs:0,
+    anchorPerfMs:0,
+    offsetMs:0,
+    rttMs:0,
+    syncedAt:0,
+    syncing:null
+  };
+
   function normalizeCode(v){return String(v||'').trim().toUpperCase()}
   function normalizeSecret(v){return String(v||'').replace(/\s+/g,'').toUpperCase()}
   function showScreen(id){['screenForm','screenWaiting','screenCode','screenThanks'].forEach(s=>$(s).classList.toggle('active',s===id))}
   function showMsg(text,type='info'){const icon=type==='ok'?'✅':type==='err'?'⚠️':'ℹ️';$('clientMsg').className='msg show '+type;$('clientMsg').innerHTML=`<span>${icon}</span><span>${text}</span>`}
   function hideMsg(){$('clientMsg').className='msg';$('clientMsg').textContent=''}
-  function clearAllTimers(){if(timerId)clearInterval(timerId);if(waitingId)clearInterval(waitingId);if(thanksTimeout)clearTimeout(thanksTimeout);if(thanksProgressId)cancelAnimationFrame(thanksProgressId);timerId=waitingId=thanksTimeout=thanksProgressId=null;$('useCodeBtn').disabled=false}
-  function secondsIntoPeriod(period=30){return Math.floor(Date.now()/1000)%period}
-  function secondsLeft(period=30){return period-secondsIntoPeriod(period)}
+  function clearAllTimers(){if(timerId)clearTimeout(timerId);if(waitingId)clearTimeout(waitingId);if(thanksTimeout)clearTimeout(thanksTimeout);if(thanksProgressId)cancelAnimationFrame(thanksProgressId);timerId=waitingId=thanksTimeout=thanksProgressId=null;$('useCodeBtn').disabled=false}
+
+  function setClockStatus(text,mode='ok'){
+    ['clockStatus','waitingClockStatus'].forEach(id=>{
+      const el=$(id);
+      if(!el)return;
+      el.className='clockStatus'+(mode==='syncing'?' syncing':mode==='warn'?' warn':'');
+      el.textContent=text;
+    });
+  }
+
+  function parseServerEpoch(data){
+    const row=Array.isArray(data)?data[0]:data;
+    const epoch=Number(row?.epoch_ms);
+    if(!Number.isFinite(epoch)||epoch<=0)throw new Error('Respuesta de hora segura no válida.');
+    return epoch;
+  }
+
+  async function takeClockSample(){
+    const localStart=Date.now();
+    const perfStart=performance.now();
+    const {data,error}=await db.rpc('innov_totp_server_time');
+    const perfEnd=performance.now();
+    const localEnd=Date.now();
+    if(error)throw error;
+
+    const epochAtServer=parseServerEpoch(data);
+    const rttMs=Math.max(0,perfEnd-perfStart);
+    const estimatedServerAtReceipt=epochAtServer+(rttMs/2);
+    return {
+      rttMs,
+      serverAtReceiptMs:estimatedServerAtReceipt,
+      offsetMs:estimatedServerAtReceipt-localEnd,
+      localMidpointMs:(localStart+localEnd)/2
+    };
+  }
+
+  async function syncSecureClock(force=false){
+    const stillFresh=secureClock.ready&&(Date.now()-secureClock.syncedAt)<60000;
+    if(stillFresh&&!force)return secureClock;
+    if(secureClock.syncing)return secureClock.syncing;
+
+    secureClock.syncing=(async()=>{
+      setClockStatus('⏱ Sincronizando hora segura…','syncing');
+      const samples=[];
+      for(let i=0;i<3;i++){
+        try{samples.push(await takeClockSample())}
+        catch(error){if(i===2&&!samples.length)throw error}
+      }
+      if(!samples.length)throw new Error('No se pudo obtener la hora segura.');
+
+      /* La muestra con menor latencia reduce el error de red, como en NTP. */
+      samples.sort((a,b)=>a.rttMs-b.rttMs);
+      const best=samples[0];
+      secureClock.ready=true;
+      secureClock.anchorServerMs=best.serverAtReceiptMs;
+      secureClock.anchorPerfMs=performance.now();
+      secureClock.offsetMs=best.offsetMs;
+      secureClock.rttMs=best.rttMs;
+      secureClock.syncedAt=Date.now();
+
+      const driftSeconds=Math.round(Math.abs(best.offsetMs)/1000);
+      if(driftSeconds>=2){
+        setClockStatus(`✅ Hora segura activa · reloj corregido ${driftSeconds} s`,'ok');
+      }else{
+        setClockStatus('✅ Hora segura sincronizada con el servidor','ok');
+      }
+      return secureClock;
+    })().finally(()=>{secureClock.syncing=null});
+
+    return secureClock.syncing;
+  }
+
+  function secureNowMs(){
+    if(!secureClock.ready)throw new Error('La hora segura todavía no está sincronizada.');
+    return secureClock.anchorServerMs+(performance.now()-secureClock.anchorPerfMs);
+  }
+
+  function periodPositionMs(period=30){
+    const periodMs=Math.max(1,Number(period)||30)*1000;
+    return ((secureNowMs()%periodMs)+periodMs)%periodMs;
+  }
+
+  function secondsLeft(period=30){
+    const periodMs=Math.max(1,Number(period)||30)*1000;
+    return Math.max(0,Math.ceil((periodMs-periodPositionMs(period))/1000));
+  }
 
   function base32Decode(base32){
     const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -766,6 +894,7 @@
     for(let i=0;i+8<=bits.length;i+=8)bytes.push(parseInt(bits.slice(i,i+8),2));
     return new Uint8Array(bytes);
   }
+
   async function hotp(secret,counter,digits=6){
     const keyBytes=base32Decode(secret);
     const cryptoKey=await crypto.subtle.importKey('raw',keyBytes,{name:'HMAC',hash:'SHA-1'},false,['sign']);
@@ -776,8 +905,10 @@
     const bin=((hmac[offset]&0x7f)<<24)|((hmac[offset+1]&0xff)<<16)|((hmac[offset+2]&0xff)<<8)|(hmac[offset+3]&0xff);
     return String(bin%(10**digits)).padStart(digits,'0');
   }
-  async function totp(secret,period=30,digits=6){
-    return hotp(secret,Math.floor(Date.now()/1000/period),digits);
+
+  async function totp(secret,period=30,digits=6,nowMs=secureNowMs()){
+    const counter=Math.floor(nowMs/1000/period);
+    return hotp(secret,counter,digits);
   }
 
   async function redeemAccessCode(){
@@ -785,6 +916,18 @@
     const accessCode=normalizeCode($('accessInput').value);
     if(!accessCode){showMsg('Ingresa tu código de acceso para continuar.','err');return}
     $('useCodeBtn').disabled=true;
+
+    /* Sincronizar antes de consumir el acceso evita gastar un uso sin mostrar TOTP. */
+    showMsg('Sincronizando hora segura...', 'info');
+    try{
+      await syncSecureClock(true);
+    }catch(error){
+      $('useCodeBtn').disabled=false;
+      showMsg('No se pudo sincronizar la hora segura. Revisa tu conexión e intenta nuevamente. No se usó la hora del dispositivo.','err');
+      console.error('Clock sync:',error);
+      return;
+    }
+
     showMsg('Validando acceso...', 'info');
     const {data,error}=await db.rpc('redeem_totp_access_code',{p_access_code:accessCode});
     if(error){$('useCodeBtn').disabled=false;showMsg('No se pudo validar el acceso. Intenta nuevamente o contacta a soporte.','err');console.error(error);return}
@@ -793,18 +936,32 @@
     startWaitingForFreshCycle();
   }
 
-  function startWaitingForFreshCycle(){
+  async function startWaitingForFreshCycle(){
     showScreen('screenWaiting');hideMsg();
-    const period=Number(activeAccount?.period||30);
+    try{await syncSecureClock(false)}
+    catch(error){showScreen('screenForm');$('useCodeBtn').disabled=false;showMsg('No se pudo mantener la sincronización segura. Intenta nuevamente.','err');return}
+
+    const period=Math.max(1,Number(activeAccount?.period||30));
+    const periodMs=period*1000;
+
     const tick=async()=>{
-      const inside=secondsIntoPeriod(period), wait=inside===0?0:period-inside;
-      $('waitCounter').textContent=wait+' s';
-      if(inside<=1){
-        waitingId=null;
-        await showTotp();
-        return;
+      try{
+        const position=periodPositionMs(period);
+        const waitMs=periodMs-position;
+        $('waitCounter').textContent=Math.max(0,Math.ceil(waitMs/1000))+' s';
+
+        /* Solo se abre al comienzo real de un ciclo nuevo. */
+        if(position<=550){
+          waitingId=null;
+          await showTotp();
+          return;
+        }
+        waitingId=setTimeout(tick,Math.min(250,Math.max(60,waitMs-80)));
+      }catch(error){
+        showScreen('screenForm');
+        showMsg('La sincronización de hora se interrumpió. Intenta nuevamente.','err');
+        console.error(error);
       }
-      waitingId=setTimeout(tick, Math.min(1000, wait*1000));
     };
     tick();
   }
@@ -812,15 +969,39 @@
   async function showTotp(){
     showScreen('screenCode');
     $('accountLabel').textContent=(activeAccount?.label||'Cuenta')+' · Uso '+(activeAccess?.used_count||1)+' de '+(activeAccess?.max_uses||'');
-    const period=Number(activeAccount?.period||30), digits=Number(activeAccount?.digits||6);
+    const period=Math.max(1,Number(activeAccount?.period||30));
+    const digits=Math.max(4,Number(activeAccount?.digits||6));
+    const periodMs=period*1000;
+    let generatedCounter=null;
+
     const refresh=async()=>{
       try{
-        const code=await totp(activeAccount.secret,period,digits);
-        const left=secondsLeft(period), percent=(left/period)*100;
-        $('otpCode').textContent=code;$('timerFill').style.width=percent+'%';$('timerText').textContent='Tiempo restante: '+left+' s';
-        if(left<=1){timerId=null;showThanksThenReset();return}
-        timerId=setTimeout(refresh, 1000);
-      }catch(e){showScreen('screenForm');showMsg('Error generando el código. Contacta a soporte.','err');console.error(e)}
+        const now=secureNowMs();
+        const counter=Math.floor(now/1000/period);
+        const remainingMs=periodMs-periodPositionMs(period);
+
+        if(counter!==generatedCounter){
+          const code=await totp(activeAccount.secret,period,digits,now);
+          $('otpCode').textContent=code;
+          generatedCounter=counter;
+        }
+
+        const left=Math.max(0,Math.ceil(remainingMs/1000));
+        const percent=Math.max(0,Math.min(100,(remainingMs/periodMs)*100));
+        $('timerFill').style.width=percent+'%';
+        $('timerText').textContent='Tiempo restante: '+left+' s';
+
+        if(remainingMs<=180){
+          timerId=null;
+          showThanksThenReset();
+          return;
+        }
+        timerId=setTimeout(refresh,Math.min(250,Math.max(80,remainingMs-80)));
+      }catch(e){
+        showScreen('screenForm');
+        showMsg('Error generando el código con hora segura. Intenta nuevamente o contacta a soporte.','err');
+        console.error(e);
+      }
     };
     await refresh();
   }
@@ -829,23 +1010,15 @@
     const bar=$('thanksBar');
     if(!bar)return;
     if(thanksProgressId)cancelAnimationFrame(thanksProgressId);
-
     const started=performance.now();
     bar.style.width='100%';
-
     const step=now=>{
       const elapsed=now-started;
-      const remaining=Math.max(0, 1 - elapsed/duration);
+      const remaining=Math.max(0,1-elapsed/duration);
       bar.style.width=(remaining*100).toFixed(2)+'%';
-
-      if(remaining>0){
-        thanksProgressId=requestAnimationFrame(step);
-      }else{
-        thanksProgressId=null;
-        bar.style.width='0%';
-      }
+      if(remaining>0)thanksProgressId=requestAnimationFrame(step);
+      else{thanksProgressId=null;bar.style.width='0%'}
     };
-
     thanksProgressId=requestAnimationFrame(step);
   }
 
@@ -870,6 +1043,14 @@
   $('copyBtn').addEventListener('click',copyOtp);
   $('otpCode').addEventListener('click',copyOtp);
   $('hideBtn').addEventListener('click',hideCode);
+
+  /* Al volver a la pestaña se corrige cualquier deriva acumulada. */
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&activeAccount){
+      syncSecureClock(true).catch(error=>console.warn('No se pudo resincronizar:',error));
+    }
+  });
+  window.addEventListener('online',()=>syncSecureClock(true).catch(()=>{}));
 
   const params=new URLSearchParams(location.search);
   const initial=params.get('code');
