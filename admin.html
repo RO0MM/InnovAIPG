@@ -16,8 +16,6 @@
 <link rel="shortcut icon" href="Diseño sin título.png">
 
   <!-- Libraries Stylesheet -->
-  <link href="lib/animate/animate.min.css" rel="stylesheet" />
-  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
 
   <!-- Customized Bootstrap Stylesheet -->
   <link href="css/style.css" rel="stylesheet" />
@@ -32,7 +30,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=DM+Mono:wght@400;500&display=swap">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
 
 
@@ -4326,8 +4323,31 @@ function backupWorkbookData(){
     totp_codigos:backupSheetRows(state.totpCodes)
   };
 }
-function exportAdminExcelBackup(){
-  if(!window.XLSX){toast('No se pudo cargar el motor Excel. Revisa internet/CDN.','bad');return;}
+
+let __innovXlsxPromise=null;
+function ensureXLSX(){
+  if(window.XLSX)return Promise.resolve(window.XLSX);
+  if(__innovXlsxPromise)return __innovXlsxPromise;
+  __innovXlsxPromise=new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-innov-xlsx]');
+    if(existing){
+      existing.addEventListener('load',()=>window.XLSX?resolve(window.XLSX):reject(new Error('XLSX no quedó disponible')),{once:true});
+      existing.addEventListener('error',()=>reject(new Error('No se pudo cargar XLSX')),{once:true});
+      return;
+    }
+    const script=document.createElement('script');
+    script.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    script.async=true;
+    script.dataset.innovXlsx='1';
+    script.onload=()=>window.XLSX?resolve(window.XLSX):reject(new Error('XLSX no quedó disponible'));
+    script.onerror=()=>reject(new Error('No se pudo cargar el motor Excel'));
+    document.head.appendChild(script);
+  }).catch(err=>{__innovXlsxPromise=null;throw err});
+  return __innovXlsxPromise;
+}
+
+async function exportAdminExcelBackup(){
+  try{await ensureXLSX()}catch(e){toast(e.message||'No se pudo cargar el motor Excel','bad');return}
   const wb=XLSX.utils.book_new();
   const data=backupWorkbookData();
   Object.entries(data).forEach(([name,rows])=>{
@@ -4344,7 +4364,7 @@ async function importAdminExcelBackup(file){
     if(file.name.toLowerCase().endsWith('.json')){
       const txt=await file.text(); const json=JSON.parse(txt); console.log('Backup JSON cargado',json); toast('JSON leído. Para restaurar usa Excel segmentado por hojas.','info'); return;
     }
-    if(!window.XLSX){toast('No se pudo cargar el lector Excel. Revisa internet/CDN.','bad');return;}
+    try{await ensureXLSX()}catch(e){toast(e.message||'No se pudo cargar el lector Excel','bad');return}
     if(!confirm('Esto intentará restaurar/actualizar datos desde el Excel. Recomendado solo con backups generados por este sistema. ¿Continuar?'))return;
     const buf=await file.arrayBuffer();
     const wb=XLSX.read(buf,{type:'array'});
@@ -7291,8 +7311,11 @@ function planStockFilteredRows(){
     return (`${x.title||''} ${x.notes||''} ${opsAvailableStatus(x)} ${d.correo||''} ${d.usuario||''} ${d.clave||''} ${d.perfil||''} ${d.pin||''} ${d.family_admin_email||''} ${d.correo_admin||''} ${d.twofa_code||''} ${d.codigo_2fa||''} ${d.reserved_for||''} ${d.reserved_phone||''} ${hist}`).toLowerCase().includes(q);
   });
   rows.sort((a,b)=>{
+    const aDate=Date.parse(a.created_at||'')||0;
+    const bDate=Date.parse(b.created_at||'')||0;
+    if(aDate!==bDate)return bDate-aDate; // cuentas más recientes primero
     const order={available:0,reserved:1,used:2,delivered:2};
-    return (order[opsAvailableStatus(a)]??3)-(order[opsAvailableStatus(b)]??3)||String(a.created_at||'').localeCompare(String(b.created_at||''));
+    return (order[opsAvailableStatus(a)]??3)-(order[opsAvailableStatus(b)]??3);
   });
   return rows;
 }
@@ -7353,10 +7376,11 @@ function renderPlanStockView(){
     const d=opsSecret(x), st=opsAvailableStatus(x);
     const pass=d.clave||d.pass||'';
     const remaining=stockRemainingUses(x);
+    const addedAt=x.created_at?new Date(x.created_at).toLocaleString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Sin fecha';
     return `<div class="plan-stock-row">
       <div class="plan-stock-main">
         <div class="plan-stock-title">${esc(x.title||d.correo||'Cuenta')}</div>
-        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(stockUsedCount(x))}/${esc(stockMaxUses(x))}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span>${stockTotpAccountId(x)?` <span class="badge b-purple">🛡 TOTP</span>`:''}${stockIsFamilyInvite(x)?` <span class="badge b-purple">👨‍👩‍👧 Familiar</span>`:''}</div>
+        <div class="plan-stock-sub">${opsStatusBadge(st)} <span class="badge">Usos ${esc(stockUsedCount(x))}/${esc(stockMaxUses(x))}</span> <span class="badge ${remaining>0?'b-ok':'b-bad'}">${remaining} libres</span> <span class="badge v95-stock-added">📅 Agregada ${esc(addedAt)}</span>${stockTotpAccountId(x)?` <span class="badge b-purple">🛡 TOTP</span>`:''}${stockIsFamilyInvite(x)?` <span class="badge b-purple">👨‍👩‍👧 Familiar</span>`:''}</div>
         <div class="plan-stock-secret"><span class="mono">📧 ${esc(d.family_admin_email||d.correo||d.usuario||'sin correo')}</span>${pass?`<span class="mono">🔒 ${esc(pass)}</span>`:''}${d.twofa_code?`<span class="mono">2FA ${esc(d.twofa_code)}</span>`:''}${d.perfil?`<span class="mono">👤 ${esc(d.perfil)}</span>`:''}${d.pin?`<span class="mono">PIN ${esc(d.pin)}</span>`:''}</div>
         ${compactHistoryHtml(x)}
       </div>
@@ -12465,13 +12489,18 @@ INNOV IA V62 - TOTP original + selección real
   }
   const login=a=>txt(a?.login)||txt(a?.secret_data?.correo)||txt(a?.secret_data?.email)||txt(a?.secret_data?.usuario)||txt(a?.alias)||'Cuenta';
   function clientText(a){return arr(a.clients).map(c=>`${c.customer_name||'Cliente'}${c.slot_label?` (${c.slot_label})`:''}${c.source==='reserved_legacy'?' · reservado':''}`).join(' · ')}
+  function stockRow(a){return arr(state?.stock).find(x=>String(x?.id||'')===String(a?.stock_item_id||a?.id||''))||{}}
+  function addedRaw(a){const s=stockRow(a);return txt(a?.created_at||a?.stock_created_at||a?.item_created_at||s?.created_at||'')}
+  function addedTime(a){const d=new Date(addedRaw(a)||0);return Number.isFinite(d.getTime())?d.getTime():0}
+  function addedLabel(a){const raw=addedRaw(a);if(!raw)return 'Sin fecha';const d=new Date(raw);return Number.isFinite(d.getTime())?d.toLocaleString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):raw}
   function render(){
-    const m=M.model;if(!m)return;const as=arr(m.accounts),used=as.reduce((n,a)=>n+Number(a.used_count||0),0),free=as.reduce((n,a)=>n+Number(a.free_count||0),0),cap=as.reduce((n,a)=>n+Number(a.capacity||0),0),res=as.reduce((n,a)=>n+Number(a.reservation_count||0),0);
+    const m=M.model;if(!m)return;const as=arr(m.accounts).slice().sort((a,b)=>addedTime(b)-addedTime(a)||login(a).localeCompare(login(b),'es')),
+      used=as.reduce((n,a)=>n+Number(a.used_count||0),0),free=as.reduce((n,a)=>n+Number(a.free_count||0),0),cap=as.reduce((n,a)=>n+Number(a.capacity||0),0),res=as.reduce((n,a)=>n+Number(a.reservation_count||0),0);
     $('c103Title').textContent='Cuentas y cupos · '+(m.plan_name||'Plan');$('c103PlanName').textContent=m.plan_name||'Plan';$('c103Kpis').innerHTML=chip(`${free} libres`,'ok')+chip(`${used} usados`,'bad')+chip(`${cap} cupos`)+(res?chip(`${res} reservados`,'warn'):'');
     const q=txt($('c103Search').value).toLowerCase(), show=as.filter(a=>JSON.stringify(a).toLowerCase().includes(q));
     $('c103List').innerHTML=show.length?show.map(a=>{
       const hasRes=Number(a.reservation_count||0)>0, full=String(a.availability)==='full', maint=a.core_state!=='active';const state=maint?(a.core_state==='maintenance'?'Mantenimiento':'Suspendida'):(hasRes?'Reservada':(full?'Completa':'Disponible'));const k=maint||full?'bad':hasRes?'warn':'ok';const cli=clientText(a);
-      return `<article class="c103-card ${full?'full':''} ${hasRes?'reserved':''} ${maint?'maintenance':''}"><div class="c103-row"><div><div class="c103-email">${esc(login(a))}</div><div class="c103-meta">${chip(state,k)}${chip(`${Number(a.used_count||0)}/${Number(a.capacity||0)} usos`,full||hasRes?'bad':'ok')}${chip(`${Number(a.free_count||0)} libres`,Number(a.free_count||0)>0&&!hasRes?'ok':'bad')}</div></div></div>${cli?`<div class="c103-clients">Clientes vinculados: ${esc(cli)}</div>`:''}<div class="c103-actions"><button class="btn" type="button" data-c103-history="${esc(a.stock_item_id)}">Historial</button><button class="btn" type="button" data-c103-edit="${esc(a.stock_item_id)}">✏️ Editar</button><button class="btn btn-danger" type="button" data-c103-delete="${esc(a.stock_item_id)}">Eliminar</button></div></article>`;
+      return `<article class="c103-card ${full?'full':''} ${hasRes?'reserved':''} ${maint?'maintenance':''}"><div class="c103-row"><div><div class="c103-email">${esc(login(a))}</div><div class="c103-meta">${chip(state,k)}${chip(`${Number(a.used_count||0)}/${Number(a.capacity||0)} usos`,full||hasRes?'bad':'ok')}${chip(`${Number(a.free_count||0)} libres`,Number(a.free_count||0)>0&&!hasRes?'ok':'bad')}${chip(`📅 Agregada ${addedLabel(a)}`,'date')}</div></div></div>${cli?`<div class="c103-clients">Clientes vinculados: ${esc(cli)}</div>`:''}<div class="c103-actions"><button class="btn" type="button" data-c103-history="${esc(a.stock_item_id)}">Historial</button><button class="btn" type="button" data-c103-edit="${esc(a.stock_item_id)}">✏️ Editar</button><button class="btn btn-danger" type="button" data-c103-delete="${esc(a.stock_item_id)}">Eliminar</button></div></article>`;
     }).join(''):'<div class="empty-state"><span class="icon">📭</span><p>No hay cuentas para este plan.</p></div>';
     document.querySelectorAll('[data-c103-history]').forEach(b=>b.onclick=()=>history(b.dataset.c103History));document.querySelectorAll('[data-c103-edit]').forEach(b=>b.onclick=()=>editor(b.dataset.c103Edit));document.querySelectorAll('[data-c103-delete]').forEach(b=>b.onclick=()=>remove(b.dataset.c103Delete));
   }
@@ -16008,9 +16037,47 @@ header.app .app-sub{display:none!important}
   const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
   const dayDiff=v=>{const s=text(v).slice(0,10);if(!s)return null;const a=new Date(s+'T12:00:00'),b=new Date(today()+'T12:00:00');const n=Math.round((a-b)/86400000);return Number.isFinite(n)?n:null};
   const dateLabel=v=>{const s=text(v).slice(0,10),m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:(s||'Sin fecha')};
-  const customer=r=>rows(stateOf().customers).find(c=>same(c.id,r?.customer_id))||{};
-  const assignment=r=>rows(stateOf().assignments).find(a=>same(a.id,r?.assignment_id)||same(a.reminder_id,r?.id))||{};
-  const stockBy=id=>rows(stateOf().stock).find(s=>same(s.id,id))||{};
+  /* V99: índices locales seguros para evitar búsquedas O(n²) en 700+ recordatorios. */
+  const v99Index={refs:{},customer:new Map(),assignmentId:new Map(),assignmentReminder:new Map(),assignmentItem:new Map(),assignmentOrder:new Map(),assignmentCustomerPlan:new Map(),stock:new Map(),plan:new Map(),product:new Map(),order:new Map(),deliveryItem:new Map(),deliveryOrder:new Map(),deliveryAssignment:new Map()};
+  const v99Push=(map,key,value)=>{key=text(key);if(!key)return;const list=map.get(key);if(list)list.push(value);else map.set(key,[value])};
+  function v99EnsureIndex(){
+    const s=stateOf(),r=v99Index.refs;
+    if(r.customers===s.customers&&r.assignments===s.assignments&&r.stock===s.stock&&r.plans===s.plans&&r.products===s.products&&r.orders===s.orders&&r.deliveries===s.deliveries)return;
+    r.customers=s.customers;r.assignments=s.assignments;r.stock=s.stock;r.plans=s.plans;r.products=s.products;r.orders=s.orders;r.deliveries=s.deliveries;
+    Object.keys(v99Index).forEach(k=>{if(v99Index[k] instanceof Map)v99Index[k].clear()});
+    rows(s.customers).forEach(x=>{if(x?.id)v99Index.customer.set(text(x.id),x)});
+    rows(s.stock).forEach(x=>{if(x?.id)v99Index.stock.set(text(x.id),x)});
+    rows(s.plans).forEach(x=>{if(x?.id)v99Index.plan.set(text(x.id),x)});
+    rows(s.products).forEach(x=>{if(x?.id)v99Index.product.set(text(x.id),x)});
+    rows(s.orders).forEach(x=>{if(x?.id)v99Index.order.set(text(x.id),x)});
+    rows(s.assignments).forEach(a=>{
+      if(a?.id)v99Index.assignmentId.set(text(a.id),a);
+      if(a?.reminder_id)v99Index.assignmentReminder.set(text(a.reminder_id),a);
+      v99Push(v99Index.assignmentItem,a?.order_item_id,a);
+      v99Push(v99Index.assignmentOrder,a?.order_id,a);
+      v99Push(v99Index.assignmentCustomerPlan,text(a?.customer_id)+'|'+text(a?.plan_id),a);
+    });
+    rows(s.deliveries).forEach(d=>{v99Push(v99Index.deliveryItem,d?.order_item_id,d);v99Push(v99Index.deliveryOrder,d?.order_id,d);v99Push(v99Index.deliveryAssignment,d?.assignment_id,d)});
+  }
+  const customer=r=>{v99EnsureIndex();return v99Index.customer.get(text(r?.customer_id))||{}};
+  function assignmentsFor(r){
+    v99EnsureIndex();const out=[],seen=new Set(),add=a=>{const id=text(a?.id);if(a&&id&&!seen.has(id)){seen.add(id);out.push(a)}};
+    add(v99Index.assignmentId.get(text(r?.assignment_id)));
+    add(v99Index.assignmentReminder.get(text(r?.id)));
+    rows(v99Index.assignmentItem.get(text(r?.order_item_id))).forEach(add);
+    rows(v99Index.assignmentOrder.get(text(r?.order_id))).forEach(a=>{if(!r?.plan_id||same(a?.plan_id,r?.plan_id))add(a)});
+    rows(v99Index.assignmentCustomerPlan.get(text(r?.customer_id)+'|'+text(r?.plan_id))).forEach(add);
+    return out;
+  }
+  const assignment=r=>assignmentsFor(r)[0]||{};
+  const stockBy=id=>{v99EnsureIndex();return v99Index.stock.get(text(id))||{}};
+  function deliveriesFor(r,assignments=assignmentsFor(r)){
+    v99EnsureIndex();const out=[],seen=new Set(),add=d=>{const id=text(d?.id);if(d&&id&&!seen.has(id)){seen.add(id);out.push(d)}};
+    rows(v99Index.deliveryItem.get(text(r?.order_item_id))).forEach(add);
+    rows(v99Index.deliveryOrder.get(text(r?.order_id))).forEach(d=>{if(!r?.plan_id||!d?.plan_id||same(d?.plan_id,r?.plan_id))add(d)});
+    assignments.forEach(a=>rows(v99Index.deliveryAssignment.get(text(a?.id))).forEach(add));
+    return out;
+  }
   const secret=s=>{const d=s?.secret_data;return d&&typeof d==='object'&&!Array.isArray(d)?d:{}};
   const snapshot=r=>{const d=r?.linked_account_snapshot;return d&&typeof d==='object'&&!Array.isArray(d)?d:{}};
   const assignmentMeta=a=>{const d=a?.metadata;return d&&typeof d==='object'&&!Array.isArray(d)?d:{}};
@@ -16021,45 +16088,45 @@ header.app .app-sub{display:none!important}
     return {};
   }
   function latestDeliveryV92(r){
-    const a=assignment(r), orderId=text(r?.order_id||a?.order_id), itemId=text(r?.order_item_id||a?.order_item_id), planId=text(r?.plan_id||a?.plan_id);
-    return rows(stateOf().deliveries).filter(d=>{
-      if(itemId&&same(d?.order_item_id,itemId))return true;
-      if(orderId&&same(d?.order_id,orderId)&&(!planId||!d?.plan_id||same(d?.plan_id,planId)))return true;
-      if(a?.id&&same(d?.assignment_id,a.id))return true;
-      return false;
-    }).sort((x,y)=>text(y?.created_at).localeCompare(text(x?.created_at)))[0]||{};
+    return deliveriesFor(r).sort((x,y)=>text(y?.created_at).localeCompare(text(x?.created_at)))[0]||{};
   }
   function firstEmailV92(values){for(const v of values){const x=text(v);if(emailOk(x))return x}return ''}
   function linkedRaw(r){
-    const a=assignment(r),m=assignmentMeta(a),ac=m.access_context&&typeof m.access_context==='object'?m.access_context:{},md=m.delivery_data&&typeof m.delivery_data==='object'?m.delivery_data:{},del=latestDeliveryV92(r),dd=deliveryDataV92(del);
-    const primaryStock=stockBy(a?.stock_item_id||r?.stock_item_id||dd?.stock_id||del?.stock_item_id),primarySecret=secret(primaryStock);
-    const deliveryStock=stockBy(dd?.stock_id||del?.stock_item_id),deliverySecret=secret(deliveryStock);
-    const snap=a?.access_snapshot&&typeof a.access_snapshot==='object'?a.access_snapshot:{};
-    /* La fuente principal es la cuenta realmente asignada. Se omiten a propósito
-       linked_account_email/customer_email porque en datos antiguos pueden guardar
-       el correo del cliente y no la cuenta entregada. */
-    return firstEmailV92([
-      deliverySecret.correo,deliverySecret.email,deliverySecret.usuario,deliverySecret.username,deliverySecret.family_admin_email,deliverySecret.correo_admin,
-      primarySecret.correo,primarySecret.email,primarySecret.usuario,primarySecret.username,primarySecret.family_admin_email,primarySecret.correo_admin,
-      ac.login,ac.correo,ac.email,ac.usuario,
-      dd.correo,dd.email,dd.usuario,dd.username,dd.cuenta,dd.login,dd.family_admin_email,dd.correo_admin,
-      md.correo,md.email,md.usuario,md.login,
-      snap.correo,snap.email,snap.usuario,snap.login,snap.family_admin_email,snap.correo_admin
-    ]);
+    const s=stateOf(), c=customer(r), customerMail=text(c?.email||r?.customer_email||'').toLowerCase();
+    const candidates=[];
+    const push=v=>{const x=text(v).toLowerCase();if(emailOk(x)&&x!==customerMail&&!candidates.includes(x))candidates.push(x)};
+    const addSecret=obj=>{const z=secret(obj);[z.correo,z.email,z.usuario,z.username,z.family_admin_email,z.correo_admin].forEach(push)};
+    const addDelivery=d=>{const dd=deliveryDataV92(d);[dd.correo,dd.email,dd.usuario,dd.username,dd.cuenta,dd.login,dd.family_admin_email,dd.correo_admin].forEach(push);addSecret(stockBy(dd.stock_id||d?.stock_item_id));const raw=text(d?.delivered_message||d?.message||'');(raw.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/ig)||[]).forEach(push)};
+    const assignments=assignmentsFor(r).sort((x,y)=>text(y?.created_at).localeCompare(text(x?.created_at)));
+    assignments.forEach(a=>{
+      addSecret(stockBy(a?.stock_item_id));
+      const m=assignmentMeta(a), ac=m.access_context&&typeof m.access_context==='object'?m.access_context:{}, md=m.delivery_data&&typeof m.delivery_data==='object'?m.delivery_data:{}, snap=a?.access_snapshot&&typeof a.access_snapshot==='object'?a.access_snapshot:{};
+      [ac.login,ac.correo,ac.email,ac.usuario,md.correo,md.email,md.usuario,md.login,snap.correo,snap.email,snap.usuario,snap.login,snap.family_admin_email,snap.correo_admin].forEach(push);
+    });
+    addSecret(stockBy(r?.stock_item_id));
+    deliveriesFor(r,assignments).sort((x,y)=>text(y?.created_at).localeCompare(text(x?.created_at))).forEach(addDelivery);
+    try{const linked=window.findLinkedStockForReminder?.(r);if(linked?.item)addSecret(linked.item)}catch(_){ }
+    const rs=snapshot(r);[rs.correo,rs.email,rs.usuario,rs.login,rs.family_admin_email,rs.correo_admin].forEach(push);
+    return candidates[0]||'';
   }
-  function linkedEmail(r){const v=linkedRaw(r);return emailOk(v)?v:''}
+  const v99LinkedCache={a:null,s:null,d:null,map:new Map()};
+  function linkedEmail(r){
+    const st=stateOf();if(v99LinkedCache.a!==st.assignments||v99LinkedCache.s!==st.stock||v99LinkedCache.d!==st.deliveries){v99LinkedCache.a=st.assignments;v99LinkedCache.s=st.stock;v99LinkedCache.d=st.deliveries;v99LinkedCache.map.clear()}
+    const key=text(r?.id||r?.assignment_id||r?.order_item_id||r?.order_id);if(key&&v99LinkedCache.map.has(key))return v99LinkedCache.map.get(key);
+    const v=linkedRaw(r),out=emailOk(v)?v:'';if(key)v99LinkedCache.map.set(key,out);return out;
+  }
   function customerEmail(r,c=customer(r)){const snap=snapshot(r);let v='';try{v=text(window.customerGmail?.(c)||c?.email||r?.customer_email||snap.client_email||snap.cliente_gmail||snap.family_client_email||'')}catch(_){v=text(c?.email||r?.customer_email||snap.client_email||snap.cliente_gmail||'')}return emailOk(v)?v:''}
   function profile(r){const a=assignment(r),m=assignmentMeta(a),ac=m.access_context&&typeof m.access_context==='object'?m.access_context:{},snap=a?.access_snapshot&&typeof a.access_snapshot==='object'?a.access_snapshot:{},s=stockBy(r?.stock_item_id||a?.stock_item_id),d=secret(s);return text(ac.profile||snap.slot_label||d.perfil||d.profile||'')}
-  function productName(r){const p=rows(stateOf().plans).find(x=>same(x.id,r?.plan_id))||{};return text(rows(stateOf().products).find(x=>same(x.id,p.product_id))?.name||'')}
-  function planNameV(r){return text(rows(stateOf().plans).find(x=>same(x.id,r?.plan_id))?.name||'')}
-  function orderFor(r){return rows(stateOf().orders).find(o=>same(o.id,r?.order_id))||{}}
-  function deliveryTextFor(r){return rows(stateOf().deliveries).filter(d=>same(d.order_id,r?.order_id)||same(d.order_item_id,r?.order_item_id)).map(d=>`${text(d.delivered_message)} ${text(d.message)} ${JSON.stringify(d.delivery_data||{})}`).join(' ')}
+  function productName(r){v99EnsureIndex();const p=v99Index.plan.get(text(r?.plan_id))||{};return text(v99Index.product.get(text(p.product_id))?.name||'')}
+  function planNameV(r){v99EnsureIndex();return text(v99Index.plan.get(text(r?.plan_id))?.name||'')}
+  function orderFor(r){v99EnsureIndex();return v99Index.order.get(text(r?.order_id))||{}}
+  function deliveryTextFor(r){return deliveriesFor(r).map(d=>`${text(d.delivered_message)} ${text(d.message)} ${JSON.stringify(d.delivery_data||{})}`).join(' ')}
   const paidSet=new Set(['paid','pagado','renewed','renovado']);
   const closedSet=new Set(['cancelled','canceled','deleted','eliminado','archived','archivado','no_renovo','expired','completed']);
   const status=r=>norm(r?.status||'pending');
   const operational=r=>{const a=assignment(r);if(norm(a?.status)==='active')return true;return !closedSet.has(status(r))};
   function searchBlob(r){const c=customer(r),a=assignment(r),o=orderFor(r),s=stockBy(r?.stock_item_id||a?.stock_item_id),d=secret(s),m=assignmentMeta(a);return [r?.service_name,r?.status,r?.due_date,r?.amount,r?.currency,r?.order_id,r?.order_item_id,r?.whatsapp_message,c?.name,c?.phone_e164,c?.phone_raw,c?.email,customerEmail(r,c),linkedRaw(r),profile(r),productName(r),planNameV(r),a?.status,a?.source,JSON.stringify(m),o?.order_code,o?.customer_name,o?.customer_whatsapp,d?.correo,d?.email,d?.usuario,d?.perfil,d?.pin,deliveryTextFor(r)].map(text).join(' ')}
-  function matches(r,q){const parts=norm(q).split(/\s+/).filter(Boolean);const blob=norm(searchBlob(r));return parts.every(x=>blob.includes(x))}
+  function matches(r,q){const parts=norm(q).split(/\s+/).filter(Boolean);if(!parts.length)return true;const blob=norm(searchBlob(r));return parts.every(x=>blob.includes(x))}
   function statusInfo(r){const st=status(r),d=dayDiff(r?.due_date);if(paidSet.has(st))return['Pago registrado','b-purple','renew'];if(d==null)return['Sin fecha','b-pagado','review'];if(d<0)return['Vencido','b-bad','overdue'];if(d===0)return['Vence hoy','b-warn','today'];if(d<=7)return['Por vencer','b-warn','upcoming'];return['En curso','b-ok','later']}
   function dayNote(r){const d=dayDiff(r?.due_date);if(d==null)return 'sin fecha';if(d===0)return 'vence hoy';if(d<0){const n=Math.abs(d);return `hace ${n} día${n===1?'':'s'}`}return `en ${d} día${d===1?'':'s'}`}
   function enc(v){return encodeURIComponent(text(v))}
@@ -16072,9 +16139,14 @@ header.app .app-sub{display:none!important}
     const c=customer(r),info=statusInfo(r),id=html(r?.id||''),phone=text(c?.phone_e164||c?.phone_raw||''),account=linkedEmail(r),prof=profile(r),service=text(r?.service_name||planNameV(r)||'Servicio'),client=text(c?.name||'Cliente sin nombre'),hist=c?.id?`<button class="btn" type="button" onclick="event.stopPropagation();window.showClientHistory?.('${html(c.id)}')">◷ Hist.</button>`:'';
     return `<div class="reminder-row v91-reminder-row ${info[2]}" data-reminder-id="${id}"><div class="v91-rem-main"><div class="v91-rem-title">${info[2]==='overdue'?'🚨':info[2]==='today'?'⏰':info[2]==='renew'?'🧾':'📌'} ${html(service)}</div><div class="v91-rem-client">${html(client)} · ${html(productName(r)||planNameV(r)||'Servicio')}</div><div class="v91-rem-chips">${copyChip(phone,'WhatsApp','','📱')}${copyChip(account,'Cuenta vinculada','account','🔗')}${copyChip(prof,'Perfil','','👤')}</div></div><div class="v91-rem-meta"><span class="badge ${info[1]}">${html(info[0])}</span><span class="badge">${html(moneyV(r?.amount))}</span>${r?.last_sent_at?'<span class="badge b-pagado">WhatsApp enviado</span>':''}</div><div class="v91-rem-date"><b>📅 ${html(dateLabel(r?.due_date))}</b><span>${html(dayNote(r))}</span></div><div class="v91-rem-actions"><button class="btn btn-success" type="button" onclick="event.stopPropagation();window.openReminderWhatsApp?.('${id}')">💬 WhatsApp</button><button class="btn" type="button" onclick="event.stopPropagation();window.markReminderPaid?.('${id}')">✓ Renovar</button><button class="btn btn-primary" type="button" onclick="event.stopPropagation();window.editReminder?.('${id}')">✎ Editar</button>${hist}<button class="btn btn-danger" type="button" onclick="event.stopPropagation();window.quickDeleteReminder?.('${id}')">🗑 Borrar</button></div></div>`;
   }
-  function section(icon,title,sub,list,badge){if(!list.length)return '';return `<div class="v91-section"><span>${icon} ${html(title)} <small>${html(sub)}</small></span><span class="badge ${badge||''}">${list.length}</span></div>${list.map(reminderRow).join('')}`}
+  const v99ReminderLimits=new Map();
+  const v99ReminderKey=title=>norm(title)+'|'+norm((byId('reminderSearch')||byId('clientSearch'))?.value||'')+'|'+text(stateOf().v68Filter||'all');
+  window.innovV99MoreReminders=function(encoded){let key='';try{key=decodeURIComponent(encoded)}catch(_){key=text(encoded)}const base=window.innerWidth<=800?20:36;v99ReminderLimits.set(key,Number(v99ReminderLimits.get(key)||base)+base);renderRemindersV91()};
+  function section(icon,title,sub,list,badge){if(!list.length)return '';const base=window.innerWidth<=800?20:36,key=v99ReminderKey(title),limit=Math.max(base,Number(v99ReminderLimits.get(key)||base)),visible=list.slice(0,limit),remain=list.length-visible.length;return `<div class="v91-section"><span>${icon} ${html(title)} <small>${html(sub)}</small></span><span class="badge ${badge||''}">${list.length}</span></div>${visible.map(reminderRow).join('')}${remain?`<div class="v99-more-wrap"><button class="btn v99-more" type="button" onclick="window.innovV99MoreReminders('${html(encodeURIComponent(key))}')">Mostrar ${Math.min(base,remain)} más · quedan ${remain}</button></div>`:''}`}
   function renderRemindersV91(){const host=byId('remindersGrid'),merged=byId('remindersMergedGrid');if(!host&&!merged)return;const input=byId('reminderSearch')||byId('clientSearch');if(byId('reminderSearch'))byId('reminderSearch').placeholder='🔍 Buscar cliente, celular, correo del cliente, cuenta vinculada, perfil, producto, plan, monto, fecha o pedido...';const q=text(input?.value||''),g=groupReminders(q),filter=stateOf().v68Filter||'all';let out='';if(filter==='today')out=section('⏰','Vencen hoy','prioridad',g.today,'b-warn');else if(filter==='overdue'||stateOf().onlyDue)out=section('🚨','Vencidos','cobranza pendiente',g.overdue,'b-bad');else if(filter==='renew')out=section('🧾','Pagos por renovar','crear próximo vencimiento',g.paid,'b-purple');else if(filter==='upcoming')out=section('📆','Próximos 7 días','seguimiento',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');else out=section('⏰','Vencen hoy','atiéndelos primero',g.today,'b-warn')+section('🚨','Vencidos','continúa la cobranza',g.overdue,'b-bad')+section('🧾','Pagos por renovar','crea el siguiente vencimiento',g.paid,'b-purple')+section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');if(!out)out='<div class="v91-empty">✅ No hay recordatorios para mostrar.</div>';if(q)out=`<div class="v91-search-note">Búsqueda profunda activa: cliente, WhatsApp, correos, cuenta vinculada, perfil, producto, plan, monto, fecha, pedido y datos de entrega.</div>${out}`;if(host)host.innerHTML=out;if(merged)merged.innerHTML=out;const urgent=g.today.length+g.overdue.length+g.paid.length;['tbReminders','mbReminders'].forEach(k=>{const el=byId(k);if(el){el.textContent=urgent>999?'999+':String(urgent);el.style.display=urgent?'':'none'}});try{window.updateReminderBulkBar?.()}catch(_){ }}
-  window.renderReminders=renderRemindersV91;try{renderReminders=window.renderReminders}catch(_){ }
+  let v99ReminderTimer=0;
+  function renderRemindersV99(){const focused=document.activeElement===byId('reminderSearch')||document.activeElement===byId('clientSearch');if(focused){clearTimeout(v99ReminderTimer);v99ReminderTimer=setTimeout(renderRemindersV91,170);return}return renderRemindersV91()}
+  window.renderReminders=renderRemindersV99;try{renderReminders=window.renderReminders}catch(_){ }
 
   function dashData(query=''){const g=groupReminders(query),active=g.all.filter(r=>!paidSet.has(status(r))),sum=x=>x.reduce((a,r)=>a+Number(r?.amount||0),0),next30=active.filter(r=>{const d=dayDiff(r?.due_date);return d!=null&&d>0&&d<=30}),month=today().slice(0,7),collected=g.all.filter(r=>text(r?.fecha_pago).slice(0,7)===month||paidSet.has(status(r))),linked=active.filter(r=>!!linkedEmail(r));return {g,active,next30,collected,linked,sum,totalAmount:sum(active),overdueAmount:sum(g.overdue),todayAmount:sum(g.today),next7Amount:sum(g.next7),next30Amount:sum(next30),collectedAmount:sum(collected)}}
   function routeReminder(filter,query=''){stateOf().v68Filter=filter||'all';if(byId('reminderSearch'))byId('reminderSearch').value=query||'';try{window.switchTab?.('reminders')}catch(_){ }setTimeout(()=>window.renderReminders?.(),30)}
@@ -16097,8 +16169,7 @@ header.app .app-sub{display:none!important}
   async function telegramTest(){const latest=rows(stateOf().orders).find(o=>text(o?.order_code));if(!latest)return window.toast?.('No hay un pedido para usar en la prueba','bad');const btn=byId('v91TelegramTest');if(btn)btn.disabled=true;try{const session=await db.auth.getSession(),token=session?.data?.session?.access_token||'';const r=await fetch(`${SUPABASE_URL}/functions/v1/smooth-worker`,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_KEY,...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({event:'test',order_code:latest.order_code,message:'Prueba enviada desde Innov Tienda Admin V91'})}),j=await r.json();if(!r.ok||j?.ok===false)throw new Error(j?.error||`HTTP ${r.status}`);window.toast?.('Prueba enviada a Telegram','ok');telegramHealth()}catch(e){window.toast?.('Telegram: '+text(e?.message||e),'bad')}finally{if(btn)btn.disabled=false}}
 
   window.cleanupExpiredReofferReminders=async()=>undefined;try{cleanupExpiredReofferReminders=window.cleanupExpiredReofferReminders}catch(_){ }
-  function init(){applyBrand();ensureTelegramCard();dashboardV91();renderRemindersV91();const help=document.querySelector('#tab-templates .card .help');if(help&&!help.textContent.includes('{cuenta_vinculada}'))help.insertAdjacentHTML('beforeend',' <span class="mono">{cuenta_vinculada}</span>');}
-  const oldLoad=window.loadAll;if(typeof oldLoad==='function'&&!oldLoad.__v91){const wrapped=async function(){const result=await oldLoad.apply(this,arguments);setTimeout(init,80);return result};wrapped.__v91=true;window.loadAll=wrapped;try{loadAll=wrapped}catch(_){ }}
+  function init(){applyBrand();ensureTelegramCard();const help=document.querySelector('#tab-templates .card .help');if(help&&!help.textContent.includes('{cuenta_vinculada}'))help.insertAdjacentHTML('beforeend',' <span class="mono">{cuenta_vinculada}</span>');}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,650),{once:true});else setTimeout(init,650);
 })();
 </script>
@@ -16248,5 +16319,37 @@ header.app .app-sub{display:none!important}
 </script>
 <script>console.info('Innov IA Admin V94 · pago automático resistente');</script>
 
+
+
+
+<style id="innov-v96-recordatorio-cuentas-css">
+/* V96 — corrección directa de cuenta vinculada y fecha real de cuentas */
+.c103-chip.date{color:var(--primary);background:var(--primary-alpha2);border-color:var(--border)}
+@media(max-width:680px){.c103-chip.date{white-space:normal;line-height:1.2}}
+</style>
+<script>console.info('Innov IA Admin V96 · cuenta vinculada autoritativa y cuentas por fecha');</script>
+
+
+
+<style id="innov-v99-safe-performance-css">
+/* V99 — optimización estable: reduce DOM y trabajo repetido sin interceptar loadAll/renderAll. */
+#remindersGrid>.v91-reminder-row,#remindersMergedGrid>.v91-reminder-row,#ordersGrid>.order-row,#productsGrid>.mini-card,#plansGrid>.mini-card,#totpGrid>*{content-visibility:auto;contain-intrinsic-size:118px}
+.v99-more-wrap{display:flex;justify-content:center;padding:9px 4px 16px}.v99-more{min-width:min(330px,100%);font-weight:850;background:var(--card);border:1px solid var(--border2);box-shadow:var(--shadow-xs)}
+@media(max-width:800px){#remindersGrid>.v91-reminder-row,#remindersMergedGrid>.v91-reminder-row,#ordersGrid>.order-row,#productsGrid>.mini-card,#plansGrid>.mini-card,#totpGrid>*{contain-intrinsic-size:158px}.v99-more-wrap{padding-bottom:12px}}
+@media(prefers-reduced-motion:reduce){.v91-reminder-row,.order-row,.mini-card,.totp-row{animation:none!important;transition:none!important}}
+</style>
+<script id="innov-v99-safe-performance-js">
+(function(){
+  'use strict';
+  window.INNOV_ADMIN_PERF={version:'V99 estable',strategy:'indexed-reminders + progressive-DOM',globalRenderWrappers:false};
+  console.info('Innov IA Admin V99 · optimización estable sin interceptar renderizados globales');
+})();
+</script>
+
 </body>
 </html>
+
+
+
+
+
