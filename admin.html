@@ -2251,6 +2251,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
         <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
           <strong>📝 Variables disponibles</strong>
           <p class="help" style="margin:6px 0 0;line-height:1.8">
+            <div class="sync-note" style="margin-bottom:10px"><b>Uso actual:</b> al tocar WhatsApp, el recordatorio se regenera con la plantilla principal vigente y reemplaza el mensaje antiguo guardado.</div>
             <strong>Pago:</strong> <span class="mono">{cliente}</span> <span class="mono">{servicio}</span> <span class="mono">{monto}</span> <span class="mono">{vence}</span> <span class="mono">{dias}</span> <span class="mono">{pedido}</span> <span class="mono">{telefono}</span> <span class="mono">{yape}</span> <span class="mono">{tienda}</span> <span class="mono">{cuenta_vinculada}</span><br>
             <strong>Entrega:</strong> <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{restricciones}</span>
           </p>
@@ -5252,11 +5253,20 @@ async function renewReminder(id){return markReminderPaid(id)}
 async function openReminderWhatsApp(id){
   const r=state.reminders.find(x=>x.id===id);if(!r)return;
   const c=state.customers.find(x=>x.id===r.customer_id)||{};
-  const msg=r.whatsapp_message||buildTemplateMessage(getDefaultTemplate(),c,r);
-  const url=waLink(c.phone_e164,msg);
+  let currentTemplate=getDefaultTemplate();
+  try{
+    const fresh=await db.from('payment_message_templates').select('*').eq('active',true).order('is_default',{ascending:false}).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    if(!fresh.error&&fresh.data){currentTemplate=fresh.data;const i=state.templates.findIndex(x=>x.id===fresh.data.id);if(i>=0)state.templates[i]=fresh.data;else state.templates.unshift(fresh.data)}
+  }catch(_){}
+  const msg=buildTemplateMessage(currentTemplate,c,r);
+  const url=waLink(c.phone_e164||c.phone_raw,msg);
   if(url==='#')return toast('El cliente no tiene WhatsApp válido','bad');
+  const saved=await db.from('payment_reminders').update({whatsapp_message:msg,last_sent_at:new Date().toISOString()}).eq('id',id).select().maybeSingle();
+  if(saved.error)return toast('No se pudo actualizar el recordatorio con la plantilla actual: '+saved.error.message,'bad');
+  const idx=state.reminders.findIndex(x=>x.id===id);if(idx>=0)state.reminders[idx]={...state.reminders[idx],...(saved.data||{}),whatsapp_message:msg,last_sent_at:new Date().toISOString()};
   window.open(url,'_blank','noopener,noreferrer');
-  await markReminderSent(id);toast('WhatsApp abierto. El servicio seguirá visible hasta que presiones Marcar pagado.','ok');await loadAll();
+  toast('WhatsApp abierto con la plantilla principal actual.','ok');
+  try{renderReminders();renderDashboard()}catch(_){}
 }
 function renderReminderChoiceCard(r,c){
   const days=reminderDayText(r);
@@ -5386,10 +5396,10 @@ async function quickDeleteDeliveryTemplate(id){
 }
 async function quickDeleteOpsStock(id){
   const x=state.stock.find(s=>s.id===id)||{};
-  if(!confirm('¿Eliminar esta cuenta/código del stock?'))return;
-  const r=await db.from('stock_items').delete().eq('id',id);
+  if(!confirm('¿Retirar esta cuenta del inventario? Los clientes y recordatorios vinculados se conservarán.'))return;
+  const r=await db.rpc('admin_v101_archive_stock_preserve_reminders',{p_stock_item_id:id});
   if(r.error)return toast(r.error.message,'bad');
-  toast('Stock eliminado','ok');await loadAll();switchTab('ops');
+  toast(r.data?.message||'Cuenta retirada y recordatorios conservados','ok');await loadAll();switchTab('inventory');
 }
 
 /* ---- Coupons ---- */
@@ -5952,10 +5962,10 @@ async function saveOpsStock(ev){
 }
 async function deleteOpsStock(){
   const id=$('opsStockId').value;if(!id)return;
-  if(!confirm('¿Eliminar esta cuenta del inventario?'))return;
-  const r=await db.from('stock_items').delete().eq('id',id);
+  if(!confirm('¿Retirar esta cuenta del inventario? Los clientes, servicios e historial de recordatorios no se eliminarán.'))return;
+  const r=await db.rpc('admin_v101_archive_stock_preserve_reminders',{p_stock_item_id:id});
   if(r.error)return toast(r.error.message,'bad');
-  closeDialog('dlgOpsStock');toast('Eliminado','ok');await loadAll();switchTab('ops');
+  closeDialog('dlgOpsStock');toast(r.data?.message||'Cuenta retirada y recordatorios conservados','ok');await loadAll();switchTab('inventory');
 }
 async function cycleOpsStatus(id){
   const x=state.stock.find(s=>s.id===id);if(!x)return;
@@ -8301,21 +8311,27 @@ setTimeout(enhanceCuposEntregaUi,0);
   window.renderPlanStockView=function(){ if(typeof oldRenderPlanStockView==='function')oldRenderPlanStockView(); postProcessStockRows(); };
   window.quickDeleteOpsStock=async function(id){
     const x=(state.stock||[]).find(s=>s.id===id)||{};
-    if(!confirm('¿Eliminar/ocultar esta cuenta del stock? Si tiene historial, se archivará sin contar cupo.'))return;
-    let ok=false, msg='Cuenta eliminada/archivada';
-    try{const r=await db.rpc('admin_delete_stock_item_safe',{p_stock_item_id:id}); if(r.error)throw r.error; ok=true; msg=(r.data&&r.data[0]?.message)||msg;}catch(err){
-      const d=opsSecret(x);d.archived=true;d.deleted_at=new Date().toISOString();d.used_count=Math.max(Number(d.max_uses||x.max_uses||1),Number(d.used_count||x.used_count||0));
-      const r=await db.from('stock_items').update({secret_data:d,used_count:d.used_count,status:'used'}).eq('id',id);
-      if(r.error)return toast('No se pudo eliminar/archivar: '+r.error.message,'bad'); ok=true;
-    }
-    if(ok){toast(msg,'ok');await loadAll(); if($('dlgPlanStockView')?.open)renderPlanStockView(); else renderPlans();}
+    if(!confirm('¿Retirar esta cuenta de Cupos? Los clientes, servicios, entregas, historial y recordatorios permanecerán.'))return;
+    const r=await db.rpc('admin_v101_archive_stock_preserve_reminders',{p_stock_item_id:id});
+    if(r.error)return toast('No se pudo retirar: '+r.error.message,'bad');
+    toast(r.data?.message||'Cuenta retirada y recordatorios conservados','ok');
+    await loadAll();
+    if($('dlgPlanStockView')?.open)renderPlanStockView();else renderPlans();
   };
   async function deleteSelectedStock(){
     const ids=[...state.selectedStockIds];if(!ids.length)return;
-    if(!confirm('¿Eliminar/archivar '+ids.length+' cuenta(s) seleccionada(s)?'))return;
-    for(const id of ids){try{await db.rpc('admin_delete_stock_item_safe',{p_stock_item_id:id});}catch(_){const x=(state.stock||[]).find(s=>s.id===id)||{};const d=opsSecret(x);d.archived=true;d.deleted_at=new Date().toISOString();d.used_count=Math.max(Number(d.max_uses||x.max_uses||1),Number(d.used_count||x.used_count||0));await db.from('stock_items').update({secret_data:d,used_count:d.used_count,status:'used'}).eq('id',id);}}
-    state.stockSelectionMode=false;state.selectedStockIds=new Set();toast('Cuentas seleccionadas eliminadas/archivadas','ok');await loadAll();if($('dlgPlanStockView')?.open)renderPlanStockView();
+    if(!confirm('¿Retirar '+ids.length+' cuenta(s) de Cupos? Los clientes, servicios e historial de recordatorios se conservarán.'))return;
+    let done=0,failed=[];
+    for(const id of ids){
+      const r=await db.rpc('admin_v101_archive_stock_preserve_reminders',{p_stock_item_id:id});
+      if(r.error)failed.push(r.error.message||String(r.error));else done++;
+    }
+    state.stockSelectionMode=false;state.selectedStockIds=new Set();
+    if(done)toast(done+' cuenta(s) retirada(s); recordatorios conservados','ok');
+    if(failed.length)toast('No se pudieron retirar '+failed.length+' cuenta(s): '+failed[0],'bad');
+    await loadAll();if($('dlgPlanStockView')?.open)renderPlanStockView();
   }
+
 
   // -------- Botones aprobar/rechazar con fallback estable --------
   window.approveOrder=async function(id){
@@ -12493,8 +12509,13 @@ INNOV IA V62 - TOTP original + selección real
   function addedRaw(a){const s=stockRow(a);return txt(a?.created_at||a?.stock_created_at||a?.item_created_at||s?.created_at||'')}
   function addedTime(a){const d=new Date(addedRaw(a)||0);return Number.isFinite(d.getTime())?d.getTime():0}
   function addedLabel(a){const raw=addedRaw(a);if(!raw)return 'Sin fecha';const d=new Date(raw);return Number.isFinite(d.getTime())?d.toLocaleString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):raw}
+  function accountRetired(a){
+    const row=stockRow(a),sec=(row?.secret_data&&typeof row.secret_data==='object')?row.secret_data:{};
+    const core=txt(a?.core_state||sec.core_state||'').toLowerCase();
+    return core==='archived'||sec.archived===true||sec.archived==='true'||sec.hidden===true||sec.hidden==='true'||sec.deleted===true||sec.deleted==='true';
+  }
   function render(){
-    const m=M.model;if(!m)return;const as=arr(m.accounts).slice().sort((a,b)=>addedTime(b)-addedTime(a)||login(a).localeCompare(login(b),'es')),
+    const m=M.model;if(!m)return;const as=arr(m.accounts).filter(a=>!accountRetired(a)).slice().sort((a,b)=>addedTime(b)-addedTime(a)||login(a).localeCompare(login(b),'es')),
       used=as.reduce((n,a)=>n+Number(a.used_count||0),0),free=as.reduce((n,a)=>n+Number(a.free_count||0),0),cap=as.reduce((n,a)=>n+Number(a.capacity||0),0),res=as.reduce((n,a)=>n+Number(a.reservation_count||0),0);
     $('c103Title').textContent='Cuentas y cupos · '+(m.plan_name||'Plan');$('c103PlanName').textContent=m.plan_name||'Plan';$('c103Kpis').innerHTML=chip(`${free} libres`,'ok')+chip(`${used} usados`,'bad')+chip(`${cap} cupos`)+(res?chip(`${res} reservados`,'warn'):'');
     const q=txt($('c103Search').value).toLowerCase(), show=as.filter(a=>JSON.stringify(a).toLowerCase().includes(q));
@@ -12557,7 +12578,16 @@ INNOV IA V62 - TOTP original + selección real
       close('dlgCore1AccountEditor');say('Cuenta guardada y plan sincronizado');await load(M.planId,false);
     }catch(err){say(err.message||String(err),'bad')}
   }
-  async function remove(id){if(!confirm('¿Eliminar esta cuenta de la lista? Solo se permite si no tiene clientes, recordatorios ni reservas que ocupan cupo.'))return;try{await rpc('core1_delete_account',{p_stock_item_id:id});say('Cuenta archivada');await load(M.planId,false)}catch(err){say(err.message||String(err),'bad')}}
+  async function remove(id){
+    if(!confirm('¿Retirar esta cuenta de Cupos? Los clientes, servicios, entregas, historial y recordatorios seguirán registrados.'))return;
+    try{
+      const result=await rpc('admin_v101_archive_stock_preserve_reminders',{p_stock_item_id:id});
+      const info=(result&&typeof result==='object')?result:{};
+      say(info.message||'Cuenta retirada. Los recordatorios fueron conservados.');
+      await load(M.planId,false);
+      try{await window.loadStock?.();window.renderReminders?.();window.renderDashboard?.()}catch(_){}
+    }catch(err){say(err.message||String(err),'bad')}
+  }
   function bind(){document.querySelectorAll('[data-c103-close]').forEach(b=>b.onclick=()=>close(b.dataset.c103Close));$('c103Search').oninput=render;$('c103Refresh').onclick=()=>load(M.planId,false);$('c103Add').onclick=()=>editor();$('c103AddSlot').onclick=()=>slotRow();$('c103Form').onsubmit=save;window.openPlanStockView=(planId)=>load(planId,true);window.openPlanAccounts=window.openPlanStockView;window.openOpsStockDialog=(type='account',id='')=>{let p=M.planId;if(id){const x=(state?.stock||[]).find(r=>String(r.id)===String(id));p=x?.plan_id||p}if(!p)p=(state?.plans||[])[0]?.id||'';load(p,false).then(()=>editor(id))};window.openStockViewEdit=id=>window.openOpsStockDialog('account',id);window.openAddStockFromPlanView=()=>editor();window.addStockForPlan=planId=>load(planId,false).then(()=>editor());window.INNOV_CORE103_ACCOUNTS=Object.freeze({open:load,edit:editor,remove,history})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,800),{once:true});else setTimeout(bind,800);
 })();
@@ -16346,10 +16376,82 @@ header.app .app-sub{display:none!important}
 })();
 </script>
 
+
+<style id="innov-v100-payment-status-css">
+.v100-payment-summary{display:grid;gap:8px;margin-top:10px}.v100-payment-line{border:1px solid var(--border);border-radius:11px;background:var(--card2);padding:9px 10px;font-size:.8rem}.v100-payment-line.ok{border-left:4px solid var(--success)}.v100-payment-line.bad{border-left:4px solid var(--danger)}
+</style>
+<script id="innov-v100-payment-js">
+(function(){
+  'use strict';
+  const text=v=>String(v??'').trim();
+  const pending=new Set();
+  function normalize(data){return Array.isArray(data)?(data[0]||{}):(data&&typeof data==='object'?data:{})}
+  async function rpcV100(orderId){
+    const calls=['admin_v100_approve_payment_and_fulfill','admin_v94_approve_payment_and_fulfill'];
+    let last=null;
+    for(const fn of calls){
+      const r=await db.rpc(fn,{p_order_id:orderId});
+      if(!r.error)return normalize(r.data);
+      last=r.error;
+      const m=text(r.error?.message).toLowerCase();
+      if(!m.includes('function')&&!m.includes('does not exist')&&!m.includes('not found'))throw r.error;
+    }
+    throw last||new Error('No existe la función V100 de aprobación');
+  }
+  function latestMessage(orderId){return (state?.deliveries||[]).filter(d=>text(d?.order_id)===text(orderId)).sort((a,b)=>text(b?.created_at).localeCompare(text(a?.created_at))).map(d=>text(d?.delivered_message||d?.message)).find(Boolean)||''}
+  function showResult(order,msg){
+    if(typeof window.showDeliveryResult==='function'){window.showDeliveryResult(order,msg);return}
+    try{window.innovV91Copy?.(msg,'Entrega')}catch(_){ }
+  }
+  function clearCaches(){
+    try{window.INNOV_CORE11?.options?.clear?.();window.INNOV_CORE11?.contexts?.clear?.();window.INNOV_CORE11?.pending?.clear?.()}catch(_){ }
+  }
+  window.approveOrder=async function(id){
+    if(pending.has(id))return;
+    const order=(state?.orders||[]).find(o=>text(o?.id)===text(id))||{};
+    if(!confirm(`¿Aprobar el pago del pedido ${order.order_code||''}? Cada unidad nueva consumirá un cupo y creará su recordatorio.`))return;
+    pending.add(id);
+    window.toast?.('Aprobando pago y registrando cupo + recordatorio…','ok');
+    try{
+      const result=await rpcV100(id);
+      clearCaches();
+      await window.loadAll?.();
+      const refreshed=(state?.orders||[]).find(o=>text(o?.id)===text(id))||order;
+      const manual=Number(result?.manual_pending||0),autoPending=Number(result?.auto_pending||0),delivered=Number(result?.auto_delivered||0),cups=Number(result?.cups_used||0),reminders=Number(result?.reminders_created||0);
+      const msg=text(result?.delivery_message)||latestMessage(id);
+      if(autoPending>0){
+        const detail=Array.isArray(result?.auto_errors)&&result.auto_errors.length?text(result.auto_errors[0]?.error):'Validación automática pendiente';
+        window.toast?.('El pago quedó aprobado, pero no se completó la entrega: '+detail,'bad');
+        return;
+      }
+      if(manual>0){
+        window.toast?.(result?.message||'No hay cupo automático disponible; completa la entrega manual.','bad');
+        setTimeout(()=>window.openManualDelivery?.(id),100);
+        return;
+      }
+      if(delivered>0){
+        if(cups<delivered||reminders<delivered){
+          window.toast?.(`Entrega registrada, pero la validación reporta ${cups} cupo(s) y ${reminders} recordatorio(s) para ${delivered} unidad(es). Revisa antes de continuar.`,'bad');
+          return;
+        }
+        window.toast?.(result?.message||`Pago aprobado: ${cups} cupo(s) descontado(s) y ${reminders} recordatorio(s) creado(s).`,'ok');
+        showResult(refreshed,msg||'Entrega registrada.');
+        return;
+      }
+      window.toast?.(result?.message||'El pedido ya estaba procesado; no se duplicó el cupo ni el recordatorio.','ok');
+    }catch(e){
+      window.toast?.('No se pudo completar pago, cupo y recordatorio: '+text(e?.message||e),'bad');
+    }finally{pending.delete(id)}
+  };
+  try{approveOrder=window.approveOrder}catch(_){ }
+  console.info('Innov IA Admin V100 · cupo y recordatorio verificados');
+})();
+</script>
+
+
+<script id="innov-v101-marker">
+window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive-preserve-reminders',reminders:'current-template-on-send'});
+</script>
+
 </body>
 </html>
-
-
-
-
-
