@@ -16453,5 +16453,209 @@ header.app .app-sub{display:none!important}
 window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive-preserve-reminders',reminders:'current-template-on-send'});
 </script>
 
+
+
+<!-- ==============================================================
+ INNOV IA V106 · REACTIVAR CÓDIGOS TOTP
+ Módulo independiente. No modifica la creación de recordatorios,
+ entregas ni generación de códigos.
+================================================================ -->
+<style id="innov-v106-totp-maintenance-css">
+#dlgTotpV106{width:min(720px,96vw);max-height:92vh}
+#dlgTotpV106 .v106-head{display:flex;align-items:center;gap:12px;min-width:0}
+#dlgTotpV106 .v106-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;font-size:1.35rem;box-shadow:0 5px 16px rgba(30,64,175,.28);flex:0 0 auto}
+#dlgTotpV106 .v106-title{font-size:1.03rem;font-weight:900;color:var(--card-ink);line-height:1.2}
+#dlgTotpV106 .v106-sub{font-size:.8rem;color:var(--muted);margin-top:3px}
+#dlgTotpV106 .v106-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+#dlgTotpV106 .v106-toolbar .btn{padding:7px 11px;font-size:.8rem}
+#dlgTotpV106 .v106-list{display:grid;gap:8px;max-height:38vh;overflow:auto;padding-right:4px}
+#dlgTotpV106 .v106-account{display:flex;align-items:center;gap:12px;border:1px solid var(--border);background:var(--card);border-radius:14px;padding:12px 14px;cursor:pointer;transition:border-color var(--tr),background var(--tr),box-shadow var(--tr)}
+#dlgTotpV106 .v106-account:hover{border-color:var(--primary-light)}
+#dlgTotpV106 .v106-account.selected{border-color:var(--primary-light);background:var(--primary-alpha2);box-shadow:inset 3px 0 0 var(--primary-light)}
+#dlgTotpV106 .v106-account input{width:18px;height:18px;accent-color:var(--primary);flex:0 0 auto}
+#dlgTotpV106 .v106-account-main{min-width:0;flex:1}
+#dlgTotpV106 .v106-account-main strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.91rem}
+#dlgTotpV106 .v106-account-main span{display:block;color:var(--muted);font-size:.77rem;margin-top:2px}
+#dlgTotpV106 .v106-status{font-size:.72rem;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--success-alpha);color:var(--success)}
+#dlgTotpV106 .v106-status.off{background:var(--danger-alpha);color:var(--danger)}
+#dlgTotpV106 .v106-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+#dlgTotpV106 .v106-stat{border:1px solid var(--border);border-radius:14px;background:var(--card2);padding:12px 8px;text-align:center;min-width:0}
+#dlgTotpV106 .v106-stat b{display:block;font-size:1.18rem;font-weight:900;line-height:1.1}
+#dlgTotpV106 .v106-stat span{display:block;color:var(--muted);font-size:.67rem;font-weight:700;margin-top:7px;line-height:1.2}
+#dlgTotpV106 .v106-stat.reset b{color:var(--success)}
+#dlgTotpV106 .v106-stat.ready b{color:var(--primary-light)}
+#dlgTotpV106 .v106-stat.expired b{color:var(--danger)}
+#dlgTotpV106 .v106-stat.ignored b{color:var(--warning-light)}
+#dlgTotpV106 .v106-note{margin-top:11px;padding:10px 12px;border:1px dashed var(--border);background:var(--primary-alpha2);border-radius:12px;color:var(--muted);font-size:.78rem;line-height:1.45}
+#dlgTotpV106 .v106-note.confirm{border-style:solid;border-color:var(--warning-light);background:var(--warning-alpha);color:var(--warning);font-weight:700}
+#dlgTotpV106 .v106-note.error{border-style:solid;border-color:var(--danger);background:var(--danger-alpha);color:var(--danger);font-weight:700}
+#dlgTotpV106 .v106-result{display:none;margin-top:10px;padding:11px 13px;border-radius:12px;border-left:4px solid var(--success);background:var(--success-alpha);font-size:.8rem;line-height:1.45}
+#dlgTotpV106 .v106-result.show{display:block}
+#dlgTotpV106 .v106-result.bad{border-left-color:var(--danger);background:var(--danger-alpha);color:var(--danger)}
+#dlgTotpV106 .v106-progress{display:none;margin-top:10px}
+#dlgTotpV106 .v106-progress.show{display:block}
+#dlgTotpV106 .v106-progress-track{height:7px;background:var(--border);border-radius:999px;overflow:hidden}
+#dlgTotpV106 .v106-progress-bar{height:100%;width:65%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:999px;animation:v106move 1s ease-in-out infinite alternate}
+#dlgTotpV106 .v106-progress-text{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:.75rem;margin-bottom:6px}
+#btnTotpResetV106{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border-color:transparent}
+@keyframes v106move{from{transform:translateX(-18%)}to{transform:translateX(55%)}}
+@media(max-width:620px){#dlgTotpV106 .v106-stats{grid-template-columns:1fr 1fr}#dlgTotpV106 .modal-actions .btn{flex:1 1 calc(50% - 5px)}}
+</style>
+<script id="innov-v106-totp-maintenance-js">
+(function(){
+  'use strict';
+  if(window.__innovV106TotpMaintenance)return;
+  window.__innovV106TotpMaintenance=true;
+
+  const $=id=>document.getElementById(id);
+  const txt=v=>String(v==null?'':v).trim();
+  const arr=v=>Array.isArray(v)?v:[];
+  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const selected=new Set();
+  let preview=null,busy=false,armed=false,seq=0,lastCleanup=0;
+
+  function client(){
+    try{if(window.db&&typeof window.db.rpc==='function')return window.db}catch(_){ }
+    try{if(typeof db!=='undefined'&&db&&typeof db.rpc==='function')return db}catch(_){ }
+    return window.INNOV_SUPABASE_CLIENT||null;
+  }
+  function stateObj(){try{return window.state||state}catch(_){return window.state||(window.state={})}}
+  function accounts(){return arr(stateObj().totpAccounts)}
+  function codes(){return arr(stateObj().totpCodes)}
+  function toastSafe(msg,type='ok'){
+    try{if(typeof window.toast==='function')return window.toast(msg,type)}catch(_){ }
+    try{if(typeof window.coreToast==='function')return window.coreToast(msg,type)}catch(_){ }
+    console[type==='bad'?'error':'log'](msg);
+  }
+  function normalize(data){return Array.isArray(data)?(data[0]||{}):(data||{})}
+  function rpcMessage(error){
+    const m=txt(error?.message||error);
+    if(/admin_totp_maintenance_v106|could not find the function|schema cache|PGRST202/i.test(m))return 'Falta ejecutar el archivo SQL V106 en Supabase y recargar esta página.';
+    return m||'Error desconocido de Supabase.';
+  }
+  async function loadData(){
+    const c=client();if(!c)throw new Error('Supabase todavía no está disponible.');
+    const [a,k]=await Promise.all([
+      c.from('totp_accounts').select('*').order('created_at',{ascending:false}),
+      c.from('totp_access_codes').select('*').order('created_at',{ascending:false}).limit(5000)
+    ]);
+    if(a.error)throw a.error;if(k.error)throw k.error;
+    stateObj().totpAccounts=a.data||[];stateObj().totpCodes=k.data||[];
+  }
+  async function maintenance(execute){
+    const c=client();if(!c)throw new Error('Supabase todavía no está disponible.');
+    const r=await c.rpc('admin_totp_maintenance_v106',{p_account_ids:[...selected],p_execute:!!execute});
+    if(r.error)throw r.error;
+    return normalize(r.data);
+  }
+  function countFor(id){return codes().filter(x=>txt(x.account_id)===txt(id)).length}
+
+  function dialog(){
+    let d=$('dlgTotpV106');if(d)return d;
+    d=document.createElement('dialog');d.id='dlgTotpV106';
+    d.innerHTML=`
+      <div class="modal-header">
+        <div class="v106-head"><div class="v106-icon">⚡</div><div><div class="v106-title">Reactivar códigos TOTP</div><div class="v106-sub">Recupera intentos vigentes y retira códigos vencidos.</div></div></div>
+        <button class="btn btn-ghost btn-icon" id="btnV106Close" type="button">✕</button>
+      </div>
+      <div class="dlg-body">
+        <div class="v106-toolbar"><button class="btn" id="btnV106All" type="button">Seleccionar todas</button><button class="btn" id="btnV106Clear" type="button">Limpiar</button><button class="btn" id="btnV106Refresh" type="button">Actualizar</button></div>
+        <div class="v106-list" id="v106List"><div class="empty-state" style="padding:30px"><span class="icon">⏳</span><p>Cargando cuentas TOTP…</p></div></div>
+        <div class="v106-stats">
+          <div class="v106-stat reset"><b id="v106Reset">0</b><span>Con usos para resetear</span></div>
+          <div class="v106-stat ready"><b id="v106Ready">0</b><span>Ya disponibles</span></div>
+          <div class="v106-stat expired"><b id="v106Expired">0</b><span>Vencidos a eliminar</span></div>
+          <div class="v106-stat ignored"><b id="v106Ignored">0</b><span>Sin fecha o vínculo</span></div>
+        </div>
+        <div class="v106-note" id="v106Note">Selecciona una Cuenta TOTP. El nombre del cliente no es obligatorio.</div>
+        <div class="v106-progress" id="v106Progress"><div class="v106-progress-text"><span>Verificando directamente en Supabase…</span><span id="v106ProgressCount"></span></div><div class="v106-progress-track"><div class="v106-progress-bar"></div></div></div>
+        <div class="v106-result" id="v106Result"></div>
+      </div>
+      <div class="modal-actions"><button class="btn" id="btnV106CloseBottom" type="button">Cerrar</button><button class="btn btn-primary" id="btnV106Run" type="button" disabled>Selecciona una cuenta</button></div>`;
+    document.body.appendChild(d);
+    const close=()=>{if(!busy)try{d.close()}catch(_){d.removeAttribute('open')}};
+    $('btnV106Close').onclick=close;$('btnV106CloseBottom').onclick=close;
+    $('btnV106All').onclick=()=>{accounts().forEach(a=>a?.id&&selected.add(txt(a.id)));armed=false;renderAccounts();refreshPreview()};
+    $('btnV106Clear').onclick=()=>{selected.clear();preview=null;armed=false;renderAccounts();renderSummary()};
+    $('btnV106Refresh').onclick=async()=>{armed=false;await loadData();renderAccounts();await refreshPreview()};
+    $('btnV106Run').onclick=run;
+    return d;
+  }
+  function renderAccounts(){
+    const box=$('v106List');if(!box)return;
+    box.innerHTML=accounts().map(a=>{const id=txt(a.id),on=selected.has(id);return `<label class="v106-account ${on?'selected':''}"><input type="checkbox" data-v106="${esc(id)}" ${on?'checked':''}><span class="v106-account-main"><strong>${esc(a.label||a.name||'Cuenta TOTP')}</strong><span>${esc(a.issuer||'Innov IA')} · ${countFor(id)} código(s)</span></span><span class="v106-status ${a.active===false?'off':''}">${a.active===false?'Inactiva':'Activa'}</span></label>`}).join('')||'<div class="empty-state" style="padding:30px"><span class="icon">🔎</span><p>No se encontraron cuentas TOTP.</p></div>';
+    box.querySelectorAll('[data-v106]').forEach(i=>i.onchange=()=>{i.checked?selected.add(txt(i.dataset.v106)):selected.delete(txt(i.dataset.v106));armed=false;renderAccounts();refreshPreview()});
+  }
+  function renderSummary(data=preview){
+    const reset=Number(data?.resettable_count||0),ready=Number(data?.ready_count||0),expired=Number(data?.expired_count||0),ignored=Number(data?.ignored_count||0);
+    $('v106Reset').textContent=reset;$('v106Ready').textContent=ready;$('v106Expired').textContent=expired;$('v106Ignored').textContent=ignored;
+    const btn=$('btnV106Run'),note=$('v106Note'),actionable=reset+expired;
+    btn.disabled=busy||!selected.size||!data||!actionable;
+    btn.textContent=busy?'Procesando…':!selected.size?'Selecciona una cuenta':!data?'Revisando…':!actionable?'Todos están disponibles':armed?'Confirmar ahora':`Resetear ${reset} y eliminar ${expired}`;
+    note.className='v106-note'+(armed&&!busy?' confirm':'');
+    if(armed&&!busy)note.textContent=`Confirma: se resetearán ${reset} código(s) usados y se eliminarán ${expired} vencido(s).`;
+    else if(data)note.textContent=`Fecha usada: ${data.today||'hoy'} (Lima). ${ready} código(s) ya están disponibles y no necesitan cambios.`;
+    else note.textContent='Selecciona una Cuenta TOTP. El nombre del cliente no es obligatorio.';
+  }
+  function showError(message){const n=$('v106Note');n.className='v106-note error';n.textContent=message;const r=$('v106Result');r.className='v106-result show bad';r.innerHTML=`<strong>No se completó</strong><br>${esc(message)}`}
+  function progress(on){$('v106Progress')?.classList.toggle('show',on)}
+  async function refreshPreview(){
+    const token=++seq;preview=null;renderSummary();if(!selected.size)return;
+    try{const d=await maintenance(false);if(token!==seq)return;preview=d;renderSummary(d)}catch(e){if(token!==seq)return;showError(rpcMessage(e))}
+  }
+  async function verifyRows(ids){
+    if(!ids.length)return [];
+    const r=await client().from('totp_access_codes').select('id,access_code,used_count,max_uses,active,expires_at,reminder_id').in('id',ids);
+    if(r.error)throw r.error;
+    return r.data||[];
+  }
+  function applyRows(rows,deletedIds){
+    const byId=new Map(rows.map(x=>[txt(x.id),x])),del=new Set(deletedIds.map(txt)),s=stateObj();
+    s.totpCodes=codes().filter(x=>!del.has(txt(x.id))).map(x=>byId.has(txt(x.id))?{...x,...byId.get(txt(x.id))}:x);
+    try{window.renderTotp?.()}catch(_){ }
+  }
+  async function run(){
+    if(busy||!preview)return;
+    if(!armed){armed=true;renderSummary();return}
+    busy=true;armed=false;$('v106Result').className='v106-result';progress(true);renderSummary();
+    try{
+      const result=await maintenance(true);
+      const resetIds=arr(result.reset_ids).map(txt),expiredIds=arr(result.expired_ids).map(txt);
+      const rows=await verifyRows(resetIds);
+      const bad=rows.filter(x=>Number(x.used_count||0)!==0);
+      if(Number(result.remaining_used_count||0)>0||bad.length)throw new Error(`${bad.length||result.remaining_used_count} código(s) continúan con usos después de la actualización.`);
+      applyRows(rows,expiredIds);
+      try{if(typeof window.loadTotpCodes==='function')await window.loadTotpCodes()}catch(_){ }
+      try{window.renderTotp?.()}catch(_){ }
+      const reset=Number(result.reset_count||0),deleted=Number(result.deleted_count||0),ready=Number(result.ready_count||0);
+      const box=$('v106Result');box.className='v106-result show';box.innerHTML=`<strong>Comprobado en Supabase</strong><br>${reset} código(s) quedaron en 0 usos, ${deleted} vencido(s) fueron eliminados y ${ready+reset} están disponibles.`;
+      toastSafe(`Listo: ${reset} código(s) reactivados y comprobados.`,'ok');
+      preview=await maintenance(false);renderAccounts();renderSummary(preview);
+    }catch(e){showError(rpcMessage(e));toastSafe('No se completó: '+rpcMessage(e),'bad')}
+    finally{busy=false;progress(false);renderSummary(preview)}
+  }
+  async function cleanupExpired(force=false){
+    if(!force&&Date.now()-lastCleanup<15*60*1000)return;lastCleanup=Date.now();
+    try{const r=await client().rpc('admin_totp_cleanup_expired_v106');if(r.error)throw r.error;const d=normalize(r.data),n=Number(d.deleted_count||0);if(n){try{await window.loadTotpCodes?.()}catch(_){ }try{window.renderTotp?.()}catch(_){ }toastSafe(`${n} código(s) vencido(s) eliminado(s).`,'ok')}}catch(e){if(!/could not find|schema cache|PGRST202/i.test(txt(e?.message||e)))console.warn('V106 cleanup',e)}
+  }
+  async function open(){
+    const d=dialog();selected.clear();preview=null;armed=false;$('v106Result').className='v106-result';$('v106List').innerHTML='<div class="empty-state" style="padding:30px"><span class="icon">⏳</span><p>Cargando cuentas TOTP…</p></div>';renderSummary();try{d.showModal()}catch(_){d.setAttribute('open','')}
+    try{await loadData();renderAccounts();renderSummary()}catch(e){showError(txt(e?.message||e))}
+  }
+  function addButton(){
+    ['btnTotpResetV102','btnTotpResetV103','btnTotpResetV104','btnTotpResetV105','btnTotpResetV106'].forEach(id=>$(id)?.remove());
+    const host=document.querySelector('#tab-totp .totp-title > div:last-child');if(!host)return;
+    const b=document.createElement('button');b.className='btn';b.id='btnTotpResetV106';b.type='button';b.textContent='⚡ Reactivar códigos';b.onclick=open;host.appendChild(b);
+  }
+  function bind(){addButton();document.querySelectorAll('[data-tab="totp"]').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>cleanupExpired(false),800)));$('btnTotpRefresh')?.addEventListener('click',()=>setTimeout(()=>cleanupExpired(true),800));setTimeout(()=>cleanupExpired(false),5000);setInterval(()=>cleanupExpired(false),30*60*1000)}
+  window.openTotpResetV106=open;
+  window.cleanupExpiredTotpCodesV106=()=>cleanupExpired(true);
+  window.INNOV_ADMIN_PATCH_V106=Object.freeze({version:'106.0.0',rpc:'admin_totp_maintenance_v106',verifiedAfterWrite:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,700));else setTimeout(bind,700);
+})();
+</script>
+<script>console.info('Innov IA Admin V106 · Reactivar códigos TOTP');</script>
+
 </body>
 </html>
+
