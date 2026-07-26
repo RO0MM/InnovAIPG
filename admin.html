@@ -16656,6 +16656,310 @@ window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive
 </script>
 <script>console.info('Innov IA Admin V106 · Reactivar códigos TOTP');</script>
 
+
+
+<!-- ==============================================================
+     PATCH V107 — WhatsApp predeterminado + recordatorios sin saltos
+     ============================================================= -->
+<style id="innov-v107-wa-style">
+  .wa-preference-box{
+    display:grid;
+    gap:7px;
+    margin:0 0 14px;
+    padding:12px;
+    border:1px solid var(--border);
+    border-left:4px solid var(--success);
+    border-radius:13px;
+    background:var(--success-alpha);
+  }
+  .wa-preference-box label{
+    font-weight:800;
+    color:var(--card-ink);
+    font-size:.88rem;
+  }
+  .wa-preference-box .help{margin:0;line-height:1.4}
+  .wa-preference-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+  .wa-preference-row select{min-width:210px}
+  .wa-device-badge{
+    display:inline-flex;align-items:center;gap:5px;width:max-content;
+    padding:3px 8px;border-radius:999px;background:var(--card);
+    border:1px solid var(--border);color:var(--muted);font-size:.72rem;font-weight:700;
+  }
+  .reminder-row.wa-send-confirm,
+  .v91-reminder-row.wa-send-confirm{
+    animation:innovWaConfirm .65s ease;
+    box-shadow:0 0 0 2px rgba(21,128,61,.22),var(--shadow-md)!important;
+  }
+  .wa-sent-badge{white-space:nowrap}
+  .wa-send-button.is-sending{opacity:.8;cursor:progress}
+  @keyframes innovWaConfirm{
+    0%{transform:scale(.985);filter:saturate(.9)}
+    45%{transform:scale(1.008)}
+    100%{transform:scale(1)}
+  }
+  @media(max-width:600px){
+    .wa-preference-row{grid-template-columns:1fr}
+    .wa-preference-row select{min-width:0;width:100%}
+  }
+</style>
+<script id="innov-v107-wa-patch">
+(function(){
+  'use strict';
+  const PATCH_VERSION='107.0.0';
+  const LOCAL_KEY='innov_admin_preferred_whatsapp';
+  const ALLOWED=new Set(['auto','normal','business','web']);
+  const byId=id=>document.getElementById(id);
+  const isAndroid=()=>/Android/i.test(navigator.userAgent||'');
+  const isMobile=()=>/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'');
+  const digits=value=>String(value||'').replace(/\D+/g,'');
+  function coreState(){try{if(typeof state!=='undefined'&&state)return state}catch(_){ }return window.INNOV_ADMIN_STATE||window.state||{}}
+
+  function storedAdminBehavior(){
+    try{
+      const s=coreState();
+      const row=Array.isArray(s.settings)?s.settings.find(x=>x&&x.key==='admin_behavior'):null;
+      return row?.value&&typeof row.value==='object'&&!Array.isArray(row.value)?row.value:{};
+    }catch(_){return {}}
+  }
+  function preferredApp(){
+    try{
+      const local=localStorage.getItem(LOCAL_KEY);
+      if(ALLOWED.has(local))return local;
+    }catch(_){ }
+    const global=storedAdminBehavior().whatsappApp;
+    return ALLOWED.has(global)?global:'auto';
+  }
+  function setLocalPreference(value){
+    const next=ALLOWED.has(value)?value:'auto';
+    try{localStorage.setItem(LOCAL_KEY,next)}catch(_){ }
+    return next;
+  }
+  function preferenceLabel(value=preferredApp()){
+    return ({auto:'Automático',normal:'WhatsApp normal',business:'WhatsApp Business',web:'WhatsApp Web'})[value]||'Automático';
+  }
+  function fallbackUrl(phone,message){
+    const n=digits(phone);
+    return n?`https://wa.me/${n}?text=${encodeURIComponent(message||'')}`:'#';
+  }
+  function preferredUrl(phone,message){
+    const n=digits(phone);
+    if(!n)return '#';
+    const fallback=fallbackUrl(n,message);
+    const pref=preferredApp();
+    if(pref==='web'||pref==='auto'||!isAndroid())return fallback;
+    const packageName=pref==='business'?'com.whatsapp.w4b':'com.whatsapp';
+    const query=`phone=${encodeURIComponent(n)}&text=${encodeURIComponent(message||'')}`;
+    return `intent://send?${query}#Intent;scheme=whatsapp;package=${packageName};S.browser_fallback_url=${encodeURIComponent(fallback)};end`;
+  }
+  function openPreferred(phone,message){
+    const url=preferredUrl(phone,message);
+    if(url==='#')return false;
+    try{
+      if(isAndroid()&&url.startsWith('intent://')){
+        window.location.href=url;
+      }else if(isMobile()){
+        const opened=window.open(url,'_blank','noopener,noreferrer');
+        if(!opened)window.location.href=url;
+      }else{
+        window.open(url,'_blank','noopener,noreferrer');
+      }
+      return true;
+    }catch(_){
+      try{window.location.href=fallbackUrl(phone,message);return true}catch(__){return false}
+    }
+  }
+
+  // Mantiene compatibilidad con todos los botones que ya usan waLink().
+  function preferredWaLink(phone,message){return preferredUrl(phone,message)}
+  window.waLink=preferredWaLink;
+  try{waLink=preferredWaLink}catch(_){ }
+  window.openPreferredWhatsApp=openPreferred;
+
+  function ensurePreferenceUI(){
+    if(byId('setPreferredWhatsApp'))return;
+    const anchor=byId('setAutoOpenWaDue');
+    const card=anchor?.closest('.notif-card');
+    const firstSetting=anchor?.closest('.settings-check');
+    if(!card||!firstSetting)return;
+    const box=document.createElement('div');
+    box.className='wa-preference-box';
+    box.id='waPreferenceBox';
+    const device=isAndroid()?'Android':(/iPhone|iPad|iPod/i.test(navigator.userAgent||'')?'iPhone/iPad':'Este dispositivo');
+    box.innerHTML=`
+      <label for="setPreferredWhatsApp">💬 Aplicación de WhatsApp predeterminada</label>
+      <div class="wa-preference-row">
+        <select class="input" id="setPreferredWhatsApp" aria-label="Aplicación de WhatsApp predeterminada">
+          <option value="auto">Automático · el celular decide</option>
+          <option value="normal">WhatsApp normal</option>
+          <option value="business">WhatsApp Business</option>
+          <option value="web">WhatsApp Web / navegador</option>
+        </select>
+        <span class="wa-device-badge">📱 ${device}</span>
+      </div>
+      <p class="help">En Android se intenta abrir directamente la app elegida. Si no está instalada, se usa WhatsApp Web. En iPhone/iPad, iOS puede decidir qué app abre el enlace.</p>`;
+    card.insertBefore(box,firstSetting);
+    const select=byId('setPreferredWhatsApp');
+    select.value=preferredApp();
+    select.addEventListener('change',()=>{
+      setLocalPreference(select.value);
+      try{window.toast?.(`${preferenceLabel(select.value)} quedó elegido en este dispositivo.`,'ok')}catch(_){ }
+    });
+  }
+
+  const originalGet=window.getAdminBehaviorSettings;
+  function getBehavior(){
+    let cfg={autoOpenWaDue:false,notifyDue:true,notifyStock:true};
+    try{if(typeof originalGet==='function')cfg={...cfg,...originalGet()}}catch(_){cfg={...cfg,...storedAdminBehavior()}}
+    return {...cfg,whatsappApp:ALLOWED.has(cfg.whatsappApp)?cfg.whatsappApp:'auto'};
+  }
+  window.getAdminBehaviorSettings=getBehavior;
+  try{getAdminBehaviorSettings=getBehavior}catch(_){ }
+
+  async function saveBehavior(){
+    const select=byId('setPreferredWhatsApp');
+    const whatsappApp=setLocalPreference(select?.value||preferredApp());
+    const cfg={
+      autoOpenWaDue:!!byId('setAutoOpenWaDue')?.checked,
+      notifyDue:!!byId('setNotifyDue')?.checked,
+      notifyStock:!!byId('setNotifyStock')?.checked,
+      whatsappApp
+    };
+    try{
+      const client=window.db;
+      if(!client)throw new Error('Supabase no está disponible');
+      const result=await client.from('app_settings').upsert({key:'admin_behavior',value:cfg},{onConflict:'key'}).select().maybeSingle();
+      if(result.error)throw result.error;
+      const s=coreState();
+      if(Array.isArray(s.settings)){
+        const row=result.data||{key:'admin_behavior',value:cfg};
+        const index=s.settings.findIndex(x=>x?.key==='admin_behavior');
+        if(index>=0)s.settings[index]=row;else s.settings.push(row);
+      }
+      try{window.publishAdminChange?.('app_settings','UPSERT',{key:'admin_behavior'})}catch(_){ }
+      window.toast?.(`Ajustes guardados. Se usará ${preferenceLabel(whatsappApp)}.`,'ok');
+    }catch(error){
+      window.toast?.('No se guardaron los ajustes: '+(error?.message||error),'bad');
+    }
+  }
+  window.saveAdminBehaviorSettings=saveBehavior;
+  try{saveAdminBehaviorSettings=saveBehavior}catch(_){ }
+
+  const originalRenderSettings=window.renderSettings;
+  function renderSettingsV107(){
+    try{originalRenderSettings?.()}catch(_){ }
+    ensurePreferenceUI();
+    const select=byId('setPreferredWhatsApp');
+    if(select)select.value=preferredApp();
+  }
+  window.renderSettings=renderSettingsV107;
+  try{renderSettings=renderSettingsV107}catch(_){ }
+
+  function findReminderRows(id){
+    const wanted=String(id||'');
+    return [...document.querySelectorAll('[data-reminder-id]')].filter(row=>String(row.dataset.reminderId||'')===wanted);
+  }
+  function findWaButton(row,id){
+    return [...row.querySelectorAll('button')].find(btn=>{
+      const action=btn.getAttribute('onclick')||'';
+      return action.includes('openReminderWhatsApp')&&(action.includes(String(id))||row.dataset.reminderId===String(id));
+    })||null;
+  }
+  function markCardSending(id){
+    findReminderRows(id).forEach(row=>{
+      const btn=findWaButton(row,id);
+      if(btn){
+        btn.classList.add('wa-send-button','is-sending');
+        btn.disabled=true;
+        btn.dataset.previousLabel=btn.textContent||'WhatsApp';
+        btn.textContent='Abriendo…';
+      }
+    });
+  }
+  function markCardSent(id){
+    findReminderRows(id).forEach(row=>{
+      row.classList.remove('wa-send-confirm');
+      void row.offsetWidth;
+      row.classList.add('wa-send-confirm');
+      const meta=row.querySelector('.v91-rem-meta,.rem-meta-line');
+      if(meta&&!meta.querySelector('.wa-sent-badge')){
+        const badge=document.createElement('span');
+        badge.className='badge b-pagado wa-sent-badge';
+        badge.textContent='✓ WhatsApp enviado';
+        meta.appendChild(badge);
+      }
+      const btn=findWaButton(row,id);
+      if(btn){
+        btn.disabled=false;
+        btn.classList.remove('is-sending');
+        btn.textContent='💬 Reenviar';
+      }
+      setTimeout(()=>row.classList.remove('wa-send-confirm'),1500);
+    });
+  }
+  function restoreCard(id){
+    findReminderRows(id).forEach(row=>{
+      const btn=findWaButton(row,id);
+      if(btn){
+        btn.disabled=false;
+        btn.classList.remove('is-sending');
+        btn.textContent=btn.dataset.previousLabel||'💬 WhatsApp';
+      }
+    });
+  }
+
+  async function openReminderStable(id){
+    const s=coreState();
+    const reminder=Array.isArray(s.reminders)?s.reminders.find(x=>String(x?.id)===String(id)):null;
+    if(!reminder)return window.toast?.('No se encontró el recordatorio','bad');
+    const customer=Array.isArray(s?.customers)?s.customers.find(x=>String(x?.id)===String(reminder.customer_id))||{}:{};
+    const phone=customer.phone_e164||customer.phone_raw||'';
+    let message='';
+    try{
+      const template=typeof window.getDefaultTemplate==='function'?window.getDefaultTemplate():null;
+      message=typeof window.buildTemplateMessage==='function'?window.buildTemplateMessage(template,customer,reminder):(reminder.whatsapp_message||'');
+    }catch(_){message=reminder.whatsapp_message||''}
+    if(!digits(phone)){window.toast?.('El cliente no tiene WhatsApp válido','bad');return}
+
+    markCardSending(id);
+    const opened=openPreferred(phone,message);
+    if(!opened){restoreCard(id);window.toast?.('No se pudo abrir WhatsApp','bad');return}
+
+    const sentAt=new Date().toISOString();
+    // Actualización optimista: confirma sin redibujar ni reordenar toda la lista.
+    const index=s.reminders.findIndex(x=>String(x?.id)===String(id));
+    if(index>=0)s.reminders[index]={...s.reminders[index],whatsapp_message:message,last_sent_at:sentAt};
+    markCardSent(id);
+    window.toast?.(`${preferenceLabel()} abierto. El recordatorio se mantuvo en su lugar.`,'ok');
+
+    try{
+      const saved=await window.db.from('payment_reminders').update({whatsapp_message:message,last_sent_at:sentAt}).eq('id',id).select().maybeSingle();
+      if(saved.error)throw saved.error;
+      if(index>=0)s.reminders[index]={...s.reminders[index],...(saved.data||{}),whatsapp_message:message,last_sent_at:sentAt};
+      try{window.publishAdminChange?.('payment_reminders','PATCH',{action:'whatsapp_sent',reminder_id:id})}catch(_){ }
+      // No llamamos renderReminders(): así ninguna tarjeta sube o baja después del envío.
+    }catch(error){
+      window.toast?.('WhatsApp se abrió, pero no se pudo guardar la marca de envío: '+(error?.message||error),'bad');
+    }
+  }
+  window.openReminderWhatsApp=openReminderStable;
+  try{openReminderWhatsApp=openReminderStable}catch(_){ }
+
+  function bind(){
+    ensurePreferenceUI();
+    const select=byId('setPreferredWhatsApp');
+    if(select)select.value=preferredApp();
+    const save=byId('btnSaveAdminBehaviorSettings');
+    if(save)save.onclick=saveBehavior;
+    window.INNOV_ADMIN_PATCH_V107=Object.freeze({version:PATCH_VERSION,preferredWhatsApp:true,stableReminderSend:true});
+    console.info('Innov IA Admin V107 · WhatsApp predeterminado y recordatorios estables');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,900),{once:true});
+  else setTimeout(bind,900);
+})();
+</script>
+
 </body>
 </html>
+
+
 
