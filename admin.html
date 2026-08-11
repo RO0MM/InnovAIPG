@@ -3551,7 +3551,7 @@ const $=id=>document.getElementById(id);
 /* ---- Tema automático del sistema ---- */
 const ADMIN_SYSTEM_THEME=window.matchMedia?.('(prefers-color-scheme: dark)')||null;
 function applySystemTheme(){
-  const dark=!!ADMIN_SYSTEM_THEME?.matches;
+  const dark=!!window.matchMedia?.('(prefers-color-scheme: dark)')?.matches;
   const theme=dark?'dark':'light';
   document.documentElement.dataset.theme=theme;
   document.documentElement.style.colorScheme=theme;
@@ -3563,6 +3563,8 @@ function applySystemTheme(){
 }
 applySystemTheme();
 try{ADMIN_SYSTEM_THEME?.addEventListener('change',applySystemTheme)}catch(_){}
+window.addEventListener('focus',applySystemTheme);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)applySystemTheme()});
 
 
 /* ---- Sincronización reactiva: eventos reales, sin polling ni interceptores globales ---- */
@@ -8968,13 +8970,22 @@ setTimeout(enhanceCuposEntregaUi,0);
       if(idn.kind==='username'){
         customer=rows(state?.customers).find(c=>{try{return window.normalizeWhatsAppIdentity?.(c.whatsapp_username||'')?.username_norm===idn.username_norm}catch(_){return false}})||null;
         phone=clean(customer?.phone_e164||customer?.phone_raw);
-        if(!phone)throw new Error(`${idn.username||raw} no tiene un número vinculado. No se consumió ningún cupo. Vincula su número una sola vez en Clientes y luego podrás escribir solo el @username.`);
       }
       if(typeof window.adminCanonicalCustomer==='function')customer=await window.adminCanonicalCustomer({id:customer?.id||'',name,phone:idn.kind==='phone'?idn.e164:phone,username:idn.kind==='username'?idn.username:(customer?.whatsapp_username||''),email});
       if(idn.kind==='phone')phone=idn.e164;else phone=clean(customer?.phone_e164||customer?.phone_raw||phone);
-      if(!phone)throw new Error('No se pudo resolver un número válido para abrir WhatsApp. No se consumió ningún cupo.');
+      if(!customer?.id)throw new Error('No se pudo crear o resolver el cliente en Supabase.');
       const prepared=await prepare('ops',true);if(!prepared)throw new Error('No hay una cuenta/perfil válido para entregar');const ctx=prepared.ctx||{};const svc=value('opsDeliverService')||service(plan),amountRaw=value('opsDeliverAmount'),amount=amountRaw===''?null:Number(amountRaw),start=value('opsDeliverStart')||today(),dueDate=value('opsDeliverDue')||due(plan);
-      made=await issueTotp(ctx,name,phone,svc,false);const msg=await renderOpsMessage(ctx,made?.code||'');const result=await rpc('admin_core_create_assignment',{p_customer_name:name,p_customer_phone:phone,p_customer_email:email||null,p_plan_id:plan,p_service_name:svc,p_amount:Number.isFinite(amount)?amount:null,p_due_date:dueDate,p_start_date:start,p_stock_item_id:ctx.stock_item_id||null,p_source:'manual',p_order_id:null,p_order_item_id:null,p_message:msg||null,p_metadata:{delivery_channel:'ops',stock_slot_id:ctx.stock_slot_id||null,whatsapp_username:idn.kind==='username'?idn.username:(customer?.whatsapp_username||null),access_context:{login:ctx.login||null,profile:ctx.profile||null,pin:ctx.pin||null,group_url:ctx.group_url||null},totp_code:made?.code||null},p_idempotency_key:operationKey('ops',[crypto.randomUUID?.()||Date.now(),plan,ctx.stock_item_id||'none',ctx.stock_slot_id||'none'])});await linkTotp(made,result?.reminder_id);try{window.copyTextSafe?.(msg)}catch(_){};try{window.closeDialog?.('dlgOpsDeliver')}catch(_){};say(result?.reused?'La entrega ya estaba registrada; no se duplicó.':'Entrega, cuenta/perfil y recordatorio registrados correctamente.','ok');if(byId('opsDeliverOpenWa')?.checked)await navigateCustomerWhatsApp(popup,customer||{phone_e164:phone,whatsapp_username:idn.username},msg);else closePopup(popup);Engine.options.clear();Engine.contexts.clear();await window.loadAll?.();try{window.switchTab?.('inventory')}catch(_){};return result
+      const waIdentity=phone||idn.username||raw;
+      made=await issueTotp(ctx,name,waIdentity,svc,false);const msg=await renderOpsMessage(ctx,made?.code||'');
+      const metadata={delivery_channel:'ops',stock_slot_id:ctx.stock_slot_id||null,whatsapp_username:idn.kind==='username'?idn.username:(customer?.whatsapp_username||null),access_context:{login:ctx.login||null,profile:ctx.profile||null,pin:ctx.pin||null,group_url:ctx.group_url||null},totp_code:made?.code||null};
+      const opKey=operationKey(idn.kind==='username'&&!phone?'wauser':'ops',[crypto.randomUUID?.()||Date.now(),plan,ctx.stock_item_id||'none',ctx.stock_slot_id||'none']);
+      let result;
+      if(phone){
+        result=await rpc('admin_core_create_assignment',{p_customer_name:name,p_customer_phone:phone,p_customer_email:email||null,p_plan_id:plan,p_service_name:svc,p_amount:Number.isFinite(amount)?amount:null,p_due_date:dueDate,p_start_date:start,p_stock_item_id:ctx.stock_item_id||null,p_source:'manual',p_order_id:null,p_order_item_id:null,p_message:msg||null,p_metadata:metadata,p_idempotency_key:opKey});
+      }else{
+        result=await rpc('admin_core_create_username_delivery',{p_customer_id:customer.id,p_plan_id:plan,p_service_name:svc,p_amount:Number.isFinite(amount)?amount:null,p_due_date:dueDate,p_start_date:start,p_stock_item_id:ctx.stock_item_id||null,p_stock_slot_id:ctx.stock_slot_id||null,p_message:msg||null,p_metadata:metadata,p_operation_key:opKey});
+      }
+      await linkTotp(made,result?.reminder_id);try{window.copyTextSafe?.(msg)}catch(_){};try{window.closeDialog?.('dlgOpsDeliver')}catch(_){};say(result?.reused?'La entrega ya estaba registrada; no se duplicó.':(phone?'Entrega, cuenta/perfil y recordatorio registrados correctamente.':'Entrega registrada por username, cuenta/cupo descontado y recordatorio creado.'),'ok');if(byId('opsDeliverOpenWa')?.checked)await navigateCustomerWhatsApp(popup,customer||{phone_e164:phone,whatsapp_username:idn.username},msg);else closePopup(popup);Engine.options.clear();Engine.contexts.clear();await window.loadAll?.();try{window.switchTab?.('inventory')}catch(_){};return result
     }catch(e){closePopup(popup);await cleanupTotp(made);say('No se registró la entrega: '+err(e),'bad');return null}
   }
 
@@ -9705,7 +9716,8 @@ function install(){
   }
   function openUsernameWhatsApp(username,message=''){
     username=normalizeUsername(username).username||U.text(username);copyWhatsAppFallback(U.text(message)||username);
-    showWhatsAppReady({username,message,reason:'Para este username no hay un número vinculado para apertura directa.'});return false;
+    let opened=false;try{opened=!!window.open('https://web.whatsapp.com/','_blank','noopener,noreferrer')}catch(_){opened=false}
+    showWhatsAppReady({username,message,reason:opened?'WhatsApp Web se abrió. Busca el username exacto y pega el mensaje que ya quedó copiado.':'No se pudo abrir WhatsApp automáticamente. Usa el botón y busca el username exacto; el mensaje ya quedó copiado.'});return opened;
   }
   function ensureWhatsAppReadyDialog(){
     let d=U.byId('adminWhatsAppReady');if(d)return d;
@@ -9730,11 +9742,7 @@ function install(){
         showWhatsAppReady({url,message,reason:'Chrome bloqueó la apertura automática.'});return false;
       }
     }
-    if(username){
-      copyWhatsAppFallback(U.text(message)||username);
-      showWhatsAppReady({url:'',username,message,reason:'Este username todavía no tiene un número vinculado para apertura directa.'});
-      return false;
-    }
+    if(username){return openUsernameWhatsApp(username,message)}
     U.toast('El cliente no tiene número ni username de WhatsApp','bad');return false;
   }
   window.openUsernameWhatsApp=openUsernameWhatsApp;
@@ -9806,7 +9814,7 @@ function install(){
     if(!ident.ok){hint.textContent='⚠ '+(ident.info?.error||'WhatsApp inválido');return}
     if(ident.phone){hint.textContent='✅ Número válido · el chat se abrirá directamente después de guardar.';return}
     const found=U.rows(U.state().customers).find(c=>sameUsername(customerUsername(c),ident.username));const phone=found&&customerPhone(found);
-    hint.textContent=phone?`✅ ${ident.username} está vinculado a ${phone} · se abrirá por ese número.`:`⚠ ${ident.username} no tiene número vinculado. Vincula su número para poder abrir el chat directo.`;
+    hint.textContent=phone?`✅ ${ident.username} está vinculado a ${phone} · se abrirá por ese número.`:`✅ ${ident.username} se registrará normalmente. Al finalizar se abrirá WhatsApp en modo manual y el mensaje quedará copiado.`;
   }
   function suggestionBlob(c){return U.norm(`${c?.name||''} ${customerPhone(c)} ${customerUsername(c)} ${c?.email||''}`)}
   function renderCustomerSuggestions(){
@@ -10013,7 +10021,7 @@ function install(){
   async function deleteReminderUnified(id){
     id=U.text(id||U.byId('rId')?.value);if(!id)return;if(!confirm('¿Eliminar este recordatorio? Si corresponde a un servicio activo se cancelará mediante el núcleo de Supabase.'))return;
     const r=U.rows(U.state().reminders).find(x=>String(x.id)===id),a=assignmentOf(r);
-    try{if(a?.id){await rpc('admin_core_cancel_assignment',{p_assignment_id:a.id,p_reason:'cancelado_desde_recordatorio'})}else{const rr=await db.from('payment_reminders').delete().eq('id',id);if(rr.error)throw rr.error}try{closeDialog('dlgReminder')}catch(_){};await loadAll();renderRemindersUnified();U.toast('Recordatorio eliminado','ok')}catch(e){U.toast(e.message||String(e),'bad')}
+    try{if(a?.id){await rpc('admin_core_cancel_assignment',{p_assignment_id:a.id,p_reason:'cancelado_desde_recordatorio'})}else if(String(r?.operation_key||'').startsWith('wauser:')){await rpc('admin_core_delete_username_delivery',{p_reminder_id:id})}else{const rr=await db.from('payment_reminders').delete().eq('id',id);if(rr.error)throw rr.error}try{closeDialog('dlgReminder')}catch(_){};await loadAll();renderRemindersUnified();U.toast('Recordatorio eliminado','ok')}catch(e){U.toast(e.message||String(e),'bad')}
   }
   async function changeReminderAccount(id){
     try{const result=await rpc('admin_core_reassign_account_preview',{p_reminder_id:id});const options=Array.isArray(result)?result:(result?.options||[]);if(!options.length)return U.toast('No hay cuentas/perfiles compatibles disponibles','bad');const text=options.map((x,i)=>`${i+1}. ${x.label||x.email||x.stock_item_id}${x.profile?' · '+x.profile:''}`).join('\n');const n=Number(prompt(`Elige una cuenta compatible:\n\n${text}`));if(!n||!options[n-1])return;const pick=options[n-1];await rpc('admin_core_reassign_account',{p_reminder_id:id,p_stock_item_id:pick.stock_item_id,p_stock_slot_id:pick.stock_slot_id||null});await loadAll();renderRemindersUnified();U.toast('Cuenta reasignada sin duplicar el recordatorio','ok')}catch(e){U.toast(missingRpc(e)?'Ejecuta la migración SQL para habilitar “Cambiar cuenta”.':(e.message||String(e)),'bad')}
@@ -10056,6 +10064,7 @@ function install(){
 </script>
 </body>
 </html>
+
 
 
 
