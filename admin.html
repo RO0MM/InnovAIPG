@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html data-theme="light" lang="es">
-<head>
 
-
-  <link rel="icon" type="image/png" href="Diseño sin título.png">
-<link rel="shortcut icon" href="Diseño sin título.png">
-
-  <!-- Libraries Stylesheet -->
-
-  <!-- Customized Bootstrap Stylesheet -->
-  <link href="css/style.css" rel="stylesheet" />
-
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"/>
-  <title>Innov IA Admin — Tienda & Entregas</title>
-  <meta name="theme-color" content="#1e40af"/>
-  <meta name="color-scheme" content="light dark"/>
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9974,10 +9957,13 @@ setTimeout(enhanceCuposEntregaUi,0);
       const unifiedIdentity=typeof window.adminResolveWhatsAppIdentity==='function'?window.adminResolveWhatsAppIdentity(rawPhone):null;
       let phone=unifiedIdentity?.kind==='phone'?unifiedIdentity:phoneInfo(rawPhone), username=unifiedIdentity?.kind==='username'?unifiedIdentity.username:'';
       if(unifiedIdentity&&!unifiedIdentity.ok) throw new Error(unifiedIdentity.error||'WhatsApp inválido');
+      let deliveryCustomer=null;
       if(username){
-        const customer=typeof window.adminCanonicalCustomer==='function'?await window.adminCanonicalCustomer({name,username,email:value('opsDeliverClientEmail')||''}):null;
-        const storedPhone=customer?.phone_e164||customer?.phone_raw||'';
-        if(!storedPhone) throw new Error('El @username fue reconocido y guardado, pero esta cuenta aún necesita un número vinculado al cliente para completar la entrega. Puedes agregar ese número una sola vez desde Clientes.');
+        deliveryCustomer=typeof window.adminCanonicalCustomer==='function'?await window.adminCanonicalCustomer({name,username,email:value('opsDeliverClientEmail')||''}):null;
+        const storedPhone=deliveryCustomer?.phone_e164||deliveryCustomer?.phone_raw||'';
+        if(!storedPhone){
+          throw new Error(`${username} quedó guardado, pero WhatsApp todavía no permite abrir desde una web un chat directo usando solo el username. Para registrar una entrega con cupo y enviarla automáticamente, vincula también el número a este mismo cliente una sola vez desde Clientes.`);
+        }
         phone=phoneInfo(storedPhone);
         if(!phone?.ok) throw new Error('El cliente vinculado a '+username+' no tiene un número de WhatsApp válido');
       }
@@ -10005,8 +9991,12 @@ setTimeout(enhanceCuposEntregaUi,0);
       try { if(message) window.copyTextSafe?.(message); } catch (_){}
       try { window.closeDialog?.('dlgOpsDeliver'); } catch (_){}
       notice(result?.reused?'La entrega ya existía; no se duplicó.':'Entrega, perfil/cupo y recordatorio registrados correctamente.','ok');
-      if($('opsDeliverOpenWa')?.checked && typeof window.waLink==='function'){
-        const url=window.waLink(phone.e164||rawPhone,message); if(url&&url!=='#') window.open(url,'_blank','noopener,noreferrer');
+      if($('opsDeliverOpenWa')?.checked){
+        if(username&&deliveryCustomer&&typeof window.openCustomerWhatsApp==='function'){
+          window.openCustomerWhatsApp(deliveryCustomer,message);
+        }else if(typeof window.waLink==='function'){
+          const url=window.waLink(phone.e164||rawPhone,message);if(url&&url!=='#')window.open(url,'_blank','noopener,noreferrer');
+        }
       }
       try { await window.loadAll?.(); } catch (_){}
       try { window.switchTab?.('inventory'); } catch (_){}
@@ -10972,11 +10962,31 @@ setTimeout(enhanceCuposEntregaUi,0);
   function sameUsername(a,b){const aa=normalizeUsername(a),bb=normalizeUsername(b);return aa.ok&&bb.ok&&aa.username_norm===bb.username_norm}
   function customerMatchesIdentity(c,{phone='',username=''}={}){return (!!phone&&samePhone(customerPhone(c),phone)) || (!!username&&sameUsername(customerUsername(c),username))}
 
-  /* No existe todavía un deep-link público universal por username documentado.
-     Si hay número, se abre el chat directo. Si solo hay username, se copia y abre WhatsApp Web. */
+  /* WhatsApp por identidad, sin parches de versiones.
+     - Número: abre chat directo con wa.me.
+     - Username + número ya vinculado al cliente: usa el número real para abrir directo.
+     - Solo username: WhatsApp todavía no publica un deep-link externo universal por username;
+       abrimos WhatsApp Web y dejamos el mensaje copiado para buscar el @username manualmente. */
   function waPhoneUrl(phone,message){
     const info=normalizePhoneIdentity(phone);if(!info.ok)return '#';
     return `https://wa.me/${info.digits}?text=${encodeURIComponent(message||'')}`;
+  }
+  async function copyWhatsAppFallback(value){
+    const text=U.text(value);if(!text)return false;
+    try{if(typeof window.copyTextSafe==='function'){window.copyTextSafe(text);return true}}catch(_){}
+    try{await navigator.clipboard.writeText(text);return true}catch(_){}
+    try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();return true}catch(_){return false}
+  }
+  function openUsernameWhatsApp(username,message=''){
+    username=normalizeUsername(username).username||U.text(username);
+    const copyValue=U.text(message)||username;
+    copyWhatsAppFallback(copyValue);
+    const opened=window.open('https://web.whatsapp.com/','_blank','noopener,noreferrer');
+    if(!opened){try{window.location.href='https://web.whatsapp.com/'}catch(_){}}
+    U.toast(U.text(message)
+      ? `Abriendo WhatsApp. Busca ${username}; el mensaje quedó copiado para pegarlo.`
+      : `Abriendo WhatsApp. Busca ${username} para iniciar el chat.`,'ok');
+    return true;
   }
   function openCustomerWhatsApp(c,message=''){
     const phone=customerPhone(c), username=customerUsername(c);
@@ -10984,14 +10994,10 @@ setTimeout(enhanceCuposEntregaUi,0);
       const url=(typeof window.waLink==='function'?window.waLink(phone,message):waPhoneUrl(phone,message));
       if(url&&url!=='#'){window.open(url,'_blank','noopener,noreferrer');return true;}
     }
-    if(username){
-      try{copyTextSafe(username)}catch(_){navigator.clipboard?.writeText?.(username)}
-      window.open('https://web.whatsapp.com/','_blank','noopener,noreferrer');
-      U.toast(`Username ${username} copiado. Búscalo en WhatsApp.`,'ok');
-      return true;
-    }
+    if(username)return openUsernameWhatsApp(username,message);
     U.toast('El cliente no tiene número ni username de WhatsApp','bad');return false;
   }
+  window.openUsernameWhatsApp=openUsernameWhatsApp;
   window.openCustomerWhatsApp=openCustomerWhatsApp;
   window.adminResolveWhatsAppIdentity=normalizeWhatsAppIdentity;
   window.waLink=function(phone,message){return waPhoneUrl(phone,message)};
@@ -11300,9 +11306,3 @@ setTimeout(enhanceCuposEntregaUi,0);
 </script>
 </body>
 </html>
-
-
-
-
-
-
