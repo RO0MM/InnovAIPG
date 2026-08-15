@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="120" viewBox="0 0 640 120">
+  <rect width="640" height="120" rx="24" fill="#0f172a"/>
+  <rect x="12" y="12" width="616" height="96" rx="18" fill="#111827" stroke="#334155"/>
+  <text x="28" y="46" fill="#f8fafc" font-family="Arial, sans-serif" font-size="24" font-weight="700">Metodos de pago</text>
+  <g font-family="Arial, sans-serif" font-size="20" font-weight="700">
+    <rect x="28" y="62" width="104" height="28" rx="14" fill="#2563eb"/>
+    <text x="80" y="82" fill="#ffffff" text-anchor="middle">VISA</text>
+    <rect x="144" y="62" width="144" height="28" rx="14" fill="#ef4444"/>
+    <text x="216" y="82" fill="#ffffff" text-anchor="middle">Mastercard</text>
+    <rect x="300" y="62" width="104" height="28" rx="14" fill="#7c3aed"/>
+    <text x="352" y="82" fill="#ffffff" text-anchor="middle">Yape</text>
+    <rect x="416" y="62" width="104" height="28" rx="14" fill="#10b981"/>
+    <text x="468" y="82" fill="#ffffff" text-anchor="middle">Plin</text>
+  </g>
+</svg>

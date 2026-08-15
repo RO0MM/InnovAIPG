@@ -27,27 +27,21 @@
   <link rel="icon" type="image/png" href="Diseño sin título.png">
 <link rel="shortcut icon" href="Diseño sin título.png">
   <!-- Libraries Stylesheet -->
+  <link href="css/bootstrap.min.css" rel="stylesheet" />
   <link href="lib/animate/animate.min.css" rel="stylesheet" />
   <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
-
-  <!-- Customized Bootstrap Stylesheet -->
-  <link href="css/style.css" rel="stylesheet" />
 
   <meta charset="utf-8">
   <title>Innov AI Tienda — Carrito</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="img/favicon.ico" rel="icon">
+  <link href="Diseño sin título.png" rel="icon">
 
   <!-- Fonts (mismo estilo cómic que la tienda) -->
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Comic+Neue:wght@400;700&family=Bangers&display=swap" rel="stylesheet">
 
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-  <link href="lib/animate/animate.min.css" rel="stylesheet">
-  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
-
   <style>
     :root{
       --brand-primary:#0d6efd;
@@ -111,6 +105,27 @@
     }
     .cart-toolbar h3{
       font-size:1.25rem;
+    }
+    .cart-toolbar-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.5rem;
+    }
+    .cart-toolbar-actions .btn{
+      min-height:44px;
+      border-radius:999px;
+      padding:.65rem 1rem;
+      font-weight:900;
+    }
+    .cart-toolbar-actions .btn-outline-primary{
+      background:linear-gradient(135deg,#eaf4ff,#dbeafe);
+      border-color:rgba(13,110,253,.22);
+      color:#0d6efd;
+    }
+    .cart-toolbar-actions .btn-outline-danger{
+      background:linear-gradient(135deg,#fff2f2,#ffe0e0);
+      border-color:rgba(220,53,69,.24);
+      color:#b42318;
     }
 
     .cart-table{
@@ -253,6 +268,34 @@
       font-size:1.05rem;
       font-weight:900;
     }
+    .summary-cta{
+      min-height:54px;
+      border-radius:16px;
+      border-width:2px;
+      font-weight:900;
+      letter-spacing:.01em;
+      box-shadow:0 12px 24px rgba(20,31,48,.12);
+    }
+    .summary-cta-pay{
+      background:linear-gradient(135deg,#ffd64a,#ffbf1f);
+      border-color:rgba(191,138,0,.20);
+      color:#172236;
+    }
+    .summary-cta-pay:hover{
+      color:#172236;
+      filter:brightness(1.02);
+    }
+    .summary-cta-whatsapp{
+      background:linear-gradient(135deg,#eefcf4,#dff8e9);
+      border-color:rgba(37,211,102,.22);
+      color:#118a46;
+    }
+    .summary-agent-note{
+      display:block;
+      margin-top:.2rem;
+      color:rgba(19,32,51,.72)!important;
+      font-weight:700;
+    }
 
     .pill-note{
       display:inline-flex;
@@ -311,6 +354,15 @@
     .coupon-box .input-group-append .btn{
       height:52px;
       border-left:2px solid rgba(0,0,0,.12);
+    }
+    .coupon-box .btn{
+      font-weight:900;
+      border-radius:0 14px 14px 0;
+      background:linear-gradient(135deg,#0d6efd,#2d8cff);
+      border-color:rgba(13,110,253,.24);
+    }
+    .coupon-box .btn:hover{
+      filter:brightness(1.02);
     }
 
     /* Toast */
@@ -439,6 +491,13 @@
       .cart-toolbar h3{
         font-size:1.1rem;
       }
+      .cart-toolbar-actions{
+        width:100%;
+      }
+      .cart-toolbar-actions .btn{
+        flex:1 1 180px;
+        justify-content:center;
+      }
       .cart-table td, .cart-table th{
         font-size:0.85rem;
         padding:.4rem .3rem;
@@ -467,6 +526,9 @@
       .summary-body{
         padding:.75rem .85rem;
       }
+      .summary-cta{
+        min-height:50px;
+      }
       #whatsappAgentSelector .btn{
         font-size:12px;
         padding:.4rem .45rem;
@@ -485,8 +547,89 @@
       .cart-table{
         box-shadow:4px 4px 0 rgba(0,0,0,.05);
       }
+      .cart-toolbar-actions .btn{
+        width:100%;
+      }
       #whatsappAgentSelector .agent-phone{
         display:none;
+      }
+
+      .coupon-box .input-group{
+        flex-wrap:nowrap;
+      }
+      .coupon-box .form-control{
+        min-width:0;
+        padding:.75rem!important;
+      }
+      .coupon-box .btn{
+        padding:.5rem .7rem;
+        white-space:nowrap;
+      }
+    }
+
+    /* En móvil cada producto es una tarjeta; no obliga a desplazar una tabla ancha. */
+    @media (max-width: 767.98px){
+      .cart-table{
+        overflow:visible;
+        border:0;
+        border-radius:0;
+        box-shadow:none;
+        background:transparent;
+      }
+      .cart-table table,
+      .cart-table tbody{
+        display:block;
+        width:100%;
+      }
+      .cart-table thead{
+        display:none;
+      }
+      .cart-table tbody tr{
+        display:grid;
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+        gap:0 .75rem;
+        width:100%;
+        margin-bottom:.8rem;
+        padding:.7rem;
+        border:1px solid rgba(128,145,166,.28);
+        border-radius:16px;
+        overflow:hidden;
+        box-shadow:0 9px 22px rgba(15,23,42,.08);
+      }
+      .cart-table tbody td{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:.55rem;
+        min-width:0;
+        padding:.55rem .25rem!important;
+        text-align:right!important;
+        border-top:1px dashed rgba(128,145,166,.24)!important;
+      }
+      .cart-table tbody td::before{
+        content:attr(data-label);
+        flex:none;
+        font-size:.7rem;
+        font-weight:900;
+        letter-spacing:.03em;
+        text-transform:uppercase;
+        opacity:.68;
+      }
+      .cart-table tbody td:first-child{
+        grid-column:1 / -1;
+        display:block;
+        padding:.25rem .15rem .7rem!important;
+        text-align:left!important;
+        border-top:0!important;
+      }
+      .cart-table tbody td:first-child::before{
+        display:none;
+      }
+      .cart-table tbody td:nth-child(3) .qty-wrap{
+        margin-left:auto;
+      }
+      .cart-table tbody td:last-child .remove-btn{
+        margin-left:auto;
       }
     }
   </style>
@@ -974,7 +1117,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
             </div>
           </div>
 
-          <div class="d-flex flex-wrap gap-2" style="gap:.5rem;">
+          <div class="cart-toolbar-actions">
             <a href="shop.html" class="btn btn-outline-primary">
               <i class="fa fa-store mr-1"></i> Seguir comprando
             </a>
@@ -984,7 +1127,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
           </div>
         </div>
 
-        <div class="table-responsive cart-table">
+        <div class="table-responsive cart-table" id="cartTableWrap">
           <table class="table table-light table-borderless text-center mb-0" id="cartTable">
             <thead class="thead-dark">
               <tr>
@@ -1057,14 +1200,14 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
               </div>
 
               <div class="mt-3">
-                <a href="checkout.html" class="btn btn-block btn-primary font-weight-bold py-3" id="toCheckout">
+                <a href="checkout.html" class="btn btn-block btn-primary font-weight-bold py-3 summary-cta summary-cta-pay" id="toCheckout">
                   <i class="fa fa-credit-card mr-1"></i> Proceder al pago
                 </a>
 
                 <!-- Botón principal de WhatsApp + selector de agente -->
-                <button class="btn btn-outline-success btn-block py-3 mt-2" id="toWhatsApp">
+                <button class="btn btn-outline-success btn-block py-3 mt-2 summary-cta summary-cta-whatsapp" id="toWhatsApp">
                   <i class="fab fa-whatsapp mr-1"></i> Finalizar por WhatsApp
-                  <div class="small text-muted mt-1">
+                  <div class="small text-muted mt-1 summary-agent-note">
                     Agente seleccionado: <strong id="currentAgentLabel">🤖 Room</strong>
                   </div>
                 </button>
@@ -1183,7 +1326,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
           <div class="col-md-4 mb-5">
             <h5 class="footer-title text-light mb-3">Boletín</h5>
             <p style="color: rgba(255,255,255,.70);">Recibe ofertas y novedades.</p>
-            <form action="/suscribirse" method="post">
+            <form action="contact.html" method="get">
               <div class="input-group">
                 <input type="email" class="form-control" placeholder="Tu correo" required />
                 <div class="input-group-append">
@@ -1209,7 +1352,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
         </p>
       </div>
       <div class="col-md-6 px-xl-0 text-center text-md-right">
-        <img class="img-fluid" src="img/payments.png" alt="Métodos de pago" />
+        <img class="img-fluid" src="payments-placeholder.svg" alt="Métodos de pago" />
       </div>
     </div>
   </footer>
@@ -1267,6 +1410,36 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
       function cartSubtotalPen(cart){
         return (cart||[]).reduce((s,i)=> s + (Number(i.precio||0) * Number(i.qty||1)), 0);
       }
+      function commitCart(cart){
+        const nextCart = Array.isArray(cart) ? cart : [];
+        writeCart(nextCart);
+        syncHeaderBadges();
+        return nextCart;
+      }
+      function mutateCart(mutator){
+        const baseCart = readCart().map(item => ({ ...item }));
+        const nextCart = mutator(baseCart);
+        return commitCart(Array.isArray(nextCart) ? nextCart : baseCart);
+      }
+      function setCartItemQty(id, qty){
+        return mutateCart(cart => {
+          const item = cart.find(entry => entry.id === id);
+          if(!item) return cart;
+          item.qty = Math.max(1, Number(qty || 1));
+          return cart;
+        });
+      }
+      function stepCartItemQty(id, delta){
+        return mutateCart(cart => {
+          const item = cart.find(entry => entry.id === id);
+          if(!item) return cart;
+          item.qty = Math.max(1, Number(item.qty || 1) + Number(delta || 0));
+          return cart;
+        });
+      }
+      function removeCartItem(id){
+        return mutateCart(cart => cart.filter(entry => entry.id !== id));
+      }
 
       /* ==========================
          HELPERS MONEY
@@ -1310,7 +1483,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
           const step = Number(img.dataset.errstep || '0') + 1;
           img.dataset.errstep = String(step);
           if(step >= 1){
-            img.src = 'img/placeholder.jpg';
+            img.src = 'brand-placeholder.svg';
           }
         });
       }
@@ -1535,38 +1708,32 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
          ========================== */
       window.Cart = window.Cart || {
         add(item){
-          const cart = readCart();
-          const idx = cart.findIndex(x => x.id === item.id);
-          if(idx >= 0){
-            cart[idx].qty += (item.qty||1);
-          }else{
+          return mutateCart(cart => {
+            const idx = cart.findIndex(x => x.id === item.id);
+            if(idx >= 0){
+              cart[idx].qty += (item.qty||1);
+              return cart;
+            }
             cart.push({
               id: item.id,
               nombre: item.nombre,
               precio: Number(item.precio || 0),
-              imagen: item.imagen || 'img/placeholder.jpg',
+              imagen: item.imagen || 'brand-placeholder.svg',
               qty: item.qty || 1
             });
-          }
-          writeCart(cart);
-          return cart;
+            return cart;
+          });
         },
         remove(id){
-          const cart = readCart().filter(x => x.id !== id);
-          writeCart(cart);
-          return cart;
+          return removeCartItem(id);
         },
         updateQty(id, qty){
-          const cart = readCart();
-          const it = cart.find(x => x.id === id);
-          if(it){
-            it.qty = Math.max(1, Number(qty||1));
-            writeCart(cart);
-          }
-          return cart;
+          return setCartItemQty(id, qty);
         },
         clear(){
           CART_STORE.removeItem(CART_KEY);
+          syncHeaderBadges();
+          return [];
         },
         items(){ return readCart(); }
       };
@@ -1593,6 +1760,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
       function renderCart(){
         const tbody = document.getElementById('cartBody');
         const empty = document.getElementById('cartEmpty');
+        const tableWrap = document.getElementById('cartTableWrap');
         const cart = readCart();
 
         tbody.innerHTML = '';
@@ -1619,10 +1787,12 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
         }
 
         if(cart.length === 0){
+          tableWrap.classList.add('d-none');
           empty.classList.remove('d-none');
           syncHeaderBadges();
           return;
         }else{
+          tableWrap.classList.remove('d-none');
           empty.classList.add('d-none');
         }
 
@@ -1632,10 +1802,10 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
           const lineTotalPen = Number(item.precio||0) * Number(item.qty||1);
 
           tr.innerHTML = `
-            <td class="align-middle">
+            <td class="align-middle" data-label="Producto">
               <div class="prod-cell">
                 <div class="prod-img">
-                  <img src="${item.imagen || 'img/placeholder.jpg'}" alt="${(item.nombre||'Producto').replaceAll('"','&quot;')}" loading="lazy" decoding="async">
+                  <img src="${item.imagen || 'brand-placeholder.svg'}" alt="${(item.nombre||'Producto').replaceAll('"','&quot;')}" loading="lazy" decoding="async">
                 </div>
                 <div>
                   <div class="prod-name">${item.nombre || 'Producto'}</div>
@@ -1644,11 +1814,11 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
               </div>
             </td>
 
-            <td class="align-middle">
+            <td class="align-middle" data-label="Precio">
               <strong>${formatMoneyPenSmart(Number(item.precio||0))}</strong>
             </td>
 
-            <td class="align-middle">
+            <td class="align-middle" data-label="Cantidad">
               <div class="qty-wrap">
                 <button class="qty-btn js-minus" data-id="${item.id}" aria-label="Disminuir">
                   <i class="fa fa-minus"></i>
@@ -1663,11 +1833,11 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
               </div>
             </td>
 
-            <td class="align-middle">
+            <td class="align-middle" data-label="Total">
               <strong>${formatMoneyPenSmart(lineTotalPen)}</strong>
             </td>
 
-            <td class="align-middle">
+            <td class="align-middle" data-label="Quitar">
               <button class="btn btn-sm btn-danger remove-btn js-remove" data-id="${item.id}" title="Quitar">
                 <i class="fa fa-times"></i>
               </button>
@@ -1692,30 +1862,25 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
 
         if(plus){
           const id = plus.getAttribute('data-id');
-          const cart = readCart();
-          const it = cart.find(x => x.id === id);
-          if(!it) return;
-          it.qty = Number(it.qty||1) + 1;
-          writeCart(cart);
+          const item = readCart().find(x => x.id === id);
+          if(!item) return;
+          stepCartItemQty(id, 1);
           renderCart();
           showToast('Cantidad actualizada ✅', 'fas fa-check-circle');
         }
 
         if(minus){
           const id = minus.getAttribute('data-id');
-          const cart = readCart();
-          const it = cart.find(x => x.id === id);
-          if(!it) return;
-          it.qty = Math.max(1, Number(it.qty||1) - 1);
-          writeCart(cart);
+          const item = readCart().find(x => x.id === id);
+          if(!item) return;
+          stepCartItemQty(id, -1);
           renderCart();
           showToast('Cantidad actualizada ✅', 'fas fa-check-circle');
         }
 
         if(remove){
           const id = remove.getAttribute('data-id');
-          const cart = readCart().filter(x => x.id !== id);
-          writeCart(cart);
+          removeCartItem(id);
           renderCart();
           showToast('Producto quitado 🗑️', 'fas fa-trash');
         }
@@ -1726,7 +1891,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
         if(el.classList.contains('js-qty')){
           const id = el.getAttribute('data-id');
           const qty = Math.max(1, parseInt(el.value||'1',10));
-          window.Cart.updateQty(id, qty);
+          setCartItemQty(id, qty);
           renderCart();
         }
       });

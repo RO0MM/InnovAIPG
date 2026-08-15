@@ -5,9 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Acceso Temporal | Innov IA</title>
   <meta name="theme-color" content="#070d19" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src 'none'; worker-src 'none'; script-src 'self' https://cdn.jsdelivr.net 'sha256-cgLs8ccWBpzGuF8mfwfDZG/P67+S1R7ZZwxL8FSjdGM='; style-src 'sha256-LpxzMah0iTz9CgCGpR65EGd9nWfEhJcm+EsyXNZntiM='; img-src 'self' data: https://i.pinimg.com https://media.tenor.com https://images.steamusercontent.com; connect-src https://rfjvskrimsoqlyofhidj.supabase.co; upgrade-insecure-requests" />
   <link rel="icon" type="image/png" href="Dise%C3%B1o%20sin%20t%C3%ADtulo.png" />
   <link rel="shortcut icon" href="Dise%C3%B1o%20sin%20t%C3%ADtulo.png" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://rfjvskrimsoqlyofhidj.supabase.co" crossorigin />
 
   <style>
     :root{
@@ -89,6 +95,11 @@
     button,input{font:inherit}
     button{border:0;cursor:pointer;background:none}
     button:disabled{cursor:not-allowed;opacity:.62;filter:grayscale(.25)}
+    button:focus-visible,
+    input:focus-visible{
+      outline:3px solid rgba(89,215,255,.72);
+      outline-offset:3px;
+    }
 
     .app{
       position:relative;
@@ -706,9 +717,9 @@
         <div class="divider">♢</div>
       </header>
 
-      <div class="screen active" id="screenForm">
+      <div class="screen active" id="screenForm" aria-hidden="false">
         <div class="center">
-          <span class="pill">🛡️ Chatgpt Plus</span>
+          <span class="pill">🛡️ ChatGPT Plus</span>
           <h2>Ingresa tu código de acceso</h2>
           <p>Usa tu código para visualizar el código temporal de verificación. Tendrás el ciclo completo para copiarlo.</p>
         </div>
@@ -716,46 +727,48 @@
           <div class="noticeIcon">⚠️</div>
           <div><b>Importante:</b> el código de acceso tiene usos limitados. Antes de continuar, ten lista la pantalla donde te solicitan el código para evitar inconvenientes.</div>
         </div>
-        <div class="field">
-          <label for="accessInput">Código de acceso</label>
-          <div class="inputWrap">
-            <span class="inputIcon">🔒</span>
-            <input id="accessInput" autocomplete="one-time-code" inputmode="text" placeholder="Escribe tu código aquí" />
-            <button type="button" class="clearBtn" id="clearBtn" title="Limpiar">×</button>
+        <form id="accessForm" novalidate>
+          <div class="field">
+            <label for="accessInput">Código de acceso</label>
+            <div class="inputWrap">
+              <span class="inputIcon" aria-hidden="true">🔒</span>
+              <input id="accessInput" autocomplete="off" autocapitalize="characters" inputmode="text" maxlength="32" spellcheck="false" placeholder="Escribe tu código aquí" />
+              <button type="button" class="clearBtn" id="clearBtn" title="Limpiar" aria-label="Limpiar código">×</button>
+            </div>
           </div>
-        </div>
-        <button class="mainBtn" id="useCodeBtn">✨ Solicitar código de acceso</button>
-        <div class="msg" id="clientMsg"></div>
+          <button type="submit" class="mainBtn" id="useCodeBtn">✨ Solicitar código de acceso</button>
+          <div class="msg" id="clientMsg" role="status" aria-live="polite" aria-atomic="true"></div>
+        </form>
       </div>
 
-      <div class="screen center" id="screenWaiting">
-        <div class="waitingGifWrap"><img class="waitingGif" src="https://media.tenor.com/2roX3uxz_68AAAAM/cat-space.gif" alt="Animación de espera" /></div>
+      <div class="screen center" id="screenWaiting" aria-hidden="true" aria-live="polite">
+        <div class="waitingGifWrap"><img class="waitingGif" src="https://media.tenor.com/2roX3uxz_68AAAAM/cat-space.gif" alt="Animación de espera" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></div>
         <h3>Preparando tu código...</h3>
         <p>Quédate atento para copiar el código antes de que caduque. Estamos esperando que el contador inicie desde 0 segundos.</p>
-        <div class="countBadge" id="waitCounter">-- s</div>
-        <div class="clockStatus syncing" id="waitingClockStatus">⏱ Sincronizando hora segura…</div>
+        <div class="countBadge" id="waitCounter" role="timer">-- s</div>
+        <div class="clockStatus syncing" id="waitingClockStatus" role="status">⏱ Sincronizando hora segura…</div>
         <div class="tipBox">📌 Recomendación: deja abierta la pantalla donde te piden el código y cópialo apenas aparezca.</div>
       </div>
 
-      <div class="screen" id="screenCode">
+      <div class="screen" id="screenCode" aria-hidden="true">
         <div class="codePanel">
           <div class="accountName" id="accountLabel">Cuenta</div>
           <div class="otpBox">
-            <button class="otp" id="otpCode" title="Toca para copiar">------</button>
+            <button type="button" class="otp" id="otpCode" title="Toca para copiar" aria-label="Copiar código temporal">------</button>
             <div class="tapHint">👆 Toca el número para copiarlo</div>
           </div>
           <div class="timerBar"><div class="timerFill" id="timerFill"></div></div>
-          <div class="timerText" id="timerText">Tiempo restante: -- s</div>
-          <div class="clockStatus syncing" id="clockStatus">⏱ Verificando hora segura…</div>
-          <button class="mainBtn" id="copyBtn">Copiar código</button>
-          <button class="secondaryBtn" id="hideBtn">Cerrar</button>
+          <div class="timerText" id="timerText" role="timer">Tiempo restante: -- s</div>
+          <div class="clockStatus syncing" id="clockStatus" role="status">⏱ Verificando hora segura…</div>
+          <button type="button" class="mainBtn" id="copyBtn">Copiar código</button>
+          <button type="button" class="secondaryBtn" id="hideBtn">Cerrar</button>
         </div>
         <div class="tipBox center">🚀 Pega este código antes de que termine el contador.</div>
       </div>
 
-      <div class="screen center" id="screenThanks">
+      <div class="screen center" id="screenThanks" aria-hidden="true" aria-live="polite">
         <div class="thanksGifWrap">
-          <img class="thanksGif" src="https://images.steamusercontent.com/ugc/449611652050198394/003B0F458420C44A75D10CBDC94A9C0B964C06F7/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" alt="Animación de cierre" />
+          <img class="thanksGif" src="https://images.steamusercontent.com/ugc/449611652050198394/003B0F458420C44A75D10CBDC94A9C0B964C06F7/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" alt="Animación de cierre" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
         </div>
         <h3>¡Gracias por tu compra!</h3>
         <p>Agradecemos tu preferencia 💚<br>Esperamos que disfrutes tu servicio. Si necesitas ayuda, escríbenos por WhatsApp.</p>
@@ -765,14 +778,33 @@
     <div class="footerNote">Innov IA</div>
   </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.0/dist/umd/supabase.js" integrity="sha384-XOgt1ZFimk4zHEFJt46uyOeRhPxz22jaYBEJlZAE8Ie/gBMAZv/K6K4iB5CnoMRX" crossorigin="anonymous"></script>
 <script>
 (() => {
+  if(window.top!==window.self){
+    document.body.textContent='';
+    return;
+  }
   const SUPABASE_URL='https://rfjvskrimsoqlyofhidj.supabase.co';
   const SUPABASE_KEY='sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
-  const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
   const $=id=>document.getElementById(id);
-  let activeAccount=null, activeAccess=null, timerId=null, waitingId=null, thanksTimeout=null, thanksProgressId=null;
+  const USE_BUTTON_LABEL='✨ Solicitar código de acceso';
+
+  if(!window.supabase?.createClient){
+    $('useCodeBtn').disabled=true;
+    $('clientMsg').className='msg show err';
+    const icon=document.createElement('span');
+    const text=document.createElement('span');
+    icon.textContent='⚠️';
+    text.textContent='No se pudo cargar la conexión segura. Recarga la página o revisa tu conexión.';
+    $('clientMsg').replaceChildren(icon,text);
+    return;
+  }
+
+  const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  let activeAccount=null, activeAccess=null, activeOtpCode='', activeOtpCounter=null, activeOtpRevealAtMs=0, activeOtpExpiresAtMs=0;
+  let timerId=null, waitingId=null, thanksTimeout=null, thanksProgressId=null, copyResetId=null;
+  let isRedeeming=false;
 
   /*
    * El TOTP ya no usa la hora del PC/celular.
@@ -790,11 +822,58 @@
   };
 
   function normalizeCode(v){return String(v||'').trim().toUpperCase()}
-  function normalizeSecret(v){return String(v||'').replace(/\s+/g,'').toUpperCase()}
-  function showScreen(id){['screenForm','screenWaiting','screenCode','screenThanks'].forEach(s=>$(s).classList.toggle('active',s===id))}
-  function showMsg(text,type='info'){const icon=type==='ok'?'✅':type==='err'?'⚠️':'ℹ️';$('clientMsg').className='msg show '+type;$('clientMsg').innerHTML=`<span>${icon}</span><span>${text}</span>`}
+  function safePeriod(v){const n=Number(v);return n===60?60:30}
+  function otpWindowState(nowMs,revealAtMs,expiresAtMs){
+    if(!Number.isFinite(nowMs)||!Number.isFinite(revealAtMs)||!Number.isFinite(expiresAtMs)||expiresAtMs<=revealAtMs)return'invalid';
+    if(nowMs<revealAtMs)return'waiting';
+    if(nowMs>=expiresAtMs)return'expired';
+    return'active';
+  }
+  function showScreen(id){
+    ['screenForm','screenWaiting','screenCode','screenThanks'].forEach(s=>{
+      const el=$(s), active=s===id;
+      el.classList.toggle('active',active);
+      el.setAttribute('aria-hidden',active?'false':'true');
+    });
+  }
+  function showMsg(text,type='info'){
+    const box=$('clientMsg');
+    const icon=document.createElement('span');
+    const message=document.createElement('span');
+    icon.textContent=type==='ok'?'✅':type==='err'?'⚠️':'ℹ️';
+    message.textContent=String(text||'');
+    box.className='msg show '+type;
+    box.replaceChildren(icon,message);
+  }
   function hideMsg(){$('clientMsg').className='msg';$('clientMsg').textContent=''}
-  function clearAllTimers(){if(timerId)clearTimeout(timerId);if(waitingId)clearTimeout(waitingId);if(thanksTimeout)clearTimeout(thanksTimeout);if(thanksProgressId)cancelAnimationFrame(thanksProgressId);timerId=waitingId=thanksTimeout=thanksProgressId=null;$('useCodeBtn').disabled=false}
+  function setRedeeming(busy){
+    isRedeeming=!!busy;
+    $('useCodeBtn').disabled=!!busy;
+    $('useCodeBtn').setAttribute('aria-busy',busy?'true':'false');
+    $('useCodeBtn').textContent=busy?'⏳ Validando acceso…':USE_BUTTON_LABEL;
+  }
+  function clearAllTimers(){
+    if(timerId)clearTimeout(timerId);
+    if(waitingId)clearTimeout(waitingId);
+    if(thanksTimeout)clearTimeout(thanksTimeout);
+    if(thanksProgressId)cancelAnimationFrame(thanksProgressId);
+    if(copyResetId)clearTimeout(copyResetId);
+    timerId=waitingId=thanksTimeout=thanksProgressId=copyResetId=null;
+    $('copyBtn').textContent='Copiar código';
+    setRedeeming(false);
+  }
+  function returnToFormWithError(message,error){
+    clearAllTimers();
+    activeAccount=null;
+    activeAccess=null;
+    activeOtpCode='';
+    activeOtpCounter=null;
+    activeOtpRevealAtMs=0;
+    activeOtpExpiresAtMs=0;
+    showScreen('screenForm');
+    showMsg(message,'err');
+    if(error)console.error(error);
+  }
 
   function setClockStatus(text,mode='ok'){
     ['clockStatus','waitingClockStatus'].forEach(id=>{
@@ -812,10 +891,53 @@
     return epoch;
   }
 
+  async function rpcWithTimeout(name,args={},timeoutMs=10000){
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),timeoutMs);
+    try{
+      let request=db.rpc(name,args);
+      if(typeof request.abortSignal==='function')request=request.abortSignal(controller.signal);
+      return await request;
+    }catch(error){
+      if(controller.signal.aborted)throw new Error('La conexión segura tardó demasiado en responder.');
+      throw error;
+    }finally{
+      clearTimeout(timeout);
+    }
+  }
+
+  async function redeemThroughEdge(accessCode,timeoutMs=20000){
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),timeoutMs);
+    try{
+      const response=await fetch(SUPABASE_URL+'/functions/v1/redeem-totp',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'apikey':SUPABASE_KEY,
+          'x-client-info':'innov-codigo/2.0'
+        },
+        body:JSON.stringify({access_code:accessCode}),
+        cache:'no-store',
+        credentials:'omit',
+        referrerPolicy:'no-referrer',
+        signal:controller.signal
+      });
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok&&!data?.message)throw new Error('Respuesta Edge no válida.');
+      return data;
+    }catch(error){
+      if(controller.signal.aborted)throw new Error('La validación segura tardó demasiado en responder.');
+      throw error;
+    }finally{
+      clearTimeout(timeout);
+    }
+  }
+
   async function takeClockSample(){
     const localStart=Date.now();
     const perfStart=performance.now();
-    const {data,error}=await db.rpc('innov_totp_server_time');
+    const {data,error}=await rpcWithTimeout('innov_totp_server_time',{},7000);
     const perfEnd=performance.now();
     const localEnd=Date.now();
     if(error)throw error;
@@ -872,95 +994,96 @@
     return secureClock.anchorServerMs+(performance.now()-secureClock.anchorPerfMs);
   }
 
-  function periodPositionMs(period=30){
-    const periodMs=Math.max(1,Number(period)||30)*1000;
-    return ((secureNowMs()%periodMs)+periodMs)%periodMs;
-  }
-
-  function secondsLeft(period=30){
-    const periodMs=Math.max(1,Number(period)||30)*1000;
-    return Math.max(0,Math.ceil((periodMs-periodPositionMs(period))/1000));
-  }
-
-  function base32Decode(base32){
-    const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    let bits='', bytes=[];
-    base32=normalizeSecret(base32).replace(/=+$/,'');
-    for(const ch of base32){
-      const val=alphabet.indexOf(ch);
-      if(val===-1)throw new Error('Secreto TOTP inválido.');
-      bits+=val.toString(2).padStart(5,'0');
-    }
-    for(let i=0;i+8<=bits.length;i+=8)bytes.push(parseInt(bits.slice(i,i+8),2));
-    return new Uint8Array(bytes);
-  }
-
-  async function hotp(secret,counter,digits=6){
-    const keyBytes=base32Decode(secret);
-    const cryptoKey=await crypto.subtle.importKey('raw',keyBytes,{name:'HMAC',hash:'SHA-1'},false,['sign']);
-    const buffer=new ArrayBuffer(8), view=new DataView(buffer);
-    view.setUint32(0,Math.floor(counter/0x100000000));view.setUint32(4,counter>>>0);
-    const hmac=new Uint8Array(await crypto.subtle.sign('HMAC',cryptoKey,buffer));
-    const offset=hmac[hmac.length-1]&0x0f;
-    const bin=((hmac[offset]&0x7f)<<24)|((hmac[offset+1]&0xff)<<16)|((hmac[offset+2]&0xff)<<8)|(hmac[offset+3]&0xff);
-    return String(bin%(10**digits)).padStart(digits,'0');
-  }
-
-  async function totp(secret,period=30,digits=6,nowMs=secureNowMs()){
-    const counter=Math.floor(nowMs/1000/period);
-    return hotp(secret,counter,digits);
-  }
-
-  async function redeemAccessCode(){
+  async function redeemAccessCode(event){
+    event?.preventDefault();
+    if(isRedeeming)return;
     clearAllTimers();hideMsg();
     const accessCode=normalizeCode($('accessInput').value);
     if(!accessCode){showMsg('Ingresa tu código de acceso para continuar.','err');return}
-    $('useCodeBtn').disabled=true;
+    if(accessCode.length<6||accessCode.length>32||!/^[A-Z0-9-]+$/.test(accessCode)){
+      showMsg('Revisa el código. Solo debe contener letras, números o guiones.','err');
+      return;
+    }
+    setRedeeming(true);
 
     /* Sincronizar antes de consumir el acceso evita gastar un uso sin mostrar TOTP. */
     showMsg('Sincronizando hora segura...', 'info');
     try{
       await syncSecureClock(true);
     }catch(error){
-      $('useCodeBtn').disabled=false;
+      setRedeeming(false);
       showMsg('No se pudo sincronizar la hora segura. Revisa tu conexión e intenta nuevamente. No se usó la hora del dispositivo.','err');
       console.error('Clock sync:',error);
       return;
     }
 
     showMsg('Validando acceso...', 'info');
-    const {data,error}=await db.rpc('redeem_totp_access_code',{p_access_code:accessCode});
-    if(error){$('useCodeBtn').disabled=false;showMsg('No se pudo validar el acceso. Intenta nuevamente o contacta a soporte.','err');console.error(error);return}
-    if(!data?.ok){$('useCodeBtn').disabled=false;showMsg(data?.message||'Código de acceso no válido.','err');return}
-    activeAccount=data.account;activeAccess=data.access;
+    let data;
+    try{
+      data=await redeemThroughEdge(accessCode);
+    }catch(error){
+      setRedeeming(false);
+      showMsg('La validación tardó demasiado. Espera unos segundos antes de volver a intentarlo o contacta a soporte.','err');
+      console.error('Redeem:',error);
+      return;
+    }
+    if(!data?.ok){setRedeeming(false);showMsg(data?.message||'Código de acceso no válido.','err');return}
+    const period=safePeriod(data.otp?.period);
+    const digits=Number(data.otp?.digits)===8?8:6;
+    const code=String(data.otp?.code||'');
+    const revealAtMs=Number(data.otp?.reveal_at_ms);
+    const expiresAtMs=Number(data.otp?.expires_at_ms);
+    const periodMs=period*1000;
+    if(!new RegExp('^\\d{'+digits+'}$').test(code)||!Number.isFinite(revealAtMs)||!Number.isFinite(expiresAtMs)||expiresAtMs<=revealAtMs||expiresAtMs-revealAtMs!==periodMs){
+      setRedeeming(false);
+      showMsg('La respuesta segura no fue válida. Contacta a soporte para no consumir otro uso.','err');
+      return;
+    }
+    activeAccount={...(data.account||{}),period,digits};activeAccess=data.access;
+    activeOtpCode=code;
+    activeOtpRevealAtMs=revealAtMs;
+    activeOtpExpiresAtMs=expiresAtMs;
+    activeOtpCounter=Math.floor(revealAtMs/periodMs);
+    $('accessInput').value='';
+    setRedeeming(false);
     startWaitingForFreshCycle();
   }
 
   async function startWaitingForFreshCycle(){
     showScreen('screenWaiting');hideMsg();
     try{await syncSecureClock(false)}
-    catch(error){showScreen('screenForm');$('useCodeBtn').disabled=false;showMsg('No se pudo mantener la sincronización segura. Intenta nuevamente.','err');return}
+    catch(error){returnToFormWithError('No se pudo mantener la sincronización segura. Intenta nuevamente.',error);return}
 
-    const period=Math.max(1,Number(activeAccount?.period||30));
+    const period=safePeriod(activeAccount?.period);
     const periodMs=period*1000;
+    const revealAtMs=activeOtpRevealAtMs;
+    if(!activeOtpCode||!Number.isFinite(revealAtMs)||!Number.isFinite(activeOtpExpiresAtMs)||activeOtpExpiresAtMs-revealAtMs!==periodMs){
+      returnToFormWithError('La ventana segura del código no es válida. Contacta a soporte antes de usar otro acceso.');
+      return;
+    }
 
     const tick=async()=>{
       try{
-        const position=periodPositionMs(period);
-        const waitMs=periodMs-position;
+        if(secureClock.syncing)await secureClock.syncing;
+        const now=secureNowMs();
+        const windowState=otpWindowState(now,revealAtMs,activeOtpExpiresAtMs);
+        if(windowState==='expired'||windowState==='invalid'){
+          waitingId=null;
+          showThanksThenReset();
+          return;
+        }
+        const waitMs=Math.max(0,revealAtMs-now);
         $('waitCounter').textContent=Math.max(0,Math.ceil(waitMs/1000))+' s';
 
-        /* Solo se abre al comienzo real de un ciclo nuevo. */
-        if(position<=550){
+        /* La ventana se fija al canjear: nunca salta a un ciclo posterior. */
+        if(windowState==='active'){
           waitingId=null;
           await showTotp();
           return;
         }
         waitingId=setTimeout(tick,Math.min(250,Math.max(60,waitMs-80)));
       }catch(error){
-        showScreen('screenForm');
-        showMsg('La sincronización de hora se interrumpió. Intenta nuevamente.','err');
-        console.error(error);
+        returnToFormWithError('La sincronización de hora se interrumpió. Contacta a soporte antes de consumir otro uso.',error);
       }
     };
     tick();
@@ -968,22 +1091,28 @@
 
   async function showTotp(){
     showScreen('screenCode');
-    $('accountLabel').textContent=(activeAccount?.label||'Cuenta')+' · Uso '+(activeAccess?.used_count||1)+' de '+(activeAccess?.max_uses||'');
-    const period=Math.max(1,Number(activeAccount?.period||30));
-    const digits=Math.max(4,Number(activeAccount?.digits||6));
+    const currentUse=Math.max(1,Number(activeAccess?.used_count||1));
+    const maxUses=Math.max(currentUse,Number(activeAccess?.max_uses||currentUse));
+    $('accountLabel').textContent=(activeAccount?.label||'Cuenta')+' · Uso '+currentUse+' de '+maxUses;
+    const period=safePeriod(activeAccount?.period);
     const periodMs=period*1000;
-    let generatedCounter=null;
+    if(secureClock.syncing)await secureClock.syncing;
+    const firstNow=secureNowMs();
+    if(activeOtpCounter===null||!activeOtpCode||otpWindowState(firstNow,activeOtpRevealAtMs,activeOtpExpiresAtMs)!=='active'){showThanksThenReset();return}
+    $('otpCode').textContent=activeOtpCode;
 
     const refresh=async()=>{
       try{
+        if(secureClock.syncing)await secureClock.syncing;
         const now=secureNowMs();
-        const counter=Math.floor(now/1000/period);
-        const remainingMs=periodMs-periodPositionMs(period);
+        const counter=Math.floor(now/periodMs);
+        const remainingMs=activeOtpExpiresAtMs-now;
 
-        if(counter!==generatedCounter){
-          const code=await totp(activeAccount.secret,period,digits,now);
-          $('otpCode').textContent=code;
-          generatedCounter=counter;
+        /* Un canje autoriza un solo ciclo. Nunca se genera el TOTP siguiente. */
+        if(counter!==activeOtpCounter||otpWindowState(now,activeOtpRevealAtMs,activeOtpExpiresAtMs)!=='active'||remainingMs<=180){
+          timerId=null;
+          showThanksThenReset();
+          return;
         }
 
         const left=Math.max(0,Math.ceil(remainingMs/1000));
@@ -991,16 +1120,9 @@
         $('timerFill').style.width=percent+'%';
         $('timerText').textContent='Tiempo restante: '+left+' s';
 
-        if(remainingMs<=180){
-          timerId=null;
-          showThanksThenReset();
-          return;
-        }
         timerId=setTimeout(refresh,Math.min(250,Math.max(80,remainingMs-80)));
       }catch(e){
-        showScreen('screenForm');
-        showMsg('Error generando el código con hora segura. Intenta nuevamente o contacta a soporte.','err');
-        console.error(e);
+        returnToFormWithError('No se pudo generar el código. Contacta a soporte antes de consumir otro uso.',e);
       }
     };
     await refresh();
@@ -1023,9 +1145,18 @@
   }
 
   function showThanksThenReset(){
+    if($('screenThanks').classList.contains('active'))return;
     showScreen('screenThanks');
+    activeAccount=null;
+    activeAccess=null;
+    activeOtpCode='';
+    activeOtpCounter=null;
+    activeOtpRevealAtMs=0;
+    activeOtpExpiresAtMs=0;
+    $('otpCode').textContent='------';
+    setRedeeming(false);
     runThanksProgress(10000);
-    thanksTimeout=setTimeout(()=>{$('accessInput').value='';activeAccount=null;activeAccess=null;showScreen('screenForm');showMsg('Proceso finalizado correctamente. Gracias por tu preferencia 💚','ok')},10000);
+    thanksTimeout=setTimeout(()=>{$('accessInput').value='';showScreen('screenForm');showMsg('Proceso finalizado correctamente. Gracias por tu preferencia 💚','ok')},10000);
   }
 
   function hideCode(){clearAllTimers();showThanksThenReset()}
@@ -1033,12 +1164,32 @@
   async function copyOtp(){
     const code=$('otpCode').textContent.trim();
     if(!/^\d+$/.test(code))return;
-    try{await navigator.clipboard.writeText(code);$('copyBtn').textContent='Copiado ✅';setTimeout(()=>$('copyBtn').textContent='Copiar código',1300)}
-    catch(e){alert('No se pudo copiar automáticamente. Mantén presionado el código y cópialo manualmente.')}
+    let copied=false;
+    try{
+      await navigator.clipboard.writeText(code);
+      copied=true;
+    }catch(error){
+      try{
+        const range=document.createRange();
+        range.selectNodeContents($('otpCode'));
+        const selection=window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        copied=document.execCommand('copy');
+        selection.removeAllRanges();
+      }catch(_){copied=false}
+    }
+    $('copyBtn').textContent=copied?'Copiado ✅':'Selecciona el número y cópialo';
+    if(copyResetId)clearTimeout(copyResetId);
+    copyResetId=setTimeout(()=>{$('copyBtn').textContent='Copiar código';copyResetId=null},1600);
   }
 
-  $('useCodeBtn').addEventListener('click',redeemAccessCode);
-  $('accessInput').addEventListener('keydown',e=>{if(e.key==='Enter')redeemAccessCode()});
+  $('accessForm').addEventListener('submit',redeemAccessCode);
+  $('accessInput').addEventListener('input',event=>{
+    const clean=normalizeCode(event.target.value).replace(/[^A-Z0-9-]/g,'').slice(0,32);
+    if(event.target.value!==clean)event.target.value=clean;
+    hideMsg();
+  });
   $('clearBtn').addEventListener('click',()=>{$('accessInput').value='';$('accessInput').focus();hideMsg()});
   $('copyBtn').addEventListener('click',copyOtp);
   $('otpCode').addEventListener('click',copyOtp);
@@ -1047,14 +1198,36 @@
   /* Al volver a la pestaña se corrige cualquier deriva acumulada. */
   document.addEventListener('visibilitychange',()=>{
     if(document.visibilityState==='visible'&&activeAccount){
-      syncSecureClock(true).catch(error=>console.warn('No se pudo resincronizar:',error));
+      syncSecureClock(true).then(()=>{
+        if(otpWindowState(secureNowMs(),activeOtpRevealAtMs,activeOtpExpiresAtMs)==='expired')showThanksThenReset();
+      }).catch(error=>returnToFormWithError('No se pudo verificar la vigencia del código. Contacta a soporte antes de usar otro acceso.',error));
     }
   });
   window.addEventListener('online',()=>syncSecureClock(true).catch(()=>{}));
+  window.addEventListener('pagehide',()=>{
+    const hadActiveWindow=Boolean(activeOtpCode||activeAccount);
+    clearAllTimers();
+    activeAccount=null;
+    activeAccess=null;
+    activeOtpCode='';
+    activeOtpCounter=null;
+    activeOtpRevealAtMs=0;
+    activeOtpExpiresAtMs=0;
+    $('otpCode').textContent='------';
+    if(hadActiveWindow){
+      showScreen('screenForm');
+      showMsg('La sesión temporal se cerró al salir de la página. Usa otro acceso si aún necesitas un código.','info');
+    }
+  });
 
   const params=new URLSearchParams(location.search);
   const initial=params.get('code');
-  if(initial)$('accessInput').value=normalizeCode(initial);
+  if(initial){
+    $('accessInput').value=normalizeCode(initial).replace(/[^A-Z0-9-]/g,'').slice(0,32);
+    params.delete('code');
+    const cleanQuery=params.toString();
+    history.replaceState(null,'',location.pathname+(cleanQuery?'?'+cleanQuery:'')+location.hash);
+  }
 })();
 </script>
 </body>

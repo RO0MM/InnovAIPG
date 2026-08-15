@@ -17,9 +17,6 @@
 
   <!-- Libraries Stylesheet -->
 
-  <!-- Customized Bootstrap Stylesheet -->
-  <link href="css/style.css" rel="stylesheet" />
-
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"/>
   <title>Innov IA Admin — Tienda & Entregas</title>
@@ -137,7 +134,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: var(--bg-logo, url('./assets/logo.jpg'));
+  background-image: var(--bg-logo, url('./Diseño sin título.png'));
   background-position: center;
   background-size: cover;
   opacity: .04;
@@ -2022,7 +2019,6 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
     <button class="btn btn-ghost btn-icon" onclick="closeSidenav()" style="margin-left:auto" aria-label="Cerrar menú">✕</button>
   </div>
   <div class="g-title">Principal</div>
-  <button class="btn btn-ghost nav-btn-side" data-tab="dashboard" type="button">📊 Dashboard</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="products" type="button">🧩 Productos</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="inventory" type="button">📦 Cupos y entregas</button>
   <button class="btn btn-ghost nav-btn-side" data-tab="orders" type="button">🧾 Pagos y pedidos</button>
@@ -2081,10 +2077,9 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 
   <!-- Desktop tabs -->
   <nav class="admin-tabs desktop-only" role="tablist" aria-label="Secciones">
-    <button class="btn nav-btn" data-tab="dashboard" aria-pressed="true">📊 Dashboard</button>
     <button class="btn nav-btn" data-tab="products">🧩 Productos</button>
     <button class="btn nav-btn" data-tab="inventory">📦 Cupos</button>
-    <button class="btn nav-btn" data-tab="orders">🧾 Pagos <span class="tab-badge" id="tbOrders" style="display:none">0</span></button>
+    <button class="btn nav-btn" data-tab="orders" aria-pressed="true">🧾 Pagos <span class="tab-badge" id="tbOrders" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="reminders">🔔 Recordatorios <span class="tab-badge" id="tbReminders" style="display:none">0</span></button>
     <button class="btn nav-btn" data-tab="totp">🛡️ Accesos TOTP</button>
     <button class="btn nav-btn" data-tab="templates">📝 Plantillas</button>
@@ -2094,11 +2089,6 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 
   <main id="main">
     <div class="container">
-
-      <!-- Dashboard V5: aislado. Ningún bloque del dashboard existe fuera de esta sección. -->
-      <section id="tab-dashboard" class="admin-section active">
-        <div class="pbi5" id="pbi5Dashboard" aria-live="polite"></div>
-      </section>
 
       <!-- Productos -->
       <section id="tab-products" class="admin-section">
@@ -2121,7 +2111,6 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
           <div class="actions">
             <button class="btn btn-primary" id="btnNewPlan" type="button">＋ Plan</button>
             <button class="btn btn-success" id="btnOpsAddAccount" type="button">＋ Cuenta</button>
-            <button class="btn" id="btnOpsBulk" type="button">Lote</button>
             <button class="btn" id="btnReload3" type="button">↻</button>
             <button class="btn chip" id="btnOnlyEmpty" type="button" aria-pressed="false">Sin cupos</button>
           </div>
@@ -2130,7 +2119,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
       </section>
 
       <!-- Pedidos -->
-      <section id="tab-orders" class="admin-section">
+      <section id="tab-orders" class="admin-section active">
         <div class="admin-toolbar">
           <div class="input-wrap"><input class="input" id="orderSearch" type="search" placeholder="🔍 Buscar pedido, nombre, WhatsApp..."></div>
           <div class="actions">
@@ -2177,6 +2166,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
           <div class="input-wrap"><input class="input" id="reminderSearch" type="search" placeholder="🔍 Buscar cliente o servicio..."></div>
           <div class="actions">
             <button class="btn btn-primary" id="btnNewReminder" type="button">＋</button>
+            <button class="btn" id="btnReminderCalendar" type="button">📅 Calendario</button>
             <button class="btn chip" id="btnOnlyDue" type="button" aria-pressed="false">Vencidos</button>
             <button class="btn chip" id="btnOnlyPending" type="button" aria-pressed="false">Para avisar</button>
           </div>
@@ -2248,14 +2238,14 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
             <button class="btn btn-success" id="btnCreateDeliveryBases" type="button">Crear bases entrega</button>
           </div>
         </div>
-        <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
-          <strong>📝 Variables disponibles</strong>
-          <p class="help" style="margin:6px 0 0;line-height:1.8">
-            <div class="sync-note" style="margin-bottom:10px"><b>Uso actual:</b> al tocar WhatsApp, el recordatorio se regenera con la plantilla principal vigente y reemplaza el mensaje antiguo guardado.</div>
-            <strong>Pago:</strong> <span class="mono">{cliente}</span> <span class="mono">{servicio}</span> <span class="mono">{monto}</span> <span class="mono">{vence}</span> <span class="mono">{dias}</span> <span class="mono">{pedido}</span> <span class="mono">{telefono}</span> <span class="mono">{yape}</span> <span class="mono">{tienda}</span> <span class="mono">{cuenta_vinculada}</span><br>
-            <strong>Entrega:</strong> <span class="mono">{pedido}</span> <span class="mono">{producto}</span> <span class="mono">{correo}</span> <span class="mono">{contraseña}</span> <span class="mono">{perfil}</span> <span class="mono">{pin}</span> <span class="mono">{grupo}</span> <span class="mono">{url}</span> <span class="mono">{codigo}</span> <span class="mono">{fecha_inicio}</span> <span class="mono">{restricciones}</span>
-          </p>
-        </div>
+        <details class="template-vars-card">
+          <summary><span>📝 Variables disponibles</span><span class="help">Abrir guía</span></summary>
+          <div class="template-vars-body">
+            <div class="template-vars-note"><b>Uso actual:</b> al tocar WhatsApp, el mensaje se regenera con la plantilla principal vigente.</div>
+            <div class="template-vars-row"><strong>Pago</strong><div class="template-vars-chips"><span>{cliente}</span><span>{servicio}</span><span>{monto}</span><span>{vence}</span><span>{dias}</span><span>{pedido}</span><span>{telefono}</span><span>{yape}</span><span>{tienda}</span><span>{cuenta_vinculada}</span></div></div>
+            <div class="template-vars-row"><strong>Entrega</strong><div class="template-vars-chips"><span>{pedido}</span><span>{producto}</span><span>{correo}</span><span>{contraseña}</span><span>{perfil}</span><span>{pin}</span><span>{grupo}</span><span>{url}</span><span>{codigo}</span><span>{fecha_inicio}</span><span>{restricciones}</span></div></div>
+          </div>
+        </details>
         <h3 style="margin:12px 0 8px;font-size:.95rem">💬 Plantillas de pago / recordatorio</h3>
         <div class="mini-grid" id="templatesGrid"></div>
         <h3 style="margin:18px 0 8px;font-size:.95rem">📦 Plantillas de entrega</h3>
@@ -2299,7 +2289,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
             <label class="subtle">Número Yape</label>
             <input class="input" id="setYape" placeholder="991564053" style="margin-bottom:8px">
             <label class="subtle">URL QR</label>
-            <input class="input" id="setQr" placeholder="img/yape-qr.png o https://..." style="margin-bottom:8px">
+            <input class="input" id="setQr" placeholder="qr-pending.svg o https://..." style="margin-bottom:8px">
             <label class="subtle">Grupo WhatsApp general</label>
             <input class="input" id="setWaGroup" placeholder="https://chat.whatsapp.com/..." style="margin-bottom:8px">
             <p class="help" style="margin:0 0 8px">Este link se usa automáticamente en plantillas con {grupo}, {{grupo}}, {url_grupo} o {{url_grupo}}. Si cambias el grupo aquí, todos los nuevos envíos usarán el link actualizado.</p>
@@ -2309,7 +2299,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
               <button class="btn" id="btnUploadQr" type="button">📤 Subir QR</button>
               <button class="btn btn-primary" id="btnSavePayment" type="button">Guardar pago</button>
             </div>
-            <img id="qrPreview" style="margin-top:14px;max-width:180px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:8px;display:block" src="img/yape-qr.png" alt="QR Yape">
+            <img id="qrPreview" style="margin-top:14px;max-width:180px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:8px;display:block" src="qr-pending.svg" alt="QR Yape">
           </div>
           <div class="card" id="storeSocialSettingsCard">
             <strong style="display:block;margin-bottom:6px">📣 Redes y contacto de la tienda</strong>
@@ -2377,10 +2367,9 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 <!-- Bottom navigation (mobile) -->
 <nav class="bottom-bar" aria-label="Navegación">
   <div class="bottom-actions">
-    <button class="btn active" data-tab="dashboard" type="button"><span class="ico">📊</span><span>Inicio</span></button>
     <button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Prod.</span></button>
     <button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Stock</span></button>
-    <button class="btn" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pedidos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
+    <button class="btn active" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pedidos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
     <button class="btn" data-tab="reminders" type="button"><span class="ico">🔔</span><span>Record.</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
     <button class="btn" id="btnMobileMore" type="button" onclick="openSidenav()"><span class="ico">☰</span><span>Más</span></button>
   </div>
@@ -2622,7 +2611,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
     <input type="hidden" id="cId">
     <div class="grid grid-2">
       <div><label class="subtle">Nombre *</label><input class="input" id="cName" required placeholder="Nombre completo"></div>
-      <div><label class="subtle">WhatsApp / celular *</label><input class="input" id="cPhone" placeholder="991564053 o +51991564053" required></div>
+      <div><label class="subtle">WhatsApp o usuario *</label><input class="input" id="cPhone" placeholder="991564053, +51991564053 o @usuario" required></div>
       <div><label class="subtle">Correo Gmail / correo opcional</label><input class="input" id="cEmail" type="email" placeholder="cliente@gmail.com"></div>
       <div><label class="subtle">Origen</label><input class="input" id="cSource" placeholder="checkout, manual, entrega..."></div>
       <div class="full"><label class="subtle">Grupo familiar vinculado</label><input class="input" id="cFamilyAdmin" type="email" placeholder="correo administrador del grupo familiar"><p class="help" style="margin-top:6px">Ejemplo: el Gmail del cliente quedó agregado al grupo de este administrador.</p></div>
@@ -2720,7 +2709,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
         <b>Registro manual de recordatorio:</b> crea o actualiza al cliente y guarda solo el cobro. No ocupa ni libera cupos. Para entregar un servicio con cuenta, perfil o cupo usa <b>Entregar</b>.
       </div>
       <div><label class="subtle">Nombre cliente *</label><input class="input" id="rCustomerName" placeholder="Nombre del cliente" required></div>
-      <div><label class="subtle">WhatsApp / celular *</label><input class="input" id="rCustomerPhone" placeholder="991564053 o +51991564053" required></div>
+      <div><label class="subtle">WhatsApp o usuario *</label><input class="input" id="rCustomerPhone" placeholder="991564053, +51991564053 o @usuario" required></div>
       <div><label class="subtle">Correo opcional</label><input class="input" id="rCustomerEmail" type="email" placeholder="cliente@correo.com"></div>
       <div><label class="subtle">Servicio / concepto *</label><input class="input" id="rService" placeholder="Netflix, ChatGPT, Gemini Pro..." required><div class="form-mini-help">Al escribir Netflix, ChatGPT, Gemini, Canva, etc. se intenta seleccionar el producto/plan automáticamente. Puedes volver a “Sin producto específico”.</div></div>
       <div><label class="subtle">Producto</label><select class="input" id="rProduct"></select></div>
@@ -2828,7 +2817,7 @@ Perfil 2|5678"></textarea><p class="help" style="margin-top:6px">Para streaming:
     <div class="sync-note" style="margin-bottom:10px">La cuenta, contraseña, perfil, PIN, grupo y código Access TOTP se toman automáticamente de la cuenta seleccionada y de la plantilla de entrega.</div>
     <div class="grid grid-2">
       <div><label class="subtle">Nombre cliente *</label><input class="input" id="opsDeliverName" placeholder="Cliente"></div>
-      <div><label class="subtle">WhatsApp *</label><input class="input" id="opsDeliverPhone" placeholder="991564053"></div>
+      <div><label class="subtle">WhatsApp o usuario *</label><input class="input" id="opsDeliverPhone" placeholder="991564053, +51991564053 o @usuario"></div>
       <div class="full hidden" id="opsDeliverFamilyBox"><label class="subtle">Correo Gmail del cliente para invitación</label><input class="input" id="opsDeliverClientEmail" type="email" placeholder="correo.gmail.del.cliente@gmail.com"><p class="help" style="margin-top:6px">Quedará guardado en el cliente y vinculado al correo administrador del grupo familiar.</p></div>
       <div class="hidden"><input class="input" id="opsDeliverService"></div>
       <div class="hidden"><input class="input" id="opsDeliverAmount" type="number" step="0.01"></div>
@@ -3143,7 +3132,7 @@ let state={
   coupons:[],settings:[],summary:[],customers:[],reminders:[],templates:[],
   deliveryTemplates:[],orderInputs:[],orderChats:[],
   totpAccounts:[],totpCodes:[],totpEvents:[],totpView:'codes',totpDbError:null,
-  tab:'dashboard',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyDueClients:false,onlyPending:false,reminderSelectionMode:false,selectedReminderIds:new Set(),reminderLongPressTimer:null
+  tab:'orders',onlyEmpty:false,onlyReview:false,onlyManual:false,onlySupport:false,onlyDue:false,onlyDueClients:false,onlyPending:false,reminderSelectionMode:false,selectedReminderIds:new Set(),reminderLongPressTimer:null
 };
 
 /* ---- Utilities ---- */
@@ -3240,7 +3229,123 @@ function reminderEffectiveDaysLeft(due){
 }
 function isOverdue(date){const n=reminderEffectiveDaysLeft(date);return Number.isFinite(Number(n))&&Number(n)<0}
 function reminderMessage(customer,reminder){return buildTemplateMessage(getDefaultTemplate(),customer,reminder)}
-function waLink(phone,msg){const digits=whatsappDigits(phone);return digits?`https://wa.me/${digits}?text=${encodeURIComponent(msg||'')}`:'#'}
+function basicWhatsAppUrl(contact,msg){
+  const info=whatsappContactInfo(contact);
+  if(!info.ok)return'#';
+  const target=info.kind==='username'
+    ? '@'+encodeURIComponent(info.username.replace(/^@/,''))
+    : whatsappDigits(info.value);
+  return target?`https://wa.me/${target}?text=${encodeURIComponent(msg||'')}`:'#';
+}
+function waLink(contact,msg){return basicWhatsAppUrl(contact,msg)}
+function cleanWhatsAppUsername(value){
+  const raw=String(value||'').trim().replace(/\s+/g,'');
+  if(!raw)return'';
+  const bare=raw.replace(/^@+/,'');
+  return bare?`@${bare}`:'';
+}
+function whatsappContactInfo(value){
+  const raw=String(value||'').trim();
+  if(!raw)return {ok:false,kind:'empty',value:'',username:'',phone:null,error:'Ingresa el WhatsApp o usuario'};
+  const usernameLike=raw.startsWith('@')||/[A-Za-z_]/.test(raw);
+  if(usernameLike){
+    const username=cleanWhatsAppUsername(raw);
+    return username
+      ? {ok:true,kind:'username',value:username,username,phone:null}
+      : {ok:false,kind:'username',value:'',username:'',phone:null,error:'Usuario de WhatsApp inválido'};
+  }
+  const phone=normalizePhone(raw);
+  return phone.ok
+    ? {ok:true,kind:'phone',value:phone.e164,username:'',phone}
+    : {ok:false,kind:'phone',value:raw,username:'',phone,error:phone.error||'WhatsApp inválido'};
+}
+function customerWhatsAppUsername(c){
+  const direct=whatsappContactInfo(c?.whatsapp_contact||'');
+  if(direct.ok&&direct.kind==='username')return direct.username;
+  const legacy=whatsappContactInfo(c?.phone_e164||c?.phone_raw||c?.customer_whatsapp||'');
+  if(legacy.ok&&legacy.kind==='username')return legacy.username;
+  const meta=customerMeta(c);
+  return cleanWhatsAppUsername(meta.whatsapp_username||meta.whatsapp_user||c?.whatsapp_username||c?.whatsapp_user||'');
+}
+function customerWhatsAppNumber(c){
+  const direct=whatsappContactInfo(c?.whatsapp_contact||'');
+  if(direct.ok&&direct.kind==='phone')return direct.value;
+  const legacy=String(c?.phone_e164||c?.phone_raw||c?.customer_whatsapp||'').trim();
+  const info=whatsappContactInfo(legacy);
+  return info.ok&&info.kind==='phone'?info.value:'';
+}
+function customerWhatsAppContact(c){
+  const direct=whatsappContactInfo(c?.whatsapp_contact||'');
+  if(direct.ok)return direct.value;
+  return customerWhatsAppUsername(c)||customerWhatsAppNumber(c)||'';
+}
+function customerWhatsAppLabel(c,fallback='Sin WhatsApp'){
+  return customerWhatsAppContact(c)||fallback;
+}
+function customerWhatsAppSearch(c){
+  const user=customerWhatsAppUsername(c);
+  const bare=user.replace(/^@/,'');
+  const phone=customerWhatsAppNumber(c);
+  return [user,bare,phone].filter(Boolean).join(' ');
+}
+function mergeCustomerWhatsAppMeta(meta={},username=''){
+  const next={...(meta||{})};
+  delete next.whatsapp_username;
+  delete next.whatsapp_user;
+  const cleaned=cleanWhatsAppUsername(username);
+  if(cleaned)next.whatsapp_username=cleaned;
+  return next;
+}
+function sameWhatsAppContact(left,right){
+  const a=whatsappContactInfo(left),b=whatsappContactInfo(right);
+  if(!a.ok||!b.ok||a.kind!==b.kind)return false;
+  return a.kind==='username'
+    ? a.value.toLowerCase()===b.value.toLowerCase()
+    : whatsappDigits(a.value)===whatsappDigits(b.value);
+}
+function findCustomerByWhatsApp(value){
+  const wanted=whatsappContactInfo(value);
+  if(!wanted.ok)return null;
+  return (state.customers||[]).find(c=>sameWhatsAppContact(customerWhatsAppContact(c),wanted.value))||null;
+}
+function orderWhatsAppLabel(order){
+  const linked=findCustomerByWhatsApp(order?.customer_whatsapp||'');
+  return customerWhatsAppLabel(linked||order, String(order?.customer_whatsapp||'').trim()||'Sin WhatsApp');
+}
+async function upsertCustomerWhatsAppIdentity(data={}){
+  const rawContact=String(data.contact||data.whatsapp_contact||data.username||data.phone_raw||data.phone_e164||data.phone||'').trim();
+  const contact=whatsappContactInfo(rawContact);
+  if(!contact.ok)return null;
+  const existingByContact=findCustomerByWhatsApp(contact.value);
+  const existing=data.customerId?(state.customers||[]).find(c=>c.id===data.customerId)||existingByContact:existingByContact;
+  const meta=mergeCustomerWhatsAppMeta(customerMeta(existing),contact.username);
+  const cleanNotes=stripCustomerMetaNotes(data.notes||existing?.notes||'');
+  const payload={
+    name:String(data.name||existing?.name||'Cliente').trim()||'Cliente',
+    whatsapp_contact:contact.value,
+    phone_raw:contact.kind==='phone'?rawContact:contact.value,
+    phone_e164:contact.value,
+    email:String(data.email||existing?.email||'').trim()||null,
+    source:String(data.source||existing?.source||'manual').trim()||'manual',
+    notes:notesWithCustomerMeta(cleanNotes,meta)
+  };
+  const targetId=data.customerId||existing?.id||'';
+  const response=targetId
+    ? await db.from('crm_customers').update(payload).eq('id',targetId).select().single()
+    : await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
+  if(response.error)throw response.error;
+  return response.data||null;
+}
+window.customerWhatsAppUsername=customerWhatsAppUsername;
+window.customerWhatsAppNumber=customerWhatsAppNumber;
+window.customerWhatsAppContact=customerWhatsAppContact;
+window.customerWhatsAppLabel=customerWhatsAppLabel;
+window.cleanWhatsAppUsername=cleanWhatsAppUsername;
+window.whatsappContactInfo=whatsappContactInfo;
+window.sameWhatsAppContact=sameWhatsAppContact;
+window.basicWhatsAppUrl=basicWhatsAppUrl;
+window.orderWhatsAppLabel=orderWhatsAppLabel;
+window.upsertCustomerWhatsAppIdentity=upsertCustomerWhatsAppIdentity;
 function displayDateFromInput(v){if(!v)return'';const [y,m,d]=String(v).slice(0,10).split('-');return y&&m&&d?`${d}/${m}/${y}`:String(v)}
 function saludoSegunHora(date=new Date()){
   const h=date.getHours();
@@ -3347,6 +3452,9 @@ function buildTemplateMessage(template,customer,reminder){
   const productName=reminder?.product_id?prodName(reminder.product_id):(reminder?.plan_id?prodName(plan(reminder.plan_id)?.product_id):'');
   const planLabel=reminder?.plan_id?(plan(reminder.plan_id)?.name||planName(reminder.plan_id)):'';
   const due=reminder?.due_date||'';
+  const whatsappUser=customerWhatsAppUsername(customer);
+  const whatsappNumber=customerWhatsAppNumber(customer);
+  const whatsappLabel=customerWhatsAppLabel(customer,'');
   const vars={
     saludo:saludoSegunHora(),
     nombre:customer?.name||'cliente',
@@ -3364,7 +3472,10 @@ function buildTemplateMessage(template,customer,reminder){
     correo_activado:customer?.email||reminder?.correo_activado||'',
     dias:days===''?'':String(days),
     pedido:reminder?.order_id||'',
-    telefono:customer?.phone_e164||customer?.phone_raw||'',
+    telefono:whatsappLabel,
+    whatsapp:whatsappLabel,
+    whatsapp_usuario:whatsappUser,
+    whatsapp_numero:whatsappNumber,
     yape:pay.yape_number||'991564053',
     grupo:pay.whatsapp_group_url||pay.grupo_whatsapp||'',
     url_grupo:pay.whatsapp_group_url||pay.grupo_whatsapp||'',
@@ -3441,21 +3552,53 @@ function renderDeliveryMessage(){
 
 
 /* ---- Auth ---- */
+async function hasAdminAccess(session){
+  const user=session?.user;
+  if(!user?.id)return false;
+  const rpcCheck=await db.rpc('is_innov_admin');
+  if(!rpcCheck.error)return rpcCheck.data===true;
+  const directCheck=await db.from('admin_users')
+    .select('id')
+    .eq('user_id',user.id)
+    .eq('active',true)
+    .maybeSingle();
+  return !directCheck.error&&!!directCheck.data;
+}
 async function login(){
   const btn=$('btnLogin');
+  const email=$('loginEmail').value.trim();
+  const password=$('loginPass').value;
+  if(!email||!password)return toast('Escribe tu correo y contraseña.','bad');
   btn.disabled=true;btn.textContent='Entrando...';
-  const r=await db.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPass').value});
-  btn.disabled=false;btn.textContent='🔐 Entrar';
-  if(r.error)return toast(r.error.message,'bad');
-  $('auth').classList.add('hidden');
-  $('app').classList.remove('hidden');
-  await loadAll();
+  try{
+    const r=await db.auth.signInWithPassword({email,password});
+    if(r.error)throw r.error;
+    if(!await hasAdminAccess(r.data.session)){
+      await db.auth.signOut();
+      return toast('Esta cuenta no está habilitada en admin_users.','bad');
+    }
+    $('auth').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    await loadAll();
+  }catch(error){
+    toast(error?.message||'No se pudo iniciar sesión.','bad');
+  }finally{
+    btn.disabled=false;btn.textContent='🔐 Entrar';
+  }
 }
 async function init(){
-  const r=await db.auth.getSession();
-  if(r.data.session){
-    $('auth').classList.add('hidden');$('app').classList.remove('hidden');
-    await loadAll();
+  try{
+    const r=await db.auth.getSession();
+    if(r.data.session&&await hasAdminAccess(r.data.session)){
+      $('auth').classList.add('hidden');$('app').classList.remove('hidden');
+      await loadAll();
+    }else if(r.data.session){
+      await db.auth.signOut();
+      toast('La sesión no tiene acceso de administrador.','bad');
+    }
+  }catch(error){
+    console.warn('No se pudo validar la sesión administrativa',error);
+    toast('No se pudo validar la sesión. Revisa tu conexión.','bad');
   }
 }
 async function logout(){await db.auth.signOut();location.reload()}
@@ -3528,7 +3671,7 @@ function fillProductSelects(){
   fillReminderSelects();
 }
 function fillReminderSelects(){
-  if($('rCustomer') && $('rCustomer').tagName==='SELECT')$('rCustomer').innerHTML=state.customers.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.phone_e164||'')}</option>`).join('')||'<option value="">Sin clientes</option>';
+  if($('rCustomer') && $('rCustomer').tagName==='SELECT')$('rCustomer').innerHTML=state.customers.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(customerWhatsAppLabel(c,''))}</option>`).join('')||'<option value="">Sin clientes</option>';
   if($('rProduct'))$('rProduct').innerHTML='<option value="">Sin producto específico</option>'+state.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   if($('rPlan'))$('rPlan').innerHTML='<option value="">Sin plan específico</option>'+state.plans.map(p=>`<option value="${p.id}">${esc(prodName(p.product_id))} — ${esc(p.name)}${p.period?' · '+esc(p.period):''}</option>`).join('');
   if($('rTemplate'))$('rTemplate').innerHTML=state.templates.filter(t=>t.active!==false).map(t=>`<option value="${t.id}">${esc(t.name)}${t.is_default?' · principal':''}</option>`).join('')||'<option value="">Plantilla base</option>';
@@ -3686,7 +3829,7 @@ function renderProducts(){
     return `<div class="mini-card">
       <div class="mini-head">
         <div><b>${esc(p.name)}</b><div class="help">${esc(p.category||'otros')} · ${esc(p.sale_mode||'retail')}</div></div>
-        <img class="thumb" src="${esc(p.image_url||'img/placeholder.jpg')}" onerror="this.src='img/placeholder.jpg'" loading="lazy">
+        <img class="thumb" src="${esc(p.image_url||'brand-placeholder.svg')}" onerror="this.src='brand-placeholder.svg'" loading="lazy">
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
         <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
@@ -3760,7 +3903,7 @@ function homeShowcaseSelectOptions(selected=''){
 function homeShowcaseProductCard(p,selected,attr){
   const plans=(state.plans||[]).filter(x=>x.product_id===p.id);
   const meta=[p.category||'otros',`${plans.length} plan${plans.length===1?'':'es'}`,p.video_url?'video listo':'logo / imagen'].join(' · ');
-  return `<label class="home-showcase-product ${selected.has(String(p.id))?'is-selected':''}"><img class="thumb" src="${esc(p.image_url||'img/placeholder.jpg')}" onerror="this.onerror=null;this.src='img/placeholder.jpg'" alt="" loading="lazy"><span class="home-showcase-name"><b>${esc(p.name)}</b><span>${esc(meta)}</span></span><input class="home-showcase-check" type="checkbox" value="${esc(p.id)}" ${attr} ${selected.has(String(p.id))?'checked':''} aria-label="Seleccionar ${esc(p.name)}"></label>`;
+  return `<label class="home-showcase-product ${selected.has(String(p.id))?'is-selected':''}"><img class="thumb" src="${esc(p.image_url||'brand-placeholder.svg')}" onerror="this.onerror=null;this.src='brand-placeholder.svg'" alt="" loading="lazy"><span class="home-showcase-name"><b>${esc(p.name)}</b><span>${esc(meta)}</span></span><input class="home-showcase-check" type="checkbox" value="${esc(p.id)}" ${attr} ${selected.has(String(p.id))?'checked':''} aria-label="Seleccionar ${esc(p.name)}"></label>`;
 }
 function homeShowcaseFillPromo(id,value){
   const option=homeShowcaseSelectOptions(value);
@@ -3977,7 +4120,10 @@ function orderSectionTitle(key,count){
 }
 function renderOrders(){
   const q=($('orderSearch')?.value||'').toLowerCase();
-  let arr=state.orders.filter(o=>(`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''}`).toLowerCase().includes(q));
+  let arr=state.orders.filter(o=>{
+    const wa=orderWhatsAppLabel(o);
+    return (`${o.order_code||''} ${o.customer_name||''} ${o.customer_whatsapp||''} ${wa}`).toLowerCase().includes(q);
+  });
   if(state.onlyReview)arr=arr.filter(o=>['pending_payment','payment_review'].includes(orderStatusValue(o)));
   if(state.onlyManual)arr=arr.filter(o=>['waiting_manual_delivery','partial'].includes(orderDeliveryValue(o)));
   if(state.onlySupport)arr=arr.filter(o=>state.orderChats.some(m=>m.order_id===o.id));
@@ -4004,7 +4150,7 @@ function renderOrders(){
       const extra=inp?.requirement_summary?`<div class="order-extra"><b>📌 Datos:</b> ${esc(inp.requirement_summary)}</div>`:'';
       const chatPreview=lastChat?`<div class="order-chat-preview"><b>💬 Último:</b> ${esc(lastChat.sender_role)} — ${esc(lastChat.message)}</div>`:'';
       return `<div class="order-row ${rowCls}">
-        <div class="order-main"><div class="order-title">${esc(o.order_code||'Pedido')}</div><div class="order-sub">${esc(o.customer_name||'Sin cliente')} · ${esc(o.customer_whatsapp||'Sin WhatsApp')}</div></div>
+        <div class="order-main"><div class="order-title">${esc(o.order_code||'Pedido')}</div><div class="order-sub">${esc(o.customer_name||'Sin cliente')} · ${esc(orderWhatsAppLabel(o))}</div></div>
         <div class="order-meta-line"><span class="badge ${orderStatusClass(o)}">${esc(orderStatusLabel(o))}</span><span class="badge">${money(o.total)}</span>${chats.length?`<span class="badge b-warn">💬 ${chats.length}</span>`:''}<span class="badge b-purple">${esc(o.delivery_status||'sin entrega')}</span></div>
         <div class="order-meta-line"><span class="pill due0">${o.created_at?esc(new Date(o.created_at).toLocaleString('es-PE')):'—'}</span><span class="help">${items||'Sin items'} · Op: <span class="mono">${esc(pr?.operation_code||'pendiente')}</span> · Entregas: ${del}</span>${extra}${chatPreview}</div>
         <div class="order-actions">
@@ -4028,7 +4174,7 @@ function renderClients(){
   const q=($('clientSearch')?.value||'').toLowerCase();
   let data=state.customers.filter(c=>{
     const rem=state.reminders.filter(r=>r.customer_id===c.id);
-    const blob=`${c.name||''} ${c.phone_e164||''} ${c.email||''} ${stripCustomerMetaNotes(c.notes||'')} ${customerFamilyAdmin(c)} ${customerGmail(c)} ${rem.map(r=>r.service_name+' '+reminderStatusLabel(r)+' '+(r.status||'')+' '+r.due_date).join(' ')}`.toLowerCase();
+    const blob=`${c.name||''} ${customerWhatsAppSearch(c)} ${c.email||''} ${stripCustomerMetaNotes(c.notes||'')} ${customerFamilyAdmin(c)} ${customerGmail(c)} ${rem.map(r=>r.service_name+' '+reminderStatusLabel(r)+' '+(r.status||'')+' '+r.due_date).join(' ')}`.toLowerCase();
     return blob.includes(q);
   });
   if(state.onlyDueClients){
@@ -4049,8 +4195,9 @@ function renderClients(){
     const familyAdmin=customerFamilyAdmin(c);
     const familyBadge=familyAdmin?`<span class="badge b-purple">👨‍👩‍👧 ${esc(familyAdmin)}</span>`:'';
     const actionTxt=next?reminderWhatsAppButtonLabel(next):'WhatsApp';
+    const waUser=customerWhatsAppUsername(c);
     return `<div class="crm-row ${cls}">
-      <div class="crm-main"><div class="crm-title">${due?'🚨 ':''}${esc(c.name||'Sin nombre')}</div><div class="crm-sub">${esc(c.phone_e164||'Sin WhatsApp')}${c.email?' · '+esc(c.email):''}${familyAdmin?' · Grupo: '+esc(familyAdmin):''}</div></div>
+      <div class="crm-main"><div class="crm-title">${due?'🚨 ':''}${esc(c.name||'Sin nombre')}</div><div class="crm-sub">${esc(customerWhatsAppLabel(c))}${c.email?' · '+esc(c.email):''}${familyAdmin?' · Grupo: '+esc(familyAdmin):''}</div></div>
       <div class="crm-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${reoffer?`<span class="badge b-reof">Reofrecer ${reoffer}</span>`:''}${waBadge}${familyBadge}<span class="badge">Total ${rem.length}</span><span class="badge">${esc(source)}</span></div>
       <div class="crm-meta-line"><span class="pill ${next?reminderPillClass(next):'duepos'}">📅 ${next?.due_date||'Sin deuda'}${next&&reminderDayText(next)?' · '+esc(reminderDayText(next)):''}</span></div>
       <div class="crm-actions">
@@ -4198,7 +4345,7 @@ function reminderRowsHtml(data,limit=0){
     const selected=state.selectedReminderIds?.has(r.id);
     const selCls=(state.reminderSelectionMode?' selection-mode':'')+(selected?' rem-selected':'');
     return `<div class="reminder-row ${cls}${selCls}" data-reminder-id="${esc(r.id)}" onclick="handleReminderRowClick(event,'${r.id}')" ondblclick="startReminderSelection('${r.id}')" onpointerdown="reminderPressStart(event,'${r.id}')" onpointerup="reminderPressEnd()" onpointerleave="reminderPressEnd()">
-      <div class="rem-main"><div class="rem-title"><span class="reminder-check">${selected?'✓':''}</span>${overdue?'🚨 ':dueToday?'⏰ ':''}${esc(r.service_name||'Sin servicio')}</div><div class="rem-sub">${esc(c.name||'Sin cliente')} · ${esc(c.phone_e164||'Sin WhatsApp')}</div></div>
+      <div class="rem-main"><div class="rem-title"><span class="reminder-check">${selected?'✓':''}</span>${overdue?'🚨 ':dueToday?'⏰ ':''}${esc(r.service_name||'Sin servicio')}</div><div class="rem-sub">${esc(c.name||'Sin cliente')} · ${esc(customerWhatsAppLabel(c))}</div></div>
       <div class="rem-meta-line"><span class="badge ${statusCls}">${esc(statusTxt)}</span>${wa}${famBadge}<span class="badge b-purple">${esc(source)}</span><span class="badge">${money(r.amount)}</span></div>
       <div class="rem-meta-line"><span class="pill ${reminderPillClass(r)}">📅 ${r.due_date||'—'}${days?' · '+esc(days):''}</span></div>
       <div class="rem-actions">
@@ -4398,7 +4545,7 @@ function renderReminders(){
   const q=searchVal;
   let data=state.reminders.filter(r=>{
     const c=state.customers.find(x=>x.id===r.customer_id)||{};
-    return(`${r.service_name||''} ${c.name||''} ${c.phone_e164||''} ${c.email||''} ${customerFamilyAdmin(c)} ${customerGmail(c)} ${r.status||''} ${r.order_id||''} ${reminderCode(r)} ${reminderStatusLabel(r)} ${reminderWhatsAppLabel(r)}`).toLowerCase().includes(q);
+    return(`${r.service_name||''} ${c.name||''} ${customerWhatsAppSearch(c)} ${c.email||''} ${customerFamilyAdmin(c)} ${customerGmail(c)} ${r.status||''} ${r.order_id||''} ${reminderCode(r)} ${reminderStatusLabel(r)} ${reminderWhatsAppLabel(r)}`).toLowerCase().includes(q);
   });
   if(state.onlyDue||state.onlyDueClients)data=data.filter(reminderIsExpired);
   if(state.onlyPending)data=data.filter(reminderNeedsAction);
@@ -4409,10 +4556,10 @@ function renderReminders(){
 }
 function showClientHistory(id){
   const c=state.customers.find(x=>x.id===id);if(!c)return;
-  const phoneDigits=whatsappDigits(c.phone_e164||c.phone_raw||'');
+  const whatsappContact=customerWhatsAppContact(c);
   const rem=state.reminders.filter(r=>r.customer_id===id).sort((a,b)=>String(b.due_date||'').localeCompare(String(a.due_date||'')));
   const orderIds=new Set(rem.map(r=>r.order_id).filter(Boolean));
-  const orders=state.orders.filter(o=>orderIds.has(o.id)||whatsappDigits(o.customer_whatsapp||'')===phoneDigits);
+  const orders=state.orders.filter(o=>orderIds.has(o.id)||(whatsappContact&&sameWhatsAppContact(o.customer_whatsapp||'',whatsappContact)));
   const deliveries=state.deliveries.filter(d=>orderIds.has(d.order_id)||orders.some(o=>o.id===d.order_id)).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
   $('clientHistoryTitle').textContent='Historial · '+(c.name||'Cliente');
   const remHtml=rem.map(r=>{const acc=deliveryAccountInfoForReminder(r);return `<div class="history-item"><div class="top"><span>🔔 ${esc(r.service_name||'Servicio')}</span><span>${esc(reminderStatusLabel(r))}</span></div><div class="help">Vence: ${esc(r.due_date||'—')} · ${money(r.amount)}</div>${acc?`<div class="help">👤 Cuenta entregada: ${esc(acc)}</div>`:''}${r.whatsapp_message?`<pre>${esc(r.whatsapp_message)}</pre>`:''}</div>`}).join('');
@@ -4495,9 +4642,9 @@ async function saveAdminBehaviorSettings(){
 function renderSettings(){
   const pay=getPaymentSettings();
   $('setYape').value=pay.yape_number||'991564053';
-  $('setQr').value=pay.yape_qr_url||'img/yape-qr.png';
+  $('setQr').value=pay.yape_qr_url||'qr-pending.svg';
   if($('setWaGroup'))$('setWaGroup').value=pay.whatsapp_group_url||pay.grupo_whatsapp||'';
-  $('qrPreview').src=$('setQr').value||'img/yape-qr.png';
+  $('qrPreview').src=$('setQr').value||'qr-pending.svg';
   const cfg=getAdminBehaviorSettings();
   if($('setAutoOpenWaDue'))$('setAutoOpenWaDue').checked=!!cfg.autoOpenWaDue;
   if($('setNotifyDue'))$('setNotifyDue').checked=cfg.notifyDue!==false;
@@ -4788,9 +4935,10 @@ function openDeliveredOrderWhatsApp(orderId){
   const ds=state.deliveries.filter(d=>d.order_id===orderId).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
   const msg=(ds[0]?.delivered_message||ds[0]?.message||'').trim();
   if(!msg)return;
-  const phone=normalizePhone(o.customer_whatsapp||'');
-  if(!phone.ok)return toast('Entrega registrada, pero el WhatsApp del pedido no es válido','bad');
-  const url=waLink(phone.e164,msg);
+  const linked=findCustomerByWhatsApp(o.customer_whatsapp||'');
+  const contact=customerWhatsAppContact(linked)||o.customer_whatsapp||'';
+  const url=waLink(contact,msg);
+  if(url==='#')return toast('Entrega registrada, pero el WhatsApp o usuario no es válido','bad');
   if(url!=='#')window.open(url,'_blank','noopener,noreferrer');
   toast('WhatsApp abierto con la cuenta entregada','ok');
 }
@@ -4940,6 +5088,7 @@ async function sendAdminChat(){
   if(!id||!msg)return toast('Escribe un mensaje','bad');
   const r=await db.rpc('admin_send_order_message',{p_order_id:id,p_message:msg});
   if(r.error)return toast(r.error.message,'bad');
+  publishAdminChange('order_chat_messages','INSERT',{order_id:id});
   $('chatAdminInput').value='';await loadOrders();renderOrders();renderOrderChatThread(id);toast('Mensaje enviado','ok');
 }
 
@@ -5053,24 +5202,28 @@ function blankClient(){
 }
 function editClient(id){
   const c=state.customers.find(x=>x.id===id);if(!c)return;
-  $('cId').value=c.id;$('cName').value=c.name||'';$('cPhone').value=c.phone_e164||c.phone_raw||'';$('cEmail').value=c.email||'';$('cSource').value=c.source||'manual';$('cNotes').value=stripCustomerMetaNotes(c.notes||'');
+  $('cId').value=c.id;$('cName').value=c.name||'';$('cPhone').value=customerWhatsAppContact(c);$('cEmail').value=c.email||'';$('cSource').value=c.source||'manual';$('cNotes').value=stripCustomerMetaNotes(c.notes||'');
   if($('cFamilyAdmin'))$('cFamilyAdmin').value=customerFamilyAdmin(c)||'';
   if($('btnDeleteClient'))$('btnDeleteClient').style.display='inline-flex';$('clientDlgTitle').textContent='Editar cliente';showDialog('dlgClient');
 }
 async function saveClient(ev){
   ev.preventDefault();
-  const phone=normalizePhone($('cPhone').value);
-  if(!phone.ok)return toast(phone.error,'bad');
+  const rawContact=$('cPhone').value.trim();
+  const contact=whatsappContactInfo(rawContact);
+  if(!contact.ok)return toast(contact.error,'bad');
   const id=$('cId').value;
-  const existingByPhone=(state.customers||[]).find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
-  const existing=id?(state.customers||[]).find(c=>c.id===id):existingByPhone;
-  const meta={...customerMeta(existing),family_admin_email:($('cFamilyAdmin')?.value||'').trim()};
+  const existingByContact=findCustomerByWhatsApp(contact.value);
+  const existing=id?(state.customers||[]).find(c=>c.id===id):existingByContact;
+  let meta={...customerMeta(existing),family_admin_email:($('cFamilyAdmin')?.value||'').trim()};
+  meta=mergeCustomerWhatsAppMeta(meta,contact.username);
   if($('cEmail')?.value?.trim())meta.family_client_email=$('cEmail').value.trim();
-  const payload={name:$('cName').value.trim()||existing?.name||'Cliente',phone_raw:$('cPhone').value.trim(),phone_e164:phone.e164,email:$('cEmail').value.trim()||existing?.email||null,source:$('cSource').value.trim()||existing?.source||'manual',notes:notesWithCustomerMeta($('cNotes').value.trim(),meta)};
-  const targetId=id||existingByPhone?.id||'';
-  const r=targetId?await db.from('crm_customers').update(payload).eq('id',targetId):await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'});
+  const payload={name:$('cName').value.trim()||existing?.name||'Cliente',whatsapp_contact:contact.value,phone_raw:contact.kind==='phone'?rawContact:contact.value,phone_e164:contact.value,email:$('cEmail').value.trim()||existing?.email||null,source:$('cSource').value.trim()||existing?.source||'manual',notes:notesWithCustomerMeta($('cNotes').value.trim(),meta)};
+  const targetId=id||existingByContact?.id||'';
+  const r=targetId
+    ?await db.from('crm_customers').update(payload).eq('id',targetId).select().single()
+    :await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
   if(r.error)return toast(r.error.message,'bad');
-  closeDialog('dlgClient');toast(targetId?'Cliente modificado':'Cliente guardado','ok');await loadAll();switchTab('reminders');
+  closeDialog('dlgClient');toast(`${targetId?'Cliente modificado':'Cliente guardado'} en Supabase: ${contact.value}`,'ok');await loadAll();switchTab('reminders');
 }
 async function deleteClient(){
   const id=$('cId').value;if(!id)return;
@@ -5087,8 +5240,7 @@ function reminderCustomerFromFields(){
   return {
     id,
     name:($('rCustomerName')?.value||existing?.name||'').trim(),
-    phone_raw:($('rCustomerPhone')?.value||existing?.phone_raw||existing?.phone_e164||'').trim(),
-    phone_e164:($('rCustomerPhone')?.value||existing?.phone_e164||'').trim(),
+    whatsapp_contact:($('rCustomerPhone')?.value||customerWhatsAppContact(existing)||'').trim(),
     email:($('rCustomerEmail')?.value||existing?.email||'').trim()
   };
 }
@@ -5165,15 +5317,17 @@ function autoFillReminderFromService(force=false){
 }
 async function upsertReminderCustomerFromFields(){
   const data=reminderCustomerFromFields();
-  const phone=normalizePhone(data.phone_raw||data.phone_e164);
+  const contact=whatsappContactInfo(data.whatsapp_contact);
   if(!data.name)return {error:'Escribe el nombre del cliente'};
-  if(!phone.ok)return {error:phone.error||'WhatsApp inválido'};
-  const existingByPhone=state.customers.find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164));
-  const finalName=(data.name||existingByPhone?.name||'Cliente').trim();
-  const meta={...customerMeta(existingByPhone)};
+  if(!contact.ok)return {error:contact.error||'WhatsApp o usuario inválido'};
+  const existingByContact=findCustomerByWhatsApp(contact.value);
+  const existingId=data.id||existingByContact?.id||'';
+  const existing=state.customers.find(c=>c.id===existingId)||existingByContact;
+  const finalName=(data.name||existing?.name||'Cliente').trim();
+  let meta={...customerMeta(existing)};
+  meta=mergeCustomerWhatsAppMeta(meta,contact.username);
   if(data.email)meta.family_client_email=data.email;
-  const payload={name:finalName,phone_raw:data.phone_raw||phone.e164,phone_e164:phone.e164,email:data.email||existingByPhone?.email||null,source:existingByPhone?.source||'recordatorio_manual',notes:notesWithCustomerMeta(stripCustomerMetaNotes(existingByPhone?.notes||'Creado desde recordatorio'),meta)};
-  const existingId=data.id||existingByPhone?.id||'';
+  const payload={name:finalName,whatsapp_contact:contact.value,phone_raw:contact.value,phone_e164:contact.value,email:data.email||existing?.email||null,source:existing?.source||'recordatorio_manual',notes:notesWithCustomerMeta(stripCustomerMetaNotes(existing?.notes||'Creado desde recordatorio'),meta)};
   const res=existingId?await db.from('crm_customers').update(payload).eq('id',existingId).select().single():await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
   if(res.error)return {error:res.error.message};
   return {customer:res.data,existing:!!existingId};
@@ -5186,7 +5340,7 @@ function blankReminder(cid=''){
   ['rId','rCustomer','rCustomerName','rCustomerPhone','rCustomerEmail','rService','rAmount','rMsg'].forEach(id=>{if($(id))$(id).value=''});
   $('rProduct').value='';$('rPlan').value='';$('rDue').value=addMonthsInput(todayISO(),1);if($('rStatus'))$('rStatus').value='pending';
   const c=state.customers.find(x=>x.id===cid);
-  if(c){$('rCustomer').value=c.id;$('rCustomerName').value=c.name||'';$('rCustomerPhone').value=c.phone_e164||c.phone_raw||'';$('rCustomerEmail').value=c.email||'';}
+  if(c){$('rCustomer').value=c.id;$('rCustomerName').value=c.name||'';$('rCustomerPhone').value=customerWhatsAppContact(c);$('rCustomerEmail').value=c.email||'';}
   if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
   applySelectedTemplate();
   if($('btnDeleteReminder'))$('btnDeleteReminder').style.display='none';$('reminderDlgTitle').textContent='Nuevo recordatorio';showDialog('dlgReminder');
@@ -5195,7 +5349,7 @@ function newReminderFor(cid){blankReminder(cid)}
 function editReminder(id){
   const r=state.reminders.find(x=>x.id===id);if(!r)return;
   fillReminderSelects();const c=state.customers.find(x=>x.id===r.customer_id)||{};
-  $('rId').value=r.id;$('rCustomer').value=r.customer_id||'';$('rCustomerName').value=c.name||'';$('rCustomerPhone').value=c.phone_e164||c.phone_raw||'';$('rCustomerEmail').value=c.email||'';
+  $('rId').value=r.id;$('rCustomer').value=r.customer_id||'';$('rCustomerName').value=c.name||'';$('rCustomerPhone').value=customerWhatsAppContact(c);$('rCustomerEmail').value=c.email||'';
   $('rProduct').value=r.product_id||'';$('rPlan').value=r.plan_id||'';$('rService').value=r.service_name||'';$('rAmount').value=r.amount??'';$('rDue').value=r.due_date||addMonthsInput(todayISO(),1);if($('rStatus'))$('rStatus').value=r.status||'pending';$('rMsg').value=r.whatsapp_message||'';if($('rTemplate')){$('rTemplate').value=(getDefaultTemplate()?.id)||'';}
   if($('btnDeleteReminder'))$('btnDeleteReminder').style.display='inline-flex';$('reminderDlgTitle').textContent='Editar recordatorio';showDialog('dlgReminder');
 }
@@ -5259,8 +5413,8 @@ async function openReminderWhatsApp(id){
     if(!fresh.error&&fresh.data){currentTemplate=fresh.data;const i=state.templates.findIndex(x=>x.id===fresh.data.id);if(i>=0)state.templates[i]=fresh.data;else state.templates.unshift(fresh.data)}
   }catch(_){}
   const msg=buildTemplateMessage(currentTemplate,c,r);
-  const url=waLink(c.phone_e164||c.phone_raw,msg);
-  if(url==='#')return toast('El cliente no tiene WhatsApp válido','bad');
+  const url=waLink(customerWhatsAppContact(c),msg);
+  if(url==='#')return toast('El cliente no tiene WhatsApp o usuario válido','bad');
   const saved=await db.from('payment_reminders').update({whatsapp_message:msg,last_sent_at:new Date().toISOString()}).eq('id',id).select().maybeSingle();
   if(saved.error)return toast('No se pudo actualizar el recordatorio con la plantilla actual: '+saved.error.message,'bad');
   const idx=state.reminders.findIndex(x=>x.id===id);if(idx>=0)state.reminders[idx]={...state.reminders[idx],...(saved.data||{}),whatsapp_message:msg,last_sent_at:new Date().toISOString()};
@@ -5328,7 +5482,9 @@ async function saveReminderAndOpen(){
 /* ---- CRM from Order ---- */
 async function upsertCustomerFromOrder(order){
   const phone=normalizePhone(order.customer_whatsapp||'');if(!phone.ok)return null;
-  const payload={name:order.customer_name||'Cliente',phone_raw:order.customer_whatsapp||phone.e164,phone_e164:phone.e164,email:order.customer_email||null,source:'checkout',notes:`Pedido ${order.order_code||''}`};
+  const existing=(state.customers||[]).find(c=>whatsappDigits(c.phone_e164||c.phone_raw)===phone.digits || whatsappDigits(c.phone_e164||c.phone_raw)===whatsappDigits(phone.e164))||null;
+  const meta=customerMeta(existing);
+  const payload={name:order.customer_name||existing?.name||'Cliente',phone_raw:order.customer_whatsapp||phone.e164,phone_e164:phone.e164,email:order.customer_email||existing?.email||null,source:'checkout',notes:notesWithCustomerMeta(`Pedido ${order.order_code||''}`,meta)};
   const r=await db.from('crm_customers').upsert(payload,{onConflict:'phone_e164'}).select().single();
   if(r.error){toast('Cliente no guardado: '+r.error.message,'bad');return null}
   return r.data;
@@ -6779,6 +6935,7 @@ if($('rTemplate'))$('rTemplate').onchange=applySelectedTemplate;
 $('clientSearch').oninput=()=>{renderClients();renderReminders()};
 $('reminderSearch').oninput=renderReminders;
 if($('btnReminderBackupExcel'))$('btnReminderBackupExcel').onclick=exportAdminExcelBackup;
+if($('btnExportClients'))$('btnExportClients').onclick=exportAdminExcelBackup;
 if($('btnReminderImportExcel'))$('btnReminderImportExcel').onclick=()=>$('reminderBackupFile')?.click();
 if($('reminderBackupFile'))$('reminderBackupFile').onchange=e=>importAdminExcelBackup(e.target.files?.[0]);
 if($('btnDeleteSelectedReminders'))$('btnDeleteSelectedReminders').onclick=deleteSelectedReminders;
@@ -11928,7 +12085,9 @@ INNOV IA V62 - TOTP original + selección real
     const stock = selectedStock(planId, 'ops');
     const name = text(byId('opsDeliverName')?.value);
     const phoneInput = text(byId('opsDeliverPhone')?.value);
-    const phone = typeof normalizePhone === 'function' ? normalizePhone(phoneInput) : { ok: !!phoneInput, e164: phoneInput };
+    const contact = typeof whatsappContactInfo === 'function' ? whatsappContactInfo(phoneInput) : { ok: !!phoneInput, kind: 'phone', value: phoneInput, username: '' };
+    const phone = contact.ok ? { ok: true, e164: contact.value, kind: contact.kind } : contact;
+    const whatsappUsername = contact.username || '';
     const service = text(byId('opsDeliverService')?.value) || (typeof planName === 'function' ? planName(planId) : 'Servicio');
     const amountRaw = byId('opsDeliverAmount')?.value;
     const amount = amountRaw === '' || amountRaw == null ? null : Number(amountRaw);
@@ -11936,7 +12095,9 @@ INNOV IA V62 - TOTP original + selección real
     return {
       planId, stock, name, phoneInput, phone, service, amount, due,
       start: text(byId('opsDeliverStart')?.value) || currentDate(),
-      email: text(byId('opsDeliverClientEmail')?.value)
+      email: text(byId('opsDeliverClientEmail')?.value),
+      whatsappUsername,
+      whatsappLabel: contact.value || phoneInput
     };
   }
 
@@ -11956,7 +12117,7 @@ INNOV IA V62 - TOTP original + selección real
       if (made?.code && byId('opsDeliverTotpCode')) byId('opsDeliverTotpCode').value = made.code;
       if (typeof refreshOpsDeliverMessage === 'function') refreshOpsDeliverMessage();
       const message = text(byId('opsDeliverText')?.value) || (typeof opsDeliveryTextFromPlan === 'function'
-        ? opsDeliveryTextFromPlan(data.planId, { cliente: data.name, telefono: data.phone.e164 || data.phoneInput, monto: data.amount, fecha_inicio: data.start, fecha_vencimiento: data.due, correo: secret.correo || '', contraseña: secret.clave || '', perfil: secret.perfil || '', pin: secret.pin || '', grupo: secret.grupo || '', codigo: made?.code || '' })
+        ? opsDeliveryTextFromPlan(data.planId, { cliente: data.name, telefono: data.whatsappLabel, whatsapp: data.whatsappLabel, whatsapp_usuario: cleanWhatsAppUsername(data.whatsappUsername), whatsapp_numero: data.phone.kind==='phone'?(data.phone.e164 || data.phoneInput):'', monto: data.amount, fecha_inicio: data.start, fecha_vencimiento: data.due, correo: secret.correo || '', contraseña: secret.clave || '', perfil: secret.perfil || '', pin: secret.pin || '', grupo: secret.grupo || '', codigo: made?.code || '' })
         : '');
       const key = createIdempotency('ops', [data.name.toLowerCase(), data.phone.e164 || data.phoneInput, data.planId, data.stock?.id || 'manual', data.start]);
       const result = await coreCall(RPC.create, {
@@ -11977,6 +12138,14 @@ INNOV IA V62 - TOTP original + selección real
         p_idempotency_key: key
       });
       await linkIssuedTotp(made, result?.reminder_id);
+      try {
+        await upsertCustomerWhatsAppIdentity({
+          name: data.name,
+          contact: data.phoneInput,
+          email: data.email || null,
+          source: 'entrega_manual_stock'
+        });
+      } catch (_) { }
       if (typeof copyTextSafe === 'function' && message) copyTextSafe(message);
       try { closeDialog('dlgOpsDeliver'); } catch (_) { }
       coreToast(result?.reused ? 'La entrega ya estaba registrada; no se duplicó.' : 'Entrega, recordatorio y cupo registrados correctamente', 'ok');
@@ -12073,6 +12242,28 @@ INNOV IA V62 - TOTP original + selección real
     if (!customerPhone) return coreToast('Escribe el WhatsApp del cliente', 'bad');
     if (!due) return coreToast('Selecciona la fecha de vencimiento', 'bad');
 
+    const contactInfo = typeof window.whatsappContactInfo === 'function'
+      ? window.whatsappContactInfo(customerPhone)
+      : { ok: true, kind: 'phone', value: customerPhone };
+    if (!contactInfo?.ok) return coreToast(contactInfo?.error || 'WhatsApp inválido', 'bad');
+
+    let usernameCustomer = null;
+    if (contactInfo.kind === 'username') {
+      try {
+        usernameCustomer = await window.upsertCustomerWhatsAppIdentity?.({
+          customerId: text(byId('rCustomer')?.value),
+          name: customerName,
+          contact: contactInfo.value,
+          email: customerEmail,
+          source: 'recordatorio_manual'
+        });
+        if (!usernameCustomer?.id) throw new Error('Supabase no devolvió el cliente guardado');
+      } catch (error) {
+        coreToast('No se guardó el usuario en Supabase: ' + coreError(error), 'bad');
+        return null;
+      }
+    }
+
     const customerDraft = {
       name: customerName,
       phone_e164: customerPhone,
@@ -12114,6 +12305,33 @@ INNOV IA V62 - TOTP original + selección real
         coreToast('No se actualizó: ' + coreError(error), 'bad');
         return null;
       }
+    }
+
+    if (contactInfo.kind === 'username') {
+      const reminderDraft = {
+        customer_id: usernameCustomer.id,
+        product_id: selectedProductId,
+        plan_id: selectedPlanId,
+        service_name: service,
+        amount,
+        currency: 'PEN',
+        due_date: due,
+        status: text(byId('rStatus')?.value) || existing?.status || 'pending',
+        whatsapp_message: message || null
+      };
+      const response = reminderId
+        ? await db.from('payment_reminders').update(reminderDraft).eq('id', reminderId).select().single()
+        : await db.from('payment_reminders').insert(reminderDraft).select().single();
+      if (response.error) {
+        coreToast('El usuario quedó guardado, pero falló el recordatorio: ' + response.error.message, 'bad');
+        return null;
+      }
+      if (!silent) {
+        closeDialog('dlgReminder');
+        coreToast(`Usuario ${contactInfo.value} y recordatorio verificados en Supabase.`, 'ok');
+      }
+      await loadAllCore();
+      return response.data;
     }
 
     const rpcName = reminderId ? 'admin_core_manual_update_reminder' : 'admin_core_manual_register_reminder';
@@ -12424,6 +12642,8 @@ INNOV IA V62 - TOTP original + selección real
   .c103-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.c103-actions .btn{padding:5px 9px;font-size:.74rem}
   .c103-help{font-size:.77rem;color:var(--muted);padding:8px 10px;border:1px dashed var(--border);border-radius:10px;background:var(--card2);margin-bottom:9px}
   .c103-slots-editor{display:grid;gap:6px;margin-top:8px}.c103-slot-edit{display:grid;grid-template-columns:minmax(0,1fr) .8fr auto;gap:6px;align-items:end;border:1px solid var(--border);border-radius:10px;padding:7px;background:var(--card2)}
+  .c103-editor-head-actions{display:flex;align-items:center;gap:6px}.c103-batch-toggle[aria-pressed="true"]{color:#fff;background:var(--primary);border-color:var(--primary)}
+  .c103-batch-wrap{border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--card2)}.c103-batch-wrap textarea{min-height:180px;font-family:var(--mono);line-height:1.5}.c103-batch-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.c103-batch-preview{display:grid;gap:5px;max-height:170px;overflow:auto;margin-top:8px}.c103-batch-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:9px;background:var(--card);font-size:.74rem}.c103-batch-row.bad{border-color:rgba(185,28,28,.30);background:var(--danger-alpha)}
   .c103-hidden{display:none!important}.c103-history-list{display:grid;gap:6px;max-height:50vh;overflow:auto}.c103-history-item{border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:var(--card2);font-size:.78rem}.c103-history-item b{color:var(--card-ink)}.c103-section{font-size:.8rem;font-weight:900;margin:10px 0 5px;color:var(--card-ink)}
   @media(max-width:680px){.c103-toolbar{grid-template-columns:1fr 1fr}.c103-toolbar input{grid-column:1/-1}.c103-toolbar .btn{width:100%}.c103-slot-edit{grid-template-columns:1fr 1fr}.c103-slot-edit button{grid-column:1/-1;width:100%}}
 
@@ -12448,12 +12668,13 @@ INNOV IA V62 - TOTP original + selección real
 </dialog>
 
 <dialog id="dlgCore1AccountEditor">
-  <div class="modal-header"><strong id="c103EditorTitle">Agregar cuenta</strong><button class="btn btn-ghost btn-icon" type="button" data-c103-close="dlgCore1AccountEditor">✕</button></div>
+  <div class="modal-header"><strong id="c103EditorTitle">Agregar cuenta</strong><div class="c103-editor-head-actions"><button class="btn btn-sm c103-batch-toggle" id="c103BatchToggle" type="button" aria-pressed="false">Lote</button><button class="btn btn-ghost btn-icon" type="button" data-c103-close="dlgCore1AccountEditor">✕</button></div></div>
   <form id="c103Form">
     <input type="hidden" id="c103ItemId"><input type="hidden" id="c103PlanId">
     <div class="dlg-body">
       <div class="c103-help" id="c103Help"></div>
       <div class="grid grid-2">
+        <div id="c103BatchWrap" class="full c103-batch-wrap c103-hidden"><label class="subtle">Una cuenta distinta por fila</label><textarea class="input" id="c103BatchText" autocomplete="off" spellcheck="false" placeholder="correo@gmail.com|contraseña&#10;otro@gmail.com|contraseña"></textarea><p class="help" id="c103BatchHelp" style="margin:6px 0 0">Cuenta: correo|contraseña · Perfil: correo|contraseña|perfil|pin</p><div class="c103-batch-meta"><span class="badge b-ok" id="c103BatchValid">0 válidas</span><span class="badge b-warn" id="c103BatchInvalid">0 por revisar</span></div><div class="c103-batch-preview" id="c103BatchPreview"></div></div>
         <div id="c103UserWrap"><label class="subtle" id="c103UserLabel">Correo / usuario *</label><input class="input" id="c103Username" autocomplete="off" placeholder="correo@gmail.com"></div>
         <div id="c103PassWrap"><label class="subtle">Contraseña</label><input class="input" id="c103Password" type="text" autocomplete="off" spellcheck="false" placeholder="Contraseña o clave"></div>
         <div id="c103GroupWrap" class="full c103-hidden"><label class="subtle">Grupo / invitación / URL</label><input class="input" id="c103GroupUrl" placeholder="https://..."></div>
@@ -12468,7 +12689,7 @@ INNOV IA V62 - TOTP original + selección real
       </div>
     </div>
   </form>
-  <div class="modal-actions"><button class="btn" type="button" data-c103-close="dlgCore1AccountEditor">Cancelar</button><button class="btn btn-primary" type="submit" form="c103Form">Guardar</button></div>
+  <div class="modal-actions"><button class="btn" type="button" data-c103-close="dlgCore1AccountEditor">Cancelar</button><button class="btn btn-primary" id="c103Submit" type="submit" form="c103Form">Guardar</button></div>
 </dialog>
 
 <dialog id="dlgCore103History">
@@ -12481,7 +12702,7 @@ INNOV IA V62 - TOTP original + selección real
   'use strict';
   const $=id=>document.getElementById(id), esc=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'), txt=v=>String(v??'').trim(), arr=v=>Array.isArray(v)?v:[];
   const say=(m,t='ok')=>{try{toast(m,t)}catch(_){alert(m)}};
-  const M={planId:'',model:null,channel:null,timer:null,slots:[],savedTotpId:''};
+  const M={planId:'',model:null,channel:null,timer:null,slots:[],savedTotpId:'',batch:false};
   const labels={credential:'Cuenta con correo y contraseña',profile:'Streaming por perfiles',invite:'Invitación / grupo',totp:'Cuenta con TOTP',code:'Código / acceso',none:'Sin cuenta'};
   const modal=id=>{const d=$(id);try{if(d&&!d.open)d.showModal()}catch(_){d?.setAttribute('open','')}}; const close=id=>{const d=$(id);try{if(d?.open)d.close()}catch(_){d?.removeAttribute('open')}};
   const chip=(v,k='')=>`<span class="c103-chip ${k}">${esc(v)}</span>`;
@@ -12532,17 +12753,54 @@ INNOV IA V62 - TOTP original + selección real
   async function loadTotp(selected=''){let rows=[];try{const r=await db.from('totp_accounts').select('id,label,issuer,active').eq('active',true).order('label');if(!r.error)rows=r.data||[]}catch(_){};$('c103Totp').innerHTML='<option value="">Sin Access TOTP</option>'+rows.map(r=>`<option value="${esc(r.id)}" ${String(r.id)===String(selected)?'selected':''}>${esc(r.label||r.issuer||'TOTP')}</option>`).join('')}
   function slotRow(s={}){M.slots.push({id:s.id||'',label:s.label||`Perfil ${M.slots.length+1}`,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:M.slots.length});slots()}
   function slots(){$('c103Slots').innerHTML=M.slots.map((s,i)=>`<div class="c103-slot-edit"><div><label class="subtle">Perfil</label><input class="input" data-c103-slot="label" data-i="${i}" value="${esc(s.label)}"></div><div><label class="subtle">PIN</label><input class="input" data-c103-slot="pin" data-i="${i}" value="${esc(s.pin)}" placeholder="Opcional"></div><button class="btn btn-danger" type="button" data-c103-slot="del" data-i="${i}">Quitar</button></div>`).join('');document.querySelectorAll('[data-c103-slot="label"]').forEach(x=>x.oninput=e=>M.slots[Number(e.target.dataset.i)].label=e.target.value);document.querySelectorAll('[data-c103-slot="pin"]').forEach(x=>x.oninput=e=>M.slots[Number(e.target.dataset.i)].pin=e.target.value);document.querySelectorAll('[data-c103-slot="del"]').forEach(x=>x.onclick=e=>{M.slots.splice(Number(e.currentTarget.dataset.i),1);slots()})}
+  function batchRows(){
+    const x=mode(),rows=[],invalid=[];
+    txt($('c103BatchText')?.value).split(/\r?\n/).forEach((raw,index)=>{
+      raw=txt(raw);if(!raw)return;
+      const p=raw.split('|').map(txt),username=p[0]||'',password=p[1]||'',profile=p[2]||'',pin=p[3]||'';
+      let error='';
+      if(!username)error='Falta correo o usuario';
+      else if(!password)error='Falta contraseña';
+      else if(x==='profile'&&!profile)error='Falta perfil';
+      if(error)invalid.push({raw,index:index+1,error});
+      else rows.push({raw,index:index+1,username,password,profile,pin});
+    });
+    return {rows,invalid};
+  }
+  function renderBatchPreview(){
+    const parsed=batchRows(),x=mode();
+    $('c103BatchValid').textContent=`${parsed.rows.length} válida${parsed.rows.length===1?'':'s'}`;
+    $('c103BatchInvalid').textContent=`${parsed.invalid.length} por revisar`;
+    $('c103BatchHelp').textContent=x==='profile'
+      ? 'Formato: correo|contraseña|perfil|pin. Cada fila crea una cuenta distinta con un perfil.'
+      : 'Formato: correo|contraseña. Cada fila crea una cuenta distinta.';
+    $('c103BatchText').placeholder=x==='profile'
+      ? 'correo@gmail.com|contraseña|Perfil 1|1234\notro@gmail.com|contraseña|Perfil 2|5678'
+      : 'correo@gmail.com|contraseña\notro@gmail.com|contraseña';
+    $('c103BatchPreview').innerHTML=parsed.rows.slice(0,60).map(r=>`<div class="c103-batch-row"><b>Fila ${r.index}</b><span>${esc(r.username)}${x==='profile'?` · ${esc(r.profile)}${r.pin?` · PIN ${esc(r.pin)}`:''}`:''}</span></div>`).join('')+parsed.invalid.map(r=>`<div class="c103-batch-row bad"><b>Fila ${r.index}</b><span>${esc(r.error)} · ${esc(r.raw)}</span></div>`).join('');
+    return parsed;
+  }
+  function setBatch(enabled){
+    const x=mode(),supported=!['none','code'].includes(x)&&!txt($('c103ItemId')?.value);
+    M.batch=!!enabled&&supported;
+    $('c103BatchToggle').setAttribute('aria-pressed',M.batch?'true':'false');
+    $('c103BatchToggle').textContent=M.batch?'Individual':'Lote';
+    $('c103BatchWrap').classList.toggle('c103-hidden',!M.batch);
+    $('c103Submit').textContent=M.batch?'Guardar lote':'Guardar';
+    adapt(x);
+    if(M.batch)renderBatchPreview();
+  }
   function adapt(x){
     const profile=x==='profile',code=x==='code',totpEnabled=planUsesTotp();
-    $('c103UserWrap').classList.toggle('c103-hidden',x==='none');
-    $('c103PassWrap').classList.toggle('c103-hidden',code||x==='none');
+    $('c103UserWrap').classList.toggle('c103-hidden',x==='none'||M.batch);
+    $('c103PassWrap').classList.toggle('c103-hidden',code||x==='none'||M.batch);
     $('c103GroupWrap').classList.toggle('c103-hidden',code||x==='none');
     $('c103TotpWrap').classList.toggle('c103-hidden',!totpEnabled);
-    $('c103SlotsWrap').classList.toggle('c103-hidden',!profile);
+    $('c103SlotsWrap').classList.toggle('c103-hidden',!profile||M.batch);
     $('c103CapacityWrap').classList.toggle('c103-hidden',profile||x==='none');
     $('c103UserLabel').textContent=code?'Código / dato de acceso':x==='invite'?'Correo administrador (opcional)':'Correo / usuario *';
     $('c103CapacityLabel').textContent=x==='invite'?'Miembros / cupos':'Cupos';
-    $('c103Help').textContent=(labels[x]||'Cuenta')+(totpEnabled?' · Access TOTP habilitado para este plan':'');
+    $('c103Help').textContent=(M.batch?'Carga por lote · ':'')+(labels[x]||'Cuenta')+(totpEnabled?' · Access TOTP habilitado para este plan':'');
     const totpHelp=$('c103TotpHelp');
     if(totpHelp)totpHelp.textContent=totpEnabled
       ? 'Este plan tiene Access TOTP habilitado. Puedes usar la cuenta predeterminada o elegir otra para esta cuenta.'
@@ -12557,19 +12815,37 @@ INNOV IA V62 - TOTP original + selección real
     $('c103ItemId').value=a?.stock_item_id||'';$('c103PlanId').value=M.planId;
     $('c103Username').value=txt(sec.correo)||txt(sec.email)||txt(sec.usuario)||txt(sec.username)||login(a);
     $('c103Password').value=savedPassword(sec,a);$('c103GroupUrl').value=savedGroup(sec);
-    $('c103Capacity').value=String(a?.capacity||1);$('c103State').value=a?.core_state||'active';
+    $('c103Capacity').value=String(a?.capacity||(x==='invite'?5:1));$('c103State').value=a?.core_state||'active';
     $('c103EditorTitle').textContent=a?'Editar cuenta':'Agregar cuenta';
     M.slots=arr(a?.slots).map((s,i)=>({id:s.id,label:s.label,pin:s.pin||'',capacity:1,active:s.active!==false,sort_order:i}));
     M.savedTotpId=txt(sec.totp_account_id);
+    M.batch=false;$('c103BatchText').value='';$('c103BatchToggle').classList.toggle('c103-hidden',!!a);
     const preferred=M.savedTotpId||(planUsesTotp()?defaultPlanTotp():'');
     await loadTotp(preferred);
     if(planUsesTotp()&&preferred&&$('c103Totp'))$('c103Totp').value=preferred;
-    adapt(x);slots();modal('dlgCore1AccountEditor');
+    setBatch(false);slots();modal('dlgCore1AccountEditor');
   }
   async function save(e){
     e.preventDefault();
     const x=mode(),username=txt($('c103Username').value),group=txt($('c103GroupUrl').value),password=txt($('c103Password').value);
     const totpAccountId=planUsesTotp()?txt($('c103Totp')?.value):txt(M.savedTotpId);
+    if(M.batch){
+      const parsed=renderBatchPreview();
+      if(!parsed.rows.length)return say('No hay filas válidas para guardar','bad');
+      if(parsed.invalid.length&&!confirm(`Hay ${parsed.invalid.length} fila(s) incompletas. ¿Guardar solo las ${parsed.rows.length} válidas?`))return;
+      const failed=[];let saved=0;
+      for(const row of parsed.rows){
+        const rowSlots=x==='profile'?[{id:'',label:row.profile,pin:row.pin,capacity:1,active:true,sort_order:0}]:[];
+        try{
+          await rpc('core1_upsert_account',{p_stock_item_id:null,p_plan_id:M.planId,p_alias:row.username,p_username:row.username,p_password:row.password,p_group_url:group||null,p_totp_account_id:totpAccountId||null,p_state:$('c103State').value,p_capacity:x==='profile'?1:Number($('c103Capacity').value||1),p_slots:rowSlots});
+          saved++;
+        }catch(err){failed.push({...row,error:err?.message||String(err)})}
+      }
+      if(saved&&typeof window.syncPlanAllocationRule==='function')await window.syncPlanAllocationRule(M.planId,'stock_item',{syncPlanRow:true});
+      await load(M.planId,false);
+      if(failed.length){$('c103BatchText').value=failed.map(r=>r.raw).join('\n');renderBatchPreview();return say(`${saved} cuenta(s) guardadas y ${failed.length} con error: ${failed[0].error}`,'bad')}
+      close('dlgCore1AccountEditor');say(`${saved} cuenta(s) guardadas por lote`);return;
+    }
     if(['credential','profile','totp'].includes(x)&&!username)return say('Escribe el correo o usuario','bad');
     if(x==='profile'&&!M.slots.length)return say('Agrega al menos un perfil','bad');
     try{
@@ -12579,16 +12855,17 @@ INNOV IA V62 - TOTP original + selección real
     }catch(err){say(err.message||String(err),'bad')}
   }
   async function remove(id){
-    if(!confirm('¿Retirar esta cuenta de Cupos? Los clientes, servicios, entregas, historial y recordatorios seguirán registrados.'))return;
+    const a=account(id),name=login(a);
+    if(!confirm(`¿Eliminar definitivamente la cuenta "${name}"? Se borrarán sus perfiles, reservas, asignaciones, recordatorios y entregas vinculadas. El cliente y sus pedidos se conservarán.`))return;
     try{
-      const result=await rpc('admin_v101_archive_stock_preserve_reminders',{p_stock_item_id:id});
+      const result=await rpc('admin_hard_delete_stock_account',{p_stock_item_id:id});
       const info=(result&&typeof result==='object')?result:{};
-      say(info.message||'Cuenta retirada. Los recordatorios fueron conservados.');
+      say(info.message||'Cuenta y rastros operativos eliminados. Clientes y pedidos conservados.');
       await load(M.planId,false);
       try{await window.loadStock?.();window.renderReminders?.();window.renderDashboard?.()}catch(_){}
-    }catch(err){say(err.message||String(err),'bad')}
+    }catch(err){say((err.message||String(err))+'. Ejecuta primero supabase-account-hard-delete.sql en Supabase.','bad')}
   }
-  function bind(){document.querySelectorAll('[data-c103-close]').forEach(b=>b.onclick=()=>close(b.dataset.c103Close));$('c103Search').oninput=render;$('c103Refresh').onclick=()=>load(M.planId,false);$('c103Add').onclick=()=>editor();$('c103AddSlot').onclick=()=>slotRow();$('c103Form').onsubmit=save;window.openPlanStockView=(planId)=>load(planId,true);window.openPlanAccounts=window.openPlanStockView;window.openOpsStockDialog=(type='account',id='')=>{let p=M.planId;if(id){const x=(state?.stock||[]).find(r=>String(r.id)===String(id));p=x?.plan_id||p}if(!p)p=(state?.plans||[])[0]?.id||'';load(p,false).then(()=>editor(id))};window.openStockViewEdit=id=>window.openOpsStockDialog('account',id);window.openAddStockFromPlanView=()=>editor();window.addStockForPlan=planId=>load(planId,false).then(()=>editor());window.INNOV_CORE103_ACCOUNTS=Object.freeze({open:load,edit:editor,remove,history})}
+  function bind(){document.querySelectorAll('[data-c103-close]').forEach(b=>b.onclick=()=>close(b.dataset.c103Close));$('c103Search').oninput=render;$('c103Refresh').onclick=()=>load(M.planId,false);$('c103Add').onclick=()=>editor();$('c103AddSlot').onclick=()=>slotRow();$('c103BatchToggle').onclick=()=>setBatch(!M.batch);$('c103BatchText').oninput=renderBatchPreview;$('c103Form').onsubmit=save;window.openPlanStockView=(planId)=>load(planId,true);window.openPlanAccounts=window.openPlanStockView;window.openOpsStockDialog=(type='account',id='')=>{let p=M.planId;if(id){const x=(state?.stock||[]).find(r=>String(r.id)===String(id));p=x?.plan_id||p}if(!p)p=(state?.plans||[])[0]?.id||'';load(p,false).then(()=>editor(id))};window.openStockViewEdit=id=>window.openOpsStockDialog('account',id);window.openAddStockFromPlanView=()=>editor();window.addStockForPlan=planId=>load(planId,false).then(()=>editor());window.INNOV_CORE103_ACCOUNTS=Object.freeze({open:load,edit:editor,remove,history})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,800),{once:true});else setTimeout(bind,800);
 })();
 </script>
@@ -13154,8 +13431,11 @@ INNOV IA V62 - TOTP original + selección real
     const planId=val('opsDeliverPlanId');
     if(ctx?.ok && planId && typeof window.opsDeliveryTextFromPlan==='function'){
       const target=byId('opsDeliverText');
+      const waContact=typeof window.whatsappContactInfo==='function'?window.whatsappContactInfo(val('opsDeliverPhone')):null;
+      const waUser=waContact?.kind==='username'?waContact.value:'';
+      const waLabel=waContact?.value||val('opsDeliverPhone');
       const text=window.opsDeliveryTextFromPlan(planId,{
-        pedido:val('opsDeliverPedido'),cliente:val('opsDeliverName'),telefono:val('opsDeliverPhone'),monto:val('opsDeliverAmount'),
+        pedido:val('opsDeliverPedido'),cliente:val('opsDeliverName'),telefono:waLabel,whatsapp:waLabel,whatsapp_usuario:waUser,whatsapp_numero:waContact?.kind==='phone'?waContact.value:'',monto:val('opsDeliverAmount'),
         fecha_inicio:val('opsDeliverStart'),fecha_pago:val('opsDeliverPayDate'),fecha_vencimiento:val('opsDeliverDue'),
         correo:ctx.login||'',contraseña:ctx.password||'',perfil:ctx.profile||'',pin:ctx.pin||'',grupo:ctx.group_url||'',url:ctx.group_url||'',
         codigo:val('opsDeliverTotpCode')
@@ -13166,6 +13446,7 @@ INNOV IA V62 - TOTP original + selección real
     return typeof oldRefresh==='function' ? oldRefresh.apply(this,arguments) : '';
   }
   window.refreshOpsDeliverMessage=exactOpsRefresh;
+  byId('opsDeliverPhone')?.addEventListener('input',exactOpsRefresh);
   document.addEventListener('change',ev=>{
     if(['opsDeliverSlotSelect','opsDeliverStockSelect'].includes(ev.target?.id)){
       setTimeout(exactOpsRefresh,160);
@@ -13268,6 +13549,13 @@ INNOV IA V62 - TOTP original + selección real
   }
 
   function phoneInfo(raw){
+    try {
+      if (typeof window.whatsappContactInfo === 'function') {
+        const contact=window.whatsappContactInfo(raw);
+        if(contact?.ok)return {ok:true,e164:contact.value,kind:contact.kind,username:contact.username||'',contact};
+        return contact;
+      }
+    } catch (_) {}
     try { if (typeof window.normalizePhone === 'function') return window.normalizePhone(raw); } catch (_) {}
     const digits=String(raw||'').replace(/\D/g,'');
     return digits.length >= 8 ? {ok:true,e164:digits} : {ok:false,error:'WhatsApp inválido'};
@@ -13439,15 +13727,17 @@ INNOV IA V62 - TOTP original + selección real
     const planId=selectorConfig('ops').plan();
     const current=ctx || await resolve('ops',{force:false});
     const rawPhone=value('opsDeliverPhone'); const phone=phoneInfo(rawPhone);
+    const whatsappUser=phone?.kind==='username'?(phone.username||phone.e164||rawPhone):'';
+    const whatsappLabel=phone.ok?(phone.e164||rawPhone):rawPhone;
     const payload={
-      pedido:value('opsDeliverPedido'),cliente:value('opsDeliverName'),telefono:phone.ok?(phone.e164||rawPhone):rawPhone,
+      pedido:value('opsDeliverPedido'),cliente:value('opsDeliverName'),telefono:whatsappLabel,whatsapp:whatsappLabel,whatsapp_usuario:whatsappUser,whatsapp_numero:phone?.kind==='phone'?(phone.e164||rawPhone):'',
       monto:value('opsDeliverAmount'),fecha_inicio:value('opsDeliverStart')||today(),fecha_pago:value('opsDeliverPayDate')||today(),fecha_vencimiento:value('opsDeliverDue')||dueForPlan(planId),
       correo:current.login||'',contraseña:current.password||'',perfil:current.profile||'',pin:current.pin||'',grupo:current.group_url||'',url:current.group_url||'',codigo:totpCode||value('opsDeliverTotpCode')||'',codigo_2fa:current.twofa_code||''
     };
     let message='';
     try { if(typeof window.opsDeliveryTextFromPlan==='function') message=window.opsDeliveryTextFromPlan(planId,payload)||''; } catch (_) {}
     if(!message && typeof window.buildTemplateMessage==='function'){
-      try { message=window.buildTemplateMessage(window.getDefaultTemplate?.(),{name:payload.cliente,phone_e164:payload.telefono},{service_name:value('opsDeliverService')||planName(planId),amount:payload.monto,due_date:payload.fecha_vencimiento,plan_id:planId,...payload})||''; } catch (_) {}
+      try { message=window.buildTemplateMessage(window.getDefaultTemplate?.(),{name:payload.cliente,phone_e164:payload.whatsapp_numero,whatsapp_username:payload.whatsapp_usuario},{service_name:value('opsDeliverService')||planName(planId),amount:payload.monto,due_date:payload.fecha_vencimiento,plan_id:planId,...payload})||''; } catch (_) {}
     }
     if($('opsDeliverText')) set('opsDeliverText',message);
     return message;
@@ -13470,6 +13760,13 @@ INNOV IA V62 - TOTP original + selección real
       const name=value('opsDeliverName'); const rawPhone=value('opsDeliverPhone'); const phone=phoneInfo(rawPhone);
       if(!name) throw new Error('Ingresa el nombre del cliente');
       if(!phone?.ok) throw new Error(phone?.error||'WhatsApp inválido');
+      const savedIdentity=await window.upsertCustomerWhatsAppIdentity?.({
+        name,
+        contact:rawPhone,
+        email:value('opsDeliverClientEmail')||null,
+        source:'entrega_manual_stock'
+      });
+      if(!savedIdentity?.id) throw new Error('Supabase no confirmó el cliente y su WhatsApp');
       const ctx=await resolve('ops',{force:true});
       const planId=ctx.planId; const service=value('opsDeliverService')||planName(planId);
       const amountRaw=value('opsDeliverAmount'); const amount=amountRaw===''?null:Number(amountRaw);
@@ -13493,7 +13790,9 @@ INNOV IA V62 - TOTP original + selección real
       try { window.closeDialog?.('dlgOpsDeliver'); } catch (_){}
       notice(result?.reused?'La entrega ya existía; no se duplicó.':'Entrega, perfil/cupo y recordatorio registrados correctamente.','ok');
       if($('opsDeliverOpenWa')?.checked && typeof window.waLink==='function'){
-        const url=window.waLink(phone.e164||rawPhone,message); if(url&&url!=='#') window.open(url,'_blank','noopener,noreferrer');
+        const url=window.waLink(phone.e164||rawPhone,message);
+        if(url&&url!=='#')window.open(url,'_blank','noopener,noreferrer');
+        else notice('Entrega guardada, pero el WhatsApp o usuario no es válido.','bad');
       }
       try { await window.loadAll?.(); } catch (_){}
       try { window.switchTab?.('inventory'); } catch (_){}
@@ -14406,6 +14705,10 @@ INNOV IA V62 - TOTP original + selección real
   if(window.__innovV67ReminderDirectPatch)return;
   window.__innovV67ReminderDirectPatch=true;
 
+  // V68 y V91 reemplazan por completo este renderer. Mantenerlo activo
+  // duplicaba consultas, controladores y miles de botones en el DOM.
+  return;
+
   const byId=id=>document.getElementById(id);
   const text=v=>String(v==null?'':v).trim();
   const same=(a,b)=>text(a)===text(b);
@@ -14930,17 +15233,17 @@ INNOV IA V62 - TOTP original + selección real
       const verify=await window.db.from('payment_reminders').select('id,status,due_date').eq('id',r.id).maybeSingle();if(verify.error)throw verify.error;
       if(txt(verify.data?.status).toLowerCase()!=='pending'||txt(verify.data?.due_date).slice(0,10)!==due)throw new Error('Supabase no confirmó la renovación');
       try{window.publishAdminChange?.('payment_reminders','PATCH',{action:'paid_and_renewed',reminder_id:r.id,due_date:due});}catch(_){ }
-      await refresh(false);say('Pago registrado. Próximo vencimiento: '+dateLabel({due_date:due})+'.','ok');return true;
+      if(typeof window.loadReminders==='function')await window.loadReminders();
+      if(typeof window.renderReminders==='function')window.renderReminders();
+      say('Pago registrado. Próximo vencimiento: '+dateLabel({due_date:due})+'.','ok');return true;
     }catch(e){say('No se pudo renovar: '+txt(e?.message||e),'bad');return false;}finally{busy=false;}
   }
-  function install(){toolbar();render();const bell=byId('innovV50Bell');if(bell)bell.onclick=e=>{e.preventDefault();openCenter('today');};}
+  function install(){toolbar();const bell=byId('innovV50Bell');if(bell)bell.onclick=e=>{e.preventDefault();openCenter('today');};}
   window.markReminderPaid=renew;window.renewReminder=renew;try{markReminderPaid=renew;renewReminder=renew}catch(_){ }
-  window.renderReminders=render;try{renderReminders=render}catch(_){ }
   window.openDailySummary=()=>openCenter('today');window.openReminderCenterV68=openCenter;
-  const previousLoadAll=window.loadAll;if(typeof previousLoadAll==='function'){window.loadAll=async function(){const out=await previousLoadAll.apply(this,arguments);setTimeout(()=>{install();refresh(false);},0);return out;};try{loadAll=window.loadAll}catch(_){ }}
-  const previousLoadReminders=window.loadReminders;if(typeof previousLoadReminders==='function'){window.loadReminders=async function(){const out=await previousLoadReminders.apply(this,arguments);setTimeout(()=>{install();render();},0);return out;};try{loadReminders=window.loadReminders}catch(_){ }}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{install();refresh(false);},350),{once:true});else setTimeout(()=>{install();refresh(false);},350);
-  let retries=0;const hydrate=()=>{if(!byId('app')?.classList.contains('hidden'))refresh(false);if(++retries<5)setTimeout(hydrate,900)};setTimeout(hydrate,650);
+  const previousLoadAll=window.loadAll;if(typeof previousLoadAll==='function'){window.loadAll=async function(){const out=await previousLoadAll.apply(this,arguments);setTimeout(()=>{install();window.renderReminders?.();},0);return out;};try{loadAll=window.loadAll}catch(_){ }}
+  const installWhenAuthenticated=()=>{if(!byId('app')?.classList.contains('hidden'))install();};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(installWhenAuthenticated,350),{once:true});else setTimeout(installWhenAuthenticated,350);
 })();
 </script>
 
@@ -15401,6 +15704,7 @@ INNOV IA V62 - TOTP original + selección real
   .v85-product-card .v85-product-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap;line-height:1.25}
   .v85-product-card .v85-product-title b{font-size:.98rem}
   .v85-plan-sub{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .v103-plan-actions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px!important;gap:6px!important;align-items:stretch;position:relative;overflow:visible!important}.v103-plan-actions>.btn{width:100%;min-width:0}.v103-more{position:relative;min-width:0}.v103-more>summary{display:grid!important;place-items:center;width:100%!important;height:100%!important;min-height:34px;list-style:none;cursor:pointer;font-size:1.15rem!important;font-weight:950!important;padding:0!important}.v103-more>summary::-webkit-details-marker{display:none}.v103-more[open]>summary{color:#fff;background:var(--primary);border-color:var(--primary)}.v103-more-menu{position:absolute;z-index:120;right:0;bottom:calc(100% + 7px);display:grid;gap:5px;width:min(190px,72vw);padding:7px;border:1px solid var(--border);border-radius:12px;background:var(--card);box-shadow:var(--shadow-lg)}.v103-more-menu .btn{width:100%!important;min-height:34px!important;justify-content:flex-start!important;text-align:left;padding:7px 9px!important;font-size:.76rem!important}
   .v85-account-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(185,28,28,.25);background:var(--danger-alpha);color:var(--danger);border-radius:999px;padding:3px 8px;font-size:.70rem;font-weight:900;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .v85-account-chip .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}
   .v85-search-note{margin:0 0 10px;padding:8px 10px;border-left:3px solid var(--primary);border-radius:11px;background:var(--primary-alpha2);color:var(--muted);font-size:.78rem;font-weight:750}
@@ -15470,7 +15774,7 @@ INNOV IA V62 - TOTP original + selección real
       return `<div class="mini-card v85-product-card">
         <div class="mini-head">
           <div><div class="v85-product-title"><b>${esc(p.name)}</b><span class="badge v85-shop-chip">${esc(posText)}</span></div><div class="help">${esc(p.category||'otros')} · ${esc(p.sale_mode||'retail')}</div></div>
-          <img class="thumb" src="${esc(p.image_url||'img/placeholder.jpg')}" onerror="this.src='img/placeholder.jpg'" loading="lazy">
+          <img class="thumb" src="${esc(p.image_url||'brand-placeholder.svg')}" onerror="this.src='brand-placeholder.svg'" loading="lazy">
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
           <span class="badge ${p.active?'b-ok':'b-bad'}">${p.active?'Activo':'Oculto'}</span>
@@ -15513,13 +15817,10 @@ INNOV IA V62 - TOTP original + selección real
           <span class="badge">${esc(p.availability_status||'available')}</span>
           ${planTotpIdSafe(p)?`<span class="badge b-purple">🛡 Access TOTP</span>`:''}
         </div>
-        <div class="line-actions">
-          <button class="btn btn-primary" onclick="editPlan('${esc(p.id)}')">Editar</button>
+        <div class="line-actions v103-plan-actions">
           <button class="btn btn-success" onclick="openPlanManualDelivery('${esc(p.id)}')">Entregar</button>
-          <button class="btn" onclick="addStockForPlan('${esc(p.id)}')">＋ Agregar</button>
-          <button class="btn" onclick="openPlanAccounts('${esc(p.id)}')">▾ Cuentas</button>
-          <button class="btn ${p.active?'btn-warning':'btn-success'}" onclick="togglePlan('${esc(p.id)}')">${p.active?'Ocultar':'Activar'}</button>
-          <button class="btn btn-danger" onclick="quickDeletePlan('${esc(p.id)}')">Elim.</button>
+          <button class="btn btn-primary" onclick="addStockForPlan('${esc(p.id)}')">＋ Agregar</button>
+          <details class="v103-more"><summary class="btn" title="Más acciones" aria-label="Más acciones">⋯</summary><div class="v103-more-menu"><button class="btn" type="button" onclick="editPlan('${esc(p.id)}')">Editar plan</button><button class="btn" type="button" onclick="openPlanAccounts('${esc(p.id)}')">Ver cuentas</button><button class="btn ${p.active?'btn-warning':'btn-success'}" type="button" onclick="togglePlan('${esc(p.id)}')">${p.active?'Ocultar':'Activar'}</button><button class="btn btn-danger" type="button" onclick="quickDeletePlan('${esc(p.id)}')">Eliminar plan</button></div></details>
         </div>
       </div>`;
     }).join('')||'<div class="empty-state"><span class="icon">📦</span><p>Sin planes.</p></div>';
@@ -15913,7 +16214,7 @@ INNOV IA V62 - TOTP original + selección real
     const planId=accountsPlanId||clean(byId('c103PlanId')?.value);
     if(!planId)return;
     const x=identity(planId); const title=byId('c103EditorTitle');
-    if(title){const action=clean(byId('c103ItemId')?.value)?'Editar cuenta':'Agregar cuenta';title.textContent=`${action} · ${x.productName} — ${x.planName}`}
+    if(title){const action=clean(byId('c103ItemId')?.value)?'Editar cuenta':(byId('c103BatchToggle')?.getAttribute('aria-pressed')==='true'?'Agregar lote':'Agregar cuenta');title.textContent=`${action} · ${x.productName} — ${x.planName}`}
     const input=byId('c103Username'); if(!input)return;
     let hint=byId('v89AccountUsageHint');
     if(!hint){hint=document.createElement('div');hint.id='v89AccountUsageHint';hint.className='v89-account-usage';input.insertAdjacentElement('afterend',hint)}
@@ -16036,7 +16337,7 @@ header.app .app-sub{display:none!important}
 #tab-reminders .v91-reminder-row{display:grid;grid-template-columns:minmax(210px,1.25fr) minmax(130px,.7fr) minmax(130px,.65fr) minmax(245px,auto);gap:9px;align-items:center;border:1px solid var(--border);background:var(--card);border-radius:14px;padding:10px 11px;box-shadow:var(--shadow-xs);margin-bottom:7px}
 #tab-reminders .v91-reminder-row.overdue{border-color:rgba(185,28,28,.34);background:color-mix(in srgb,var(--danger-alpha) 26%,var(--card))}
 #tab-reminders .v91-reminder-row.today{border-color:rgba(180,83,9,.34);background:color-mix(in srgb,var(--warning-alpha) 24%,var(--card))}
-.v91-rem-main{min-width:0}.v91-rem-title{font-size:.87rem;font-weight:950;color:var(--card-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-rem-client{font-size:.72rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-rem-chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.v91-copy-chip{appearance:none;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:3px 7px;font-size:.64rem;font-weight:850;cursor:pointer;max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-copy-chip:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-alpha2)}.v91-copy-chip.account{background:var(--danger-alpha);color:var(--danger);border-color:rgba(185,28,28,.2)}.v91-copy-chip.mail{background:var(--success-alpha);color:var(--success);border-color:rgba(21,128,61,.2)}
+.v91-rem-main{min-width:0}.v91-rem-title{font-size:.91rem;font-weight:950;color:var(--card-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-rem-client{font-size:.84rem;font-weight:900;color:var(--card-ink);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-rem-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.v91-copy-chip{appearance:none;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:999px;padding:4px 8px;font-size:.7rem;font-weight:850;cursor:pointer;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v91-copy-chip:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-alpha2)}.v91-copy-chip.phone{font-size:.78rem;font-weight:950;background:var(--success-alpha);color:var(--success);border-color:rgba(21,128,61,.24)}.v91-copy-chip.account{background:var(--danger-alpha);color:var(--danger);border-color:rgba(185,28,28,.2)}.v91-copy-chip.mail{background:var(--primary-alpha2);color:var(--primary);border-color:rgba(30,64,175,.2)}
 .v91-rem-meta{display:flex;gap:5px;flex-wrap:wrap}.v91-rem-date{display:grid;gap:2px;font-size:.72rem}.v91-rem-date b{color:var(--card-ink)}.v91-rem-date span{color:var(--muted);font-size:.65rem}.v91-rem-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.v91-rem-actions .btn{min-width:0;width:100%;height:31px;padding:4px 6px;font-size:.65rem;border-radius:8px;overflow:hidden;text-overflow:ellipsis}
 .v91-search-note{border:1px solid var(--border);border-left:3px solid var(--primary);background:var(--primary-alpha2);border-radius:11px;padding:8px 10px;margin-bottom:8px;font-size:.72rem;color:var(--muted)}
 
@@ -16044,7 +16345,6 @@ header.app .app-sub{display:none!important}
 #dlgClientHistory{width:min(900px,97vw)}
 .v91-history-hero{border:1px solid var(--border);background:linear-gradient(135deg,var(--primary-alpha2),var(--card));border-radius:15px;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}.v91-history-name{font-size:1.02rem;font-weight:950;color:var(--card-ink)}.v91-history-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.v91-history-stats{display:flex;gap:6px;flex-wrap:wrap}.v91-history-stat{border:1px solid var(--border);background:var(--card);border-radius:10px;padding:6px 9px;text-align:center;min-width:65px}.v91-history-stat b{display:block;font-size:.95rem}.v91-history-stat span{font-size:.58rem;color:var(--muted);text-transform:uppercase;font-weight:900}.v91-history-search{position:sticky;top:0;z-index:2;background:var(--card);padding:8px 0}.v91-history-list{display:grid;gap:8px}.v91-history-item{border:1px solid var(--border);background:var(--card);border-radius:13px;padding:10px;border-left:4px solid var(--primary)}.v91-history-item.overdue{border-left-color:var(--danger)}.v91-history-item.delivery{border-left-color:var(--success)}.v91-history-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.v91-history-title{font-size:.82rem;font-weight:950;color:var(--card-ink)}.v91-history-sub{font-size:.67rem;color:var(--muted);margin-top:3px}.v91-history-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}.v91-history-kv{border:1px solid var(--border);background:var(--card2);border-radius:10px;padding:7px;min-width:0}.v91-history-kv span{display:block;font-size:.57rem;color:var(--muted);font-weight:900;text-transform:uppercase}.v91-history-kv b{display:block;font-size:.7rem;color:var(--card-ink);margin-top:2px;word-break:break-word}.v91-history-details{margin-top:7px;border:1px dashed var(--border);border-radius:10px;background:var(--card2)}.v91-history-details summary{cursor:pointer;padding:7px 9px;font-size:.68rem;font-weight:900}.v91-history-details pre{margin:0;padding:9px;border-top:1px dashed var(--border);white-space:pre-wrap;max-height:180px;overflow:auto;font-size:.7rem}.v91-history-hidden{display:none!important}
 
-#v91TelegramCard .v91-tg-status{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--card2);border-radius:11px;padding:9px;margin:10px 0;font-size:.76rem;font-weight:800}.v91-tg-dot{width:9px;height:9px;border-radius:50%;background:var(--warning);box-shadow:0 0 0 4px var(--warning-alpha)}.v91-tg-status.ok .v91-tg-dot{background:var(--success);box-shadow:0 0 0 4px var(--success-alpha)}.v91-tg-status.bad .v91-tg-dot{background:var(--danger);box-shadow:0 0 0 4px var(--danger-alpha)}
 
 @media(max-width:980px){.v91-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.v91-dash-grid{grid-template-columns:1fr}#tab-reminders .v91-reminder-row{grid-template-columns:1fr 1fr}.v91-rem-main{grid-column:1/-1}.v91-rem-actions{grid-column:1/-1}}
 @media(max-width:700px){.v91-dash-head{display:grid}.v91-dash-tools{justify-content:flex-start}.v91-dash-filter{grid-template-columns:1fr}.v91-filter-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.v91-filter-btn{padding:7px 5px}.v91-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.v91-kpi{min-height:100px;padding:10px}.v91-kpi-value{font-size:1.14rem}.v91-account-stats{grid-template-columns:repeat(3,minmax(0,1fr))}#tab-reminders .v91-reminder-row{grid-template-columns:1fr;padding:9px}.v91-rem-main,.v91-rem-actions{grid-column:auto}.v91-rem-actions{grid-template-columns:repeat(3,minmax(0,1fr))}.v91-copy-chip{max-width:160px}.v91-history-hero{grid-template-columns:1fr}.v91-history-grid{grid-template-columns:1fr 1fr}.v91-history-stats{justify-content:flex-start}}
@@ -16155,7 +16455,7 @@ header.app .app-sub{display:none!important}
   const closedSet=new Set(['cancelled','canceled','deleted','eliminado','archived','archivado','no_renovo','expired','completed']);
   const status=r=>norm(r?.status||'pending');
   const operational=r=>{const a=assignment(r);if(norm(a?.status)==='active')return true;return !closedSet.has(status(r))};
-  function searchBlob(r){const c=customer(r),a=assignment(r),o=orderFor(r),s=stockBy(r?.stock_item_id||a?.stock_item_id),d=secret(s),m=assignmentMeta(a);return [r?.service_name,r?.status,r?.due_date,r?.amount,r?.currency,r?.order_id,r?.order_item_id,r?.whatsapp_message,c?.name,c?.phone_e164,c?.phone_raw,c?.email,customerEmail(r,c),linkedRaw(r),profile(r),productName(r),planNameV(r),a?.status,a?.source,JSON.stringify(m),o?.order_code,o?.customer_name,o?.customer_whatsapp,d?.correo,d?.email,d?.usuario,d?.perfil,d?.pin,deliveryTextFor(r)].map(text).join(' ')}
+  function searchBlob(r){const c=customer(r),a=assignment(r),o=orderFor(r),s=stockBy(r?.stock_item_id||a?.stock_item_id),d=secret(s),m=assignmentMeta(a);return [r?.service_name,r?.status,r?.due_date,r?.amount,r?.currency,r?.order_id,r?.order_item_id,r?.whatsapp_message,c?.name,customerWhatsAppSearch(c),c?.email,customerEmail(r,c),linkedRaw(r),profile(r),productName(r),planNameV(r),a?.status,a?.source,JSON.stringify(m),o?.order_code,o?.customer_name,o?.customer_whatsapp,d?.correo,d?.email,d?.usuario,d?.perfil,d?.pin,deliveryTextFor(r)].map(text).join(' ')}
   function matches(r,q){const parts=norm(q).split(/\s+/).filter(Boolean);if(!parts.length)return true;const blob=norm(searchBlob(r));return parts.every(x=>blob.includes(x))}
   function statusInfo(r){const st=status(r),d=dayDiff(r?.due_date);if(paidSet.has(st))return['Pago registrado','b-purple','renew'];if(d==null)return['Sin fecha','b-pagado','review'];if(d<0)return['Vencido','b-bad','overdue'];if(d===0)return['Vence hoy','b-warn','today'];if(d<=7)return['Por vencer','b-warn','upcoming'];return['En curso','b-ok','later']}
   function dayNote(r){const d=dayDiff(r?.due_date);if(d==null)return 'sin fecha';if(d===0)return 'vence hoy';if(d<0){const n=Math.abs(d);return `hace ${n} día${n===1?'':'s'}`}return `en ${d} día${d===1?'':'s'}`}
@@ -16164,16 +16464,17 @@ header.app .app-sub{display:none!important}
   window.innovV91Copy=async function(value,label='Dato'){value=text(value);if(!value)return;try{await navigator.clipboard.writeText(value)}catch(_){const ta=document.createElement('textarea');ta.value=value;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}try{window.toast?.(`${label} copiado`,'ok')}catch(_){ }};
   document.addEventListener('click',e=>{const el=e.target.closest('[data-v91-copy]');if(!el)return;e.preventDefault();e.stopPropagation();let v='';try{v=decodeURIComponent(el.dataset.v91Copy||'')}catch(_){v=el.dataset.v91Copy||''}window.innovV91Copy(v,el.dataset.v91CopyLabel||'Dato')});
 
-  function groupReminders(query=''){const all=rows(stateOf().reminders).filter(operational).filter(r=>matches(r,query));const active=all.filter(r=>!paidSet.has(status(r))),sort=(a,b)=>(dayDiff(a?.due_date)??99999)-(dayDiff(b?.due_date)??99999)||text(a?.service_name).localeCompare(text(b?.service_name),'es');return {all,today:active.filter(r=>dayDiff(r?.due_date)===0).sort(sort),overdue:active.filter(r=>(dayDiff(r?.due_date)??0)<0).sort(sort),next7:active.filter(r=>{const d=dayDiff(r?.due_date);return d!=null&&d>0&&d<=7}).sort(sort),later:active.filter(r=>{const d=dayDiff(r?.due_date);return d!=null&&d>7}).sort(sort),paid:all.filter(r=>paidSet.has(status(r))).sort(sort)}}
+  function groupReminders(query=''){const all=rows(stateOf().reminders).filter(operational).filter(r=>matches(r,query));const active=all.filter(r=>!paidSet.has(status(r))),sentRank=r=>r?.last_sent_at?1:0,sort=(a,b)=>sentRank(a)-sentRank(b)||(dayDiff(a?.due_date)??99999)-(dayDiff(b?.due_date)??99999)||text(a?.service_name).localeCompare(text(b?.service_name),'es');return {all,today:active.filter(r=>dayDiff(r?.due_date)===0).sort(sort),overdue:active.filter(r=>(dayDiff(r?.due_date)??0)<0).sort(sort),next7:active.filter(r=>{const d=dayDiff(r?.due_date);return d!=null&&d>0&&d<=7}).sort(sort),later:active.filter(r=>{const d=dayDiff(r?.due_date);return d!=null&&d>7}).sort(sort),paid:all.filter(r=>paidSet.has(status(r))).sort(sort)}}
   function reminderRow(r){
-    const c=customer(r),info=statusInfo(r),id=html(r?.id||''),phone=text(c?.phone_e164||c?.phone_raw||''),account=linkedEmail(r),prof=profile(r),service=text(r?.service_name||planNameV(r)||'Servicio'),client=text(c?.name||'Cliente sin nombre'),hist=c?.id?`<button class="btn" type="button" onclick="event.stopPropagation();window.showClientHistory?.('${html(c.id)}')">◷ Hist.</button>`:'';
-    return `<div class="reminder-row v91-reminder-row ${info[2]}" data-reminder-id="${id}"><div class="v91-rem-main"><div class="v91-rem-title">${info[2]==='overdue'?'🚨':info[2]==='today'?'⏰':info[2]==='renew'?'🧾':'📌'} ${html(service)}</div><div class="v91-rem-client">${html(client)} · ${html(productName(r)||planNameV(r)||'Servicio')}</div><div class="v91-rem-chips">${copyChip(phone,'WhatsApp','','📱')}${copyChip(account,'Cuenta vinculada','account','🔗')}${copyChip(prof,'Perfil','','👤')}</div></div><div class="v91-rem-meta"><span class="badge ${info[1]}">${html(info[0])}</span><span class="badge">${html(moneyV(r?.amount))}</span>${r?.last_sent_at?'<span class="badge b-pagado">WhatsApp enviado</span>':''}</div><div class="v91-rem-date"><b>📅 ${html(dateLabel(r?.due_date))}</b><span>${html(dayNote(r))}</span></div><div class="v91-rem-actions"><button class="btn btn-success" type="button" onclick="event.stopPropagation();window.openReminderWhatsApp?.('${id}')">💬 WhatsApp</button><button class="btn" type="button" onclick="event.stopPropagation();window.markReminderPaid?.('${id}')">✓ Renovar</button><button class="btn btn-primary" type="button" onclick="event.stopPropagation();window.editReminder?.('${id}')">✎ Editar</button>${hist}<button class="btn btn-danger" type="button" onclick="event.stopPropagation();window.quickDeleteReminder?.('${id}')">🗑 Borrar</button></div></div>`;
+    const c=customer(r),info=statusInfo(r),id=html(r?.id||''),phone=text(customerWhatsAppLabel(c,'')),account=linkedEmail(r),mail=customerEmail(r,c),prof=profile(r),service=text(r?.service_name||planNameV(r)||'Servicio'),client=text(c?.name||'Cliente sin nombre'),hist=c?.id?`<button class="btn" type="button" onclick="event.stopPropagation();window.showClientHistory?.('${html(c.id)}')">◷ Hist.</button>`:'';
+    const mailChip=mail&&norm(mail)!==norm(account)?copyChip(mail,'Correo del cliente','mail','✉️'):'';
+    return `<div class="reminder-row v91-reminder-row ${info[2]}" data-reminder-id="${id}"><div class="v91-rem-main"><div class="v91-rem-title">${info[2]==='overdue'?'🚨':info[2]==='today'?'⏰':info[2]==='renew'?'🧾':'📌'} ${html(service)}</div><div class="v91-rem-client">${html(client)} · ${html(productName(r)||planNameV(r)||'Servicio')}</div><div class="v91-rem-chips">${copyChip(phone,'WhatsApp','phone','📱')}${mailChip}${copyChip(account,'Cuenta vinculada','account','🔗')}${copyChip(prof,'Perfil','','👤')}</div></div><div class="v91-rem-meta"><span class="badge ${info[1]}">${html(info[0])}</span><span class="badge">${html(moneyV(r?.amount))}</span>${r?.last_sent_at?'<span class="badge b-pagado">WhatsApp enviado</span>':''}</div><div class="v91-rem-date"><b>📅 ${html(dateLabel(r?.due_date))}</b><span>${html(dayNote(r))}</span></div><div class="v91-rem-actions"><button class="btn btn-success" type="button" onclick="event.stopPropagation();window.openReminderWhatsApp?.('${id}')">💬 WhatsApp</button><button class="btn" type="button" onclick="event.stopPropagation();window.markReminderPaid?.('${id}')">✓ Renovar</button><button class="btn btn-danger" type="button" onclick="event.stopPropagation();window.quickDeleteReminder?.('${id}')">🗑 Borrar</button><details class="v108-more" onclick="event.stopPropagation()"><summary class="btn">⋯ Más</summary><div class="v108-more-menu"><button class="btn btn-primary" type="button" onclick="event.stopPropagation();window.editReminder?.('${id}')">✎ Editar</button>${hist}</div></details></div></div>`;
   }
   const v99ReminderLimits=new Map();
   const v99ReminderKey=title=>norm(title)+'|'+norm((byId('reminderSearch')||byId('clientSearch'))?.value||'')+'|'+text(stateOf().v68Filter||'all');
   window.innovV99MoreReminders=function(encoded){let key='';try{key=decodeURIComponent(encoded)}catch(_){key=text(encoded)}const base=window.innerWidth<=800?20:36;v99ReminderLimits.set(key,Number(v99ReminderLimits.get(key)||base)+base);renderRemindersV91()};
   function section(icon,title,sub,list,badge){if(!list.length)return '';const base=window.innerWidth<=800?20:36,key=v99ReminderKey(title),limit=Math.max(base,Number(v99ReminderLimits.get(key)||base)),visible=list.slice(0,limit),remain=list.length-visible.length;return `<div class="v91-section"><span>${icon} ${html(title)} <small>${html(sub)}</small></span><span class="badge ${badge||''}">${list.length}</span></div>${visible.map(reminderRow).join('')}${remain?`<div class="v99-more-wrap"><button class="btn v99-more" type="button" onclick="window.innovV99MoreReminders('${html(encodeURIComponent(key))}')">Mostrar ${Math.min(base,remain)} más · quedan ${remain}</button></div>`:''}`}
-  function renderRemindersV91(){const host=byId('remindersGrid'),merged=byId('remindersMergedGrid');if(!host&&!merged)return;const input=byId('reminderSearch')||byId('clientSearch');if(byId('reminderSearch'))byId('reminderSearch').placeholder='🔍 Buscar cliente, celular, correo del cliente, cuenta vinculada, perfil, producto, plan, monto, fecha o pedido...';const q=text(input?.value||''),g=groupReminders(q),filter=stateOf().v68Filter||'all';let out='';if(filter==='today')out=section('⏰','Vencen hoy','prioridad',g.today,'b-warn');else if(filter==='overdue'||stateOf().onlyDue)out=section('🚨','Vencidos','cobranza pendiente',g.overdue,'b-bad');else if(filter==='renew')out=section('🧾','Pagos por renovar','crear próximo vencimiento',g.paid,'b-purple');else if(filter==='upcoming')out=section('📆','Próximos 7 días','seguimiento',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');else out=section('⏰','Vencen hoy','atiéndelos primero',g.today,'b-warn')+section('🚨','Vencidos','continúa la cobranza',g.overdue,'b-bad')+section('🧾','Pagos por renovar','crea el siguiente vencimiento',g.paid,'b-purple')+section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');if(!out)out='<div class="v91-empty">✅ No hay recordatorios para mostrar.</div>';if(q)out=`<div class="v91-search-note">Búsqueda profunda activa: cliente, WhatsApp, correos, cuenta vinculada, perfil, producto, plan, monto, fecha, pedido y datos de entrega.</div>${out}`;if(host)host.innerHTML=out;if(merged)merged.innerHTML=out;const urgent=g.today.length+g.overdue.length+g.paid.length;['tbReminders','mbReminders'].forEach(k=>{const el=byId(k);if(el){el.textContent=urgent>999?'999+':String(urgent);el.style.display=urgent?'':'none'}});try{window.updateReminderBulkBar?.()}catch(_){ }}
+  function renderRemindersV91(){const host=byId('remindersGrid'),merged=byId('remindersMergedGrid');if(!host&&!merged)return;const input=byId('reminderSearch')||byId('clientSearch');if(byId('reminderSearch'))byId('reminderSearch').placeholder='🔍 Buscar cliente, celular, correo del cliente, cuenta vinculada, perfil, producto, plan, monto, fecha o pedido...';const q=text(input?.value||''),g=groupReminders(q),filter=stateOf().v68Filter||'all';let out='';if(filter==='today')out=section('⏰','Vencen hoy','prioridad',g.today,'b-warn');else if(filter==='overdue'||stateOf().onlyDue)out=section('🚨','Vencidos','cobranza pendiente',g.overdue,'b-bad');else if(filter==='renew')out=section('🧾','Pagos por renovar','crear próximo vencimiento',g.paid,'b-purple');else if(filter==='upcoming')out=section('📆','Próximos 7 días','seguimiento',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');else out=section('⏰','Vencen hoy','atiéndelos primero',g.today,'b-warn')+section('🚨','Vencidos','continúa la cobranza',g.overdue,'b-bad')+section('🧾','Pagos por renovar','crea el siguiente vencimiento',g.paid,'b-purple')+section('📆','Próximos 7 días','seguimiento cercano',g.next7,'b-ok')+section('🗓','Más adelante','servicios en curso',g.later,'b-ok');if(!out)out='<div class="v91-empty">✅ No hay recordatorios para mostrar.</div>';if(q)out=`<div class="v91-search-note">Búsqueda profunda activa: cliente, WhatsApp, correos, cuenta vinculada, perfil, producto, plan, monto, fecha, pedido y datos de entrega.</div>${out}`;if(host)host.innerHTML=out;if(merged)merged.replaceChildren();const urgent=g.today.length+g.overdue.length+g.paid.length;['tbReminders','mbReminders'].forEach(k=>{const el=byId(k);if(el){el.textContent=urgent>999?'999+':String(urgent);el.style.display=urgent?'':'none'}});try{window.updateReminderBulkBar?.()}catch(_){ }}
   let v99ReminderTimer=0;
   function renderRemindersV99(){const focused=document.activeElement===byId('reminderSearch')||document.activeElement===byId('clientSearch');if(focused){clearTimeout(v99ReminderTimer);v99ReminderTimer=setTimeout(renderRemindersV91,170);return}return renderRemindersV91()}
   window.renderReminders=renderRemindersV99;try{renderReminders=window.renderReminders}catch(_){ }
@@ -16189,17 +16490,13 @@ header.app .app-sub{display:none!important}
   const previousBuild=window.buildTemplateMessage||(typeof buildTemplateMessage==='function'?buildTemplateMessage:null);
   if(typeof previousBuild==='function'&&!previousBuild.__v91){const wrapped=function(template,customerObj,reminder){const base=previousBuild.apply(this,arguments),account=linkedEmail(reminder);return String(base||'').replace(/\{\{\s*(cuenta_vinculada|cuenta_asociada|correo_cuenta)\s*\}\}/gi,account).replace(/\{\s*(cuenta_vinculada|cuenta_asociada|correo_cuenta)\s*\}/gi,account)};wrapped.__v91=true;window.buildTemplateMessage=wrapped;try{buildTemplateMessage=wrapped}catch(_){ }}
 
-  function historyItemReminder(r){const c=customer(r),a=assignment(r),acc=linkedEmail(r),mail=customerEmail(r,c),prof=profile(r),info=statusInfo(r),hay=norm(searchBlob(r));return `<article class="v91-history-item ${info[2]==='overdue'?'overdue':''}" data-v91-history-item data-v91-haystack="${html(enc(hay))}"><div class="v91-history-top"><div><div class="v91-history-title">🔔 ${html(r?.service_name||planNameV(r)||'Servicio')}</div><div class="v91-history-sub">${html(dateLabel(r?.due_date))} · ${html(info[0])}</div></div><span class="badge ${info[1]}">${html(moneyV(r?.amount))}</span></div><div class="v91-rem-chips">${copyChip(c?.phone_e164||c?.phone_raw,'WhatsApp','','📱')}${copyChip(mail,'Correo del cliente','mail','✉')}${copyChip(acc,'Cuenta vinculada','account','🔗')}${copyChip(prof,'Perfil','','👤')}</div><div class="v91-history-grid"><div class="v91-history-kv"><span>Producto / plan</span><b>${html(productName(r)||'—')} · ${html(planNameV(r)||'—')}</b></div><div class="v91-history-kv"><span>Estado</span><b>${html(info[0])}</b></div><div class="v91-history-kv"><span>Pedido</span><b>${html(orderFor(r)?.order_code||r?.order_id||'—')}</b></div></div>${r?.whatsapp_message?`<details class="v91-history-details"><summary>Ver mensaje de WhatsApp</summary><pre>${html(r.whatsapp_message)}</pre></details>`:''}</article>`}
-  function historyItemDelivery(d){const data=d?.delivery_data&&typeof d.delivery_data==='object'?d.delivery_data:{},order=rows(stateOf().orders).find(o=>same(o.id,d?.order_id))||{},login=text(data.correo||data.email||data.usuario||''),prof=text(data.perfil||data.profile||''),raw=text(d?.delivered_message||d?.message||''),hay=norm(`${JSON.stringify(data)} ${raw} ${order.order_code||''}`);return `<article class="v91-history-item delivery" data-v91-history-item data-v91-haystack="${html(enc(hay))}"><div class="v91-history-top"><div><div class="v91-history-title">📦 Entrega registrada</div><div class="v91-history-sub">${html(new Date(d?.created_at||Date.now()).toLocaleString('es-PE'))} · ${html(order?.order_code||'Sin pedido')}</div></div><span class="badge b-ok">Entregado</span></div><div class="v91-rem-chips">${copyChip(login,'Cuenta entregada','account','🔗')}${copyChip(prof,'Perfil','','👤')}${copyChip(data.pin,'PIN','','🔢')}</div><div class="v91-history-grid"><div class="v91-history-kv"><span>Cliente</span><b>${html(order?.customer_name||'—')}</b></div><div class="v91-history-kv"><span>WhatsApp</span><b>${html(order?.customer_whatsapp||'—')}</b></div><div class="v91-history-kv"><span>Fecha</span><b>${html(dateLabel(d?.created_at))}</b></div></div>${raw?`<details class="v91-history-details"><summary>Ver entrega completa</summary><pre>${html(raw)}</pre></details>`:''}</article>`}
-  window.showClientHistory=function(customerId){const c=rows(stateOf().customers).find(x=>same(x.id,customerId))||{};if(!c.id)return;const rem=rows(stateOf().reminders).filter(r=>same(r.customer_id,c.id)).sort((a,b)=>text(b?.due_date).localeCompare(text(a?.due_date))),orderIds=new Set(rem.map(r=>text(r?.order_id)).filter(Boolean)),phone=text(c.phone_e164||c.phone_raw).replace(/\D/g,'');rows(stateOf().orders).filter(o=>text(o?.customer_whatsapp).replace(/\D/g,'')===phone).forEach(o=>orderIds.add(text(o.id)));const del=rows(stateOf().deliveries).filter(d=>orderIds.has(text(d?.order_id))).sort((a,b)=>text(b?.created_at).localeCompare(text(a?.created_at))),open=rem.filter(operational).length,over=rem.filter(r=>(dayDiff(r?.due_date)??0)<0&&operational(r)).length,linked=[...new Set(rem.map(linkedEmail).filter(Boolean))],target=byId('clientHistoryBody');if(byId('clientHistoryTitle'))byId('clientHistoryTitle').textContent='Historial · '+(c.name||'Cliente');if(target)target.innerHTML=`<div class="v91-history-hero"><div><div class="v91-history-name">${html(c.name||'Cliente')}</div><div class="v91-history-chips">${copyChip(c.phone_e164||c.phone_raw,'WhatsApp','','📱')}${copyChip(c.email,'Correo del cliente','mail','✉')}${linked.map(x=>copyChip(x,'Cuenta vinculada','account','🔗')).join('')}</div></div><div class="v91-history-stats"><div class="v91-history-stat"><b>${open}</b><span>servicios</span></div><div class="v91-history-stat"><b>${over}</b><span>vencidos</span></div><div class="v91-history-stat"><b>${del.length}</b><span>entregas</span></div></div></div><div class="v91-history-search"><input class="input" id="v91HistorySearch" type="search" placeholder="Buscar servicio, cuenta, correo, perfil, pedido o mensaje..."></div><div class="v91-history-list" id="v91HistoryList">${rem.map(historyItemReminder).join('')}${del.map(historyItemDelivery).join('')||(!rem.length?'<div class="v91-empty">Sin historial registrado.</div>':'')}</div>`;try{window.showDialog?.('dlgClientHistory')}catch(_){byId('dlgClientHistory')?.showModal?.()}const input=byId('v91HistorySearch');if(input)input.oninput=()=>{const q=norm(input.value);byId('v91HistoryList')?.querySelectorAll('[data-v91-history-item]').forEach(el=>{let hay='';try{hay=decodeURIComponent(el.dataset.v91Haystack||'')}catch(_){hay=el.dataset.v91Haystack||''}el.classList.toggle('v91-history-hidden',q&&!hay.includes(q))})}};try{showClientHistory=window.showClientHistory}catch(_){ }
+  function historyItemReminder(r){const c=customer(r),a=assignment(r),acc=linkedEmail(r),mail=customerEmail(r,c),prof=profile(r),info=statusInfo(r),hay=norm(searchBlob(r));return `<article class="v91-history-item ${info[2]==='overdue'?'overdue':''}" data-v91-history-item data-v91-haystack="${html(enc(hay))}"><div class="v91-history-top"><div><div class="v91-history-title">🔔 ${html(r?.service_name||planNameV(r)||'Servicio')}</div><div class="v91-history-sub">${html(dateLabel(r?.due_date))} · ${html(info[0])}</div></div><span class="badge ${info[1]}">${html(moneyV(r?.amount))}</span></div><div class="v91-rem-chips">${copyChip(customerWhatsAppLabel(c,''),'WhatsApp','','📱')}${copyChip(mail,'Correo del cliente','mail','✉')}${copyChip(acc,'Cuenta vinculada','account','🔗')}${copyChip(prof,'Perfil','','👤')}</div><div class="v91-history-grid"><div class="v91-history-kv"><span>Producto / plan</span><b>${html(productName(r)||'—')} · ${html(planNameV(r)||'—')}</b></div><div class="v91-history-kv"><span>Estado</span><b>${html(info[0])}</b></div><div class="v91-history-kv"><span>Pedido</span><b>${html(orderFor(r)?.order_code||r?.order_id||'—')}</b></div></div>${r?.whatsapp_message?`<details class="v91-history-details"><summary>Ver mensaje de WhatsApp</summary><pre>${html(r.whatsapp_message)}</pre></details>`:''}</article>`}
+  function historyItemDelivery(d){const data=d?.delivery_data&&typeof d.delivery_data==='object'?d.delivery_data:{},order=rows(stateOf().orders).find(o=>same(o.id,d?.order_id))||{},login=text(data.correo||data.email||data.usuario||''),prof=text(data.perfil||data.profile||''),raw=text(d?.delivered_message||d?.message||''),hay=norm(`${JSON.stringify(data)} ${raw} ${order.order_code||''}`);return `<article class="v91-history-item delivery" data-v91-history-item data-v91-haystack="${html(enc(hay))}"><div class="v91-history-top"><div><div class="v91-history-title">📦 Entrega registrada</div><div class="v91-history-sub">${html(new Date(d?.created_at||Date.now()).toLocaleString('es-PE'))} · ${html(order?.order_code||'Sin pedido')}</div></div><span class="badge b-ok">Entregado</span></div><div class="v91-rem-chips">${copyChip(login,'Cuenta entregada','account','🔗')}${copyChip(prof,'Perfil','','👤')}${copyChip(data.pin,'PIN','','🔢')}</div><div class="v91-history-grid"><div class="v91-history-kv"><span>Cliente</span><b>${html(order?.customer_name||'—')}</b></div><div class="v91-history-kv"><span>WhatsApp</span><b>${html(orderWhatsAppLabel(order))}</b></div><div class="v91-history-kv"><span>Fecha</span><b>${html(dateLabel(d?.created_at))}</b></div></div>${raw?`<details class="v91-history-details"><summary>Ver entrega completa</summary><pre>${html(raw)}</pre></details>`:''}</article>`}
+  window.showClientHistory=function(customerId){const c=rows(stateOf().customers).find(x=>same(x.id,customerId))||{};if(!c.id)return;const rem=rows(stateOf().reminders).filter(r=>same(r.customer_id,c.id)).sort((a,b)=>text(b?.due_date).localeCompare(text(a?.due_date))),orderIds=new Set(rem.map(r=>text(r?.order_id)).filter(Boolean)),contact=customerWhatsAppContact(c);if(contact)rows(stateOf().orders).filter(o=>window.sameWhatsAppContact?.(o?.customer_whatsapp,contact)).forEach(o=>orderIds.add(text(o.id)));const del=rows(stateOf().deliveries).filter(d=>orderIds.has(text(d?.order_id))).sort((a,b)=>text(b?.created_at).localeCompare(text(a?.created_at))),open=rem.filter(operational).length,over=rem.filter(r=>(dayDiff(r?.due_date)??0)<0&&operational(r)).length,linked=[...new Set(rem.map(linkedEmail).filter(Boolean))],target=byId('clientHistoryBody');if(byId('clientHistoryTitle'))byId('clientHistoryTitle').textContent='Historial · '+(c.name||'Cliente');if(target)target.innerHTML=`<div class="v91-history-hero"><div><div class="v91-history-name">${html(c.name||'Cliente')}</div><div class="v91-history-chips">${copyChip(customerWhatsAppLabel(c,''),'WhatsApp','','📱')}${copyChip(c.email,'Correo del cliente','mail','✉')}${linked.map(x=>copyChip(x,'Cuenta vinculada','account','🔗')).join('')}</div></div><div class="v91-history-stats"><div class="v91-history-stat"><b>${open}</b><span>servicios</span></div><div class="v91-history-stat"><b>${over}</b><span>vencidos</span></div><div class="v91-history-stat"><b>${del.length}</b><span>entregas</span></div></div></div><div class="v91-history-search"><input class="input" id="v91HistorySearch" type="search" placeholder="Buscar servicio, cuenta, correo, perfil, pedido o mensaje..."></div><div class="v91-history-list" id="v91HistoryList">${rem.map(historyItemReminder).join('')}${del.map(historyItemDelivery).join('')||(!rem.length?'<div class="v91-empty">Sin historial registrado.</div>':'')}</div>`;try{window.showDialog?.('dlgClientHistory')}catch(_){byId('dlgClientHistory')?.showModal?.()}const input=byId('v91HistorySearch');if(input)input.oninput=()=>{const q=norm(input.value);byId('v91HistoryList')?.querySelectorAll('[data-v91-history-item]').forEach(el=>{let hay='';try{hay=decodeURIComponent(el.dataset.v91Haystack||'')}catch(_){hay=el.dataset.v91Haystack||''}el.classList.toggle('v91-history-hidden',q&&!hay.includes(q))})}};try{showClientHistory=window.showClientHistory}catch(_){ }
 
   function applyBrand(){document.querySelectorAll('.logo,.auth-logo').forEach(el=>{if(el.classList.contains('v91-brand-lockup'))return;el.classList.add('v91-brand-lockup');el.innerHTML='<span class="v91-brand-a">INNOV</span><span class="v91-brand-b">TIENDA</span>'});document.querySelectorAll('.app-title').forEach(el=>el.textContent='Admin');const at=document.querySelector('.auth-title');if(at)at.textContent='Innov Tienda Admin'}
-  function ensureTelegramCard(){if(byId('v91TelegramCard'))return;const grid=byId('tab-settings')?.querySelector('.grid.grid-2');if(!grid)return;const card=document.createElement('div');card.className='card';card.id='v91TelegramCard';card.innerHTML='<strong>📨 Alertas de pedidos por Telegram</strong><p class="help" style="margin:6px 0 0">Comprueba la función <b>smooth-worker</b>, que recibe los avisos del checkout.</p><div class="v91-tg-status" id="v91TelegramStatus"><span class="v91-tg-dot"></span><span>Sin verificar</span></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="btn" id="v91TelegramHealth" type="button">Verificar conexión</button><button class="btn btn-primary" id="v91TelegramTest" type="button">Enviar prueba</button></div><div class="help" id="v91TelegramLog" style="margin-top:8px"></div>';grid.appendChild(card);byId('v91TelegramHealth').onclick=telegramHealth;byId('v91TelegramTest').onclick=telegramTest}
-  async function telegramHealth(){const box=byId('v91TelegramStatus'),log=byId('v91TelegramLog');if(box){box.className='v91-tg-status';box.querySelector('span:last-child').textContent='Verificando…'}try{const r=await fetch(`${SUPABASE_URL}/functions/v1/smooth-worker`,{headers:{apikey:SUPABASE_KEY}}),j=await r.json();const ok=r.ok&&j?.ok&&j?.configured?.bot&&j?.configured?.chat&&j?.configured?.service;if(box){box.className='v91-tg-status '+(ok?'ok':'bad');box.querySelector('span:last-child').textContent=ok?'Función y secretos principales listos':'Configuración incompleta'}if(log)log.textContent=`Versión: ${j?.version||'—'} · Bot: ${j?.configured?.bot?'sí':'no'} · Chat: ${j?.configured?.chat?'sí':'no'} · Base: ${j?.configured?.service?'sí':'no'}`}catch(e){if(box){box.className='v91-tg-status bad';box.querySelector('span:last-child').textContent='No responde smooth-worker'}if(log)log.textContent=text(e?.message||e)}}
-  async function telegramTest(){const latest=rows(stateOf().orders).find(o=>text(o?.order_code));if(!latest)return window.toast?.('No hay un pedido para usar en la prueba','bad');const btn=byId('v91TelegramTest');if(btn)btn.disabled=true;try{const session=await db.auth.getSession(),token=session?.data?.session?.access_token||'';const r=await fetch(`${SUPABASE_URL}/functions/v1/smooth-worker`,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_KEY,...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({event:'test',order_code:latest.order_code,message:'Prueba enviada desde Innov Tienda Admin V91'})}),j=await r.json();if(!r.ok||j?.ok===false)throw new Error(j?.error||`HTTP ${r.status}`);window.toast?.('Prueba enviada a Telegram','ok');telegramHealth()}catch(e){window.toast?.('Telegram: '+text(e?.message||e),'bad')}finally{if(btn)btn.disabled=false}}
-
   window.cleanupExpiredReofferReminders=async()=>undefined;try{cleanupExpiredReofferReminders=window.cleanupExpiredReofferReminders}catch(_){ }
-  function init(){applyBrand();ensureTelegramCard();const help=document.querySelector('#tab-templates .card .help');if(help&&!help.textContent.includes('{cuenta_vinculada}'))help.insertAdjacentHTML('beforeend',' <span class="mono">{cuenta_vinculada}</span>');}
+  function init(){applyBrand();const help=document.querySelector('#tab-templates .card .help');if(help&&!help.textContent.includes('{cuenta_vinculada}'))help.insertAdjacentHTML('beforeend',' <span class="mono">{cuenta_vinculada}</span>');}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,650),{once:true});else setTimeout(init,650);
 })();
 </script>
@@ -16207,7 +16504,7 @@ header.app .app-sub{display:none!important}
 
 <style id="innov-v92-admin-css">
 /* V92 — Recordatorios exactos, pagos directos y seguridad */
-#controlCManualQueue,#v91TelegramCard{display:none!important}
+#controlCManualQueue{display:none!important}
 .v92-linked-label{font-size:.57rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.04em}
 .v92-payment-toast{max-width:430px}
 .v92-security-card{border-left:4px solid var(--primary)}
@@ -16257,10 +16554,10 @@ header.app .app-sub{display:none!important}
   function normalizeResult(data){if(Array.isArray(data))return data[0]||{};return data&&typeof data==='object'?data:{}}
   async function rpcFirst(orderId){const calls=['admin_v92_approve_payment_and_fulfill','admin_v81_approve_payment_and_fulfill','admin_v80_approve_payment_and_fulfill'];let last=null;for(const fn of calls){const r=await db.rpc(fn,{p_order_id:orderId});if(!r.error)return normalizeResult(r.data);last=r.error;const msg=txt(r.error?.message).toLowerCase();if(!msg.includes('function')&&!msg.includes('does not exist')&&!msg.includes('not found'))throw r.error}throw last||new Error('No existe la función de aprobación automática V80/V81/V92')}
   function latestDeliveryMessage(orderId){return (state?.deliveries||[]).filter(d=>txt(d?.order_id)===txt(orderId)).sort((a,b)=>txt(b?.created_at).localeCompare(txt(a?.created_at))).map(d=>txt(d?.delivered_message||d?.message)).find(Boolean)||''}
-  function showDeliveryResult(order,msg){ensureDeliveryResultDialog();$v('v92DeliveryMessage').textContent=msg||'Entrega registrada.';const phone=txt(order?.customer_whatsapp),open=()=>{try{const n=window.normalizePhone?.(phone);const e164=n?.ok?n.e164:phone.replace(/\D/g,'');const url=window.waLink?.(e164,msg);if(url&&url!=='#')window.open(url,'_blank','noopener,noreferrer');else window.toast?.('WhatsApp inválido','bad')}catch(e){window.toast?.('No se pudo abrir WhatsApp','bad')}};$v('v92DeliveryCopy').onclick=()=>window.innovV91Copy?.(msg,'Entrega');$v('v92DeliveryWhatsapp').onclick=open;$v('dlgV92DeliveryResult').showModal();open()}
+  function showDeliveryResult(order,msg){ensureDeliveryResultDialog();$v('v92DeliveryMessage').textContent=msg||'Entrega registrada.';const contact=window.orderWhatsAppLabel?.(order)||txt(order?.customer_whatsapp),open=()=>{try{const url=window.waLink?.(contact,msg);if(url&&url!=='#')window.open(url,'_blank','noopener,noreferrer');else window.toast?.('WhatsApp o usuario inválido','bad')}catch(e){window.toast?.('No se pudo abrir WhatsApp','bad')}};$v('v92DeliveryCopy').onclick=()=>window.innovV91Copy?.(msg,'Entrega');$v('v92DeliveryWhatsapp').onclick=open;$v('dlgV92DeliveryResult').showModal();open()}
   window.approveOrder=async function(id){const order=(state?.orders||[]).find(o=>txt(o?.id)===txt(id))||{};if(!confirm(`¿Aprobar el pago del pedido ${order.order_code||''}? Si existe stock, se entregará y descontará automáticamente.`))return;window.toast?.('Aprobando pago, validando cupo y preparando entrega…','ok');try{const result=await rpcFirst(id);await window.loadAll?.();const refreshed=(state?.orders||[]).find(o=>txt(o?.id)===txt(id))||order;const manual=Number(result?.manual_pending||0);const delivered=Number(result?.delivered_units||result?.auto_delivered||0);const msg=txt(result?.delivery_message)||latestDeliveryMessage(id);if(manual>0){window.toast?.(result?.message||'Pago aprobado. La entrega requiere datos manuales.','ok');setTimeout(()=>window.openManualDelivery?.(id),80);return}if(delivered>0||msg){window.toast?.('Pago aprobado y entrega registrada','ok');showDeliveryResult(refreshed,msg);return}window.toast?.(result?.message||'Pago aprobado. No se encontró mensaje de entrega; revisa el stock del plan.','bad')}catch(e){window.toast?.('No se pudo aprobar y entregar: '+txt(e?.message||e),'bad')}};
   try{approveOrder=window.approveOrder}catch(_){ }
-  function removeObsolete(){document.getElementById('v91TelegramCard')?.remove();document.getElementById('controlCManualQueue')?.remove()}
+  function removeObsolete(){document.getElementById('controlCManualQueue')?.remove()}
   function init(){removeObsolete();ensureRecoveryUi();ensureSecurityCard();recordDevice();setInterval(recordDevice,5*60*1000)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,500),{once:true});else setTimeout(init,500);
 })();
@@ -16309,8 +16606,9 @@ header.app .app-sub{display:none!important}
   function deliveryDialog(order,msg){
     if(typeof window.showDeliveryResult==='function'){window.showDeliveryResult(order,msg);return}
     try{window.innovV91Copy?.(msg,'Entrega')}catch(_){ }
-    const phone=t(order?.customer_whatsapp).replace(/\D/g,'');
-    if(phone&&msg)window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank','noopener,noreferrer');
+    const contact=window.orderWhatsAppLabel?.(order)||t(order?.customer_whatsapp);
+    const url=window.waLink?.(contact,msg);
+    if(url&&url!=='#'&&msg)window.open(url,'_blank','noopener,noreferrer');
   }
   window.approveOrder=async function(id){
     const order=(state?.orders||[]).find(o=>t(o?.id)===t(id))||{};
@@ -16350,8 +16648,6 @@ header.app .app-sub{display:none!important}
 <script>console.info('Innov IA Admin V94 · pago automático resistente');</script>
 
 
-
-
 <style id="innov-v96-recordatorio-cuentas-css">
 /* V96 — corrección directa de cuenta vinculada y fecha real de cuentas */
 .c103-chip.date{color:var(--primary);background:var(--primary-alpha2);border-color:var(--border)}
@@ -16363,9 +16659,9 @@ header.app .app-sub{display:none!important}
 
 <style id="innov-v99-safe-performance-css">
 /* V99 — optimización estable: reduce DOM y trabajo repetido sin interceptar loadAll/renderAll. */
-#remindersGrid>.v91-reminder-row,#remindersMergedGrid>.v91-reminder-row,#ordersGrid>.order-row,#productsGrid>.mini-card,#plansGrid>.mini-card,#totpGrid>*{content-visibility:auto;contain-intrinsic-size:118px}
+#remindersGrid .v91-reminder-row,#ordersGrid>.order-row,#productsGrid>.mini-card,#plansGrid>.mini-card,#totpGrid>*{content-visibility:auto;contain-intrinsic-size:118px}
 .v99-more-wrap{display:flex;justify-content:center;padding:9px 4px 16px}.v99-more{min-width:min(330px,100%);font-weight:850;background:var(--card);border:1px solid var(--border2);box-shadow:var(--shadow-xs)}
-@media(max-width:800px){#remindersGrid>.v91-reminder-row,#remindersMergedGrid>.v91-reminder-row,#ordersGrid>.order-row,#productsGrid>.mini-card,#plansGrid>.mini-card,#totpGrid>*{contain-intrinsic-size:158px}.v99-more-wrap{padding-bottom:12px}}
+@media(max-width:800px){#remindersGrid .v91-reminder-row,#ordersGrid>.order-row,#productsGrid>.mini-card,#plansGrid>.mini-card,#totpGrid>*{contain-intrinsic-size:158px}.v99-more-wrap{padding-bottom:12px}}
 @media(prefers-reduced-motion:reduce){.v91-reminder-row,.order-row,.mini-card,.totp-row{animation:none!important;transition:none!important}}
 </style>
 <script id="innov-v99-safe-performance-js">
@@ -16634,7 +16930,12 @@ window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive
     }catch(e){showError(rpcMessage(e));toastSafe('No se completó: '+rpcMessage(e),'bad')}
     finally{busy=false;progress(false);renderSummary(preview)}
   }
+  function adminIsReady(){
+    const app=$('app');
+    return !!app&&!app.classList.contains('hidden');
+  }
   async function cleanupExpired(force=false){
+    if(!adminIsReady())return;
     if(!force&&Date.now()-lastCleanup<15*60*1000)return;lastCleanup=Date.now();
     try{const r=await client().rpc('admin_totp_cleanup_expired_v106');if(r.error)throw r.error;const d=normalize(r.data),n=Number(d.deleted_count||0);if(n){try{await window.loadTotpCodes?.()}catch(_){ }try{window.renderTotp?.()}catch(_){ }toastSafe(`${n} código(s) vencido(s) eliminado(s).`,'ok')}}catch(e){if(!/could not find|schema cache|PGRST202/i.test(txt(e?.message||e)))console.warn('V106 cleanup',e)}
   }
@@ -16738,13 +17039,17 @@ window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive
     return ({auto:'Automático',normal:'WhatsApp normal',business:'WhatsApp Business',web:'WhatsApp Web'})[value]||'Automático';
   }
   function fallbackUrl(phone,message){
+    if(typeof window.basicWhatsAppUrl==='function')return window.basicWhatsAppUrl(phone,message);
     const n=digits(phone);
     return n?`https://wa.me/${n}?text=${encodeURIComponent(message||'')}`:'#';
   }
   function preferredUrl(phone,message){
-    const n=digits(phone);
+    const contact=typeof window.whatsappContactInfo==='function'?window.whatsappContactInfo(phone):null;
+    if(contact&&!contact.ok)return '#';
+    const fallback=fallbackUrl(contact?.value||phone,message);
+    if(contact?.kind==='username')return fallback;
+    const n=contact?digits(contact.value):digits(phone);
     if(!n)return '#';
-    const fallback=fallbackUrl(n,message);
     const pref=preferredApp();
     if(pref==='web'||pref==='auto'||!isAndroid())return fallback;
     const packageName=pref==='business'?'com.whatsapp.w4b':'com.whatsapp';
@@ -16912,32 +17217,36 @@ window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive
     const reminder=Array.isArray(s.reminders)?s.reminders.find(x=>String(x?.id)===String(id)):null;
     if(!reminder)return window.toast?.('No se encontró el recordatorio','bad');
     const customer=Array.isArray(s?.customers)?s.customers.find(x=>String(x?.id)===String(reminder.customer_id))||{}:{};
-    const phone=customer.phone_e164||customer.phone_raw||'';
+    const contact=(window.customerWhatsAppContact?.(customer))||customer.whatsapp_contact||customer.phone_e164||customer.phone_raw||'';
     let message='';
     try{
       const template=typeof window.getDefaultTemplate==='function'?window.getDefaultTemplate():null;
       message=typeof window.buildTemplateMessage==='function'?window.buildTemplateMessage(template,customer,reminder):(reminder.whatsapp_message||'');
     }catch(_){message=reminder.whatsapp_message||''}
-    if(!digits(phone)){window.toast?.('El cliente no tiene WhatsApp válido','bad');return}
+    const contactInfo=window.whatsappContactInfo?.(contact);
+    if(contactInfo&&!contactInfo.ok){window.toast?.('El cliente no tiene WhatsApp o usuario válido','bad');return}
 
     markCardSending(id);
-    const opened=openPreferred(phone,message);
+    const opened=openPreferred(contact,message);
     if(!opened){restoreCard(id);window.toast?.('No se pudo abrir WhatsApp','bad');return}
 
     const sentAt=new Date().toISOString();
-    // Actualización optimista: confirma sin redibujar ni reordenar toda la lista.
+    const previousSentAt=reminder.last_sent_at||null;
+    // Actualización optimista: confirma y coloca este envío después de los pendientes.
     const index=s.reminders.findIndex(x=>String(x?.id)===String(id));
     if(index>=0)s.reminders[index]={...s.reminders[index],whatsapp_message:message,last_sent_at:sentAt};
     markCardSent(id);
-    window.toast?.(`${preferenceLabel()} abierto. El recordatorio se mantuvo en su lugar.`,'ok');
+    setTimeout(()=>window.renderReminders?.(),180);
+    window.toast?.(`${preferenceLabel()} abierto. El recordatorio pasó debajo de los pendientes.`,'ok');
 
     try{
       const saved=await window.db.from('payment_reminders').update({whatsapp_message:message,last_sent_at:sentAt}).eq('id',id).select().maybeSingle();
       if(saved.error)throw saved.error;
       if(index>=0)s.reminders[index]={...s.reminders[index],...(saved.data||{}),whatsapp_message:message,last_sent_at:sentAt};
       try{window.publishAdminChange?.('payment_reminders','PATCH',{action:'whatsapp_sent',reminder_id:id})}catch(_){ }
-      // No llamamos renderReminders(): así ninguna tarjeta sube o baja después del envío.
     }catch(error){
+      if(index>=0)s.reminders[index]={...s.reminders[index],last_sent_at:previousSentAt};
+      window.renderReminders?.();
       window.toast?.('WhatsApp se abrió, pero no se pudo guardar la marca de envío: '+(error?.message||error),'bad');
     }
   }
@@ -16958,5 +17267,183 @@ window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive
 })();
 </script>
 
+<style id="innov-v108-operations-css">
+#innovV50Bell,#innovV50Daily,#innovV66ReminderCenter,#innovV67ReminderCenter,#innovV68Center{display:none!important}
+.template-vars-card{margin-bottom:12px;border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:14px;background:var(--card);overflow:hidden}
+.template-vars-card>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;cursor:pointer;font-weight:850;color:var(--card-ink);list-style:none}
+.template-vars-card>summary::-webkit-details-marker,.v108-more>summary::-webkit-details-marker{display:none}
+.template-vars-card[open]>summary{border-bottom:1px solid var(--border)}
+.template-vars-body{display:grid;gap:9px;padding:11px 14px 13px}
+.template-vars-note{font-size:.78rem;color:var(--muted)}
+.template-vars-row{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;align-items:start}
+.template-vars-row>strong{font-size:.78rem;padding-top:5px;color:var(--card-ink)}
+.template-vars-chips{display:flex;flex-wrap:wrap;gap:5px}
+.template-vars-chips span{display:inline-flex;padding:4px 7px;border:1px solid var(--border);border-radius:7px;background:var(--card2);font:700 .69rem/1.1 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--primary)}
+.v91-rem-actions{overflow:visible!important}
+.v108-more{position:relative}
+.v108-more>summary{list-style:none;cursor:pointer;white-space:nowrap}
+.v108-more-menu{position:absolute;right:0;bottom:calc(100% + 6px);z-index:35;display:grid;gap:6px;min-width:135px;padding:7px;border:1px solid var(--border);border-radius:11px;background:var(--card);box-shadow:var(--shadow)}
+.v108-more-menu .btn{width:100%;justify-content:flex-start}
+.v91-reminder-row,.crm-card{content-visibility:auto;contain-intrinsic-size:auto 150px}
+#dlgV108Calendar{width:min(880px,96vw)}
+.v108-calendar-layout{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(320px,1.1fr);gap:14px}
+.v108-calendar-panel,.v108-calendar-results{border:1px solid var(--border);border-radius:15px;background:var(--card2);padding:12px;min-width:0}
+.v108-calendar-nav{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-bottom:10px}
+.v108-calendar-nav strong{text-align:center;text-transform:capitalize;color:var(--card-ink)}
+.v108-calendar-week,.v108-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.v108-calendar-week span{text-align:center;font-size:.65rem;font-weight:900;color:var(--muted);padding:3px}
+.v108-calendar-day{position:relative;min-height:48px;border:1px solid transparent;border-radius:10px;background:var(--card);color:var(--text);cursor:pointer;font-weight:800}
+.v108-calendar-day:hover{border-color:var(--primary)}
+.v108-calendar-day.selected{background:var(--primary);color:#fff;border-color:var(--primary)}
+.v108-calendar-day.today:not(.selected){border-color:var(--primary);color:var(--primary)}
+.v108-calendar-day .count{position:absolute;right:3px;bottom:3px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--danger);color:#fff;font-size:.58rem;display:grid;place-items:center}
+.v108-calendar-empty{min-height:48px}
+.v108-date-jump{display:flex;gap:7px;margin-top:10px}.v108-date-jump .input{min-width:0}
+.v108-calendar-results h3{margin:0 0 3px;font-size:.94rem;color:var(--card-ink)}
+.v108-calendar-list{display:grid;gap:7px;max-height:390px;overflow:auto;margin-top:10px}
+.v108-calendar-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--border);border-radius:11px;background:var(--card)}
+.v108-calendar-item b,.v108-calendar-item span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.v108-calendar-item span{font-size:.72rem;color:var(--muted);margin-top:2px}
+.v108-telegram-card{border-left:4px solid #229ed9}.v108-edge-status{display:flex;align-items:center;gap:8px;margin:10px 0;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--card2);font-size:.78rem;font-weight:750}.v108-edge-status.ok{color:var(--success)}.v108-edge-status.bad{color:var(--danger)}
+.v108-totp-error{margin:0 0 10px;padding:9px 11px;border:1px solid var(--danger);border-radius:11px;background:var(--danger-alpha);color:var(--danger);font-size:.78rem}
+@media(max-width:760px){.v108-calendar-layout{grid-template-columns:1fr}.v108-calendar-list{max-height:270px}.template-vars-row{grid-template-columns:1fr;gap:4px}.v91-rem-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))}.v91-rem-actions>.btn,.v108-more,.v108-more>summary{width:100%}.v108-more-menu{bottom:auto;top:calc(100% + 5px)}#btnReminderCalendar{font-size:0}#btnReminderCalendar::after{content:'📅';font-size:1rem}}
+</style>
+<script id="innov-v108-operations-js">
+(function(){
+  const VERSION='V108';
+  const byId=id=>document.getElementById(id);
+  const text=value=>String(value??'').trim();
+  const html=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  const stateRef=()=>{try{return state}catch(_){return window.state||{}}};
+  const obsoleteIds=new Set(['innovV50Bell','innovV50Daily','innovV66ReminderCenter','innovV67ReminderCenter','innovV68Center']);
+
+  function removeOldReminderUi(root=document){
+    obsoleteIds.forEach(id=>root.querySelector?.(`#${id}`)?.remove());
+    if(root.id&&obsoleteIds.has(root.id))root.remove();
+  }
+
+  function limaDate(){
+    const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+    const get=type=>parts.find(x=>x.type===type)?.value||'';
+    return `${get('year')}-${get('month')}-${get('day')}`;
+  }
+  function addDays(iso,days){const [y,m,d]=iso.split('-').map(Number),date=new Date(y,m-1,d);date.setDate(date.getDate()+days);return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
+  function reminderDate(row){return text(row?.due_date).slice(0,10)}
+  function reminderCustomer(row){const s=stateRef();return (s.customers||[]).find(c=>String(c?.id)===String(row?.customer_id))||{}}
+  function money(value){return `S/ ${Number(value||0).toFixed(2)}`}
+
+  let selectedDate=limaDate();
+  let visibleMonth=selectedDate.slice(0,7);
+  function ensureCalendar(){
+    if(byId('dlgV108Calendar'))return;
+    const dialog=document.createElement('dialog');
+    dialog.id='dlgV108Calendar';
+    dialog.innerHTML=`<div class="modal-header"><div><strong>📅 Calendario de pagos</strong><div class="help">Selecciona un día para ver sus clientes y servicios.</div></div><button class="btn btn-ghost btn-icon" id="v108CalendarClose" type="button">✕</button></div><div class="dlg-body"><div class="v108-calendar-layout"><section class="v108-calendar-panel"><div class="v108-calendar-nav"><button class="btn btn-icon" id="v108MonthPrev" type="button">‹</button><strong id="v108MonthTitle"></strong><button class="btn btn-icon" id="v108MonthNext" type="button">›</button></div><div class="v108-calendar-week"><span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span></div><div class="v108-calendar-days" id="v108CalendarDays"></div><div class="v108-date-jump"><input class="input" id="v108DateInput" type="date"><button class="btn" id="v108Today" type="button">Hoy</button></div></section><section class="v108-calendar-results"><h3 id="v108SelectedTitle"></h3><div class="help" id="v108SelectedSummary"></div><div class="v108-calendar-list" id="v108CalendarList"></div></section></div></div>`;
+    document.body.appendChild(dialog);
+    byId('v108CalendarClose').onclick=()=>dialog.close();
+    byId('v108MonthPrev').onclick=()=>shiftMonth(-1);
+    byId('v108MonthNext').onclick=()=>shiftMonth(1);
+    byId('v108Today').onclick=()=>{selectedDate=limaDate();visibleMonth=selectedDate.slice(0,7);renderCalendar()};
+    byId('v108DateInput').onchange=e=>{if(e.target.value){selectedDate=e.target.value;visibleMonth=selectedDate.slice(0,7);renderCalendar()}};
+    dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
+  }
+  function shiftMonth(delta){const [y,m]=visibleMonth.split('-').map(Number),date=new Date(y,m-1+delta,1);visibleMonth=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;renderCalendar()}
+  function selectCalendarDate(iso){selectedDate=iso;renderCalendar()}
+  function renderCalendar(){
+    ensureCalendar();
+    const [year,month]=visibleMonth.split('-').map(Number),first=new Date(year,month-1,1),days=new Date(year,month,0).getDate();
+    const reminders=(stateRef().reminders||[]),counts=new Map();
+    reminders.forEach(row=>{const date=reminderDate(row);if(date)counts.set(date,(counts.get(date)||0)+1)});
+    const cells=Array.from({length:first.getDay()},()=>'<span class="v108-calendar-empty"></span>');
+    for(let day=1;day<=days;day++){
+      const iso=`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`,count=counts.get(iso)||0;
+      cells.push(`<button class="v108-calendar-day ${iso===selectedDate?'selected':''} ${iso===limaDate()?'today':''}" type="button" data-v108-date="${iso}">${day}${count?`<span class="count">${count>99?'99+':count}</span>`:''}</button>`);
+    }
+    byId('v108CalendarDays').innerHTML=cells.join('');
+    byId('v108CalendarDays').querySelectorAll('[data-v108-date]').forEach(button=>button.onclick=()=>selectCalendarDate(button.dataset.v108Date));
+    byId('v108MonthTitle').textContent=new Intl.DateTimeFormat('es-PE',{month:'long',year:'numeric'}).format(first);
+    byId('v108DateInput').value=selectedDate;
+    renderCalendarResults(reminders.filter(row=>reminderDate(row)===selectedDate));
+  }
+  function renderCalendarResults(rows){
+    rows.sort((a,b)=>(a?.last_sent_at?1:0)-(b?.last_sent_at?1:0)||text(a?.service_name).localeCompare(text(b?.service_name),'es'));
+    byId('v108SelectedTitle').textContent=new Intl.DateTimeFormat('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(`${selectedDate}T12:00:00`));
+    byId('v108SelectedSummary').textContent=rows.length?`${rows.length} pago${rows.length===1?'':'s'} programado${rows.length===1?'':'s'} · ${money(rows.reduce((sum,row)=>sum+Number(row?.amount||0),0))}`:'No hay pagos programados para este día.';
+    byId('v108CalendarList').innerHTML=rows.map(row=>{const customer=reminderCustomer(row);return `<article class="v108-calendar-item"><div><b>${html(customer.name||'Cliente')} · ${html(row.service_name||'Servicio')}</b><span>${html(money(row.amount))}${row.last_sent_at?' · WhatsApp enviado':''}</span></div><button class="btn" type="button" data-v108-show-date="${selectedDate}">Ver</button></article>`}).join('')||'<div class="empty-state"><span class="icon">📭</span><p>Este día está libre.</p></div>';
+    byId('v108CalendarList').querySelectorAll('[data-v108-show-date]').forEach(button=>button.onclick=()=>showReminderDate(button.dataset.v108ShowDate));
+  }
+  function showReminderDate(date){
+    byId('dlgV108Calendar')?.close();
+    const s=stateRef();s.onlyDue=false;s.onlyPending=false;s.v68Filter='all';
+    if(byId('reminderSearch'))byId('reminderSearch').value=date;
+    ['btnOnlyDue','btnOnlyPending'].forEach(id=>byId(id)?.setAttribute('aria-pressed','false'));
+    window.switchTab?.('reminders');
+    setTimeout(()=>window.renderReminders?.(),40);
+  }
+  function openCalendar(){ensureCalendar();renderCalendar();byId('dlgV108Calendar').showModal()}
+
+  async function loadTotpEventsV108(){
+    const s=stateRef();s.totpEventsLoading=true;s.totpEventsError='';
+    try{
+      const result=await db.from('totp_access_events').select('*').order('created_at',{ascending:false}).limit(300);
+      if(result.error)throw result.error;
+      s.totpEvents=Array.isArray(result.data)?result.data:[];
+      return s.totpEvents;
+    }catch(error){s.totpEvents=[];s.totpEventsError=text(error?.message||error);return []}
+    finally{s.totpEventsLoading=false}
+  }
+  function installTotpActivity(){
+    try{window.loadTotpEvents=loadTotpEventsV108;loadTotpEvents=loadTotpEventsV108}catch(_){window.loadTotpEvents=loadTotpEventsV108}
+    const original=window.renderTotp;
+    if(typeof original==='function'&&!original.__v108){
+      const enhanced=function(){original();const s=stateRef(),host=byId('totpGrid');if(s.totpView==='events'&&host&&s.totpEventsError){host.insertAdjacentHTML('afterbegin',`<div class="v108-totp-error">No se pudo leer Actividad: ${html(s.totpEventsError)}. Ejecuta <b>supabase-edge-automation.sql</b> y vuelve a intentar.</div>`)}};
+      enhanced.__v108=true;window.renderTotp=enhanced;try{renderTotp=enhanced}catch(_){ }
+    }
+    document.querySelectorAll('[data-totp-view]').forEach(button=>button.onclick=async()=>{
+      const s=stateRef();s.totpView=button.dataset.totpView;
+      document.querySelectorAll('[data-totp-view]').forEach(item=>item.setAttribute('aria-pressed',item===button?'true':'false'));
+      if(s.totpView==='events'){
+        if(byId('totpGrid'))byId('totpGrid').innerHTML='<div class="empty-state"><span class="loader"></span><p>Cargando actividad real…</p></div>';
+        await loadTotpEventsV108();
+      }
+      window.renderTotp?.();
+    });
+  }
+
+  function ensureTelegramCard(){
+    if(byId('v108TelegramCard'))return;
+    const grid=byId('tab-settings')?.querySelector('.grid.grid-2');if(!grid)return;
+    const card=document.createElement('div');card.id='v108TelegramCard';card.className='card full v108-telegram-card';
+    card.innerHTML=`<strong>📨 Telegram y automatizaciones Edge</strong><p class="help" style="margin:5px 0 0">Una sola función recibe compras, pagos, accesos TOTP y recordatorios. La recuperación usa el mismo bot configurado.</p><div class="v108-edge-status" id="v108TelegramStatus">Sin verificar</div><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="btn" id="v108TelegramHealth" type="button">Verificar función</button><button class="btn btn-primary" id="v108TelegramTest" type="button">Enviar prueba</button></div><div class="help" id="v108TelegramLog" style="margin-top:8px"></div>`;
+    grid.appendChild(card);byId('v108TelegramHealth').onclick=telegramHealth;byId('v108TelegramTest').onclick=telegramTest;
+  }
+  async function telegramHealth(){
+    const status=byId('v108TelegramStatus'),log=byId('v108TelegramLog');status.className='v108-edge-status';status.textContent='Verificando Telegram Edge…';
+    try{const response=await fetch(`${SUPABASE_URL}/functions/v1/smooth-worker`,{headers:{apikey:SUPABASE_KEY}}),data=await response.json().catch(()=>({}));const ready=response.ok&&data?.ok&&data?.configured?.bot&&data?.configured?.chat&&data?.configured?.service;status.className=`v108-edge-status ${ready?'ok':'bad'}`;status.textContent=ready?'Telegram listo para enviar':'Función accesible, pero faltan secretos';log.textContent=`${data?.version||'sin versión'} · bot ${data?.configured?.bot?'sí':'no'} · chat ${data?.configured?.chat?'sí':'no'} · base ${data?.configured?.service?'sí':'no'} · automatización ${data?.configured?.automation?'sí':'no'} · recuperación ${data?.configured?.recovery?'sí':'no'}`}
+    catch(error){status.className='v108-edge-status bad';status.textContent='Telegram Edge no responde';log.textContent=text(error?.message||error)}
+  }
+  async function telegramTest(){
+    const button=byId('v108TelegramTest');button.disabled=true;
+    try{const session=await db.auth.getSession(),token=session?.data?.session?.access_token||'';if(!token)throw new Error('Inicia sesión nuevamente');const response=await fetch(`${SUPABASE_URL}/functions/v1/smooth-worker`,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_KEY,Authorization:`Bearer ${token}`},body:JSON.stringify({event:'test'})}),data=await response.json().catch(()=>({}));if(!response.ok||data?.ok===false)throw new Error(data?.error||`HTTP ${response.status}`);window.toast?.('Prueba enviada a Telegram','ok');telegramHealth()}
+    catch(error){window.toast?.('Telegram: '+text(error?.message||error),'bad')}finally{button.disabled=false}
+  }
+
+  function installNotificationToggle(){
+    const button=byId('btnEnableNotifications');if(!button)return;
+    button.onclick=async()=>{const s=stateRef();if(s.notifEnabled){s.notifEnabled=false;localStorage.removeItem('innov_admin_notifications');window.updateNotifButton?.();button.textContent='🔕';button.title='Activar avisos del navegador mientras el admin está abierto';window.toast?.('Avisos del navegador desactivados','ok');return}await window.enableWebNotifications?.()};
+    button.title='Avisos locales mientras el admin está abierto; Telegram funciona también con el panel cerrado';
+  }
+
+  function bind(){
+    removeOldReminderUi();ensureCalendar();ensureTelegramCard();installTotpActivity();installNotificationToggle();
+    const calendar=byId('btnReminderCalendar');if(calendar)calendar.onclick=openCalendar;
+    const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType===1)removeOldReminderUi(node)})));
+    observer.observe(document.body,{childList:true,subtree:true});
+    setTimeout(removeOldReminderUi,1800);setTimeout(telegramHealth,350);
+    window.INNOV_ADMIN_PATCH_V108=Object.freeze({version:VERSION,calendar:true,telegramEdge:true,totpActivity:true,compactReminders:true,dashboardRemoved:true});
+    console.info('Innov IA Admin V108 · operaciones unificadas');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,1150),{once:true});else setTimeout(bind,1150);
+})();
+</script>
 </body>
 </html>

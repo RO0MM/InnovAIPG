@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <head>
   <link rel="icon" type="image/png" href="Diseño sin título.png">
 <link rel="shortcut icon" href="Diseño sin título.png">
 
@@ -122,6 +121,108 @@ body{background-color:#f5f7fb;background-image:radial-gradient(rgba(67,81,103,.1
 .activation-box.compact-activation{border:1px solid #bfdbfe;background:#f8fbff}.activation-grid .field{border:1px solid #dbeafe;border-radius:13px}.activation-grid textarea{display:block!important;min-height:120px!important}.activation-instructions{display:block!important;white-space:pre-wrap;background:#fff;border:1px solid #dbeafe;border-radius:12px;padding:10px;margin:8px 0;font-size:12px;color:#475569}
 @media(max-width:720px){.checkout-wrap{padding-top:12px}.card-body{padding:12px}.steps{border-radius:15px}.step-title{display:none}.status-grid{grid-template-columns:1fr}.order-progress{gap:2px}.progress-step{font-size:9.5px}.progress-step:not(:last-child):after{width:72%;left:64%}.payment-box{padding:12px}.delivery-ready-head{align-items:flex-start;flex-direction:column}.summary-list{max-height:250px}}
 
+body.innov-safe-page[data-innov-page="checkout"] .layout > section{min-width:0}
+body.innov-safe-page[data-innov-page="checkout"] .checkout-side{
+  position:sticky;
+  top:calc(var(--sticky-offset) + 18px);
+  align-self:start;
+}
+body.innov-safe-page[data-innov-page="checkout"] .checkout-empty-state{
+  display:grid;
+  gap:12px;
+  margin-bottom:14px;
+  padding:18px;
+  border:1px dashed #bfd5ff;
+  border-radius:18px;
+  background:linear-gradient(135deg,#eff6ff,#ffffff);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+}
+body.innov-safe-page[data-innov-page="checkout"] .checkout-empty-state h3{
+  margin:0;
+  color:#17305a;
+  font-size:1.1rem;
+  font-weight:1000;
+}
+body.innov-safe-page[data-innov-page="checkout"] .checkout-empty-state p{
+  margin:0;
+  color:#52627a;
+  line-height:1.55;
+}
+body.innov-safe-page[data-innov-page="checkout"] .checkout-empty-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.65rem;
+}
+body.innov-safe-page[data-innov-page="checkout"] .checkout-empty-note{
+  display:inline-flex;
+  align-items:center;
+  gap:.45rem;
+  width:max-content;
+  max-width:100%;
+  padding:.45rem .75rem;
+  border-radius:999px;
+  border:1px solid rgba(37,99,235,.16);
+  background:rgba(255,255,255,.8);
+  color:#1d4ed8;
+  font-size:12px;
+  font-weight:900;
+}
+body.innov-safe-page[data-innov-page="checkout"] .checkout-form-disabled .compact-grid,
+body.innov-safe-page[data-innov-page="checkout"] .checkout-form-disabled .checkline,
+body.innov-safe-page[data-innov-page="checkout"] .checkout-form-disabled .thin-note,
+body.innov-safe-page[data-innov-page="checkout"] .checkout-form-disabled .order-actions{
+  opacity:.42;
+  pointer-events:none;
+}
+body.innov-safe-page[data-innov-page="checkout"] .summary-list.is-order-summary{
+  border:1px solid rgba(37,99,235,.12);
+  border-radius:14px;
+  padding:.15rem .85rem;
+  background:linear-gradient(180deg,#fbfdff,#f7fbff);
+}
+body.innov-safe-page[data-innov-page="checkout"] .lookup-panel{
+  margin-top:14px;
+}
+body.innov-safe-page[data-innov-page="checkout"] .lookup-panel b{
+  display:flex;
+  align-items:center;
+  gap:.45rem;
+  color:#1b3355;
+}
+body.innov-safe-page[data-innov-page="checkout"] .review-submit-row .btn{
+  min-height:52px;
+  font-size:15px;
+  border-radius:14px;
+}
+body.innov-safe-page[data-innov-page="checkout"] .order-management .btn{
+  border-radius:12px;
+}
+body.innov-safe-page[data-innov-page="checkout"] .support-red{
+  left:20px!important;
+  right:auto!important;
+  bottom:18px!important;
+  top:auto!important;
+  z-index:5001!important;
+}
+@media(max-width:1000px){
+  body.innov-safe-page[data-innov-page="checkout"] .checkout-side{
+    position:static;
+    top:auto;
+  }
+}
+@media(max-width:720px){
+  body.innov-safe-page[data-innov-page="checkout"] .checkout-empty-actions .btn{
+    width:100%;
+    justify-content:center;
+  }
+  body.innov-safe-page[data-innov-page="checkout"] .support-red{
+    left:12px!important;
+    bottom:14px!important;
+    font-size:12px!important;
+    padding:9px 12px!important;
+  }
+}
+
   </style>
 
 <!-- INNOV SAFE VISUAL SHELL v3 — solo presentación; no reemplaza scripts existentes -->
@@ -145,7 +246,7 @@ body.innov-safe-page [data-innov-legacy-footer="true"]{display:none!important}
 /* Alineación visual del contenido sin afectar IDs, formularios ni listeners ya existentes. */
 body.innov-safe-page .breadcrumb{margin-top:0!important}
 body.innov-safe-page .whatsapp-fab,body.innov-safe-page .whatsapp-fab-2{display:none!important}
-body.innov-safe-page #btnOpenSupport{top:auto!important;bottom:88px!important;right:17px!important;z-index:5001!important;border-radius:12px!important}
+body.innov-safe-page #btnOpenSupport{top:auto!important;bottom:18px!important;left:20px!important;right:auto!important;z-index:5001!important;border-radius:12px!important}
 .innov-safe-wa{position:fixed;z-index:5002;right:17px;bottom:17px;width:58px;height:58px;display:grid;place-items:center;border-radius:50%;background:#25D366;color:#fff!important;text-decoration:none!important;box-shadow:0 12px 26px rgba(0,0,0,.24)}.innov-safe-wa i{font-size:27px}.innov-safe-wa::after{content:'';position:absolute;inset:-8px;border-radius:inherit;box-shadow:0 0 0 0 rgba(37,211,102,.32);animation:innovWaPulse 3.1s infinite ease-out;z-index:-1}@keyframes innovWaPulse{0%{box-shadow:0 0 0 0 rgba(37,211,102,.32)}70%{box-shadow:0 0 0 18px rgba(37,211,102,0)}100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}}
 /* Shop: conserva select/filtros en DOM y activos; quita únicamente las franjas que el usuario pidió ocultar. */
 body.innov-safe-page[data-innov-page="shop"] .breadcrumb,body.innov-safe-page[data-innov-page="shop"] .shop-toolbar{display:none!important}
@@ -220,6 +321,15 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
           <div class="card-head"><span id="mainCardTitle">🧾 Datos para generar pedido</span><span class="mini-muted">Campos con * obligatorios</span></div>
           <div class="card-body">
             <div id="formView">
+              <div id="checkoutEmptyState" class="checkout-empty-state hidden">
+                <h3>Tu carrito está vacío</h3>
+                <p>Antes de continuar con el pago, vuelve a la tienda y agrega al menos un servicio. Cuando regreses, este checkout detectará tu resumen y el tipo de entrega automáticamente.</p>
+                <div class="checkout-empty-actions">
+                  <a class="btn btn-primary" href="shop.html"><i class="fa fa-store"></i> Ir a la tienda</a>
+                  <a class="btn" href="cart.html"><i class="fa fa-shopping-cart"></i> Ver carrito</a>
+                </div>
+                <div class="checkout-empty-note"><i class="fa fa-shield-alt"></i> La consulta de pedidos y el soporte siguen activos más abajo.</div>
+              </div>
               <div class="compact-grid">
                 <div class="field"><label>Nombres *</label><input id="fullName" type="text" autocomplete="name" placeholder="Tu nombre"></div>
                 <div class="field"><label>Celular WhatsApp *</label><input id="phone" type="tel" autocomplete="tel" placeholder="991564053"><small>Aquí validarás tu entrega.</small></div>
@@ -239,7 +349,7 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
                 <a class="btn btn-small" href="shop.html"><i class="fa fa-shopping-cart"></i> Hacer otra compra</a>
               </div>
               <div class="payment-box">
-                <img id="qrImage" class="qr-img" src="img/yape-qr.png" alt="QR Yape / Plin" onerror="this.style.display='none'; document.getElementById('qrMissingNote')?.classList.remove('hidden')">
+                <img id="qrImage" class="qr-img" src="qr-pending.svg" alt="QR Yape / Plin" onerror="this.style.display='none'; document.getElementById('qrMissingNote')?.classList.remove('hidden')">
                 <div>
                   <div class="mini-muted">Paga por Yape / Plin</div><div id="qrMissingNote" class="mini-muted hidden">QR no disponible. Usa el número mostrado.</div>
                   <div class="yape-number" id="paymentNumber">991564053</div>
@@ -288,7 +398,7 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
         </div>
       </section>
 
-      <aside>
+      <aside class="checkout-side">
         <div class="card">
           <div class="card-head"><span>📦 Resumen del pedido</span><span class="mini-muted" id="itemsCountText">0 item</span></div>
           <div class="card-body">
@@ -391,17 +501,41 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
       try{
         const orderCode = extra.order_code || currentOrder?.order_code || $('lookupOrderCode')?.value || '';
         if(!orderCode) return;
-        await fetch(`${SUPABASE_URL}/functions/v1/send-telegram-alert`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/smooth-worker`, {
           method:'POST',
-          headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY },
+          headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_KEY },
           body: JSON.stringify({ event, order_code:orderCode, ...extra })
         });
+        if(!response.ok) console.warn('Telegram alerta rechazada:', response.status, await response.text());
       }catch(e){ console.warn('Telegram alerta no enviada:', e); }
     }
     function setStep(n){ document.querySelectorAll('[data-step]').forEach(x => x.classList.toggle('active', Number(x.dataset.step) === Number(n))); }
     function subtotal(){ return cart.reduce((a,b)=>a + Number(b.precio || 0) * Number(b.qty || 1), 0); }
     function cartSignature(){ return JSON.stringify(cartDbItems().map(x=>({p:x.plan_id,q:x.qty})).sort((a,b)=>String(a.p).localeCompare(String(b.p)))); }
     function cartDbItems(){ return cart.map(i => ({ plan_id: i.plan_id || i.planId || i.supabase_plan_id || null, qty: Number(i.qty || 1) })).filter(i => i.plan_id); }
+    function cloneItems(items){ return (items || []).map(item => ({ ...item })); }
+    function countItems(items){ return (items || []).reduce((sum, item) => sum + Number(item?.qty || 0), 0); }
+    function subtotalFromItems(items){ return (items || []).reduce((sum, item) => sum + Number(item?.precio || 0) * Number(item?.qty || 1), 0); }
+    function getSummaryItems(orderRef){
+      const liveItems = readCart();
+      if(liveItems.length) return cloneItems(liveItems);
+      const snapshot = orderRef?._cartSnapshot || currentOrder?._cartSnapshot || [];
+      return cloneItems(snapshot);
+    }
+    function syncCheckoutAvailability(summaryItems){
+      const hasActiveOrder = !!currentOrder?.order_code;
+      const hasItems = Array.isArray(summaryItems) && summaryItems.length > 0;
+      const isCheckoutEmpty = !hasItems && !hasActiveOrder;
+      $('checkoutEmptyState')?.classList.toggle('hidden', !isCheckoutEmpty);
+      $('formView')?.classList.toggle('checkout-form-disabled', isCheckoutEmpty);
+      ['fullName','phone','country','terms','btnGenerateOrder'].forEach(id => {
+        const el = $(id);
+        if(el) el.disabled = isCheckoutEmpty;
+      });
+      const couponDisabled = isCheckoutEmpty || hasActiveOrder;
+      if($('couponInput')) $('couponInput').disabled = couponDisabled;
+      if($('btnApplyCoupon')) $('btnApplyCoupon').disabled = couponDisabled;
+    }
 
     function uniqueBy(arr, keyFn){
       const seen = new Set();
@@ -790,26 +924,37 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
     }
 
     function renderCart(totals){
+      const orderRef = totals && typeof totals === 'object' ? totals : currentOrder;
       cart = readCart();
-      $('cartCount').textContent = cart.reduce((a,b)=>a+Number(b.qty||1),0);
-      $('itemsCountText').textContent = $('cartCount').textContent + ' item' + ($('cartCount').textContent === '1' ? '' : 's');
-      $('emptyNote').classList.toggle('hidden', cart.length > 0);
-      $('checkoutProducts').innerHTML = cart.map(i => `
+      const liveCount = countItems(cart);
+      const summaryItems = getSummaryItems(orderRef);
+      const summaryCount = countItems(summaryItems);
+      const showingOrderSummary = !cart.length && !!orderRef?._cartSnapshot?.length;
+      $('cartCount').textContent = String(liveCount);
+      $('itemsCountText').textContent = summaryCount + ' item' + (summaryCount === 1 ? '' : 's');
+      $('emptyNote').classList.toggle('hidden', summaryItems.length > 0);
+      $('emptyNote').innerHTML = showingOrderSummary
+        ? 'Estás viendo el resumen del pedido generado.'
+        : 'Tu carrito está vacío. <a href="shop.html">Ir a la tienda</a>';
+      $('checkoutProducts').classList.toggle('is-order-summary', showingOrderSummary);
+      $('checkoutProducts').innerHTML = summaryItems.map(i => `
         <div class="item">
           <div class="item-left">
-            <img class="thumb" src="${esc(i.imagen || i.image || 'img/placeholder.jpg')}" onerror="this.src='img/placeholder.jpg'">
+            <img class="thumb" src="${esc(i.imagen || i.image || 'brand-placeholder.svg')}" onerror="this.src='brand-placeholder.svg'">
             <div><div class="item-name">${esc(i.nombre || 'Producto')}</div><div class="item-meta">${esc(i.plan_name || i.plan || 'Plan')} · Cantidad: ${Number(i.qty||1)}</div></div>
           </div>
           <b>${money(Number(i.precio||0)*Number(i.qty||1))}</b>
         </div>`).join('');
-      const sub = totals ? Number(totals.subtotal||0) : subtotal();
-      const disc = totals ? Number(totals.discount_amount||0) : (couponPreview ? Number(couponPreview.amount||0) : 0);
-      const total = totals ? Number(totals.total||0) : Math.max(0, sub - disc);
+      const summarySubtotal = subtotalFromItems(summaryItems);
+      const sub = totals ? Number(totals.subtotal ?? totals._cartSubtotal ?? summarySubtotal) : summarySubtotal;
+      const disc = totals ? Number(totals.discount_amount ?? totals._discountAmount ?? 0) : (couponPreview ? Number(couponPreview.amount||0) : 0);
+      const total = totals ? Number(totals.total ?? Math.max(0, sub - disc)) : Math.max(0, sub - disc);
       $('subtotalText').textContent = money(sub);
       $('totalText').textContent = money(total);
       $('discountRow').classList.toggle('hidden', disc <= 0);
       $('discountText').textContent = '- ' + money(disc);
       $('discountCodeLabel').textContent = currentCoupon ? '(' + currentCoupon + ')' : '';
+      syncCheckoutAvailability(summaryItems);
     }
 
     async function applyCoupon(){
@@ -848,6 +993,7 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
       $('formView').classList.remove('hidden');
       $('mainCardTitle').textContent='🧾 Datos para generar pedido';
       setStep(2);
+      renderCart();
       window.scrollTo({top:0,behavior:'smooth'});
     }
     function restoreOrder(){
@@ -864,6 +1010,7 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
       }
       currentOrder = saved;
       if(saved._phone){ $('phone').value=saved._phone; $('lookupPhone').value=saved._phone; }
+      renderCart(currentOrder);
       showGeneratedView(currentOrder, false);
       startOrderRealtime();
       checkStatus({ target:'statusBox', silent:true });
@@ -910,7 +1057,20 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
       });
       btn.disabled = false; btn.innerHTML = '<i class="fa fa-qrcode"></i> Generar pedido y pagar';
       if(r.error){ toast(r.error.message); return; }
-      currentOrder = {...r.data[0], _phone:phone, _cartSig:cartSignature(), _paymentSent:false, _activationSent:false};
+      const cartSnapshot = cloneItems(cart);
+      const cartSubtotalValue = subtotalFromItems(cartSnapshot);
+      const discountAmount = Number(couponPreview?.amount || 0);
+      currentOrder = {
+        ...r.data[0],
+        _phone:phone,
+        _cartSig:cartSignature(),
+        _paymentSent:false,
+        _activationSent:false,
+        _cartSnapshot:cartSnapshot,
+        _cartSubtotal:cartSubtotalValue,
+        _discountAmount:discountAmount,
+        _couponCode:currentCoupon || ''
+      };
       startOrderRealtime();
 
       // Respaldo: guarda los correos/datos requeridos en order_customer_inputs aunque la función de creación antigua no los registre.
@@ -928,6 +1088,7 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
 
       persistOrder();
       broadcastCheckoutDataChanged('orders', 'RPC');
+      void notifyTelegram('order_created', {order_code:currentOrder.order_code});
       renderCart(currentOrder);
       showGeneratedView(currentOrder);
       try{ sessionStorage.removeItem(CART_KEY); localStorage.removeItem(CART_KEY); }catch(e){}
@@ -948,6 +1109,7 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
       $('formView').classList.remove('hidden');
       $('mainCardTitle').textContent='🧾 Datos para generar pedido';
       setStep(2);
+      renderCart();
       toast('Pedido cancelado. Puedes editar tus datos o hacer otra compra.');
     }
 
@@ -1153,6 +1315,7 @@ async function sendPaymentReview(){
       currentOrder = {...(currentOrder || {}), ...info, order_code: orderCode, _phone: phone};
       if(info.status && info.status !== 'pending_payment') currentOrder._paymentSent = true;
       persistOrder();
+      renderCart(currentOrder);
       renderActivationBox(true);
       const delivered = Array.isArray(info.deliveries) && info.deliveries.length > 0;
       let content = `<div class="order-status-card ${delivered ? 'complete' : ''}"><div class="status-title"><span><i class="fa ${delivered ? 'fa-check-circle' : 'fa-clock'}"></i> ${delivered ? 'Entrega disponible' : statusLabel(info.status || info.delivery_status)}</span><span class="status-code">${esc(orderCode)}</span></div><div class="status-grid"><span><b>Pago:</b> ${esc(statusLabel(info.status))}</span><span><b>Entrega:</b> ${esc(statusLabel(info.delivery_status))}</span><span><b>Total:</b> ${money(info.total)}</span></div>${orderProgressHtml(info, delivered)}</div>`;

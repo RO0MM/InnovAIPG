@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="420" viewBox="0 0 420 420">
+  <rect width="420" height="420" rx="28" fill="#ffffff"/>
+  <rect x="18" y="18" width="384" height="384" rx="22" fill="#f8fafc" stroke="#cbd5e1" stroke-width="10"/>
+  <path d="M72 72h86v86H72zM262 72h86v86h-86zM72 262h86v86H72z" fill="#0f172a"/>
+  <path d="M96 96h38v38H96zM286 96h38v38h-38zM96 286h38v38H96z" fill="#ffffff"/>
+  <path d="M214 168h34v34h-34zM262 168h34v34h-34zM214 216h34v34h-34zM310 216h34v34h-34zM262 264h34v34h-34zM214 312h34v34h-34zM310 312h34v34h-34z" fill="#334155"/>
+  <text x="210" y="382" fill="#475569" font-family="Arial, sans-serif" font-size="26" font-weight="700" text-anchor="middle">QR pendiente de configurar</text>
+</svg>

@@ -473,7 +473,7 @@
         <a href="#" id="termsBottomLink">Términos</a>
         <a href="#" id="privacyBottomLink">Privacidad</a>
       </div>
-      <div class="footer-payments"><img src="img/payments.png" alt="Métodos de pago" onerror="this.hidden=true"></div>
+      <div class="footer-payments"><img src="payments-placeholder.svg" alt="Métodos de pago" onerror="this.hidden=true"></div>
     </div>
   </footer>
 
@@ -1001,7 +1001,7 @@
       document.querySelectorAll('[data-close-legal]').forEach(button=>button.addEventListener('click',()=>{const dialog=$(button.getAttribute('data-close-legal'));if(dialog&&typeof dialog.close==='function')dialog.close();}));
     }
     function applySocial(raw){const data={...DEFAULT_SOCIAL,...json(raw)};const wa=waBase(data.whatsapp_url);const sup=supportUrl(data);const set=(id,href)=>{const el=$(id);if(!el)return;if(!href){el.hidden=true;return;}el.hidden=false;el.href=href;};const setClass=(cls,href)=>document.querySelectorAll('.'+cls).forEach(el=>{if(!href){el.hidden=true;return;}el.hidden=false;el.href=href;});set('whatsappFab',wa);set('supportHeader',sup);set('supportFooter',sup);set('helpSupportLink',sup);set('helpActivationLink',sup);setClass('header-social-facebook',external(data.facebook_url));setClass('header-social-tiktok',external(data.tiktok_url));setClass('header-social-instagram',external(data.instagram_url));}
-    function cartCount(){try{return JSON.parse(localStorage.getItem(CART_KEY)||'[]').reduce((n,x)=>n+Number(x.qty||1),0);}catch(_){return 0;}}
+    function cartCount(){try{const raw=sessionStorage.getItem(CART_KEY)||localStorage.getItem(CART_KEY)||'[]';return JSON.parse(raw).reduce((n,x)=>n+Number(x.qty||1),0);}catch(_){return 0;}}
     function syncCart(){$('cartCount').textContent=cartCount();}
     async function init(){bindThemeToggle();syncCart();$('year').textContent=new Date().getFullYear();const header=$('innovHeader'),menu=$('innovMenu');menu.addEventListener('click',()=>{const open=header.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));});bindLegalDialogs();if(!window.supabase){console.warn('Supabase no cargó');return;}try{const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const [catalog,home,social]=await Promise.all([db.rpc('get_public_catalog'),db.rpc(SETTINGS_RPC),db.rpc(SOCIAL_RPC)]);if(catalog.error)throw catalog.error;applySocial(social&&social.error?{}:social.data);render(buildCatalog(catalog.data||[]),config(home&&home.error?{}:home.data));}catch(error){console.error('No se pudo cargar la portada',error);$('slides').innerHTML='<div class="home-empty" style="min-height:385px;display:grid;place-content:center;gap:10px;text-align:center;color:#69778a"><i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem;color:#e09519"></i><strong style="color:#1c2a3d">No se pudieron actualizar los destacados</strong><span style="font-size:.8rem;font-weight:700">Recarga la página o revisa la configuración de Supabase.</span></div>';}}
     window.addEventListener('storage',e=>{if(e.key===CART_KEY)syncCart();});

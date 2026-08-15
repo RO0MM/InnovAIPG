@@ -39,7 +39,7 @@
   <meta name="description" content="Detalle del producto — Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp.">
   <meta name="keywords" content="Innov AI Tienda, detalle, servicios digitales, IA, streaming, ChatGPT Plus, Canva, Perplexity, Gemini, Autodesk, CapCut">
 
-  <link href="img/favicon.ico" rel="icon">
+  <link href="Diseño sin título.png" rel="icon">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -983,7 +983,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
         </p>
       </div>
       <div class="col-md-6 px-xl-0 text-center text-md-right">
-        <img class="img-fluid" src="img/payments.png" alt="Métodos de pago">
+        <img class="img-fluid" src="payments-placeholder.svg" alt="Métodos de pago">
       </div>
     </div>
   </div>
@@ -1344,7 +1344,13 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
       /* =========================
          Carrito compartido
       ========================= */
-      const readCart = () => { try { return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); } catch(e){ return []; } };
+      const readCart = () => {
+        try {
+          return JSON.parse(sessionStorage.getItem(CART_KEY) || localStorage.getItem(CART_KEY) || '[]');
+        } catch(e){
+          return [];
+        }
+      };
       const writeCart = (arr) => localStorage.setItem(CART_KEY, JSON.stringify(arr));
 
       window.Cart = window.Cart || {

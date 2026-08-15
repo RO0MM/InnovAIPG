@@ -37,7 +37,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Ponte en contacto con Innov AI Tienda. Soporte 24/7 y entrega inmediata de servicios digitales." />
   <meta name="keywords" content="Innov AI Tienda, contacto, soporte, servicios digitales, streaming, IA, ChatGPT Plus" />
-  <link href="img/favicon.ico" rel="icon" />
+  <link href="Diseño sin título.png" rel="icon" />
 
   <!-- Open Graph (opcional, deja tu dominio real cuando lo tengas) -->
   <meta property="og:title" content="Innov AI Tienda — Contacto" />
@@ -150,9 +150,25 @@
       box-shadow:5px 5px 0 rgba(0,0,0,.06);
       text-decoration:none;
       color:inherit;
-      transition:transform .15s ease;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
     }
-    .quick-btn:hover{ transform:translateY(-2px); text-decoration:none; }
+    .quick-btn:hover{
+      transform:translateY(-2px);
+      text-decoration:none;
+      box-shadow:8px 8px 0 rgba(0,0,0,.08);
+    }
+    .quick-btn-whatsapp{
+      background:linear-gradient(135deg,#eefcf4,#def8e8);
+      border-color:rgba(37,211,102,.22);
+    }
+    .quick-btn-phone{
+      background:linear-gradient(135deg,#eef5ff,#deebff);
+      border-color:rgba(13,110,253,.18);
+    }
+    .quick-btn-mail{
+      background:linear-gradient(135deg,#fff8e8,#ffefbe);
+      border-color:rgba(255,193,7,.24);
+    }
     .quick-left{
       display:flex; align-items:center; gap:.75rem; min-width:0;
     }
@@ -179,6 +195,42 @@
       font-weight:700;
       margin-top:2px;
     }
+    .contact-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.5rem;
+    }
+    .contact-cta{
+      min-height:46px;
+      border-radius:999px;
+      padding:.7rem 1rem;
+      font-weight:900;
+      letter-spacing:.01em;
+    }
+    .contact-cta-primary{
+      background:linear-gradient(135deg,#0d6efd,#2d8cff);
+      border-color:rgba(13,110,253,.24);
+    }
+    .contact-cta-whatsapp{
+      background:linear-gradient(135deg,#eefcf4,#def8e8);
+      border-color:rgba(37,211,102,.24);
+      color:#118a46;
+    }
+    .contact-cta-dark{
+      background:linear-gradient(135deg,#1f2937,#111827);
+      border-color:rgba(17,24,39,.28);
+      color:#fff;
+    }
+    .contact-tip{
+      display:inline-flex;
+      align-items:center;
+      gap:.45rem;
+      padding:.42rem .7rem;
+      border-radius:999px;
+      background:rgba(13,110,253,.08);
+      border:2px dashed rgba(13,110,253,.16);
+      font-weight:700;
+    }
 
     /* Map */
     .map-frame{
@@ -203,6 +255,13 @@
       box-shadow:10px 10px 0 rgba(0,0,0,.18);
     }
     .toast-mini.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+    @media (max-width: 575.98px){
+      .contact-actions .contact-cta{
+        width:100%;
+        justify-content:center;
+      }
+    }
 
     /* Footer (mismo que carrito/checkout) */
     .footer-wrap{
@@ -654,21 +713,22 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
                 </label>
               </div>
 
-              <div class="d-flex flex-wrap" style="gap:.5rem;">
-                <button class="btn btn-primary py-2 px-4" type="submit" id="sendMessageButton">
+              <div class="contact-actions">
+                <button class="btn btn-primary py-2 px-4 contact-cta contact-cta-primary" type="submit" id="sendMessageButton">
                   <i class="fa fa-paper-plane mr-1"></i> Enviar
                 </button>
 
-                <button class="btn btn-outline-success py-2 px-4" type="button" id="sendWhatsApp">
+                <button class="btn btn-outline-success py-2 px-4 contact-cta contact-cta-whatsapp" type="button" id="sendWhatsApp">
                   <i class="fab fa-whatsapp mr-1"></i> Enviar por WhatsApp
                 </button>
 
-                <a class="btn btn-outline-dark py-2 px-4" href="faq.html">
+                <a class="btn btn-outline-dark py-2 px-4 contact-cta contact-cta-dark" href="faq.html">
                   <i class="fa fa-life-ring mr-1"></i> Ver FAQ
                 </a>
               </div>
 
-              <small class="d-block mt-3 text-muted">
+              <small class="d-inline-flex mt-3 text-muted contact-tip">
+                <i class="fa fa-bolt"></i>
                 Tip: si necesitas respuesta rápida, usa <strong>Enviar por WhatsApp</strong>.
               </small>
             </form>
@@ -688,7 +748,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
             <div class="card-body">
               <div class="quick-grid">
 
-                <a class="quick-btn" href="https://wa.me/51991564053?text=¡Hola!%20👋%20Vengo%20de%20su%20página%20web%20y%20necesito%20ayuda%20✅" target="_blank" rel="noopener">
+                <a class="quick-btn quick-btn-whatsapp" href="https://wa.me/51991564053?text=¡Hola!%20👋%20Vengo%20de%20su%20página%20web%20y%20necesito%20ayuda%20✅" target="_blank" rel="noopener">
                   <div class="quick-left">
                     <div class="quick-ico"><i class="fab fa-whatsapp text-success"></i></div>
                     <div style="min-width:0;">
@@ -699,7 +759,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
                   <i class="fa fa-arrow-right text-muted"></i>
                 </a>
 
-                <a class="quick-btn" href="tel:+51991564053">
+                <a class="quick-btn quick-btn-phone" href="tel:+51991564053">
                   <div class="quick-left">
                     <div class="quick-ico"><i class="fa fa-phone-alt text-primary"></i></div>
                     <div style="min-width:0;">
@@ -710,7 +770,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
                   <i class="fa fa-arrow-right text-muted"></i>
                 </a>
 
-                <a class="quick-btn" href="mailto:ainnov611@gmail.com">
+                <a class="quick-btn quick-btn-mail" href="mailto:ainnov611@gmail.com">
                   <div class="quick-left">
                     <div class="quick-ico"><i class="fa fa-envelope text-primary"></i></div>
                     <div style="min-width:0;">
@@ -841,7 +901,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
           <div class="col-md-4 mb-5">
             <h5 class="footer-title text-light mb-3">Boletín</h5>
             <p style="color: rgba(255,255,255,.70);">Recibe ofertas y novedades.</p>
-            <form action="/suscribirse" method="post">
+            <form action="contact.html" method="get">
               <div class="input-group">
                 <input type="email" class="form-control" placeholder="Tu correo" required />
                 <div class="input-group-append">
@@ -867,7 +927,7 @@ html[data-theme="dark"] .dropdown-item:hover{background:#1d3550!important;color:
         </p>
       </div>
       <div class="col-md-6 px-xl-0 text-center text-md-right">
-        <img class="img-fluid" src="img/payments.png" alt="Métodos de pago" />
+        <img class="img-fluid" src="payments-placeholder.svg" alt="Métodos de pago" />
       </div>
     </div>
   </footer>

@@ -53,8 +53,8 @@
 <meta name="twitter:description" content="Explora Innov AI Tienda. Servicios digitales con entrega inmediata y soporte 24/7 por WhatsApp.">
 <meta name="twitter:image" content="https://scontent-lim1-1.xx.fbcdn.net/v/t39.30808-6/615837823_122108019525185356_8176358403674802319_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=53a332&_nc_ohc=kUee6MN3XmEQ7kNvwGYY6GX&_nc_oc=AdrD4ZLx41CDNMY9XfRAP0Yi2OAeBBo7Jj56l7kT5fWFF27REA0hzMwPfnS7LpyZe4E&_nc_zt=23&_nc_ht=scontent-lim1-1.xx&_nc_gid=0SxvPbykZO5o8-KredXCnw&_nc_ss=7a3a8&oh=00_Af3RynnEOqiitCRigVZ6LQKPg2kFujjCw0VX_XifUOpdMg&oe=69EB6623">
 
-<link rel="icon" type="image/png" href="/Diseño%20sin%20t%C3%ADtulo.png">
-<link rel="shortcut icon" href="/Diseño%20sin%20t%C3%ADtulo.png">
+<link rel="icon" type="image/png" href="Diseño%20sin%20t%C3%ADtulo.png">
+<link rel="shortcut icon" href="Diseño%20sin%20t%C3%ADtulo.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,11 +69,9 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
   <!-- Libraries Stylesheet -->
+  <link href="css/style.css" rel="stylesheet" />
   <link href="lib/animate/animate.min.css" rel="stylesheet" />
   <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
-
-  <!-- Customized Bootstrap Stylesheet -->
-  <link href="css/style.css" rel="stylesheet" />
 
 
   <style>
@@ -1900,6 +1898,45 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
   border-top:1px solid rgba(255,255,255,.08)!important;
 }
 </style>
+<style id="innov-shop-stability-v19">
+body.innov-safe-page[data-innov-page="shop"] #productsGrid>[class*="col-"]{
+  min-width:0;
+  content-visibility:auto;
+  contain-intrinsic-size:auto 330px;
+}
+body.innov-safe-page[data-innov-page="shop"] .product-item .text-center.py-4{
+  min-width:0;
+}
+body.innov-safe-page[data-innov-page="shop"] .product-item a.h6{
+  display:-webkit-box!important;
+  width:100%;
+  max-width:100%;
+  min-height:2.3em;
+  line-height:1.15!important;
+  white-space:normal!important;
+  overflow:hidden;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  text-overflow:ellipsis;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+}
+@media(max-width:575.98px){
+  body.innov-safe-page[data-innov-page="shop"] .shop-toolbar{
+    align-items:flex-start!important;
+    gap:8px;
+  }
+  body.innov-safe-page[data-innov-page="shop"] .shop-toolbar>div:last-child{
+    max-width:48%;
+  }
+  body.innov-safe-page[data-innov-page="shop"] .shop-toolbar label{
+    display:none;
+  }
+  body.innov-safe-page[data-innov-page="shop"] .shop-toolbar select{
+    width:100%;
+  }
+}
+</style>
 
 </head>
 
@@ -2251,7 +2288,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
           <div class="col-md-4 mb-5">
             <h5 class="footer-title text-light mb-3">Boletín</h5>
             <p style="color: rgba(255,255,255,.70);">Recibe ofertas y novedades.</p>
-            <form action="/suscribirse" method="post">
+            <form action="contact.html" method="get">
               <div class="input-group">
                 <input type="email" class="form-control" placeholder="Tu correo" required />
                 <div class="input-group-append">
@@ -2278,7 +2315,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
         </p>
       </div>
       <div class="col-md-6 px-xl-0 text-center text-md-right">
-        <img class="img-fluid" src="img/payments.png" alt="Métodos de pago" />
+        <img class="img-fluid" src="payments-placeholder.svg" alt="Métodos de pago" />
       </div>
     </div>
   </footer>
@@ -2334,7 +2371,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
           <div class="row">
             <div class="col-md-5">
               <div class="modal-product-media">
-                <img id="modalImg" src="img/placeholder.jpg" alt="" class="img-fluid rounded product-logo-img">
+                <img id="modalImg" src="brand-placeholder.svg" alt="" class="img-fluid rounded product-logo-img">
                 <div id="modalVideo" class="product-video-shell js-product-video"></div>
                 <div class="product-video-shade"></div>
                 <button id="modalSoundBtn" class="video-audio-btn js-video-sound" type="button" aria-label="Activar sonido" hidden>🔇</button>
@@ -2448,6 +2485,8 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
       updatedAt: null,
       signature: ''
     };
+    const PUBLIC_CATALOG_CACHE_KEY = 'innov_public_catalog_cache_v1';
+    const PUBLIC_CATALOG_CACHE_TTL_MS = 30 * 60 * 1000;
 
     let supabaseClient = null;
     try{
@@ -2588,10 +2627,10 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
       }
     }
     function primaryThumbFromDomain(domain){
-      return domain ? `https://logo.clearbit.com/${domain}?size=512` : 'img/placeholder.jpg';
+      return domain ? `https://logo.clearbit.com/${domain}?size=512` : 'brand-placeholder.svg';
     }
     function fallbackThumbFromDomain(domain){
-      return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=256` : 'img/placeholder.jpg';
+      return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=256` : 'brand-placeholder.svg';
     }
     function resolveThumb(it){
       if(it.thumb) return it.thumb;
@@ -2764,7 +2803,24 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
     function stopSmartVideoShell(shell){
       if(!shell) return;
       try{ if(shell._player && shell._player.stopVideo) shell._player.stopVideo(); }catch(e){}
+      try{ if(shell._player && shell._player.destroy) shell._player.destroy(); }catch(e){}
       try{ if(shell._videoEl) shell._videoEl.pause(); }catch(e){}
+      shell._player = null;
+      shell._videoEl = null;
+      shell._iframe = null;
+      shell._vimeoFrame = null;
+      shell._tiktokFrame = null;
+    }
+    function isShellConnected(shell){
+      return !!(shell && shell.isConnected && document.body.contains(shell));
+    }
+    function isYoutubePlayerAttached(player){
+      try{
+        const iframe = player && player.getIframe ? player.getIframe() : null;
+        return !!(iframe && iframe.isConnected && document.body.contains(iframe));
+      }catch(e){
+        return false;
+      }
     }
     function mountGoogleDrivePreview(shell, media, soundBtn, statusEl){
       if(!shell || !media || !media.previewUrl || shell.dataset.gdrivePreviewMounted === '1') return;
@@ -2916,6 +2972,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
       }
 
       ensureYoutubeApi().then(()=>{
+        if(!isShellConnected(shell)) return;
         const holder = document.createElement('div');
         holder.id = 'ytp_' + Math.random().toString(36).slice(2);
         shell.appendChild(holder);
@@ -2934,6 +2991,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
           },
           events: {
             onReady: function(e){
+              if(!isShellConnected(shell) || shell._player !== e.target || !isYoutubePlayerAttached(e.target)) return;
               try{
                 const wantSound = shell.dataset.muted === '0';
                 if(wantSound){ e.target.unMute(); e.target.setVolume(75); }
@@ -2943,6 +3001,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
               }catch(err){}
             },
             onStateChange: function(e){
+              if(!isShellConnected(shell) || shell._player !== e.target || !isYoutubePlayerAttached(e.target)) return;
               if(e.data === YT.PlayerState.PLAYING){
                 setTimeout(()=>revealSmartVideo(shell), shell.dataset.cardVideo === '1' ? 1500 : 800);
                 markVideoStatus(statusEl, '', false);
@@ -3010,6 +3069,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
 
       try{
         if(shell._player){
+          if(!isYoutubePlayerAttached(shell._player)) return;
           if(wantSound){
             shell._player.unMute();
             shell._player.setVolume(volume);
@@ -4434,6 +4494,41 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
       return { retail, wholesale };
     }
 
+    function readCachedCatalogRows(){
+      try{
+        const cached = JSON.parse(sessionStorage.getItem(PUBLIC_CATALOG_CACHE_KEY) || 'null');
+        if(!cached || !Array.isArray(cached.rows) || !Number(cached.savedAt)) return null;
+        if(Date.now() - cached.savedAt > PUBLIC_CATALOG_CACHE_TTL_MS){
+          sessionStorage.removeItem(PUBLIC_CATALOG_CACHE_KEY);
+          return null;
+        }
+        return cached.rows;
+      }catch(_){
+        return null;
+      }
+    }
+
+    function writeCachedCatalogRows(rows){
+      try{
+        sessionStorage.setItem(PUBLIC_CATALOG_CACHE_KEY, JSON.stringify({
+          savedAt:Date.now(),
+          rows:Array.isArray(rows) ? rows : []
+        }));
+      }catch(_){ }
+    }
+
+    function hydrateCatalogFromCache(){
+      const rows = readCachedCatalogRows();
+      if(!rows) return false;
+      const built = buildDbCatalog(rows);
+      DB_CATALOG.retail = built.retail;
+      DB_CATALOG.wholesale = built.wholesale;
+      DB_CATALOG.signature = catalogRowsSignature(rows);
+      DB_CATALOG.ready = true;
+      DB_CATALOG.updatedAt = new Date();
+      return true;
+    }
+
     async function loadSupabaseCatalog(options = {}){
       const silent = !!options.silent;
       const wasReady = DB_CATALOG.ready;
@@ -4454,6 +4549,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
         if(error) throw error;
 
         const rows = data || [];
+        writeCachedCatalogRows(rows);
         const nextSignature = catalogRowsSignature(rows);
         const changed = nextSignature !== DB_CATALOG.signature;
 
@@ -4725,6 +4821,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
       const start = (state.page-1)*PAGE_SIZE;
       const pageItems = sorted.slice(start, start+PAGE_SIZE);
 
+      grid.querySelectorAll('.js-product-video').forEach(stopSmartVideoShell);
       grid.innerHTML = pageItems.length ? pageItems.map(cardHTML).join('') : `
         <div class="empty-state">
           <h5>No encontramos productos con esos filtros</h5>
@@ -4757,8 +4854,8 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
       const hasVideo = !!videoUrl;
       const periodText = hasPlans(it) ? `${getPlans(it).length} planes` : (it.period || '');
       const period = periodText ? `<div class="period-note">${esc(periodText)}</div>` : '';
-      const addTitle = hasPlans(it) ? 'Elegir plan' : 'Agregar al carrito';
-      const buyTitle = hasPlans(it) ? 'Elegir plan' : (it.price==null?'Consultar por WhatsApp':'Comprar ahora');
+      const addTitle = hasPlans(it) ? 'Agregar plan recomendado' : 'Agregar al carrito';
+      const buyTitle = hasPlans(it) ? 'Elegir plan y comprar' : (it.price==null?'Consultar por WhatsApp':'Comprar ahora');
 
       return `
         <div class="col-6 col-sm-6 col-md-4 col-lg-3 pb-1">
@@ -4782,7 +4879,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
                    style="object-fit:${esc(it.thumbFit||'contain')};object-position:center;"
                    src="${esc(thumb)}"
                    data-fallback="${esc(fallback)}"
-                   data-placeholder="img/placeholder.jpg"
+                   data-placeholder="brand-placeholder.svg"
                    loading="lazy"
                    decoding="async"
                    referrerpolicy="strict-origin-when-cross-origin"
@@ -4868,6 +4965,28 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
         }
       };
     }
+    function sellItemLabel(sellItem){
+      const name = String(sellItem?.name || '').trim();
+      const plan = String(sellItem?.planName || sellItem?.plan_name || '').trim();
+      if(!plan || normalizeKey(name).includes(normalizeKey(plan))) return name;
+      return [name, plan].filter(Boolean).join(' · ');
+    }
+    function performCartAdd(sellItem, imageUrl, options = {}){
+      if(!sellItem) return false;
+      Cart.add(cartPayloadFromItem(sellItem, imageUrl || ''));
+      syncHeaderBadges();
+      flyToCart({
+        originEl: options.originEl || null,
+        emoji: '',
+        imgUrl: imageUrl || '',
+        onEnd: attentionCartBadge
+      });
+      showToast('Añadido: ' + sellItemLabel(sellItem));
+      if(options.redirectCheckout){
+        setTimeout(()=>{ window.location.href='checkout.html'; }, SETTINGS.cartRedirectDelay);
+      }
+      return true;
+    }
 
     /* ================== Acciones tarjetas ================== */
     function bindCards(){
@@ -4895,7 +5014,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
             const step = Number(imgEl.dataset.errstep || '0') + 1;
             imgEl.dataset.errstep = String(step);
             if(step===1 && imgEl.dataset.fallback) imgEl.src = imgEl.dataset.fallback;
-            else if(step>=2) imgEl.src = imgEl.dataset.placeholder || 'img/placeholder.jpg';
+            else if(step>=2) imgEl.src = imgEl.dataset.placeholder || 'brand-placeholder.svg';
           });
         }
 
@@ -4908,8 +5027,25 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
             return;
           }
 
-          // Si tiene varios planes, primero obligamos a elegir el plan exacto.
           if(hasPlans(it)){
+            if(action === 'add'){
+              const defaultPlan = getDefaultPlan(it);
+              if(!defaultPlan || !isPlanDisponible(defaultPlan)){
+                openDetail(id);
+                showToast('Elige un plan disponible ✅');
+                return;
+              }
+              const sellItem = mergePlanItem(it, defaultPlan);
+              if(sellItem.price==null){
+                consultWhatsApp(sellItem);
+                return;
+              }
+              const imageWithPlan = imgEl ? (imgEl.currentSrc || imgEl.src) : '';
+              performCartAdd(sellItem, imageWithPlan, {
+                originEl: imgEl || addBtn
+              });
+              return;
+            }
             openDetail(id);
             showToast('Elige un plan para continuar ✅');
             return;
@@ -4922,21 +5058,10 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
           }
 
           const imagenFinal = imgEl ? (imgEl.currentSrc || imgEl.src) : '';
-          Cart.add(cartPayloadFromItem(it, imagenFinal));
-          syncHeaderBadges();
-
-          flyToCart({
+          performCartAdd(it, imagenFinal, {
             originEl: imgEl || (action==='buy'?buyBtn:addBtn),
-            emoji: '',
-            imgUrl: imagenFinal,
-            onEnd: attentionCartBadge
+            redirectCheckout: action==='buy'
           });
-
-          showToast('Añadido: ' + nombre);
-
-          if(action==='buy'){
-            setTimeout(()=>{ window.location.href='checkout.html'; }, SETTINGS.cartRedirectDelay);
-          }
         }
 
         if(addBtn){ addBtn.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); addOrConsult('add'); }, {passive:false}); }
@@ -5151,11 +5276,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
       if(!sellItem) return;
       if(!isDisponible(sellItem)) return showToast('No disponible: ' + sellItem.name);
       if(sellItem.price==null) return consultWhatsApp(sellItem);
-
-      Cart.add(cartPayloadFromItem(sellItem, elImg.src));
-      syncHeaderBadges();
-      flyToCart({ originEl: elImg, emoji:'', imgUrl: elImg.src, onEnd: attentionCartBadge });
-      showToast('Añadido: ' + sellItem.name);
+      performCartAdd(sellItem, elImg.src, { originEl: elImg });
     });
 
     btnBuy.addEventListener('click', ()=>{
@@ -5168,10 +5289,7 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
         return;
       }
 
-      Cart.add(cartPayloadFromItem(sellItem, elImg.src));
-      syncHeaderBadges();
-      flyToCart({ originEl: elImg, emoji:'', imgUrl: elImg.src, onEnd: attentionCartBadge });
-      setTimeout(()=>{ window.location.href='checkout.html'; }, SETTINGS.cartRedirectDelay);
+      performCartAdd(sellItem, elImg.src, { originEl: elImg, redirectCheckout: true });
     });
 
     /* ================== Fly-to-cart ================== */
@@ -5543,11 +5661,12 @@ html[data-theme="dark"] body.innov-safe-page[data-innov-page="shop"] .shop-sideb
       }
     });
 
-    // Carga inicial: muestra respaldo local al instante y luego sincroniza Supabase.
+    // La caché de sesión evita un catálogo vacío al volver; RPC/Realtime lo refrescan enseguida.
+    const restoredCatalog = hydrateCatalogFromCache();
     setCurrency(state.currency);
     syncModeButtons();
     updateCatalogStatus('');
-    loadSupabaseCatalog().finally(()=>{
+    loadSupabaseCatalog({silent:restoredCatalog}).finally(()=>{
       resetPriceInputs();
       render();
       openFromHashIfPossible();
@@ -5711,7 +5830,7 @@ window.addEventListener('message', function(event){
       button.classList.remove('is-sound-on');
     }
     try{ if(shell._videoEl){ shell._videoEl.muted=true; shell._videoEl.volume=0; } }catch(_){}
-    try{ if(shell._player){ shell._player.mute(); shell._player.setVolume(0); } }catch(_){}
+    try{ if(shell._player && isYoutubePlayerAttached(shell._player)){ shell._player.mute(); shell._player.setVolume(0); } }catch(_){}
     try{ if(shell._vimeoFrame && shell._vimeoFrame.contentWindow){ shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({method:'setMuted',value:true}),'*'); shell._vimeoFrame.contentWindow.postMessage(JSON.stringify({method:'setVolume',value:0}),'*'); } }catch(_){}
     try{ if(shell._tiktokFrame && shell._tiktokFrame.contentWindow){ shell._tiktokFrame.contentWindow.postMessage({type:'mute',value:undefined,'x-tiktok-player':true},'*'); } }catch(_){}
   }
