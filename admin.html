@@ -3324,7 +3324,8 @@ async function upsertCustomerWhatsAppIdentity(data={}){
     name:String(data.name||existing?.name||'Cliente').trim()||'Cliente',
     whatsapp_contact:contact.value,
     phone_raw:contact.kind==='phone'?rawContact:contact.value,
-    phone_e164:contact.value,
+    phone_e164:contact.kind==='phone'?contact.value:null,
+    whatsapp_username:contact.kind==='username'?contact.username:null,
     email:String(data.email||existing?.email||'').trim()||null,
     source:String(data.source||existing?.source||'manual').trim()||'manual',
     notes:notesWithCustomerMeta(cleanNotes,meta)
@@ -11775,7 +11776,7 @@ INNOV IA V62 - TOTP original + selección real
 
   const CORE_VERSION = '1.0.4.2';
   const RPC = Object.freeze({
-    create: 'admin_v73_create_assignment',
+    create: 'admin_v110_create_assignment_contact',
     deliverOrder: 'admin_v73_deliver_order_and_assign',
     renew: 'admin_v73_renew_assignment',
     cancel: 'admin_v73_cancel_assignment',
@@ -13186,7 +13187,7 @@ INNOV IA V62 - TOTP original + selección real
     try {
       made = await issueTotp(ctx, name, phone.e164 || phoneRaw, service);
       const message = await renderOpsMessage(ctx, made?.code || '');
-      const result = await rpc('admin_v73_create_assignment', {
+      const result = await rpc('admin_v110_create_assignment_contact', {
         p_customer_name: name,
         p_customer_phone: phone.e164 || phoneRaw,
         p_customer_email: value('opsDeliverClientEmail') || null,
@@ -13760,13 +13761,6 @@ INNOV IA V62 - TOTP original + selección real
       const name=value('opsDeliverName'); const rawPhone=value('opsDeliverPhone'); const phone=phoneInfo(rawPhone);
       if(!name) throw new Error('Ingresa el nombre del cliente');
       if(!phone?.ok) throw new Error(phone?.error||'WhatsApp inválido');
-      const savedIdentity=await window.upsertCustomerWhatsAppIdentity?.({
-        name,
-        contact:rawPhone,
-        email:value('opsDeliverClientEmail')||null,
-        source:'entrega_manual_stock'
-      });
-      if(!savedIdentity?.id) throw new Error('Supabase no confirmó el cliente y su WhatsApp');
       const ctx=await resolve('ops',{force:true});
       const planId=ctx.planId; const service=value('opsDeliverService')||planName(planId);
       const amountRaw=value('opsDeliverAmount'); const amount=amountRaw===''?null:Number(amountRaw);
@@ -13779,7 +13773,7 @@ INNOV IA V62 - TOTP original + selección real
         access_context:{login:ctx.login||null,profile:ctx.profile||null,pin:ctx.pin||null,group_url:ctx.group_url||null},
         totp_code:made?.code||null
       };
-      const result=await rpc('admin_v73_create_assignment',{
+      const result=await rpc('admin_v110_create_assignment_contact',{
         p_customer_name:name,p_customer_phone:phone.e164||rawPhone,p_customer_email:value('opsDeliverClientEmail')||null,
         p_plan_id:planId,p_service_name:service,p_amount:Number.isFinite(amount)?amount:null,p_due_date:due,p_start_date:start,
         p_stock_item_id:ctx.stock_item_id,p_source:'manual',p_order_id:null,p_order_item_id:null,p_message:message||null,p_metadata:metadata,
@@ -17445,5 +17439,100 @@ window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,1150),{once:true});else setTimeout(bind,1150);
 })();
 </script>
+
+
+<!-- ================================================================
+     INNOV IA ADMIN V109 · WhatsApp username link fix
+     Corrige enlaces por username sin alterar el flujo por teléfono.
+     WhatsApp usa wa.me/Usuario (sin @ en la URL).
+     ================================================================ -->
+<script id="innov-v109-whatsapp-username-fix">
+(function(){
+  'use strict';
+  if(window.__innovV109WhatsAppUsernameFix)return;
+  window.__innovV109WhatsAppUsernameFix=true;
+
+  const PATCH_VERSION='109.0.0';
+
+  function cleanUsername(value){
+    const raw=String(value||'').trim().replace(/\s+/g,'');
+    if(!raw)return '';
+    return raw.replace(/^@+/, '');
+  }
+
+  function usernameLink(username,message){
+    const bare=cleanUsername(username);
+    if(!bare)return '#';
+    const base=`https://wa.me/${encodeURIComponent(bare)}`;
+    return message ? `${base}?text=${encodeURIComponent(String(message))}` : base;
+  }
+
+  function phoneDigits(value){
+    return String(value||'').replace(/\D+/g,'');
+  }
+
+  function fixedBasicWhatsAppUrl(contact,message){
+    let info=null;
+    try{
+      info=typeof window.whatsappContactInfo==='function'
+        ? window.whatsappContactInfo(contact)
+        : null;
+    }catch(_){info=null;}
+
+    if(info && !info.ok)return '#';
+
+    if(info?.kind==='username'){
+      return usernameLink(info.username||info.value,message);
+    }
+
+    // Respaldo para valores @usuario incluso si el parser principal no está disponible.
+    const raw=String(contact||'').trim();
+    if(raw.startsWith('@') || /[A-Za-z_]/.test(raw)){
+      return usernameLink(raw,message);
+    }
+
+    const digits=phoneDigits(info?.value||raw);
+    if(!digits)return '#';
+    const base=`https://wa.me/${digits}`;
+    return message ? `${base}?text=${encodeURIComponent(String(message))}` : base;
+  }
+
+  // V107 conserva la preferencia WhatsApp/Business/Web para teléfonos y
+  // consulta window.basicWhatsAppUrl como fallback. Reemplazar únicamente
+  // este constructor corrige username sin romper el comportamiento por número.
+  window.basicWhatsAppUrl=fixedBasicWhatsAppUrl;
+  try{basicWhatsAppUrl=fixedBasicWhatsAppUrl}catch(_){ }
+
+  window.whatsappUsernameLink=usernameLink;
+  window.INNOV_ADMIN_PATCH_V109=Object.freeze({
+    version:PATCH_VERSION,
+    whatsappUsernameLink:true,
+    usernameWithoutAt:true,
+    phoneFlowPreserved:true
+  });
+
+  console.info('Innov IA Admin V109 · enlaces WhatsApp por username corregidos');
+})();
+</script>
+
+<!-- ================================================================
+     INNOV IA ADMIN V110 · Entrega por teléfono o username
+     Requiere RPC Supabase: admin_v110_create_assignment_contact
+     ================================================================ -->
+<script id="innov-v110-contact-delivery-marker">
+(function(){
+  'use strict';
+  window.INNOV_ADMIN_PATCH_V110=Object.freeze({
+    version:'110.0.0',
+    assignmentRpc:'admin_v110_create_assignment_contact',
+    phone:true,
+    username:true,
+    customerResolvedServerSide:true
+  });
+  console.info('Innov IA Admin V110 · entrega por teléfono o username activa');
+})();
+</script>
+
 </body>
 </html>
+
