@@ -9743,12 +9743,19 @@ setTimeout(enhanceCuposEntregaUi,0);
   function v48WhatsappBtn(r){try{return reminderWasSent(r)?'Reavisar':'Avisar'}catch(_){return 'Avisar'}}
   function v48Haystack(r){
     const c=v48Customer(r), s=v48ReminderStock(r), d=v48Secret(s), snap=v48Snapshot(r);
+    const a=(state.assignments||[]).find(x=>String(x?.id||'')===String(r?.assignment_id||'')||String(x?.reminder_id||'')===String(r?.id||''))||{};
+    let waContact='',waUser='';
+    try{waContact=window.customerWhatsAppContact?.(c)||c?.whatsapp_contact||''}catch(_){waContact=c?.whatsapp_contact||''}
+    try{waUser=window.customerWhatsAppUsername?.(c)||c?.whatsapp_username||''}catch(_){waUser=c?.whatsapp_username||''}
     const values=[
       r?.service_name,r?.status,r?.order_id,r?.order_code,r?.id,r?.due_date,v48SafeDate(r?.due_date),v48DueText(r),
       v48StatusText(r),v48WhatsappText(r),v48Money(r?.amount),v48PlanInfo(r),
-      c?.name,c?.phone_e164,c?.phone_raw,c?.email,c?.source,c?.notes,
+      c?.name,c?.phone_e164,c?.phone_raw,c?.whatsapp_contact,c?.whatsapp_username,c?.whatsapp_username_norm,
+      waContact,waUser,String(waUser||'').replace(/^@/,''),c?.email,c?.source,c?.notes,
+      a?.status,a?.source,a?.service_name,a?.metadata,a?.access_snapshot,
       v48ClientEmail(r,c),v48AssociatedEmail(r),
-      v48Json(snap),v48Json(d),v48Digits(c?.phone_e164||c?.phone_raw),v48Digits(r?.phone||''),
+      v48Json(a?.metadata),v48Json(a?.access_snapshot),v48Json(snap),v48Json(d),
+      v48Digits(c?.phone_e164||c?.phone_raw||waContact),v48Digits(r?.phone||''),
       (()=>{try{return reminderCode(r)}catch(_){return ''}})()
     ];
     return v48Clean(values.filter(v=>v!==undefined&&v!==null).join(' '))+' '+values.map(v=>v48Digits(v)).filter(Boolean).join(' ');
@@ -9776,7 +9783,7 @@ setTimeout(enhanceCuposEntregaUi,0);
     return rows.map(r=>{
       const c=v48Customer(r), id=String(r?.id||'');
       const clientEmail=v48ClientEmail(r,c), accountEmail=v48AssociatedEmail(r);
-      const phone=c.phone_e164||c.phone_raw||'';
+      const phone=(()=>{try{return window.customerWhatsAppContact?.(c)||c.whatsapp_contact||c.phone_e164||c.phone_raw||''}catch(_){return c.whatsapp_contact||c.phone_e164||c.phone_raw||''}})();
       const selected=state.selectedReminderIds?.has(r.id);
       const selCls=(state.reminderSelectionMode?' selection-mode':'')+(selected?' rem-selected':'');
       const overdue=v48IsOverdue(r), today=v48IsToday(r), future=v48IsFuture(r);
@@ -11863,10 +11870,16 @@ INNOV IA V62 - TOTP original + selección real
     const customer = customerForReminder(reminder);
     const assignment = assignmentForReminder(reminder);
     const stock = list(state.stock).find(row => id(row.id) === id(assignment?.stock_item_id || reminder?.stock_item_id)) || {};
+    let waContact='',waUser='';
+    try{waContact=window.customerWhatsAppContact?.(customer)||customer.whatsapp_contact||''}catch(_){waContact=customer.whatsapp_contact||''}
+    try{waUser=window.customerWhatsAppUsername?.(customer)||customer.whatsapp_username||''}catch(_){waUser=customer.whatsapp_username||''}
     const raw = [
       reminder.service_name, reminder.status, reminder.due_date, reminder.amount,
-      customer.name, customer.phone_e164, customer.phone_raw, customer.email,
-      assignment?.status, assignment?.source,
+      customer.name, customer.phone_e164, customer.phone_raw,
+      customer.whatsapp_contact, customer.whatsapp_username, customer.whatsapp_username_norm,
+      waContact, waUser, String(waUser||'').replace(/^@/,''), customer.email,
+      assignment?.status, assignment?.source, assignment?.service_name,
+      JSON.stringify(assignment?.metadata||{}), JSON.stringify(assignment?.access_snapshot||{}),
       stock.title, stock.secret_data?.correo, stock.secret_data?.email
     ].join(' ').toLowerCase();
     return raw.includes(query.toLowerCase());
@@ -13220,7 +13233,7 @@ INNOV IA V62 - TOTP original + selección real
         const url = window.waLink(phone.e164 || phoneRaw, message);
         if (url && url !== '#') window.open(url, '_blank', 'noopener,noreferrer');
       }
-      toast(result?.reused ? 'La entrega ya existía; no se duplicó.' : 'Entrega, perfil/cupo y recordatorio registrados correctamente.', 'ok');
+      toast(result?.reminder_id ? (result?.reused ? 'La entrega ya existía; recordatorio verificado.' : 'Entrega, perfil/cupo y recordatorio registrados correctamente.') : 'Entrega registrada, pero no se recibió reminder_id. Ejecuta la reparación V111.', result?.reminder_id ? 'ok' : 'bad');
       await refreshAll();
     } catch (error) {
       await cleanupTotp(made);
@@ -13782,7 +13795,7 @@ INNOV IA V62 - TOTP original + selección real
       await linkTotp(made,result?.reminder_id);
       try { if(message) window.copyTextSafe?.(message); } catch (_){}
       try { window.closeDialog?.('dlgOpsDeliver'); } catch (_){}
-      notice(result?.reused?'La entrega ya existía; no se duplicó.':'Entrega, perfil/cupo y recordatorio registrados correctamente.','ok');
+      notice(result?.reminder_id?(result?.reused?'La entrega ya existía; recordatorio verificado.':'Entrega, perfil/cupo y recordatorio registrados correctamente.'):'Entrega registrada, pero no se recibió reminder_id. Ejecuta la reparación V111.',result?.reminder_id?'ok':'bad');
       if($('opsDeliverOpenWa')?.checked && typeof window.waLink==='function'){
         const url=window.waLink(phone.e164||rawPhone,message);
         if(url&&url!=='#')window.open(url,'_blank','noopener,noreferrer');
@@ -17530,6 +17543,171 @@ window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive
     customerResolvedServerSide:true
   });
   console.info('Innov IA Admin V110 · entrega por teléfono o username activa');
+})();
+</script>
+
+
+<script id="innov-v111-reminder-username-search-marker">
+(function(){
+  window.INNOV_ADMIN_PATCH_V111=Object.freeze({version:'111.0.0',feature:'recordatorios_username_search_and_manual_reminder_guard'});
+  console.info('Innov IA Admin V111 · búsqueda de recordatorios por username activa');
+})();
+</script>
+
+
+<!-- ================================================================
+     INNOV IA ADMIN V112 · Carga total paginada de Recordatorios
+     - Evita depender del límite máximo de filas de PostgREST/Supabase.
+     - Carga payment_reminders por páginas usando cursor UUID.
+     - Mantiene todos los registros en state.reminders para búsqueda profunda.
+     - También pagina crm_customers para evitar el mismo límite a futuro.
+     ================================================================ -->
+<script id="innov-v112-reminders-pagination">
+(function(){
+  'use strict';
+  if(window.__innovV112ReminderPagination)return;
+  window.__innovV112ReminderPagination=true;
+
+  const VERSION='112.0.0';
+  const PAGE_SIZE=500;
+  const MAX_PAGES=200;
+
+  function getClient(){
+    let c=window.db||window.INNOV_SUPABASE_CLIENT||null;
+    try{if(!c&&typeof db!=='undefined')c=db}catch(_){ }
+    return c&&typeof c.from==='function'?c:null;
+  }
+  function getState(){
+    try{if(typeof state!=='undefined'&&state)return state}catch(_){ }
+    window.state=window.state||{};
+    return window.state;
+  }
+  async function exactCount(table){
+    const c=getClient();
+    if(!c)return null;
+    try{
+      const r=await c.from(table).select('id',{count:'exact',head:true});
+      if(r.error)return null;
+      return Number.isFinite(Number(r.count))?Number(r.count):null;
+    }catch(_){return null}
+  }
+  async function fetchAllById(table){
+    const c=getClient();
+    if(!c)throw new Error('Supabase no está listo');
+    const total=await exactCount(table);
+    const rows=[];
+    const seen=new Set();
+    let lastId='';
+    let page=0;
+
+    while(page<MAX_PAGES){
+      let q=c.from(table).select('*').order('id',{ascending:true}).limit(PAGE_SIZE);
+      if(lastId)q=q.gt('id',lastId);
+      const r=await q;
+      if(r.error)throw r.error;
+      const batch=Array.isArray(r.data)?r.data:[];
+      if(!batch.length)break;
+
+      for(const row of batch){
+        const key=String(row?.id||'');
+        if(!key||seen.has(key))continue;
+        seen.add(key);
+        rows.push(row);
+      }
+
+      const nextId=String(batch[batch.length-1]?.id||'');
+      if(!nextId||nextId===lastId)break;
+      lastId=nextId;
+      page+=1;
+      if(total!==null&&rows.length>=total)break;
+    }
+
+    if(page>=MAX_PAGES)throw new Error(`Carga paginada detenida por seguridad en ${MAX_PAGES} páginas`);
+    if(total!==null&&rows.length<total){
+      throw new Error(`Carga incompleta de ${table}: ${rows.length} de ${total}`);
+    }
+    return {rows,total:total===null?rows.length:total,pages:page+1};
+  }
+
+  function sortReminders(rows){
+    return rows.sort((a,b)=>{
+      const ad=String(a?.due_date||'9999-12-31');
+      const bd=String(b?.due_date||'9999-12-31');
+      const due=ad.localeCompare(bd);
+      if(due)return due;
+      const ac=String(a?.created_at||'');
+      const bc=String(b?.created_at||'');
+      const created=ac.localeCompare(bc);
+      return created||String(a?.id||'').localeCompare(String(b?.id||''));
+    });
+  }
+  function sortCustomers(rows){
+    return rows.sort((a,b)=>String(b?.created_at||'').localeCompare(String(a?.created_at||''))||String(a?.id||'').localeCompare(String(b?.id||'')));
+  }
+
+  async function loadRemindersAllV112(){
+    const result=await fetchAllById('payment_reminders');
+    const s=getState();
+    s.reminders=sortReminders(result.rows);
+    s.remindersLoadMeta={loaded:s.reminders.length,total:result.total,pages:result.pages,version:VERSION,complete:true};
+    return s.reminders;
+  }
+
+  async function loadCustomersAllV112(){
+    const result=await fetchAllById('crm_customers');
+    const s=getState();
+    s.customers=sortCustomers(result.rows);
+    s.customersLoadMeta={loaded:s.customers.length,total:result.total,pages:result.pages,version:VERSION,complete:true};
+    return s.customers;
+  }
+
+  // Sustituye las cargas antiguas limitadas. loadAllCore llama estos nombres globales.
+  window.loadReminders=loadRemindersAllV112;
+  window.loadCustomers=loadCustomersAllV112;
+  try{loadReminders=loadRemindersAllV112}catch(_){ }
+  try{loadCustomers=loadCustomersAllV112}catch(_){ }
+
+  window.innovV112ReminderAudit=async function(){
+    const s=getState();
+    const dbCount=await exactCount('payment_reminders');
+    return {
+      version:VERSION,
+      db_count:dbCount,
+      loaded:Array.isArray(s.reminders)?s.reminders.length:0,
+      complete:dbCount===null?null:(Array.isArray(s.reminders)&&s.reminders.length===dbCount),
+      meta:s.remindersLoadMeta||null
+    };
+  };
+
+  async function refreshVisibleReminders(){
+    const app=document.getElementById('app');
+    if(!app||app.classList.contains('hidden'))return;
+    try{
+      await Promise.all([loadCustomersAllV112(),loadRemindersAllV112()]);
+      try{window.renderReminders?.()}catch(_){ }
+      try{window.renderDashboard?.()}catch(_){ }
+      try{window.renderClients?.()}catch(_){ }
+      console.info(`Innov IA V112 · ${getState().reminders.length} recordatorios cargados en total`);
+    }catch(error){
+      console.error('Innov IA V112 · carga total',error);
+      try{window.toast?.('No se pudieron cargar todos los recordatorios: '+String(error?.message||error),'bad')}catch(_){ }
+    }
+  }
+
+  window.INNOV_ADMIN_PATCH_V112=Object.freeze({
+    version:VERSION,
+    remindersPagination:true,
+    customersPagination:true,
+    pageSize:PAGE_SIZE,
+    supabaseRowCapSafe:true
+  });
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>setTimeout(refreshVisibleReminders,1800),{once:true});
+  }else{
+    setTimeout(refreshVisibleReminders,1800);
+  }
+  console.info('Innov IA Admin V112 · carga total paginada de recordatorios activa');
 })();
 </script>
 
