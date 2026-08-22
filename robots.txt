@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+Disallow: /login.html
+Disallow: /register.html
+Disallow: /cart.html
+Disallow: /checkout.html
+Disallow: /favoritos.html
+Disallow: /codigo.html
+Disallow: /telegram-login.html
+Disallow: /buscar.html
+
+Sitemap: https://innovaishop.com/sitemap.xml
