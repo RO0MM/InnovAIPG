@@ -2,11 +2,173 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0; url=telegram-login.html">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Ingresar | Innov Tienda</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#121c2b">
+  <title>Mi cuenta | Innov Tienda</title>
+  <link rel="icon" type="image/png" href="Dise%C3%B1o%20sin%20t%C3%ADtulo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--nav:#121c2b;--nav2:#1b2a40;--paper:#fff;--soft:#f5f7fb;--line:#e3e9f1;--ink:#162338;--muted:#6c7a8f;--yellow:#ffcb28;--yellow2:#ffdd62;--blue:#2563eb;--red:#dc2626;--green:#15803d;--shadow:0 28px 75px rgba(9,20,38,.19)}
+    *{box-sizing:border-box}html{color-scheme:light}body{margin:0;min-height:100dvh;font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 12% 16%,rgba(255,203,40,.15),transparent 25%),radial-gradient(circle at 88% 85%,rgba(37,99,235,.13),transparent 28%),#eef2f7;display:grid;place-items:center;padding:22px}button,input{font:inherit}button{cursor:pointer}a{color:inherit}.hidden{display:none!important}
+    .auth-shell{width:min(100%,980px);min-height:650px;display:grid;grid-template-columns:.9fr 1.1fr;background:#fff;border:1px solid rgba(255,255,255,.75);border-radius:30px;overflow:hidden;box-shadow:var(--shadow)}
+    .auth-side{position:relative;overflow:hidden;background:linear-gradient(150deg,#101a29,#1b2c45 70%,#213652);padding:38px;color:#fff;display:flex;flex-direction:column;justify-content:space-between}.auth-side:before{content:"";position:absolute;width:380px;height:380px;border-radius:50%;right:-190px;top:-150px;background:rgba(255,203,40,.13)}.auth-side:after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;left:-170px;bottom:-160px;background:rgba(54,148,255,.12)}
+    .brand{position:relative;z-index:1;display:inline-flex;align-items:stretch;width:max-content;border-radius:12px;overflow:hidden;text-decoration:none;box-shadow:0 9px 22px rgba(0,0,0,.24);font-family:'Manrope',sans-serif;font-weight:800;letter-spacing:-.05em}.brand span{padding:11px 13px}.brand .a{background:#fff;color:#172236}.brand .b{background:var(--yellow);color:#172236}
+    .side-copy{position:relative;z-index:1;max-width:390px}.eyebrow{font-size:.72rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:var(--yellow)}.side-copy h1{font-family:'Manrope',sans-serif;font-size:clamp(2rem,4vw,3.25rem);line-height:1.02;letter-spacing:-.055em;margin:12px 0}.side-copy p{color:#cbd6e7;line-height:1.65;margin:0}.trust{position:relative;z-index:1;display:grid;gap:9px;color:#dbe5f4;font-size:.83rem}.trust span{display:flex;gap:9px;align-items:center}.trust i{width:23px;height:23px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.08);font-style:normal;color:var(--yellow)}
+    .auth-main{padding:34px clamp(24px,5vw,58px);display:flex;align-items:center;background:linear-gradient(180deg,#fff,#fbfcfe)}.auth-card{width:100%;max-width:440px;margin:auto}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}.back{font-size:.82rem;text-decoration:none;color:var(--muted);font-weight:800}.back:hover{color:var(--ink)}.secure{font-size:.72rem;color:var(--green);font-weight:900}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;padding:4px;background:#edf1f6;border-radius:13px;margin-bottom:24px}.tab{border:0;background:transparent;padding:10px 12px;border-radius:10px;font-weight:850;color:var(--muted)}.tab.active{background:#fff;color:var(--ink);box-shadow:0 3px 10px rgba(15,23,42,.08)}
+    .view h2{font-family:'Manrope',sans-serif;font-size:1.72rem;letter-spacing:-.045em;margin:0}.view>.sub{color:var(--muted);font-size:.9rem;line-height:1.5;margin:7px 0 20px}.field{margin:12px 0}.field label{display:block;font-size:.76rem;font-weight:900;color:#435169;margin-bottom:6px}.input-wrap{position:relative}.input{width:100%;height:47px;border:1px solid #cfdae7;border-radius:12px;background:#fff;padding:0 13px;outline:0;color:var(--ink);transition:.16s}.input:focus{border-color:#7ca8e8;box-shadow:0 0 0 4px rgba(37,99,235,.10)}.eye{position:absolute;right:5px;top:5px;width:38px;height:37px;border:0;border-radius:9px;background:transparent;color:var(--muted)}.eye:hover{background:#f1f4f8}.with-eye{padding-right:48px}
+    .row-between{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 0 14px}.check{display:flex;gap:7px;align-items:center;font-size:.77rem;color:var(--muted)}.text-btn{border:0;padding:0;background:none;color:var(--blue);font-size:.78rem;font-weight:850}.text-btn:hover{text-decoration:underline}
+    .btn{width:100%;min-height:47px;border:0;border-radius:12px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:9px;transition:.16s}.btn-primary{background:linear-gradient(135deg,#172236,#233855);color:#fff;box-shadow:0 10px 22px rgba(23,34,54,.18)}.btn-primary:hover{transform:translateY(-1px);filter:brightness(1.06)}.btn-google{background:#fff;color:#26334a;border:1px solid #d8e0eb}.btn-google:hover{background:#f8fafc}.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}.gmark{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-family:Arial;font-weight:900;color:#4285f4;background:#fff;border:1px solid #e5e7eb}.divider{display:flex;align-items:center;gap:12px;color:#9aa6b6;font-size:.72rem;margin:16px 0}.divider:before,.divider:after{content:"";height:1px;flex:1;background:#e3e8ef}
+    .msg{display:none;margin:12px 0;padding:10px 12px;border-radius:11px;font-size:.79rem;line-height:1.45;border:1px solid}.msg.show{display:block}.msg.bad{color:#991b1b;background:#fff1f2;border-color:#fecdd3}.msg.ok{color:#166534;background:#f0fdf4;border-color:#bbf7d0}.msg.info{color:#1e40af;background:#eff6ff;border-color:#bfdbfe}
+    .fine{font-size:.72rem;color:#8a97a8;line-height:1.45;margin-top:14px;text-align:center}.fine a{color:#53657e}.otp{display:flex;gap:7px;justify-content:center;margin:18px 0}.otp input{width:46px;height:52px;border:1px solid #cbd6e4;border-radius:12px;text-align:center;font-size:1.35rem;font-weight:900;outline:0}.otp input:focus{border-color:#4f86d7;box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+    .verify-mail{display:flex;align-items:center;gap:10px;padding:12px;background:#f5f7fb;border:1px solid var(--line);border-radius:13px;margin:14px 0;color:#53627a;font-size:.82rem}.verify-mail b{color:var(--ink);word-break:break-all}.icon-circle{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);font-size:1.1rem;flex:none}
+    .account-box{padding:17px;border:1px solid var(--line);border-radius:17px;background:#f8fafc;margin:17px 0}.account-head{display:flex;align-items:center;gap:12px}.avatar{width:52px;height:52px;border-radius:16px;background:#172236;color:#fff;display:grid;place-items:center;font-size:1.2rem;font-weight:900;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.account-name{font-weight:900}.account-mail{color:var(--muted);font-size:.82rem;word-break:break-all}.account-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.btn-soft{background:#fff;border:1px solid #d5deea;color:#27364e}.btn-danger{background:#fff1f2;border:1px solid #fecdd3;color:#b91c1c}
+    @media(max-width:780px){body{padding:0;background:#fff}.auth-shell{min-height:100dvh;border-radius:0;border:0;grid-template-columns:1fr;box-shadow:none}.auth-side{display:none}.auth-main{padding:24px 18px}.auth-card{max-width:460px}.topline{margin-bottom:24px}}
+    @media(max-width:390px){.otp{gap:5px}.otp input{width:41px;height:49px}.account-actions{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
-  <p>Redirigiendo al acceso...</p>
+  <main class="auth-shell">
+    <section class="auth-side" aria-label="Innov Tienda">
+      <a class="brand" href="index.html"><span class="a">INNOV</span><span class="b">TIENDA</span></a>
+      <div class="side-copy"><div class="eyebrow">Tu cuenta Innov</div><h1>Compra y vuelve sin empezar de cero.</h1><p>Accede con tu correo o con Google. Tu identidad de cliente está separada del panel administrativo.</p></div>
+      <div class="trust"><span><i>✓</i> Acceso protegido con Supabase Auth</span><span><i>✓</i> Verificación de correo disponible por código</span><span><i>✓</i> Google y contraseña en una sola pantalla</span></div>
+    </section>
+
+    <section class="auth-main">
+      <div class="auth-card">
+        <div class="topline"><a class="back" id="backLink" href="index.html">← Volver a la tienda</a><span class="secure">● Conexión segura</span></div>
+
+        <div id="authTabs" class="tabs"><button class="tab active" type="button" data-tab="login">Ingresar</button><button class="tab" type="button" data-tab="register">Crear cuenta</button></div>
+
+        <section class="view" id="viewLogin">
+          <h2>Bienvenido</h2><p class="sub">Inicia sesión para continuar con Innov Tienda.</p>
+          <button class="btn btn-google" id="googleLogin" type="button"><span class="gmark">G</span> Continuar con Google</button>
+          <div class="divider">o usa tu correo</div>
+          <div class="field"><label for="loginEmail">Correo electrónico</label><input class="input" id="loginEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
+          <div class="field"><label for="loginPass">Contraseña</label><div class="input-wrap"><input class="input with-eye" id="loginPass" type="password" autocomplete="current-password" placeholder="Tu contraseña"><button class="eye" type="button" data-eye="loginPass" aria-label="Mostrar contraseña">◉</button></div></div>
+          <div class="row-between"><label class="check"><input id="remember" type="checkbox" checked> Mantener sesión</label><button class="text-btn" id="forgotBtn" type="button">¿Olvidaste tu contraseña?</button></div>
+          <div class="msg" id="loginMsg"></div><button class="btn btn-primary" id="loginBtn" type="button">Iniciar sesión</button>
+        </section>
+
+        <section class="view hidden" id="viewRegister">
+          <h2>Crea tu cuenta</h2><p class="sub">Puedes registrarte con Google o con correo y contraseña.</p>
+          <button class="btn btn-google" id="googleRegister" type="button"><span class="gmark">G</span> Registrarme con Google</button>
+          <div class="divider">o crea una cuenta con correo</div>
+          <div class="field"><label for="regName">Nombre</label><input class="input" id="regName" type="text" autocomplete="name" maxlength="80" placeholder="Tu nombre"></div>
+          <div class="field"><label for="regEmail">Correo electrónico</label><input class="input" id="regEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
+          <div class="field"><label for="regPass">Contraseña</label><div class="input-wrap"><input class="input with-eye" id="regPass" type="password" autocomplete="new-password" placeholder="Mínimo 10 caracteres"><button class="eye" type="button" data-eye="regPass">◉</button></div></div>
+          <div class="field"><label for="regConfirm">Confirmar contraseña</label><div class="input-wrap"><input class="input with-eye" id="regConfirm" type="password" autocomplete="new-password" placeholder="Repite tu contraseña"><button class="eye" type="button" data-eye="regConfirm">◉</button></div></div>
+          <label class="check" style="margin:8px 0 14px"><input id="terms" type="checkbox"> Acepto la política de privacidad y las condiciones de uso.</label>
+          <div class="msg" id="registerMsg"></div><button class="btn btn-primary" id="registerBtn" type="button">Crear mi cuenta</button>
+        </section>
+
+        <section class="view hidden" id="viewVerify">
+          <h2>Verifica tu correo</h2><p class="sub">Escribe el código de 6 dígitos que te enviamos.</p>
+          <div class="verify-mail"><span class="icon-circle">✉</span><div>Enviado a<br><b id="verifyEmailLabel">—</b></div></div>
+          <div class="otp" id="verifyOtp" aria-label="Código de verificación"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"></div>
+          <div class="msg" id="verifyMsg"></div><button class="btn btn-primary" id="verifyBtn" type="button">Verificar correo</button>
+          <div class="row-between" style="margin-top:14px"><button class="text-btn" id="resendBtn" type="button">Reenviar código</button><button class="text-btn" data-goto="login" type="button">Volver al ingreso</button></div>
+          <p class="fine">Si tu plantilla de Supabase todavía usa enlace de confirmación, puedes confirmar desde ese enlace. Para usar código, configura <code>{{ .Token }}</code> en la plantilla.</p>
+        </section>
+
+        <section class="view hidden" id="viewForgot">
+          <h2>Recuperar contraseña</h2><p class="sub">Te enviaremos un código de recuperación al correo de tu cuenta.</p>
+          <div class="field"><label for="forgotEmail">Correo electrónico</label><input class="input" id="forgotEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
+          <div class="msg" id="forgotMsg"></div><button class="btn btn-primary" id="forgotSendBtn" type="button">Enviar código</button>
+          <button class="text-btn" style="margin-top:16px" data-goto="login" type="button">← Volver al inicio de sesión</button>
+        </section>
+
+        <section class="view hidden" id="viewRecoveryCode">
+          <h2>Código de recuperación</h2><p class="sub">Ingresa el código recibido para autorizar el cambio de contraseña.</p>
+          <div class="verify-mail"><span class="icon-circle">🔐</span><div>Recuperación para<br><b id="recoverEmailLabel">—</b></div></div>
+          <div class="otp" id="recoveryOtp"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"></div>
+          <div class="msg" id="recoveryCodeMsg"></div><button class="btn btn-primary" id="recoveryCodeBtn" type="button">Validar código</button>
+          <button class="text-btn" style="margin-top:16px" id="recoveryResendBtn" type="button">Reenviar correo</button>
+        </section>
+
+        <section class="view hidden" id="viewNewPassword">
+          <h2>Nueva contraseña</h2><p class="sub">Crea una contraseña nueva para tu cuenta.</p>
+          <div class="field"><label for="newPass">Nueva contraseña</label><div class="input-wrap"><input class="input with-eye" id="newPass" type="password" autocomplete="new-password" placeholder="Mínimo 10 caracteres"><button class="eye" type="button" data-eye="newPass">◉</button></div></div>
+          <div class="field"><label for="newPass2">Confirmar contraseña</label><div class="input-wrap"><input class="input with-eye" id="newPass2" type="password" autocomplete="new-password" placeholder="Repite tu contraseña"><button class="eye" type="button" data-eye="newPass2">◉</button></div></div>
+          <div class="msg" id="newPassMsg"></div><button class="btn btn-primary" id="newPassBtn" type="button">Guardar nueva contraseña</button>
+        </section>
+
+        <section class="view hidden" id="viewAccount">
+          <h2>Mi cuenta</h2><p class="sub">Tu sesión está activa en Innov Tienda.</p>
+          <div class="account-box"><div class="account-head"><div class="avatar" id="accountAvatar">U</div><div><div class="account-name" id="accountName">Usuario</div><div class="account-mail" id="accountEmail">—</div></div></div><div class="account-actions"><a class="btn btn-soft" id="continueBtn" href="index.html" style="text-decoration:none">Continuar</a><button class="btn btn-danger" id="logoutBtn" type="button">Cerrar sesión</button></div></div>
+          <p class="fine">El acceso de cliente no habilita funciones administrativas.</p>
+        </section>
+
+        <p class="fine" id="globalFine">Al continuar aceptas el uso de autenticación necesario para mantener tu sesión. <a href="privacidad.html">Privacidad</a></p>
+      </div>
+    </section>
+  </main>
+
+<script>
+(function(){
+  'use strict';
+  const SUPABASE_URL='https://rfjvskrimsoqlyofhidj.supabase.co';
+  const SUPABASE_KEY='sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
+  const sb=window.__innovPublicSupabase||(window.__innovPublicSupabase=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}));
+  const $=id=>document.getElementById(id);
+  const views=['Login','Register','Verify','Forgot','RecoveryCode','NewPassword','Account'];
+  let pendingEmail=sessionStorage.getItem('innov_pending_email')||'';
+  let recoveryEmail=sessionStorage.getItem('innov_recovery_email')||'';
+  const params=new URLSearchParams(location.search);
+
+  function safeNext(){const raw=params.get('next')||'index.html';return /^[a-zA-Z0-9._-]+\.html(?:\?.*)?$/.test(raw)?raw:'index.html'}
+  $('backLink').href=safeNext();$('continueBtn').href=safeNext();
+  function msg(id,text,type='info'){const e=$(id);e.textContent=text||'';e.className='msg'+(text?' show '+type:'')}
+  function busy(btn,on,label){if(!btn)return; if(on){btn.dataset.old=btn.textContent;btn.disabled=true;btn.textContent=label||'Procesando...'}else{btn.disabled=false;btn.textContent=btn.dataset.old||btn.textContent}}
+  function show(name){views.forEach(v=>$('view'+v).classList.toggle('hidden',v.toLowerCase()!==name.toLowerCase()));const simple=['login','register'].includes(name);$('authTabs').classList.toggle('hidden',!simple);$('globalFine').classList.toggle('hidden',name==='account');if(simple)document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));}
+  function goto(name){show(name);history.replaceState(null,'',name==='login'?'login.html'+(params.get('next')?'?next='+encodeURIComponent(safeNext()):''):'login.html?mode='+encodeURIComponent(name)+(params.get('next')?'&next='+encodeURIComponent(safeNext()):''))}
+  function emailOk(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)}
+  function humanError(e){const s=String(e?.message||e||'').toLowerCase();if(s.includes('invalid login'))return 'Correo o contraseña incorrectos.';if(s.includes('email not confirmed'))return 'Primero verifica tu correo.';if(s.includes('already registered'))return 'Este correo ya está registrado.';if(s.includes('password'))return String(e?.message||e);return String(e?.message||e||'Ocurrió un error.');}
+  function otpSetup(id,action){const host=$(id),inputs=[...host.querySelectorAll('input')];inputs.forEach((inp,i)=>{inp.addEventListener('input',()=>{inp.value=inp.value.replace(/\D/g,'').slice(-1);if(inp.value&&inputs[i+1])inputs[i+1].focus();if(inputs.every(x=>x.value)&&action)action()});inp.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!inp.value&&inputs[i-1])inputs[i-1].focus()});inp.addEventListener('paste',e=>{const digits=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6);if(digits.length){e.preventDefault();digits.split('').forEach((d,j)=>{if(inputs[j])inputs[j].value=d});inputs[Math.min(digits.length,6)-1]?.focus();}})});return ()=>inputs.map(x=>x.value).join('')}
+  const getVerifyOtp=otpSetup('verifyOtp',()=>verifySignup());
+  const getRecoveryOtp=otpSetup('recoveryOtp',()=>verifyRecoveryCode());
+  document.querySelectorAll('[data-eye]').forEach(b=>b.onclick=()=>{const i=$(b.dataset.eye);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'◉':'◎'});
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>goto(t.dataset.tab));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));
+
+  async function google(){try{const redirectTo=new URL('login.html?oauth=1&next='+encodeURIComponent(safeNext()),location.href).href;const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo}});if(error)throw error}catch(e){msg('loginMsg','No se pudo abrir Google: '+humanError(e),'bad')}}
+  $('googleLogin').onclick=google;$('googleRegister').onclick=google;
+
+  async function login(){const email=$('loginEmail').value.trim().toLowerCase(),password=$('loginPass').value;if(!emailOk(email)||!password)return msg('loginMsg','Completa un correo válido y tu contraseña.','bad');busy($('loginBtn'),true,'Ingresando...');msg('loginMsg','');try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;renderAccount(data.user);show('account')}catch(e){msg('loginMsg',humanError(e),'bad')}finally{busy($('loginBtn'),false)}}
+  $('loginBtn').onclick=login;$('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+
+  async function register(){const name=$('regName').value.trim(),email=$('regEmail').value.trim().toLowerCase(),password=$('regPass').value,confirm=$('regConfirm').value;if(name.length<2)return msg('registerMsg','Escribe tu nombre.','bad');if(!emailOk(email))return msg('registerMsg','Escribe un correo válido.','bad');if(password.length<10)return msg('registerMsg','La contraseña debe tener al menos 10 caracteres.','bad');if(password!==confirm)return msg('registerMsg','Las contraseñas no coinciden.','bad');if(!$('terms').checked)return msg('registerMsg','Debes aceptar la política de privacidad y las condiciones.','bad');busy($('registerBtn'),true,'Creando cuenta...');msg('registerMsg','');try{const {data,error}=await sb.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:new URL('login.html?verified=1&next='+encodeURIComponent(safeNext()),location.href).href}});if(error)throw error;if(data.session){renderAccount(data.user);show('account');return}pendingEmail=email;sessionStorage.setItem('innov_pending_email',email);$('verifyEmailLabel').textContent=email;show('verify');msg('verifyMsg','Revisa tu correo. Si la plantilla está configurada con OTP, verás un código de 6 dígitos.','info')}catch(e){msg('registerMsg',humanError(e),'bad')}finally{busy($('registerBtn'),false)}}
+  $('registerBtn').onclick=register;
+
+  async function verifySignup(){const code=getVerifyOtp();if(!pendingEmail||!/^[0-9]{6}$/.test(code))return;busy($('verifyBtn'),true,'Verificando...');msg('verifyMsg','');try{const {data,error}=await sb.auth.verifyOtp({email:pendingEmail,token:code,type:'email'});if(error)throw error;sessionStorage.removeItem('innov_pending_email');renderAccount(data.user);show('account')}catch(e){msg('verifyMsg','Código incorrecto o vencido. '+humanError(e),'bad')}finally{busy($('verifyBtn'),false)}}
+  $('verifyBtn').onclick=verifySignup;
+  $('resendBtn').onclick=async()=>{if(!pendingEmail)return;busy($('resendBtn'),true,'Enviando...');try{const {error}=await sb.auth.resend({type:'signup',email:pendingEmail,options:{emailRedirectTo:new URL('login.html?verified=1',location.href).href}});if(error)throw error;msg('verifyMsg','Código reenviado. Revisa también Spam o Promociones.','ok')}catch(e){msg('verifyMsg',humanError(e),'bad')}finally{busy($('resendBtn'),false)}};
+
+  $('forgotBtn').onclick=()=>{$('forgotEmail').value=$('loginEmail').value;goto('forgot')};
+  async function sendRecovery(){const email=$('forgotEmail').value.trim().toLowerCase();if(!emailOk(email))return msg('forgotMsg','Escribe un correo válido.','bad');busy($('forgotSendBtn'),true,'Enviando...');try{const redirectTo=new URL('login.html?mode=newpassword&next='+encodeURIComponent(safeNext()),location.href).href;const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;recoveryEmail=email;sessionStorage.setItem('innov_recovery_email',email);$('recoverEmailLabel').textContent=email;show('recoverycode');msg('recoveryCodeMsg','Revisa tu correo e ingresa el código. Si recibes un enlace, también puedes usarlo.','info')}catch(e){msg('forgotMsg',humanError(e),'bad')}finally{busy($('forgotSendBtn'),false)}}
+  $('forgotSendBtn').onclick=sendRecovery;
+  async function verifyRecoveryCode(){const code=getRecoveryOtp();if(!recoveryEmail||!/^[0-9]{6}$/.test(code))return;busy($('recoveryCodeBtn'),true,'Validando...');try{const {error}=await sb.auth.verifyOtp({email:recoveryEmail,token:code,type:'recovery'});if(error)throw error;show('newpassword')}catch(e){msg('recoveryCodeMsg','Código inválido o vencido. '+humanError(e),'bad')}finally{busy($('recoveryCodeBtn'),false)}}
+  $('recoveryCodeBtn').onclick=verifyRecoveryCode;$('recoveryResendBtn').onclick=()=>{goto('forgot');$('forgotEmail').value=recoveryEmail;sendRecovery()};
+  async function saveNewPassword(){const p=$('newPass').value,c=$('newPass2').value;if(p.length<10)return msg('newPassMsg','La contraseña debe tener al menos 10 caracteres.','bad');if(p!==c)return msg('newPassMsg','Las contraseñas no coinciden.','bad');busy($('newPassBtn'),true,'Guardando...');try{const {error}=await sb.auth.updateUser({password:p});if(error)throw error;sessionStorage.removeItem('innov_recovery_email');msg('newPassMsg','Contraseña actualizada correctamente.','ok');setTimeout(async()=>{const {data}=await sb.auth.getUser();renderAccount(data?.user);show('account')},450)}catch(e){msg('newPassMsg',humanError(e),'bad')}finally{busy($('newPassBtn'),false)}}
+  $('newPassBtn').onclick=saveNewPassword;
+
+  function renderAccount(user){if(!user)return;const m=user.user_metadata||{},name=String(m.full_name||m.name||m.first_name||user.email?.split('@')[0]||'Usuario');$('accountName').textContent=name;$('accountEmail').textContent=user.email||'';const url=String(m.avatar_url||m.picture||'');$('accountAvatar').innerHTML=url?`<img src="${url.replaceAll('&','&amp;').replaceAll('"','&quot;')}" alt="">`:name.charAt(0).toUpperCase()}
+  $('logoutBtn').onclick=async()=>{await sb.auth.signOut();goto('login')};
+
+  sb.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){show('newpassword');return}if(event==='SIGNED_IN'&&session?.user&&params.get('oauth')){renderAccount(session.user);show('account')}});
+
+  (async function init(){
+    const mode=(params.get('mode')||'').toLowerCase();
+    if(pendingEmail)$('verifyEmailLabel').textContent=pendingEmail;if(recoveryEmail)$('recoverEmailLabel').textContent=recoveryEmail;
+    const {data}=await sb.auth.getSession();
+    if(data?.session?.user && !['newpassword','recoverycode'].includes(mode)){renderAccount(data.session.user);show('account');return}
+    if(mode==='register')show('register');else if(mode==='verify'&&pendingEmail)show('verify');else if(mode==='forgot')show('forgot');else if(mode==='recoverycode'&&recoveryEmail)show('recoverycode');else if(mode==='newpassword')show('newpassword');else show('login');
+  })();
+})();
+</script>
 </body>
 </html>
