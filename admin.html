@@ -12,8 +12,8 @@
 })();
 </script>
 
-  <link rel="icon" type="image/png" href="Diseño sin título.png">
-<link rel="shortcut icon" href="Diseño sin título.png">
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
+<link rel="shortcut icon" href="assets/img/logo.png">
 
   <!-- Libraries Stylesheet -->
 
@@ -134,7 +134,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: var(--bg-logo, url('./Diseño sin título.png'));
+  background-image: var(--bg-logo, url('./assets/img/logo.png'));
   background-position: center;
   background-size: cover;
   opacity: .04;
@@ -1994,6 +1994,7 @@ a.btn-primary,a.btn-success,a.btn-warning,a.btn-danger{color:#fff!important;text
 #storeSocialSettingsCard .support-message{min-height:92px;resize:vertical}
 @media(max-width:700px){.home-showcase-side-grid{grid-template-columns:1fr!important}.home-showcase-timing{align-items:stretch;flex-direction:column}.home-showcase-timing .input{max-width:none}}
 </style>
+<meta name="robots" content="noindex,nofollow,noarchive">
 </head>
 <body>
 
@@ -17711,6 +17712,41 @@ window.INNOV_ADMIN_PATCH_V101=Object.freeze({version:'101.0.0',accounts:'archive
 })();
 </script>
 
+
+<script id="innov-exec1-safe-delete-hotfix">
+(function(){
+ const txt=v=>String(v??'');
+ async function run(kind,id){
+  const c=window.db||window.INNOV_SUPABASE_CLIENT;if(!c?.rpc)throw new Error('Supabase no disponible');
+  const fn=kind==='product'?'admin_core_delete_product':'admin_core_delete_plan';
+  const r=await c.rpc(fn,{p_id:id,p_confirm:true});if(r.error)throw r.error;
+  const d=Array.isArray(r.data)?(r.data[0]||{}):(r.data||{});
+  try{window.toast?.(d.message||'Operación completada','ok')}catch(_){}
+  try{await window.loadAll?.()}catch(_){}
+  return d;
+ }
+ window.quickDeletePlan=async id=>{if(!confirm('¿Eliminar/archivar el plan de forma segura? El historial se conservará.'))return;try{await run('plan',id)}catch(e){window.toast?.(txt(e?.message||e),'bad')}};
+ window.quickDeleteProduct=async id=>{if(!confirm('¿Eliminar/archivar el producto y sus planes de forma segura? El historial se conservará.'))return;try{await run('product',id)}catch(e){window.toast?.(txt(e?.message||e),'bad')}};
+ window.deletePlan=async()=>{const id=document.getElementById('plId')?.value;if(!id)return;if(!confirm('¿Eliminar/archivar este plan de forma segura?'))return;try{await run('plan',id);window.closeDialog?.('dlgPlan')}catch(e){window.toast?.(txt(e?.message||e),'bad')}};
+ window.deleteProduct=async()=>{const id=document.getElementById('pId')?.value;if(!id)return;if(!confirm('¿Eliminar/archivar este producto de forma segura?'))return;try{await run('product',id);window.closeDialog?.('dlgProduct')}catch(e){window.toast?.(txt(e?.message||e),'bad')}};
+ setTimeout(()=>{const a=document.getElementById('btnDeletePlan');if(a)a.onclick=window.deletePlan;const b=document.getElementById('btnDeleteProduct');if(b)b.onclick=window.deleteProduct},0);
+})();
+</script>
+
+<script id="innov-exec2-admin-clarity">
+(function(){
+  'use strict';
+  function annotate(){
+    document.querySelectorAll('[data-sale-mode], [data-mode]').forEach(function(el){
+      var m=(el.getAttribute('data-sale-mode')||el.getAttribute('data-mode')||'').toLowerCase();
+      if(m==='retail'&&!/retail/i.test(el.textContent||'')) el.setAttribute('title','Venta Retail');
+      if(m==='wholesale'&&!/proveedor|wholesale/i.test(el.textContent||'')) el.setAttribute('title','Proveedor / Wholesale');
+    });
+  }
+  new MutationObserver(annotate).observe(document.documentElement,{subtree:true,childList:true});
+  document.addEventListener('DOMContentLoaded',annotate,{once:true});
+})();
+</script>
 </body>
 </html>
 

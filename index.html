@@ -31,7 +31,7 @@
   })();
   </script>
 
-  <link rel="icon" type="image/png" href="Diseño sin título.png">
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -66,6 +66,8 @@
     .innov-link.shop .shop-hint i{font-size:.54rem;color:#ef4444}.innov-link.shop>i{color:var(--yellow)}
     .innov-cart{width:42px;height:42px;display:grid;place-items:center;position:relative;flex:none;color:var(--yellow);border:1px solid rgba(255,255,255,.16);border-radius:12px;text-decoration:none;background:rgba(255,255,255,.04)}.innov-cart b{position:absolute;right:-5px;top:-5px;min-width:19px;height:19px;display:grid;place-items:center;border-radius:99px;background:#fff;color:#233047;font-size:.66rem;box-shadow:0 2px 6px rgba(0,0,0,.2)}
     .innov-menu{display:none;width:42px;height:42px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(255,255,255,.06);color:#fff;cursor:pointer}
+    .innov-mobile-shop{display:none;align-items:center;gap:6px;height:40px;padding:0 12px;border-radius:11px;background:var(--yellow);color:#172236;text-decoration:none;font-size:.78rem;font-weight:950;box-shadow:0 6px 14px rgba(0,0,0,.18);white-space:nowrap}
+    .innov-mobile-menu-socials{display:none}
     @keyframes shopBeacon{0%{opacity:0;transform:scale(.83)}25%{opacity:.95}90%,100%{opacity:0;transform:scale(1.24)}}
     @keyframes shopHint{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
     @keyframes shopSweep{0%{background-position:180% 0;opacity:.45}42%{opacity:1}100%{background-position:-80% 0;opacity:.45}}
@@ -204,8 +206,8 @@
     @keyframes waPulse{0%{opacity:.8;transform:scale(.82)}85%,100%{opacity:0;transform:scale(1.25)}}
 
     @media(max-width:1060px){.home-grid{grid-template-columns:1fr}.promos{grid-template-columns:repeat(3,1fr);grid-template-rows:none}.promo{min-height:150px}.footer-inner{grid-template-columns:repeat(2,minmax(0,1fr))}.innov-socials{display:none}}
-    @media(max-width:720px){:root{--header:64px}.innov-nav{gap:9px;padding:9px 12px}.innov-brand{font-size:1rem}.innov-brand span{padding:9px 10px}.innov-search{height:38px}.innov-search input{font-size:.72rem}.innov-search button{height:38px}.innov-links{display:none}.innov-menu{display:block;margin-left:auto}.innov-socials{display:none}.innov-header.open .innov-links{position:absolute;z-index:11;left:12px;right:12px;top:calc(100% + 7px);display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:8px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:#162238;box-shadow:0 12px 24px rgba(0,0,0,.24)}.innov-header.open .innov-link{justify-content:center;padding:0 7px}.innov-link.shop .shop-hint{bottom:-10px}.home{padding-top:13px}.hero{min-height:620px;border-radius:19px}.slides{min-height:620px}.slide{grid-template-columns:1fr;grid-template-rows:250px 1fr}.hero-media{min-height:250px}.hero-copy{padding:21px 20px 32px}.hero h1{font-size:1.32rem}.price strong{font-size:1.65rem}.description{font-size:.82rem}.hero-arrow{top:126px;width:34px;height:34px}.hero-arrow.prev{left:8px}.hero-arrow.next{right:8px}.dots{left:13px;bottom:13px}.progress{right:14px;bottom:15px;width:70px}.pause{right:94px;bottom:5px}.promos{grid-template-columns:1fr;gap:10px}.promo{min-height:136px}.trust-strip{grid-template-columns:1fr}.trust-item{border-right:0;border-bottom:1px solid #edf0f4}.trust-item:last-child{border-bottom:0}.chosen-grid{grid-template-columns:1fr 1fr}.chosen-card{border-right:1px solid #edf0f3;border-bottom:1px solid #edf0f3}.chosen-card:nth-child(2n){border-right:0}.chosen-card:nth-last-child(-n+2){border-bottom:0}.footer-inner{grid-template-columns:1fr;gap:19px}.footer-bottom{align-items:flex-start;flex-direction:column}.footer-bottom-links{justify-content:flex-start}.footer-payments{justify-content:flex-start}.wa-fab{width:56px;height:56px;right:16px;bottom:16px}.chip{font-size:.64rem}.action-note{display:none}}
-    @media(max-width:390px){.innov-search{display:none}.innov-menu{margin-left:auto}.chosen-grid{grid-template-columns:1fr}.chosen-card{border-right:0}.chosen-card:last-child{border-bottom:0}}
+    @media(max-width:720px){:root{--header:64px}html,body{max-width:100%;overflow-x:clip}.innov-nav{min-width:0;max-width:100%;gap:7px;padding:9px 10px}.innov-brand{font-size:.94rem;flex:0 0 auto}.innov-brand span{padding:8px 9px}.innov-search{display:none}.innov-mobile-shop{display:inline-flex}.innov-links{display:none}.innov-menu{display:grid;place-items:center;margin-left:auto;width:40px;height:40px;flex:0 0 40px}.innov-theme-toggle{width:40px;height:40px;flex:0 0 40px}.innov-cart{display:none}.innov-socials{display:none}.innov-header.open .innov-links{position:absolute;z-index:11;left:10px;right:10px;top:calc(100% + 6px);display:grid;grid-template-columns:1fr;gap:6px;padding:9px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:#162238;box-shadow:0 14px 28px rgba(0,0,0,.28)}.innov-header.open .innov-link{justify-content:center;padding:0 8px}.innov-header.open .innov-link.active,.innov-header.open .innov-link.shop{display:none}.innov-mobile-menu-socials{display:flex;justify-content:center;gap:10px;padding:8px 2px 2px;border-top:1px solid rgba(255,255,255,.1)}.innov-mobile-menu-socials a{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;color:#fff;text-decoration:none}.innov-mobile-menu-socials .fb{background:rgba(24,119,242,.22);color:#69aaff}.innov-mobile-menu-socials .ig{background:linear-gradient(135deg,#833ab4,#fd1d1d 50%,#fcb045)}.innov-mobile-menu-socials .tk{background:#111827}.home{padding-top:13px}.hero{min-height:620px;border-radius:19px}.slides{min-height:620px}.slide{grid-template-columns:1fr;grid-template-rows:250px 1fr}.hero-media{min-height:250px}.hero-copy{padding:21px 20px 32px}.hero h1{font-size:1.32rem}.price strong{font-size:1.65rem}.description{font-size:.82rem}.hero-arrow{top:126px;width:34px;height:34px}.hero-arrow.prev{left:8px}.hero-arrow.next{right:8px}.dots{left:13px;bottom:13px}.progress{right:14px;bottom:15px;width:70px}.pause{right:94px;bottom:5px}.promos{grid-template-columns:1fr;gap:10px}.promo{min-height:136px}.trust-strip{grid-template-columns:1fr}.trust-item{border-right:0;border-bottom:1px solid #edf0f4}.trust-item:last-child{border-bottom:0}.chosen-grid{grid-template-columns:1fr 1fr}.chosen-card{border-right:1px solid #edf0f3;border-bottom:1px solid #edf0f3}.chosen-card:nth-child(2n){border-right:0}.chosen-card:nth-last-child(-n+2){border-bottom:0}.footer-inner{grid-template-columns:1fr;gap:19px}.footer-bottom{align-items:flex-start;flex-direction:column}.footer-bottom-links{justify-content:flex-start}.footer-payments{justify-content:flex-start}.wa-fab{width:56px;height:56px;right:16px;bottom:16px}.chip{font-size:.64rem}.action-note{display:none}}
+    @media(max-width:460px){.innov-brand .b{display:none}.innov-brand span{padding:8px 10px}.innov-mobile-shop{padding:0 10px;font-size:.75rem}.chosen-grid{grid-template-columns:1fr}.chosen-card{border-right:0}.chosen-card:last-child{border-bottom:0}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
   
 
@@ -379,27 +381,33 @@
       html[data-theme="dark"] .trust-item{border-bottom-color:#263950}
       html[data-theme="dark"] .chosen-card{border-bottom-color:#263950}
     }
-    @media(max-width:390px){
-      .innov-theme-toggle{width:38px;height:38px}
-    }
+    @media(max-width:460px){.innov-theme-toggle{width:38px;height:38px}}
+
 
   </style>
+<link rel="canonical" href="https://innovaishop.com/">
 </head>
 <body>
   <header class="innov-header" id="innovHeader">
     <div class="innov-nav">
       <a class="innov-brand" href="index.html" aria-label="Innov Tienda, inicio"><span class="a">INNOV</span><span class="b">TIENDA</span></a>
       <form class="innov-search" action="shop.html" role="search"><input name="q" type="search" placeholder="Buscar IA, diseño, streaming…" aria-label="Buscar productos"><button type="submit" aria-label="Buscar"><i class="fa-solid fa-magnifying-glass"></i></button></form>
+      <a class="innov-mobile-shop" href="shop.html"><i class="fa-solid fa-store"></i> Tienda</a>
       <button type="button" class="innov-menu" id="innovMenu" aria-label="Abrir menú" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
       <nav class="innov-links" aria-label="Navegación principal">
         <a class="innov-link active" href="index.html"><i class="fa-solid fa-house"></i> Inicio</a>
         <a class="innov-link shop" href="shop.html"><i class="fa-solid fa-store"></i> Tienda <span class="shop-hint"><i class="fa-solid fa-chevron-right"></i>Más productos<i class="fa-solid fa-chevron-right"></i></span></a>
         <a class="innov-link" id="supportHeader" href="https://wa.me/51991564053" target="_blank" rel="noopener"><i class="fa-solid fa-headset"></i> Soporte</a>
+              <div class="innov-mobile-menu-socials" aria-label="Redes sociales">
+          <a class="fb" href="https://www.facebook.com/profile.php?id=61585560703359" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a class="ig" href="https://www.instagram.com/innov_iaa/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a class="tk" href="https://www.tiktok.com/@innoovia" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
       </nav>
       <div class="innov-socials" aria-label="Redes sociales">
-        <a class="header-social-facebook" href="#" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-        <a class="header-social-instagram" href="#" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-        <a class="header-social-tiktok" href="#" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        <a class="header-social-facebook" href="https://www.facebook.com/profile.php?id=61585560703359" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a class="header-social-instagram" href="https://www.instagram.com/innov_iaa/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a class="header-social-tiktok" href="https://www.tiktok.com/@innoovia" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
       </div>
       <button class="innov-theme-toggle" id="themeToggle" type="button" aria-label="Activar modo oscuro" aria-pressed="false" title="Activar modo oscuro">
         <i class="fa-solid fa-moon theme-icon-moon" aria-hidden="true"></i>
@@ -999,6 +1007,7 @@
         dialog.addEventListener('click',event=>{if(event.target===dialog&&typeof dialog.close==='function')dialog.close();});
       });
       document.querySelectorAll('[data-close-legal]').forEach(button=>button.addEventListener('click',()=>{const dialog=$(button.getAttribute('data-close-legal'));if(dialog&&typeof dialog.close==='function')dialog.close();}));
+      try{const requested=new URLSearchParams(location.search).get('open');const target=requested==='privacy'?'privacyModal':requested==='faq'?'faqModal':requested==='help'?'helpModal':requested==='terms'?'termsModal':'';if(target){const dialog=$(target);if(dialog&&typeof dialog.showModal==='function')setTimeout(()=>dialog.showModal(),0);}}catch(_){}
     }
     function applySocial(raw){const data={...DEFAULT_SOCIAL,...json(raw)};const wa=waBase(data.whatsapp_url);const sup=supportUrl(data);const set=(id,href)=>{const el=$(id);if(!el)return;if(!href){el.hidden=true;return;}el.hidden=false;el.href=href;};const setClass=(cls,href)=>document.querySelectorAll('.'+cls).forEach(el=>{if(!href){el.hidden=true;return;}el.hidden=false;el.href=href;});set('whatsappFab',wa);set('supportHeader',sup);set('supportFooter',sup);set('helpSupportLink',sup);set('helpActivationLink',sup);setClass('header-social-facebook',external(data.facebook_url));setClass('header-social-tiktok',external(data.tiktok_url));setClass('header-social-instagram',external(data.instagram_url));}
     function cartCount(){try{const raw=sessionStorage.getItem(CART_KEY)||localStorage.getItem(CART_KEY)||'[]';return JSON.parse(raw).reduce((n,x)=>n+Number(x.qty||1),0);}catch(_){return 0;}}

@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="icon" type="image/png" href="Diseño sin título.png">
-<link rel="shortcut icon" href="Diseño sin título.png">
+<script id="innov-theme-bootstrap">
+(function(){try{var saved=localStorage.getItem('innov_theme');var source=localStorage.getItem('innov_theme_source');var manual=(source==='manual'||(!source&&(saved==='dark'||saved==='light')))&&(saved==='dark'||saved==='light');var theme=manual?saved:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=theme;document.documentElement.dataset.themeSource=manual?'manual':'system';document.documentElement.style.colorScheme=theme}catch(_){document.documentElement.dataset.theme='light';document.documentElement.dataset.themeSource='system';document.documentElement.style.colorScheme='light'}})();
+</script>
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
+<link rel="shortcut icon" href="assets/img/logo.png">
 
   <!-- Libraries Stylesheet -->
   <link href="lib/animate/animate.min.css" rel="stylesheet" />
@@ -17,6 +20,7 @@
   <meta name="theme-color" content="#ffd333">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="css/innov-shell.css">
   <style>
     :root{
       --yellow:#ffd333;--dark:#3d464d;--ink:#3b4251;--muted:#737b8b;--line:#d9dde5;--soft:#f6f7f9;--blue:#0d6efd;--green:#16a34a;--red:#dc2626;--amber:#f59e0b;
@@ -259,6 +263,7 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
 @media(prefers-reduced-motion:reduce){.innov-safe-link.shop::before,.innov-safe-link.shop::after,.innov-safe-link.shop .innov-shop-hint,.innov-safe-wa::after{animation:none!important}}
 </style>
 
+<link rel="canonical" href="https://innovaishop.com/checkout.html">
 </head>
 <body class="innov-safe-page" data-innov-page="checkout">
 
@@ -302,7 +307,7 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
       </div>
     </div>
   </div>
-  <div class="topbar"><div class="container"><div><a href="acerca.html">Acerca de</a><a href="contact.html">Contacto</a><a href="ayuda.html">Ayuda</a><a href="faq.html">Preguntas frecuentes</a></div><div>Servicio al cliente: <b>+51 991564053</b></div></div></div>
+  <div class="topbar"><div class="container"><div><a href="index.html">Acerca de</a><a href="contact.html">Contacto</a><a href="index.html?open=help">Ayuda</a><a href="index.html?open=faq">Preguntas frecuentes</a></div><div>Servicio al cliente: <b>+51 991564053</b></div></div></div>
   <header class="head"><div class="container"><a class="shop-logo" href="shop.html" aria-label="Volver a la tienda"><span class="logo-a">INNOV</span><span class="logo-b">TIENDA</span></a><div class="search"><input placeholder="Buscar productos"><button><i class="fa fa-search"></i></button></div><div class="support">Servicio al cliente<br><b>+51 991564053</b></div></div></header>
   <nav class="nav"><div class="container"><div class="navlinks"><a href="index.html">Inicio</a><a href="shop.html">Tienda</a><a href="contact.html">Contacto</a></div><div class="cartpill"><i class="fa fa-shopping-cart"></i> Carrito <span id="cartCount">0</span></div></div></nav>
 
@@ -963,17 +968,9 @@ body.innov-safe-page[data-innov-page="shop"] .shop-sidebar{padding-top:0!importa
       currentCoupon = code;
       couponPreview = null;
       try{ sessionStorage.setItem(APPLIED_COUPON_KEY, JSON.stringify({ code })); }catch(e){}
-      const r = await db.from('coupons').select('*').eq('code', code).eq('active', true).maybeSingle();
-      if(r.error || !r.data){ $('couponHelp').textContent = 'Cupón guardado, se validará al generar pedido.'; renderCart(); toast('Cupón guardado para validar.'); return; }
-      const c = r.data;
-      const sub = subtotal();
-      if(Number(c.used_count||0) >= Number(c.max_uses||0)){ $('couponHelp').textContent = 'Cupón sin usos disponibles.'; renderCart(); return; }
-      if(sub < Number(c.min_amount||0)){ $('couponHelp').textContent = 'El cupón requiere compra mínima de ' + money(c.min_amount); renderCart(); return; }
-      let amount = c.discount_type === 'percent' ? sub * Number(c.discount_value||0) / 100 : Number(c.discount_value||0);
-      amount = Math.max(0, Math.min(amount, sub));
-      couponPreview = { amount };
-      $('couponHelp').textContent = 'Cupón aplicado: descuento aproximado ' + money(amount) + '. Se confirmará al generar pedido.';
-      renderCart(); toast('Cupón aplicado.');
+      $('couponHelp').textContent = 'Cupón guardado. El servidor validará vigencia, usos, compra mínima y alcance al generar el pedido.';
+      renderCart();
+      toast('Cupón guardado para validación segura.');
     }
 
     function persistOrder(){
@@ -1497,6 +1494,7 @@ async function sendPaymentReview(){
 })();
 </script>
 
-  <script src="js/public-auth.js" defer></script>
+  <script src="js/innov-shell.js" defer></script>
+<script src="js/public-auth.js" defer></script>
 </body>
 </html>
