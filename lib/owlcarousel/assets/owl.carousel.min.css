@@ -1,1 +1,0 @@
-/* legacy owl carousel shim */
