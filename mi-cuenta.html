@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+<title>Mi cuenta · Innov IA Tienda</title>
+<link rel="icon" href="assets/img/logo.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"/>
+<link href="css/innov-shell.css" rel="stylesheet"/>
+<link href="css/portal.css" rel="stylesheet"/>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="js/theme.js"></script>
+<script defer src="js/portal.js"></script>
+</head>
+<body class="portal-page" data-innov-page="portal" data-portal-stage="login">
+<header class="portal-header">
+  <div class="portal-nav">
+    <a class="portal-brand" href="index.html" aria-label="Innov Tienda, inicio"><span>INNOV</span><b>TIENDA</b></a>
+    <div class="portal-nav-actions">
+      <a href="shop.html"><i class="fa-solid fa-store"></i><span>Tienda</span></a>
+      <button id="portalTheme" type="button" aria-label="Cambiar tema"><i class="fa-solid fa-sun"></i></button>
+      <button id="portalLogout" class="portal-logout" type="button" hidden><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Salir</span></button>
+    </div>
+  </div>
+</header>
+
+<main class="portal-main">
+  <section id="loginView" class="portal-stage portal-auth-stage">
+    <div class="portal-auth-card">
+      <div class="portal-auth-art" aria-hidden="true">
+        <div class="portal-art-glow"></div>
+        <img src="assets/img/logo.png" alt=""/>
+        <div class="portal-art-copy"><span>Tu espacio Innov IA</span><b>Servicios, renovaciones y beneficios en un solo lugar.</b></div>
+      </div>
+      <div class="portal-auth-copy">
+        <div class="portal-flow-step"><span>1</span><b>Identifica tu cuenta</b><small>de 2</small></div>
+        <div class="portal-kicker"><i class="fa-solid fa-user-shield"></i> Portal de clientes</div>
+        <h1>Entra con tu WhatsApp o usuario</h1>
+        <p>Usa el mismo número de tus recordatorios o tu usuario registrado. Puedes escribir el usuario con <b>@</b> o sin <b>@</b>.</p>
+        <form id="loginForm" class="portal-form" novalidate>
+          <label for="identifier">WhatsApp o usuario</label>
+          <div class="portal-input-icon"><i class="fa-brands fa-whatsapp"></i><input id="identifier" autocomplete="username" inputmode="text" placeholder="991564053 o @usuario" required/></div>
+          <button class="portal-primary" type="submit"><i class="fa-solid fa-arrow-right-to-bracket"></i> Continuar</button>
+        </form>
+        <div id="loginMsg" class="portal-msg" hidden></div>
+        <div class="portal-security-note"><i class="fa-solid fa-shield-halved"></i><span>Entrar no crea otro cliente: el portal abre el registro que ya existe en tu CRM. Las acciones sensibles como TOTP mantienen una verificación adicional.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="profileView" class="portal-stage portal-onboarding-stage" hidden>
+    <div class="portal-onboarding-shell">
+      <aside class="portal-onboarding-aside">
+        <div class="portal-flow-step light"><span>2</span><b>Completa tu perfil</b><small>de 2</small></div>
+        <div class="portal-onboarding-icon"><i class="fa-solid fa-id-card"></i></div>
+        <h2>Solo una vez</h2>
+        <p>Estos datos se guardan en tu mismo cliente y nos ayudan a personalizar beneficios, cumpleaños y soporte.</p>
+        <div class="portal-linked-account">
+          <span>Cuenta vinculada</span>
+          <b id="profileIdentity">Tu registro Innov IA</b>
+          <small><i class="fa-solid fa-link"></i> Sin duplicar clientes</small>
+        </div>
+      </aside>
+      <div class="portal-onboarding-card">
+        <div class="portal-onboarding-head">
+          <div><span class="portal-eyebrow">Bienvenido a tu cuenta</span><h1>Termina tu perfil para entrar</h1><p>No volveremos a pedirte estos datos en cada visita.</p></div>
+          <div class="portal-progress-ring" aria-label="Paso 2 de 2"><span>2/2</span></div>
+        </div>
+        <form id="profileForm" class="portal-profile-grid" novalidate>
+          <label class="portal-field">Nombre completo <em>Obligatorio</em><input id="profileName" autocomplete="name" required/></label>
+          <label class="portal-field">Correo <em>Opcional</em><input id="profileEmail" type="email" autocomplete="email" placeholder="tu@gmail.com"/></label>
+          <div class="portal-birthday portal-required-group">
+            <div class="portal-field-title"><span>Cumpleaños</span><em>Obligatorio</em></div>
+            <p>Solo necesitamos día y mes. Lo usaremos para beneficios cuando el programa esté activo.</p>
+            <select id="birthdayDay" required aria-label="Día de cumpleaños"><option value="">Día</option></select>
+            <select id="birthdayMonth" required aria-label="Mes de cumpleaños"><option value="">Mes</option><option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option><option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option><option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option></select>
+          </div>
+          <fieldset class="portal-interests"><legend>¿Qué te interesa? <small>Opcional</small></legend><label><input type="checkbox" value="IA"/> IA</label><label><input type="checkbox" value="Streaming"/> Streaming</label><label><input type="checkbox" value="Diseño"/> Diseño</label><label><input type="checkbox" value="Productividad"/> Productividad</label><label><input type="checkbox" value="Música"/> Música</label></fieldset>
+          <div class="portal-profile-actions"><button class="portal-primary" type="submit"><i class="fa-solid fa-check"></i> Completar perfil y entrar</button><span><i class="fa-solid fa-lock"></i> Guardado en tu mismo registro</span></div>
+        </form>
+        <div id="profileMsg" class="portal-msg" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dashboardView" class="portal-stage portal-dashboard-stage" hidden>
+    <div class="portal-welcome">
+      <div><span class="portal-eyebrow">Mi cuenta</span><h1 id="welcomeName">Hola 👋</h1><p id="customerSince"></p></div>
+      <div class="portal-summary-grid"><article><i class="fa-solid fa-circle-check"></i><b id="currentCount">0</b><span>Vigentes</span></article><article><i class="fa-solid fa-rotate"></i><b id="renewCount">0</b><span>Por renovar</span></article><article><i class="fa-regular fa-calendar"></i><b id="nextDue">—</b><span>Próximo vencimiento</span></article></div>
+    </div>
+
+    <nav class="portal-tabs" aria-label="Secciones de mi cuenta">
+      <button class="active" data-tab="home"><i class="fa-solid fa-house"></i><span>Inicio</span></button>
+      <button data-tab="services"><i class="fa-solid fa-boxes-stacked"></i><span>Mis servicios</span></button>
+      <a href="shop.html"><i class="fa-solid fa-bag-shopping"></i><span>Comprar</span></a>
+      <button data-tab="benefits"><i class="fa-solid fa-gift"></i><span>Beneficios</span></button>
+      <button data-tab="help"><i class="fa-solid fa-headset"></i><span>Ayuda</span></button>
+    </nav>
+
+    <div class="portal-tab-panel active" data-panel="home">
+      <section class="portal-action-card" id="nextActionCard"><div><span class="portal-kicker">Lo más importante ahora</span><h2 id="nextActionTitle">Tus servicios están listos</h2><p id="nextActionText">Aquí verás vencimientos y acciones pendientes.</p></div><button id="nextActionBtn" class="portal-primary" type="button">Ver servicios</button></section>
+      <section><div class="portal-section-title"><div><span class="portal-eyebrow">Tus servicios vigentes</span><h2>Lo que estás usando ahora</h2></div><button class="portal-link-btn" data-go-tab="services" type="button">Ver todos</button></div><div id="homeServices" class="portal-service-grid"></div></section>
+      <section id="renewPreview" class="portal-renew-preview" hidden><div><i class="fa-solid fa-clock-rotate-left"></i><div><span>Hay servicios por renovar</span><b id="renewPreviewTitle">Revisa tus vencimientos</b><small id="renewPreviewText"></small></div></div><button class="portal-secondary" data-go-tab="services" type="button">Revisar</button></section>
+      <section class="portal-loyalty-preview"><div><i class="fa-solid fa-star"></i><div><span>Fidelización Innov IA</span><b>Tu progreso aparecerá aquí</b><small>Recompensas y sorteos se activarán con operaciones reales, sin inventar historial.</small></div></div><span class="portal-coming">Próxima etapa</span></section>
+    </div>
+
+    <div class="portal-tab-panel" data-panel="services">
+      <div class="portal-section-title"><div><span class="portal-eyebrow">Mis servicios</span><h2>Organizados por estado real</h2><p class="portal-section-copy">El portal separa los vigentes, los que necesitan renovación y tu historial sin alterar los datos originales del sistema.</p></div></div>
+      <div id="serviceGroups" class="portal-service-groups"></div>
+    </div>
+    <div class="portal-tab-panel" data-panel="benefits"><section class="portal-empty-feature"><i class="fa-solid fa-gift"></i><h2>Beneficios y sorteos</h2><p>La estructura ya está preparada. En la siguiente etapa conectaremos reglas reales de renovaciones, recompensas y sorteos administrables.</p></section></div>
+    <div class="portal-tab-panel" data-panel="help"><section class="portal-help-grid"><article><i class="fa-brands fa-whatsapp"></i><h3>WhatsApp</h3><p>Continúa con el mismo canal de tus recordatorios.</p><a data-web-support="1" href="https://wa.me/51991564053" target="_blank" rel="noopener">Abrir soporte</a></article><article><i class="fa-solid fa-ticket"></i><h3>Soporte por servicio</h3><p>Desde cada tarjeta puedes pedir ayuda identificando el servicio exacto.</p><button data-go-tab="services" type="button">Ver mis servicios</button></article></section></div>
+  </section>
+</main>
+
+<dialog id="totpDialog" class="portal-dialog">
+  <div class="portal-dialog-head"><div><span class="portal-eyebrow">Código temporal</span><h2 id="totpServiceTitle">TOTP</h2></div><button type="button" data-close-dialog="totpDialog" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="portal-dialog-body">
+    <div id="totpLoadingStep" class="portal-totp-loading"><i class="fa-solid fa-circle-notch fa-spin"></i><b>Preparando acceso seguro…</b><span>Estamos comprobando tu sesión.</span></div>
+    <div id="totpVerifyStep" hidden><p>Esta sesión todavía necesita una verificación adicional. Ingresa el <b>código de acceso TOTP</b> que recibiste con tu servicio.</p><label class="portal-dialog-label">Código de acceso<input id="totpAccessInput" autocomplete="one-time-code" placeholder="Ej. ABCD-1234"/></label><button id="verifyTotpAccess" class="portal-primary" type="button"><i class="fa-solid fa-shield"></i> Verificar y generar</button><a class="portal-dialog-help" data-web-support="1" href="https://wa.me/51991564053" target="_blank" rel="noopener">No encuentro mi código</a></div>
+    <div id="totpCodeStep" class="portal-totp-code" hidden><span id="totpAccountLabel">Cuenta</span><strong id="totpCode">••••••</strong><div class="portal-totp-timer"><span id="totpTimerFill"></span></div><small id="totpTimerText">Sincronizando hora segura…</small><button id="copyTotp" class="portal-secondary" type="button"><i class="fa-regular fa-copy"></i> Copiar código</button></div>
+    <div id="totpMsg" class="portal-msg" hidden></div>
+  </div>
+</dialog>
+<script src="js/web-settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+.portal-account-link{position:relative;max-width:190px}.portal-account-link>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.portal-account-dot{width:7px;height:7px;border-radius:50%;background:#22c983;box-shadow:0 0 0 3px rgba(34,201,131,.13);flex:0 0 auto}.portal-account-pending .portal-account-dot{background:#ffc928;box-shadow:0 0 0 3px rgba(255,201,40,.14)}
+@media(max-width:760px){.portal-account-link>span{max-width:94px}.portal-account-link{max-width:132px}}

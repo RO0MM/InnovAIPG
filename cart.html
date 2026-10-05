@@ -1,57 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="es">
 <head>
-<script id="innov-theme-bootstrap">
-(function(){try{var saved=localStorage.getItem('innov_theme');var source=localStorage.getItem('innov_theme_source');var manual=(source==='manual'||(!source&&(saved==='dark'||saved==='light')))&&(saved==='dark'||saved==='light');var theme=manual?saved:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=theme;document.documentElement.dataset.themeSource=manual?'manual':'system';document.documentElement.style.colorScheme=theme}catch(_){document.documentElement.dataset.theme='light';document.documentElement.dataset.themeSource='system';document.documentElement.style.colorScheme='light'}})();
-</script>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="js/theme.js"></script>
+<meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
 <title>Carrito | Innov Tienda</title>
-<meta name="description" content="Revisa tu carrito antes de continuar al pago.">
-<link rel="icon" href="assets/img/logo.png">
-<link rel="canonical" href="https://innovaishop.com/cart.html">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="css/innov-shell.css">
-<style>
-:root{--bg:#f5f7fb;--card:#fff;--ink:#152238;--muted:#66758a;--line:#dfe6ef;--accent:#ffcf33;--nav:#152238;--danger:#c63b4f;--green:#11864f;--shadow:0 18px 48px rgba(15,34,58,.09)}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#f7f9fc,#eef3f8);color:var(--ink);font-family:Inter,Arial,sans-serif}.wrap{width:min(1120px,94vw);margin:auto}.top{position:sticky;top:0;z-index:20;background:rgba(21,34,56,.96);backdrop-filter:blur(10px);color:white;border-bottom:1px solid rgba(255,255,255,.1)}.nav{min-height:68px;display:flex;align-items:center;gap:14px}.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:950}.brand img{width:42px;height:42px;object-fit:cover;border-radius:12px;background:#fff}.links{margin-left:auto;display:flex;align-items:center;gap:8px}.links a{color:#dbe7f8;text-decoration:none;padding:10px 12px;border-radius:10px;font-weight:800;font-size:.88rem}.links a:hover{background:rgba(255,255,255,.08)}.badge{background:var(--accent);color:#142033;border-radius:999px;min-width:21px;height:21px;display:inline-grid;place-items:center;font-size:.72rem;margin-left:4px}.hero{padding:34px 0 16px}.hero h1{font-size:clamp(1.65rem,3vw,2.35rem);margin:0}.hero p{color:var(--muted);margin:.5rem 0 0}.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;padding:12px 0 40px;align-items:start}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;transition:transform .18s ease,box-shadow .18s ease}.panel:hover{box-shadow:0 22px 55px rgba(15,34,58,.12)}.panel h2{font-size:1rem;margin:0;padding:16px 18px;border-bottom:1px solid var(--line)}.items{padding:4px 18px}.item{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center;padding:15px 0;border-bottom:1px dashed var(--line)}.item:last-child{border-bottom:0}.thumb{width:58px;height:58px;object-fit:contain;border:1px solid var(--line);border-radius:14px;background:#f8fafc}.name{font-weight:900}.meta{color:var(--muted);font-size:.78rem;margin-top:4px}.qty{display:flex;align-items:center;gap:7px;margin-top:8px}.qty button,.remove{border:1px solid var(--line);background:white;border-radius:9px;cursor:pointer;font-weight:900}.qty button{width:29px;height:29px}.remove{padding:6px 9px;color:var(--danger);margin-left:7px}.price{font-weight:950;white-space:nowrap}.summary{padding:17px}.row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;color:var(--muted)}.row.total{border-top:1px solid var(--line);margin-top:8px;padding-top:14px;color:var(--ink);font-size:1.15rem;font-weight:950}.coupon{margin:14px 0;padding:12px;border:1px dashed #cbd5e1;border-radius:13px;background:#f8fafc}.coupon label{font-size:.78rem;font-weight:900;display:block;margin-bottom:7px}.coupon-line{display:flex}.coupon input{min-width:0;flex:1;border:1px solid var(--line);border-radius:10px 0 0 10px;padding:10px}.coupon button{border:0;background:#e9eef5;padding:0 12px;border-radius:0 10px 10px 0;font-weight:900;cursor:pointer}.note{font-size:.72rem;color:var(--muted);line-height:1.45;margin-top:7px}.btn{display:flex;align-items:center;justify-content:center;width:100%;padding:12px 14px;border-radius:12px;text-decoration:none;font-weight:950;border:1px solid #e5b900;background:var(--accent);color:#152238}.btn.secondary{margin-top:9px;background:white;border-color:var(--line)}.empty{padding:42px 20px;text-align:center;color:var(--muted)}.empty b{display:block;color:var(--ink);font-size:1.05rem;margin-bottom:6px}.safe{margin-top:13px;padding:10px 12px;border-radius:12px;background:#edf9f2;color:#17633f;font-size:.75rem;font-weight:800}@media(max-width:820px){.grid{grid-template-columns:1fr}.links a:not(.cartlink){display:none}.item{grid-template-columns:50px 1fr}.price{grid-column:2}.thumb{width:50px;height:50px}}
-</style>
+<meta content="Revisa tu carrito antes de continuar al pago." name="description"/>
+<link href="assets/img/logo.png" rel="icon"/>
+<link href="https://innovaishop.com/cart.html" rel="canonical"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"/>
+<link href="css/innov-shell.css" rel="stylesheet"/>
+<link href="css/cart.css" rel="stylesheet"/>
+<link href="css/web-runtime.css" rel="stylesheet"/>
+<link href="css/customer-session.css" rel="stylesheet"/>
 </head>
 <body class="innov-safe-page" data-innov-page="cart">
 <header class="innov-safe-header" id="innovSafeHeader">
-  <div class="innov-safe-nav">
-    <a class="innov-safe-brand" href="index.html" aria-label="Innov Tienda, inicio"><span class="a">INNOV</span><span class="b">TIENDA</span></a>
-    <form class="innov-safe-search" action="shop.html" role="search"><input name="q" type="search" placeholder="Buscar IA, diseño, streaming…" aria-label="Buscar productos"><button type="submit" aria-label="Buscar"><i class="fas fa-search"></i></button></form>
-    <button class="innov-safe-menu" id="innovSafeMenu" type="button" aria-label="Abrir menú" aria-expanded="false"><i class="fas fa-bars"></i></button>
-    <nav class="innov-safe-links" aria-label="Navegación principal">
-      <a class="innov-safe-link" href="index.html"><i class="fas fa-home"></i> Inicio</a>
-      <a class="innov-safe-link shop" href="shop.html"><i class="fas fa-store"></i> Tienda <span class="innov-shop-hint"><i class="fas fa-chevron-right"></i>Más productos<i class="fas fa-chevron-right"></i></span></a>
-      <a class="innov-safe-link" href="https://wa.me/51991564053?text=Hola%2C%20quisiera%20apoyo%20con%20un%20servicio%20de%20Innov%20AI%20Tienda." target="_blank" rel="noopener"><i class="fas fa-headset"></i> Soporte</a>
-    </nav>
-    <div class="innov-safe-socials" aria-label="Redes sociales">
-      <a class="innov-safe-facebook" href="https://www.facebook.com/profile.php?id=61585560703359" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a class="innov-safe-instagram" href="https://www.instagram.com/innov_iaa/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-      <a class="innov-safe-tiktok" href="https://www.tiktok.com/@innoovia" target="_blank" rel="noopener" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-    </div>
-    <a class="innov-safe-cart" href="cart.html" aria-label="Ver carrito"><i class="fas fa-shopping-cart"></i><b data-innov-cart-count>0</b></a>
-  </div>
+<div class="innov-safe-nav">
+<a aria-label="Innov Tienda, inicio" class="innov-safe-brand" href="index.html"><span class="a">INNOV</span><span class="b">TIENDA</span></a>
+<form action="shop.html" class="innov-safe-search" role="search"><input aria-label="Buscar productos" name="q" placeholder="Buscar IA, diseño, streaming…" type="search"/><button aria-label="Buscar" type="submit"><i class="fas fa-search"></i></button></form>
+<button aria-expanded="false" aria-label="Abrir menú" class="innov-safe-menu" id="innovSafeMenu" type="button"><i class="fas fa-bars"></i></button>
+<nav aria-label="Navegación principal" class="innov-safe-links">
+<a class="innov-safe-link" href="index.html"><i class="fas fa-home"></i> Inicio</a>
+<a class="innov-safe-link shop" href="shop.html"><i class="fas fa-store"></i> Tienda <span class="innov-shop-hint"><i class="fas fa-chevron-right"></i>Más productos<i class="fas fa-chevron-right"></i></span></a>
+<a class="innov-safe-link" data-portal-account="1" href="mi-cuenta.html"><i class="fas fa-user"></i> Mi cuenta</a>
+<a class="innov-safe-link" data-web-support="1" href="https://wa.me/51991564053?text=Hola%2C%20quisiera%20apoyo%20con%20un%20servicio%20de%20Innov%20AI%20Tienda." rel="noopener" target="_blank"><i class="fas fa-headset"></i> Soporte</a>
+</nav>
+<div aria-label="Redes sociales" class="innov-safe-socials">
+<a aria-label="Facebook" class="innov-safe-facebook" data-web-social="facebook" href="https://www.facebook.com/profile.php?id=61585560703359" rel="noopener" target="_blank"><i class="fab fa-facebook-f"></i></a>
+<a aria-label="Instagram" class="innov-safe-instagram" data-web-social="instagram" href="https://www.instagram.com/innov_iaa/" rel="noopener" target="_blank"><i class="fab fa-instagram"></i></a>
+<a aria-label="TikTok" class="innov-safe-tiktok" data-web-social="tiktok" href="https://www.tiktok.com/@innoovia" rel="noopener" target="_blank"><i class="fab fa-tiktok"></i></a>
+</div>
+<a aria-label="Ver carrito" class="innov-safe-cart" href="cart.html"><i class="fas fa-shopping-cart"></i><b data-innov-cart-count="">0</b></a>
+</div>
 </header>
-<main class="wrap"><section class="hero"><h1>Tu carrito</h1><p>Revisa productos, cantidades y planes. El precio, cupón y stock se vuelven a validar en el servidor al generar el pedido.</p></section><section class="grid"><div class="panel"><h2>Productos</h2><div id="items" class="items"></div></div><aside class="panel"><h2>Resumen</h2><div class="summary"><div class="row"><span>Subtotal</span><b id="subtotal">S/ 0.00</b></div><div class="coupon"><label for="coupon">Cupón (opcional)</label><div class="coupon-line"><input id="coupon" maxlength="40" autocomplete="off" placeholder="Código"><button id="saveCoupon" type="button">Guardar</button></div><div id="couponMsg" class="note">El cupón se valida de forma definitiva al generar el pedido.</div></div><div class="row total"><span>Total previo</span><span id="total">S/ 0.00</span></div><a id="checkout" class="btn" href="checkout.html">Continuar al pago</a><a class="btn secondary" href="shop.html">Seguir comprando</a><div class="safe">✓ No se confía en precios ni descuentos del navegador: checkout vuelve a validarlos contra Supabase.</div></div></aside></section></main>
-<script>
-(function(){
- const CART_KEY='innov_cart_v1', COUPON_KEY='innov_applied_coupon_v1';
- const $=id=>document.getElementById(id); const money=n=>'S/ '+(Number(n)||0).toFixed(2);
- function read(){try{const a=JSON.parse(sessionStorage.getItem(CART_KEY)||localStorage.getItem(CART_KEY)||'[]');return Array.isArray(a)?a:[]}catch(_){return[]}}
- function write(a){sessionStorage.setItem(CART_KEY,JSON.stringify(a));localStorage.removeItem(CART_KEY);window.dispatchEvent(new Event('innov-cart-change'))}
- function normalize(x){return {id:String(x.id||x.plan_id||x.product_id||crypto.randomUUID()),nombre:String(x.nombre||x.name||'Producto'),precio:Number(x.precio||x.price||0),imagen:String(x.imagen||x.image||''),qty:Math.max(1,Math.floor(Number(x.qty||1))),source:x.source||'unknown',product_id:x.product_id||null,plan_id:x.plan_id||null,plan_name:x.plan_name||null,stock_control:x.stock_control||null,meta:x.meta||{}}}
- function saveCoupon(){const code=$('coupon').value.trim().toUpperCase();if(!code){sessionStorage.removeItem(COUPON_KEY);$('couponMsg').textContent='Cupón eliminado. Puedes continuar sin cupón.';return}sessionStorage.setItem(COUPON_KEY,JSON.stringify({code}));$('couponMsg').textContent='Cupón '+code+' guardado. Se validará al generar el pedido.'}
- function render(){let rows=read().map(normalize);write(rows);const host=$('items');const count=rows.reduce((n,x)=>n+x.qty,0);document.querySelectorAll('[data-innov-cart-count]').forEach(e=>e.textContent=String(count));if(!rows.length){host.innerHTML='<div class="empty"><b>Tu carrito está vacío</b>Agrega un producto desde la tienda.</div>';$('checkout').style.pointerEvents='none';$('checkout').style.opacity='.5'}else{$('checkout').style.pointerEvents='';$('checkout').style.opacity='';host.innerHTML=rows.map((x,i)=>`<article class="item"><img class="thumb" src="${escapeHtml(x.imagen||'brand-placeholder.svg')}" alt=""><div><div class="name">${escapeHtml(x.nombre)}</div><div class="meta">${x.plan_name?escapeHtml(x.plan_name)+' · ':''}${x.plan_id?'Plan validable en servidor':'Catálogo'}</div><div class="qty"><button type="button" data-dec="${i}" aria-label="Reducir">−</button><b>${x.qty}</b><button type="button" data-inc="${i}" aria-label="Aumentar">+</button><button class="remove" type="button" data-del="${i}">Quitar</button></div></div><div class="price">${money(x.precio*x.qty)}</div></article>`).join('')}
- const sub=rows.reduce((n,x)=>n+x.precio*x.qty,0);$('subtotal').textContent=money(sub);$('total').textContent=money(sub);
- host.querySelectorAll('[data-inc]').forEach(b=>b.onclick=()=>{rows[+b.dataset.inc].qty++;write(rows);render()});host.querySelectorAll('[data-dec]').forEach(b=>b.onclick=()=>{const x=rows[+b.dataset.dec];x.qty=Math.max(1,x.qty-1);write(rows);render()});host.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{rows.splice(+b.dataset.del,1);write(rows);render()});}
- function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
- try{const saved=JSON.parse(sessionStorage.getItem(COUPON_KEY)||'null');if(saved&&saved.code)$('coupon').value=saved.code}catch(_){ }
- $('saveCoupon').onclick=saveCoupon;$('coupon').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveCoupon()}});render();
-})();
-</script>
-<script src="js/innov-shell.js" defer></script>
-<script src="js/public-auth.js" defer></script>
+<main class="wrap"><section class="hero"><h1>Tu carrito</h1><p>Revisa productos, cantidades y planes. El precio, cupón y stock se vuelven a validar en el servidor al generar el pedido.</p></section><section class="grid"><div class="panel"><h2>Productos</h2><div class="items" id="items"></div></div><aside class="panel"><h2>Resumen</h2><div class="summary"><div class="row"><span>Subtotal</span><b id="subtotal">S/ 0.00</b></div><div class="coupon" id="cartCouponBox"><label for="coupon">Cupón (opcional)</label><div class="coupon-line"><input autocomplete="off" id="coupon" maxlength="40" placeholder="Código"/><button id="saveCoupon" type="button">Guardar</button></div><div class="note" id="couponMsg">El cupón se valida de forma definitiva al generar el pedido.</div></div><div class="row total"><span>Total previo</span><span id="total">S/ 0.00</span></div><a class="btn" href="checkout.html" id="checkout">Continuar al pago</a><a class="btn secondary" href="shop.html">Seguir comprando</a><div class="safe">✓ No se confía en precios ni descuentos del navegador: checkout vuelve a validarlos contra Supabase.</div></div></aside></section></main>
+<script src="js/cart.js"></script>
+<script defer="" src="js/innov-shell.js"></script>
+<script defer="" src="js/cart-count.js"></script>
+<script defer="" src="js/web-settings.js"></script>
+<script src="js/portal-session.js"></script>
 </body></html>
