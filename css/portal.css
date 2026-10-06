@@ -83,3 +83,20 @@
   .pv4-birthday-copy{padding-right:76px}.pv4-birthday-gifts{right:10px}.pv4-birthday-gifts b{font-size:1.7rem}.pv4-birthday-gifts b:nth-child(2){display:none}.pv4-birthday-gifts b:nth-child(3){font-size:2rem}
 }
 @media(max-width:480px){.pv4-totp-manual-row{grid-template-columns:1fr}.pv4-totp-verify{width:100%}.pv4-inline-code-digits{font-size:1.9rem;letter-spacing:.07em}}
+
+/* V4.2.1 · Código dentro de Mi Cuenta con la estética original de codigo.html */
+.pv4-original-code-theme{position:relative;overflow:hidden;border:1px solid rgba(89,215,255,.34);border-radius:24px;padding:16px;background:linear-gradient(160deg,rgba(7,16,30,.96),rgba(7,16,30,.88));box-shadow:0 18px 42px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.06);color:#edf4ff;isolation:isolate}
+.pv4-original-code-theme::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% -12%,rgba(89,215,255,.22),transparent 34%),radial-gradient(circle at 100% 0%,rgba(255,96,150,.11),transparent 38%);pointer-events:none;z-index:-2}
+.pv4-code-theme-glow{position:absolute;inset:-55%;z-index:-1;background:linear-gradient(115deg,transparent 43%,rgba(255,255,255,.08) 50%,transparent 57%);transform:translateX(-60%) rotate(10deg);animation:pv4CodeGlass 5.6s ease-in-out infinite;pointer-events:none}
+@keyframes pv4CodeGlass{0%,46%{transform:translateX(-60%) rotate(10deg);opacity:0}58%{opacity:.8}84%,100%{transform:translateX(60%) rotate(10deg);opacity:0}}
+.pv4-code-theme-head{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:1}.pv4-code-theme-head>span{display:inline-flex;align-items:center;gap:7px;color:#bfe7ff;font-size:.73rem;font-weight:900;letter-spacing:.04em}.pv4-original-code-theme .pv4-inline-code-sound{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#dff4ff}
+.pv4-code-theme-gif{width:min(250px,100%);margin:12px auto 4px;border-radius:18px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.26),0 0 18px rgba(89,215,255,.10)}.pv4-code-theme-gif[hidden]{display:none}.pv4-code-theme-gif img{display:block;width:100%;max-height:132px;object-fit:cover}
+.pv4-original-code-theme .pv4-inline-code-main{position:relative;margin-top:12px;padding:15px 12px;border:1px solid #59d7ff;border-radius:20px;background:rgba(3,10,20,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 14px 32px rgba(47,124,255,.13)}
+.pv4-original-code-theme .pv4-inline-code-digits{color:#fff;font:1000 clamp(2rem,7vw,3.4rem)/1 DM Mono,ui-monospace,monospace;letter-spacing:.12em;text-align:center;text-shadow:0 0 20px rgba(89,215,255,.22);padding-left:.12em}
+.pv4-original-code-theme.waiting .pv4-inline-code-digits,.pv4-original-code-theme.expired .pv4-inline-code-digits{font:900 1rem/1.25 DM Sans,sans-serif;letter-spacing:0;color:#dff4ff;padding-left:0}
+.pv4-original-code-theme .pv4-inline-code-copy{position:absolute;right:10px;top:50%;transform:translateY(-50%);border-color:rgba(89,215,255,.32);background:rgba(6,57,84,.46);color:#dff4ff}.pv4-original-code-theme .pv4-inline-code-copy.copied{background:#d1fae5;color:#065f46}
+.pv4-code-theme-hint{margin:9px 2px 0;text-align:center;color:#bae6fd;font-size:.72rem;font-weight:800;line-height:1.4}
+.pv4-original-code-theme .pv4-inline-code-progress{height:10px;margin-top:12px;background:rgba(255,255,255,.13)}.pv4-original-code-theme .pv4-inline-code-progress span{background:linear-gradient(90deg,#59d7ff,#2f7cff);box-shadow:0 0 14px rgba(89,215,255,.22)}
+.pv4-original-code-theme .pv4-inline-code-foot{color:#cbd7ea;margin-top:8px}.pv4-original-code-theme .pv4-inline-code-foot b{color:#dff4ff;font-variant-numeric:tabular-nums}
+html[data-theme="light"] .pv4-original-code-theme{color:#edf4ff}
+@media(max-width:480px){.pv4-original-code-theme{padding:13px;border-radius:20px}.pv4-original-code-theme .pv4-inline-code-digits{font-size:2.25rem;letter-spacing:.09em}.pv4-code-theme-gif img{max-height:115px}}
