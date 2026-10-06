@@ -1,344 +1,96 @@
 (()=>{
-  'use strict';
-  const SUPABASE_URL='https://rfjvskrimsoqlyofhidj.supabase.co';
-  const SUPABASE_KEY='sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
-  const SESSION_KEY='innov_portal_session';
-  const SNAPSHOT_KEY='innov_portal_snapshot';
-  const $=id=>document.getElementById(id);
-  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  let db=null;
-  let sessionToken=localStorage.getItem(SESSION_KEY)||'';
-  let home=null;
-  let activeAssignmentId=null;
-  let totpTimer=null;
-  let secureClock={ready:false,anchorServerMs:0,anchorPerfMs:0,syncedAt:0,syncing:null};
-
-  const views={login:$('loginView'),profile:$('profileView'),dashboard:$('dashboardView')};
-
-  function showView(name){
-    Object.entries(views).forEach(([key,el])=>{if(el)el.hidden=key!==name});
-    document.body.dataset.portalStage=name;
-    $('portalLogout').hidden=name==='login';
-    window.scrollTo({top:0,behavior:'instant'});
+'use strict';
+const SUPABASE_URL='https://rfjvskrimsoqlyofhidj.supabase.co';
+const SUPABASE_KEY='sb_publishable_P1cgsqPGMWHHWIujJayyqg_9hgJEXZh';
+const SESSION_KEY='innov_portal_session';
+const SNAPSHOT_KEY='innov_portal_snapshot';
+const $=id=>document.getElementById(id); const esc=v=>String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
+let db,sessionToken=localStorage.getItem(SESSION_KEY)||'',home=null,hub={campaigns:[],rewards:[],support_cases:[],totp_requests:[]},activeTotpAssignment=null,currentServiceFilter='current',clockNow=()=>Date.now(),profileEditing=false;
+const views={login:$('loginView'),profile:$('profileView'),dashboard:$('dashboardView')};
+function ensureDb(){if(!db)db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});return db}
+async function rpc(name,args={}){const {data,error}=await ensureDb().rpc(name,args);if(error)throw new Error(error.message||'No se pudo completar la operación.');return data}
+function msg(el,text,type='err'){if(!el)return;el.hidden=!text;el.className=`pv4-msg ${type}`;el.textContent=text||''}
+function busy(btn,on,label='Procesando'){if(!btn)return;if(!btn.dataset.old)btn.dataset.old=btn.innerHTML;btn.disabled=on;btn.innerHTML=on?`<i class="fa-solid fa-circle-notch fa-spin"></i> ${label}`:btn.dataset.old}
+function showView(name){Object.entries(views).forEach(([k,v])=>{if(!v)return;const active=k===name;v.hidden=!active;if(active){v.classList.remove('pv4-screen-enter');void v.offsetWidth;v.classList.add('pv4-screen-enter')}});document.body.dataset.portalStage=name;const logged=name!=='login';$('portalLogout').hidden=!logged;if($('portalAccountBtn'))$('portalAccountBtn').hidden=name!=='dashboard';window.scrollTo({top:0,left:0,behavior:'auto'})}
+function date(v,opts={day:'2-digit',month:'short',year:'numeric'}){if(!v)return'—';const d=new Date(String(v).length<=10?`${v}T12:00:00`:v);return new Intl.DateTimeFormat('es-PE',opts).format(d)}
+function initials(name){return String(name||'IA').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'IA'}
+function saveSnapshot(){if(!home)return;localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({checked_at:Date.now(),profile_complete:!!home.customer?.profile_complete,customer:{name:home.customer?.name||'',phone:home.customer?.phone||'',email:home.customer?.email||''}}))}
+async function portalMediaFetch(options){
+  try{
+    return await fetch(`${SUPABASE_URL}/functions/v1/portal-media`,options);
+  }catch(error){
+    console.error('portal-media fetch failed',error);
+    const local=location.protocol==='file:'?' Estás abriendo el portal como archivo local; pruébalo desde el hosting HTTPS.':'';
+    throw new Error(`No se pudo conectar con el servicio de imágenes (portal-media). Verifica que la Edge Function esté desplegada y con verify_jwt=false.${local}`);
   }
-  function msg(el,text,type='err'){
-    if(!el)return;
-    el.hidden=!text;
-    el.className='portal-msg '+type;
-    el.textContent=text||'';
-  }
-  function setBusy(btn,busy,label){
-    if(!btn)return;
-    btn.disabled=busy;
-    if(!btn.dataset.label)btn.dataset.label=btn.innerHTML;
-    btn.innerHTML=busy?`<i class="fa-solid fa-circle-notch fa-spin"></i> ${label||'Procesando…'}`:btn.dataset.label;
-  }
-  function fmtDate(value){
-    if(!value)return'—';
-    const d=new Date(String(value).slice(0,10)+'T12:00:00');
-    return new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short',year:'numeric'}).format(d);
-  }
-  function ensureDb(){
-    if(!window.supabase?.createClient)throw new Error('No se pudo cargar la conexión segura.');
-    if(!db)db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
-    return db;
-  }
-  async function rpc(name,args){
-    const {data,error}=await ensureDb().rpc(name,args);
-    if(error)throw new Error(error.message||'No se pudo completar la operación.');
-    return data;
-  }
-  function saveSnapshot(data){
-    const customer=data?.customer||{};
-    const snapshot={
-      checked_at:Date.now(),
-      profile_complete:Boolean(customer.profile_complete),
-      customer:{name:customer.name||'',email:customer.email||'',phone:customer.phone||'',phone_masked:customer.phone_masked||'',username:customer.username||''}
-    };
-    localStorage.setItem(SNAPSHOT_KEY,JSON.stringify(snapshot));
-  }
-  async function login(identifier){return rpc('portal_login',{p_identifier:identifier})}
-  async function loadHome(){
-    const data=await rpc('portal_get_home',{p_session_token:sessionToken});
-    if(!data?.ok){if(data?.expired)logout(false);throw new Error(data?.message||'No se pudo cargar tu cuenta.');}
-    home=data;
-    saveSnapshot(data);
-    return data;
-  }
-  function fillProfile(customer){
-    $('profileName').value=customer?.name||'';
-    $('profileEmail').value=customer?.email||'';
-    $('birthdayDay').value=customer?.birthday_day||'';
-    $('birthdayMonth').value=customer?.birthday_month||'';
-    document.querySelectorAll('.portal-interests input').forEach(input=>{input.checked=(customer?.interests||[]).includes(input.value)});
-    $('profileIdentity').textContent=customer?.username||customer?.phone_masked||'Tu registro Innov IA';
-  }
-
-  function serviceState(service){
-    if(service?.portal_state)return service.portal_state;
-    const status=String(service?.status||'active').toLowerCase();
-    if(['cancelled','canceled','completed','inactive','archived'].includes(status))return'history';
-    const days=Number(service?.days_remaining);
-    if(Number.isFinite(days)&&days<0)return'renew';
-    if(['expired','past_due','overdue'].includes(status))return'renew';
-    return'current';
-  }
-  function stateLabel(state){return state==='current'?'Vigente':state==='renew'?'Por renovar':'Historial'}
-  function duePhrase(service){
-    if(!service?.next_due_date)return'Sin fecha';
-    const days=Number(service.days_remaining);
-    if(!Number.isFinite(days))return fmtDate(service.next_due_date);
-    if(days===0)return'Hoy';
-    if(days===1)return'Mañana';
-    if(days>1)return`En ${days} días`;
-    if(days===-1)return'Venció ayer';
-    return`Venció hace ${Math.abs(days)} días`;
-  }
-  function productQuery(service){return encodeURIComponent(service.product_name||service.service_name||'')}
-  function renderService(service,compact=false){
-    const state=serviceState(service);
-    const dueText=service.next_due_date?fmtDate(service.next_due_date):'Sin fecha';
-    const actionLabel=state==='renew'?'Renovar':state==='history'?'Comprar de nuevo':'Renovar';
-    const canTotp=Boolean(service.has_totp)&&state!=='history';
-    return `<article class="portal-service-card state-${esc(state)}${compact?' compact':''}" data-assignment="${esc(service.assignment_id)}">
-      <div class="portal-service-head"><div><h3>${esc(service.product_name||service.service_name)}</h3><small>${esc(service.plan_name||service.service_name||'Servicio')}</small></div><span class="portal-status ${esc(state)}">${esc(stateLabel(state))}</span></div>
-      <div class="portal-service-meta"><div><span>Vencimiento</span><b>${esc(dueText)}</b></div><div><span>Estado</span><b>${esc(duePhrase(service))}</b></div></div>
-      <div class="portal-service-actions">
-        <a class="renew" href="shop.html?q=${productQuery(service)}"><i class="fa-solid fa-rotate"></i>${actionLabel}</a>
-        ${canTotp?`<button class="totp" data-totp="${esc(service.assignment_id)}" data-service="${esc(service.product_name||service.service_name||'Servicio')}"><i class="fa-solid fa-key"></i>Generar código</button>`:''}
-        <a data-web-support="1" href="https://wa.me/51991564053?text=${encodeURIComponent('Hola, necesito ayuda con mi servicio '+(service.product_name||service.service_name||'')+'.')}" target="_blank" rel="noopener"><i class="fa-solid fa-headset"></i>Ayuda</a>
-      </div>
-    </article>`;
-  }
-  function emptyBlock(title,text,icon='fa-box-open'){
-    return `<div class="portal-empty-feature compact-empty"><i class="fa-solid ${icon}"></i><h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
-  }
-  function serviceGroup(title,subtitle,state,services,open=true){
-    const body=services.length?`<div class="portal-service-grid">${services.map(s=>renderService(s)).join('')}</div>`:emptyBlock('Sin servicios en esta sección','Cuando haya movimientos, aparecerán aquí.','fa-circle-check');
-    return `<section class="portal-service-group state-${state}"><details ${open?'open':''}><summary><div><span class="portal-group-dot"></span><div><b>${esc(title)}</b><small>${esc(subtitle)}</small></div></div><strong>${services.length}</strong></summary><div class="portal-service-group-body">${body}</div></details></section>`;
-  }
-  function renderDashboard(data){
-    const customer=data.customer||{};
-    const services=Array.isArray(data.services)?data.services:[];
-    const current=services.filter(s=>serviceState(s)==='current').sort((a,b)=>String(a.next_due_date||'9999').localeCompare(String(b.next_due_date||'9999')));
-    const renew=services.filter(s=>serviceState(s)==='renew').sort((a,b)=>String(b.next_due_date||'').localeCompare(String(a.next_due_date||'')));
-    const history=services.filter(s=>serviceState(s)==='history').sort((a,b)=>String(b.next_due_date||'').localeCompare(String(a.next_due_date||'')));
-    const next=current.find(s=>s.next_due_date)||null;
-
-    $('welcomeName').textContent=`Hola, ${String(customer.name||'cliente').split(' ')[0]} 👋`;
-    $('customerSince').textContent=customer.customer_since?`Cliente desde ${fmtDate(customer.customer_since)}`:'Tu espacio Innov IA';
-    $('currentCount').textContent=current.length;
-    $('renewCount').textContent=renew.length;
-    $('nextDue').textContent=next?fmtDate(next.next_due_date):'—';
-
-    $('homeServices').innerHTML=current.length?current.slice(0,3).map(s=>renderService(s,true)).join(''):emptyBlock('No tienes servicios vigentes','Puedes renovar uno anterior o comprar un nuevo servicio.','fa-bag-shopping');
-    $('serviceGroups').innerHTML=[
-      serviceGroup('Vigentes','Servicios dentro de su periodo actual','current',current,true),
-      serviceGroup('Por renovar','Servicios con fecha de vencimiento pasada','renew',renew,true),
-      serviceGroup('Historial','Cancelados o finalizados','history',history,false)
-    ].join('');
-
-    if(next){
-      const days=Number(next.days_remaining);
-      $('nextActionTitle').textContent=Number.isFinite(days)&&days<=7?`${next.product_name||next.service_name} vence pronto`:'Tu próximo vencimiento';
-      $('nextActionText').textContent=`${next.product_name||next.service_name} · ${fmtDate(next.next_due_date)} · ${duePhrase(next)}`;
-    }else if(renew.length){
-      $('nextActionTitle').textContent='Tienes servicios por renovar';
-      $('nextActionText').textContent=`${renew.length} ${renew.length===1?'servicio necesita':'servicios necesitan'} tu revisión.`;
-    }else{
-      $('nextActionTitle').textContent='Tu cuenta está al día';
-      $('nextActionText').textContent='Aquí aparecerán próximos vencimientos y acciones pendientes.';
-    }
-
-    const renewPreview=$('renewPreview');
-    if(renew.length){
-      renewPreview.hidden=false;
-      $('renewPreviewTitle').textContent=`${renew.length} ${renew.length===1?'servicio necesita':'servicios necesitan'} renovación`;
-      const mostRecent=renew[0];
-      $('renewPreviewText').textContent=mostRecent?`${mostRecent.product_name||mostRecent.service_name} · ${duePhrase(mostRecent)}`:'Revisa tus servicios vencidos.';
-    }else renewPreview.hidden=true;
-    bindDynamic();
-  }
-  function bindDynamic(){
-    document.querySelectorAll('[data-totp]').forEach(btn=>btn.addEventListener('click',()=>openTotp(btn.dataset.totp,btn.dataset.service)));
-    document.querySelectorAll('[data-go-tab]').forEach(btn=>btn.onclick=()=>activateTab(btn.dataset.goTab));
-  }
-  function activateTab(name){
-    document.querySelectorAll('.portal-tabs [data-tab]').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===name));
-    document.querySelectorAll('.portal-tab-panel').forEach(panel=>panel.classList.toggle('active',panel.dataset.panel===name));
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-
-  function showTotpStep(step){
-    $('totpLoadingStep').hidden=step!=='loading';
-    $('totpVerifyStep').hidden=step!=='verify';
-    $('totpCodeStep').hidden=step!=='code';
-  }
-  async function openTotp(id,service){
-    activeAssignmentId=id;
-    $('totpServiceTitle').textContent=service||'Código temporal';
-    $('totpAccessInput').value='';
-    $('totpCode').textContent='••••••';
-    msg($('totpMsg'),'');
-    showTotpStep('loading');
-    $('totpDialog').showModal();
-    await tryIssueAndRedeem(true);
-  }
-  async function verifyTotp(){
-    const btn=$('verifyTotpAccess');
-    const access=String($('totpAccessInput').value||'').trim();
-    if(!access){msg($('totpMsg'),'Ingresa tu código de acceso para continuar.','err');return}
-    setBusy(btn,true,'Verificando');msg($('totpMsg'),'');
-    try{
-      const data=await rpc('portal_verify_totp_access',{p_session_token:sessionToken,p_assignment_id:activeAssignmentId,p_access_code:access});
-      if(!data?.ok)throw new Error(data?.message||'No se pudo verificar.');
-      showTotpStep('loading');
-      await tryIssueAndRedeem(false);
-    }catch(error){showTotpStep('verify');msg($('totpMsg'),error.message,'err')}
-    finally{setBusy(btn,false)}
-  }
-  async function tryIssueAndRedeem(silentVerification){
-    try{
-      const issued=await rpc('portal_issue_totp_access',{p_session_token:sessionToken,p_assignment_id:activeAssignmentId});
-      if(!issued?.ok){
-        if(issued?.verification_required){showTotpStep('verify');if(!silentVerification)msg($('totpMsg'),issued.message||'Verifica tu acceso.','err');return}
-        throw new Error(issued?.message||'No se pudo generar el acceso TOTP.');
-      }
-      await syncSecureClock();
-      const data=await redeemThroughEdge(issued.access_code);
-      if(!data?.ok)throw new Error(data?.message||'No se pudo generar el código temporal.');
-      await showOtp(data,issued.account_label);
-    }catch(error){
-      if(/verifica/i.test(error.message||'')){showTotpStep('verify')}
-      else showTotpStep('verify');
-      msg($('totpMsg'),error.message,'err');
-    }
-  }
-  async function redeemThroughEdge(accessCode){
-    const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),20000);
-    try{
-      const response=await fetch(`${SUPABASE_URL}/functions/v1/redeem-totp`,{
-        method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_KEY,'x-client-info':'innov-portal/2.0'},
-        body:JSON.stringify({access_code:accessCode}),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal:controller.signal
-      });
-      const data=await response.json().catch(()=>({}));
-      if(!response.ok&&!data?.message)throw new Error('Respuesta segura no válida.');
-      return data;
-    }catch(error){
-      if(controller.signal.aborted)throw new Error('La validación segura tardó demasiado. Intenta nuevamente.');
-      throw error;
-    }finally{clearTimeout(timeout)}
-  }
-  function parseServerEpoch(data){
-    const row=Array.isArray(data)?data[0]:data;
-    const epoch=Number(row?.epoch_ms);
-    if(!Number.isFinite(epoch)||epoch<=0)throw new Error('No se pudo sincronizar la hora segura.');
-    return epoch;
-  }
-  async function takeClockSample(){
-    const localEndStart=Date.now();
-    const perfStart=performance.now();
-    const data=await rpc('innov_totp_server_time',{});
-    const perfEnd=performance.now();
-    const localEnd=Date.now();
-    const epoch=parseServerEpoch(data);
-    const rtt=Math.max(0,perfEnd-perfStart);
-    return {rtt,serverAtReceipt:epoch+(rtt/2),offset:(epoch+(rtt/2))-localEnd,localEndStart};
-  }
-  async function syncSecureClock(force=false){
-    if(secureClock.ready&&!force&&Date.now()-secureClock.syncedAt<60000)return secureClock;
-    if(secureClock.syncing)return secureClock.syncing;
-    secureClock.syncing=(async()=>{
-      const samples=[];
-      for(let i=0;i<3;i++){try{samples.push(await takeClockSample())}catch(error){if(i===2&&!samples.length)throw error}}
-      samples.sort((a,b)=>a.rtt-b.rtt);
-      const best=samples[0];
-      secureClock={...secureClock,ready:true,anchorServerMs:best.serverAtReceipt,anchorPerfMs:performance.now(),syncedAt:Date.now(),syncing:secureClock.syncing};
-      return secureClock;
-    })().finally(()=>{secureClock.syncing=null});
-    return secureClock.syncing;
-  }
-  function secureNowMs(){return secureClock.ready?secureClock.anchorServerMs+(performance.now()-secureClock.anchorPerfMs):Date.now()}
-  async function showOtp(data,label){
-    const period=Math.max(15,Math.min(120,Number(data.otp?.period)||30));
-    const digits=Number(data.otp?.digits)===8?8:6;
-    const code=String(data.otp?.code||'');
-    const reveal=Number(data.otp?.reveal_at_ms);
-    const expires=Number(data.otp?.expires_at_ms);
-    if(!new RegExp(`^\\d{${digits}}$`).test(code)||!Number.isFinite(reveal)||!Number.isFinite(expires)||expires<=reveal)throw new Error('El servidor no devolvió un TOTP válido.');
-    $('totpAccountLabel').textContent=label||data.account?.label||'Cuenta TOTP';
-    showTotpStep('code');
-    msg($('totpMsg'),'');
-    if(totpTimer)clearInterval(totpTimer);
-    const total=Math.max(1000,expires-reveal);
-    const tick=()=>{
-      const now=secureNowMs();
-      if(now<reveal){
-        $('totpCode').textContent='••••••';
-        $('totpTimerFill').style.width='100%';
-        $('totpTimerText').textContent=`Disponible en ${Math.max(1,Math.ceil((reveal-now)/1000))} s`;
-        return;
-      }
-      const left=Math.max(0,expires-now);
-      $('totpCode').textContent=left>0?code:'••••••';
-      $('totpTimerFill').style.width=`${Math.max(0,Math.min(100,left/total*100))}%`;
-      $('totpTimerText').textContent=left>0?`Tiempo restante: ${Math.ceil(left/1000)} s`:'Código vencido';
-      if(left<=0){clearInterval(totpTimer);totpTimer=null}
-    };
-    tick();totpTimer=setInterval(tick,250);
-  }
-
-  async function saveProfile(event){
-    event.preventDefault();
-    const btn=event.submitter;
-    const day=Number($('birthdayDay').value||0);
-    const month=Number($('birthdayMonth').value||0);
-    if(!day||!month){msg($('profileMsg'),'Completa tu día y mes de cumpleaños para continuar.','err');return}
-    setBusy(btn,true,'Guardando');
-    try{
-      const interests=[...document.querySelectorAll('.portal-interests input:checked')].map(input=>input.value);
-      const data=await rpc('portal_update_profile',{p_session_token:sessionToken,p_name:$('profileName').value,p_email:$('profileEmail').value||null,p_birthday_day:day,p_birthday_month:month,p_interests:interests});
-      if(!data?.ok)throw new Error(data?.message||'No se pudo guardar.');
-      await bootDashboard();
-    }catch(error){msg($('profileMsg'),error.message,'err')}finally{setBusy(btn,false)}
-  }
-  async function bootDashboard(){const data=await loadHome();renderDashboard(data);showView('dashboard')}
-  async function submitLogin(event){
-    event.preventDefault();
-    const btn=event.submitter;
-    setBusy(btn,true,'Buscando tu cuenta');msg($('loginMsg'),'');
-    try{
-      const data=await login($('identifier').value);
-      if(!data?.ok)throw new Error(data?.message||'No encontramos tu cuenta.');
-      sessionToken=data.session_token;localStorage.setItem(SESSION_KEY,sessionToken);
-      const current=await loadHome();
-      if(current.customer?.profile_complete){renderDashboard(current);showView('dashboard')}
-      else{fillProfile(current.customer);showView('profile')}
-    }catch(error){msg($('loginMsg'),error.message,'err')}finally{setBusy(btn,false)}
-  }
-  async function logout(callServer=true){
-    const old=sessionToken;sessionToken='';home=null;
-    localStorage.removeItem(SESSION_KEY);localStorage.removeItem(SNAPSHOT_KEY);
-    if(callServer&&old){try{await rpc('portal_logout',{p_session_token:old})}catch{}}
-    showView('login');
-  }
-  async function resume(){
-    if(!sessionToken){showView('login');return}
-    try{const current=await loadHome();if(current.customer?.profile_complete){renderDashboard(current);showView('dashboard')}else{fillProfile(current.customer);showView('profile')}}catch{logout(false)}
-  }
-  function initDays(){for(let day=1;day<=31;day++)$('birthdayDay').insertAdjacentHTML('beforeend',`<option value="${day}">${day}</option>`)}
-  function bind(){
-    $('loginForm').addEventListener('submit',submitLogin);
-    $('profileForm').addEventListener('submit',saveProfile);
-    $('portalLogout').addEventListener('click',()=>logout(true));
-    $('nextActionBtn').addEventListener('click',()=>activateTab('services'));
-    document.querySelectorAll('.portal-tabs [data-tab]').forEach(btn=>btn.addEventListener('click',()=>activateTab(btn.dataset.tab)));
-    document.querySelectorAll('[data-close-dialog]').forEach(btn=>btn.addEventListener('click',()=>$(btn.dataset.closeDialog).close()));
-    $('verifyTotpAccess').addEventListener('click',verifyTotp);
-    $('copyTotp').addEventListener('click',async()=>{const code=$('totpCode').textContent.replace(/\D/g,'');if(code&&code.length>=6)await navigator.clipboard.writeText(code)});
-    $('totpDialog').addEventListener('close',()=>{if(totpTimer)clearInterval(totpTimer);totpTimer=null});
-    $('portalTheme').addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=next;localStorage.setItem('innov_theme',next)});
-  }
-  document.addEventListener('DOMContentLoaded',()=>{initDays();bind();resume()});
+}
+async function mediaJson(action,extra={}){const r=await portalMediaFetch({method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action,session_token:sessionToken,...extra}),cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok||data.ok===false)throw new Error(data.message||`portal-media respondió ${r.status}.`);return data}
+async function mediaFile(action,file,extra={}){const f=new FormData();f.append('action',action);f.append('session_token',sessionToken);f.append('file',file);Object.entries(extra).forEach(([k,v])=>f.append(k,String(v)));const r=await portalMediaFetch({method:'POST',headers:{'apikey':SUPABASE_KEY},body:f,cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok||data.ok===false)throw new Error(data.message||`No se pudo subir la imagen (HTTP ${r.status}).`);return data}
+async function loadAll(){const [h,x]=await Promise.all([rpc('portal_get_home',{p_session_token:sessionToken}),rpc('portal_client_hub_state',{p_session_token:sessionToken})]);if(!h?.ok){if(h?.expired)logout(false);throw new Error(h?.message||'No se pudo cargar tu cuenta.')}home=h;hub=x?.ok?x:{campaigns:[],rewards:[],support_cases:[],totp_requests:[]};saveSnapshot();return h}
+async function loadAvatar(){try{const a=await mediaJson('avatar_url');setAvatar(a.signed_url)}catch(_){setAvatar(null)}}
+function setAvatar(url){['headerAvatar','accountAvatar','topAccountAvatar'].forEach(id=>{const img=$(id);if(!img)return;img.hidden=!url;if(url)img.src=url});['headerInitials','accountInitials','topAccountInitials'].forEach(id=>{const e=$(id);if(e)e.hidden=!!url})}
+function serviceState(s){return s?.portal_state||'history'}
+function duePhrase(s){const d=Number(s?.days_remaining);if(!Number.isFinite(d))return s?.next_due_date?date(s.next_due_date):'Sin fecha';if(d===0)return'Vence hoy';if(d===1)return'Vence mañana';if(d>1)return`Vence en ${d} días`;if(d===-1)return'Venció ayer';return`Venció hace ${Math.abs(d)} días`}
+function stateLabel(st){return st==='current'?'Vigente':st==='renew'?'Por renovar':'Historial'}
+function serviceCard(s,compact=false){
+  const st=serviceState(s),totp=!!s.has_totp&&st==='current',assignment=esc(s.assignment_id),account=esc(s.account_hint||'Cuenta vinculada');
+  const totpBox=totp?`<div class="pv4-totp-inline" data-totp-box="${assignment}"><div class="pv4-totp-head"><i class="fa-solid fa-key"></i><div><strong>Código de verificación</strong><small>${account}</small></div></div><div class="pv4-totp-ready" data-totp-ready><p>Si tu Access TOTP sigue vinculado a este servicio, lo verificamos con la cuenta y generamos el código aquí mismo.</p><button class="pv4-totp-generate" data-totp="${assignment}" type="button"><i class="fa-solid fa-key"></i> Generar código</button></div><div class="pv4-totp-manual" data-totp-manual hidden><p>Si recibiste un Access TOTP, ingrésalo aquí. Solo funcionará si pertenece a esta cuenta y a tu servicio.</p><div class="pv4-totp-manual-row"><input data-totp-access-input autocomplete="off" autocapitalize="characters" maxlength="32" placeholder="Código Access TOTP"><button class="pv4-totp-verify" data-totp-verify-inline="${assignment}" type="button">Verificar y generar</button></div><button class="pv4-totp-request-link" data-totp-request-inline="${assignment}" type="button">Solicitar nuevo acceso</button></div><div class="pv4-totp-message" data-totp-message hidden></div><div data-totp-mount hidden></div></div>`:'';
+  return `<article class="pv4-service-card${totp?' has-totp':''}" data-assignment="${assignment}"><div class="main"><div class="topline"><h3>${esc(s.product_name||s.service_name||'Servicio')}</h3><span class="state ${esc(st)}">${stateLabel(st)}</span></div><div class="meta"><span>${esc(s.plan_name||'')}</span><span>${esc(duePhrase(s))}</span>${s.account_hint?`<span class="pv4-account-hint">${esc(s.account_hint)}</span>`:''}</div></div><div class="pv4-service-actions">${st==='renew'?`<a class="primary-action" href="shop.html?q=${encodeURIComponent(s.product_name||s.service_name||'')}">Renovar</a>`:st==='current'?`<a href="shop.html?q=${encodeURIComponent(s.product_name||s.service_name||'')}">Renovar</a>`:''}<button data-support-service="${assignment}"><i class="fa-solid fa-headset"></i> Ayuda</button></div>${totpBox}</article>`
+}
+function renderServices(){const list=home?.services||[],curr=list.filter(x=>serviceState(x)==='current'),renew=list.filter(x=>serviceState(x)==='renew'),hist=list.filter(x=>serviceState(x)==='history');$('currentCount').textContent=curr.length;$('renewCount').textContent=renew.length;$('historyCount').textContent=hist.length;$('homeServices').innerHTML=curr.length?curr.slice(0,3).map(x=>serviceCard(x,true)).join(''):`<div class="pv4-empty">No tienes servicios vigentes.</div>`;const show={current:curr,renew,history:hist}[currentServiceFilter]||curr;$('servicesList').innerHTML=show.length?show.map(x=>serviceCard(x)).join(''):`<div class="pv4-empty">No hay servicios en esta sección.</div>`;const next=curr.filter(x=>x.next_due_date).sort((a,b)=>String(a.next_due_date).localeCompare(String(b.next_due_date)))[0];if(next){$('nextServiceTitle').textContent=next.product_name||next.service_name;$('nextServiceText').textContent=`${date(next.next_due_date)} · ${duePhrase(next)}`}else if(renew.length){$('nextServiceTitle').textContent='Tienes servicios por renovar';$('nextServiceText').textContent=`${renew.length} servicio${renew.length===1?'':'s'} necesitan tu revisión.`}else{$('nextServiceTitle').textContent='Tus servicios están al día';$('nextServiceText').textContent='Aquí verás tu siguiente vencimiento.'}fillSupportServices(list)}
+function campaignKind(c){return c.type==='raffle'?'Sorteo':c.type==='gift'?'Regalo directo':c.type==='offer'?'Oferta':'Anuncio'}
+function campaignCard(c){const enrolled=!!c.enrollment,raffleDrawn=c.type==='raffle'&&c.raffle?.status==='drawn',label=c.type==='announcement'?'Ver anuncio':raffleDrawn?'Ver resultado':enrolled?'Ver participación':c.type==='offer'?'Ver oferta':c.type==='gift'?'Ver regalo':'Participar';return `<article class="pv4-campaign-card theme-${esc(c.theme_key||'default')}"><span class="kind">${campaignKind(c)}</span><h3>${esc(c.title)}</h3><p>${esc(c.description||c.prize_name||'')}</p><div class="foot"><span>${c.ends_at?`Hasta ${date(c.ends_at,{day:'2-digit',month:'short'})}`:'Disponible'}</span><button data-campaign="${esc(c.id)}">${label}</button></div></article>`}
+function renderCampaigns(){const campaigns=hub.campaigns||[];$('campaignList').innerHTML=campaigns.length?campaigns.map(campaignCard).join(''):`<div class="pv4-empty">No hay beneficios disponibles por ahora.</div>`;const featured=campaigns.find(c=>c.featured)||campaigns.find(c=>c.presentation==='banner')||campaigns.find(c=>c.modal_on_entry)||campaigns[0];const box=$('entryCampaign');if(featured){box.hidden=false;box.innerHTML=`<div class="pv4-promo-card theme-${esc(featured.theme_key||'default')}"><small>${campaignKind(featured)}</small><h2>${esc(featured.title)}</h2><p>${esc(featured.description||featured.prize_name||'')}</p><button class="pv4-primary" data-campaign="${esc(featured.id)}" type="button">${featured.type==='announcement'?'Ver anuncio':featured.enrollment?'Ver detalle':featured.type==='offer'?'Ver oferta':featured.type==='gift'?'Ver regalo':'Participar'}</button></div>`}else box.hidden=true;renderRewards()}
+function renderRewards(){const r=hub.rewards||[];$('rewardList').innerHTML=r.length?r.map(x=>`<div class="pv4-row-card"><div><strong>${esc(x.reward_name)}</strong><small>${x.duration_days?`${x.duration_days} días · `:''}${esc(x.status)}</small></div>${x.status==='available'?`<button class="pv4-secondary" data-claim="${esc(x.id)}">Reclamar</button>`:`<span class="status">${esc(x.status)}</span>`}</div>`).join(''):`<div class="pv4-empty">Todavía no tienes premios registrados.</div>`}
+function renderSupport(){const c=hub.support_cases||[];$('supportHistory').innerHTML=c.length?c.map(x=>`<div class="pv4-row-card"><div><strong>${esc(x.subject)}</strong><small>${date(x.created_at)} · ${esc(x.status.replaceAll('_',' '))}</small></div><span class="status">${x.priority==='portal_priority'?'Prioridad portal':'Normal'}</span></div>`).join(''):`<div class="pv4-empty">No tienes solicitudes de soporte.</div>`}
+function renderAccount(){const c=home.customer||{};$('welcomeName').textContent=`Hola, ${String(c.name||'Cliente').split(' ')[0]}`;$('headerInitials').textContent=initials(c.name);$('accountInitials').textContent=initials(c.name);if($('topAccountInitials'))$('topAccountInitials').textContent=initials(c.name);$('accountName').textContent=c.name||'Cliente';$('accountContact').textContent=c.phone_masked||c.username||'';$('customerSince').textContent=c.customer_since?`Cliente desde ${date(c.customer_since)}`:'';$('accountServices').textContent=(home.services||[]).length;$('accountCampaigns').textContent=(hub.campaigns||[]).filter(x=>x.enrollment).length;$('accountSupport').textContent=(hub.support_cases||[]).filter(x=>!['resolved','closed'].includes(x.status)).length;const orders=hub.orders||[];$('purchaseHistory').innerHTML=orders.length?orders.slice(0,20).map(o=>`<div class="pv4-row-card"><div><strong>Pedido ${esc(o.order_code||'')}</strong><small>${date(o.created_at)} · ${esc(o.status||'')} · S/ ${Number(o.total||0).toFixed(2)}</small></div><span class="status">${esc(o.delivery_status||'')}</span></div>`).join(''):`<div class="pv4-empty">Todavía no hay pedidos vinculados a este WhatsApp.</div>`;if(hub.birthday_today){$('birthdayMoment').hidden=false;$('birthdayGreeting').textContent=`Feliz cumpleaños, ${String(c.name||'').split(' ')[0]||'Cliente'}`;runConfetti()}else $('birthdayMoment').hidden=true}
+function renderAll(){renderServices();renderCampaigns();renderSupport();renderAccount();bindDynamic();showView('dashboard');loadAvatar();const popup=(hub.campaigns||[]).find(c=>c.modal_on_entry&&c.status==='active'&&!sessionStorage.getItem('innov_campaign_seen_'+c.id));if(popup){sessionStorage.setItem('innov_campaign_seen_'+popup.id,'1');setTimeout(()=>openCampaign(popup.id),350)}}
+function fillSupportServices(list){const sel=$('supportAssignment');sel.innerHTML='<option value="">Mi cuenta / otro</option>'+list.filter(x=>serviceState(x)!=='history').map(x=>`<option value="${esc(x.assignment_id)}">${esc(x.product_name||x.service_name)} · ${esc(x.plan_name||'')}</option>`).join('')}
+function bindDynamic(){document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>switchTab(b.dataset.go));document.querySelectorAll('[data-totp]').forEach(b=>b.onclick=()=>startTotp(b.dataset.totp,b.closest('.pv4-totp-inline')));document.querySelectorAll('[data-totp-verify-inline]').forEach(b=>b.onclick=()=>verifyInlineAccess(b.dataset.totpVerifyInline,b.closest('.pv4-totp-inline')));document.querySelectorAll('[data-totp-request-inline]').forEach(b=>b.onclick=()=>openTotpRequest(b.dataset.totpRequestInline));document.querySelectorAll('[data-support-service]').forEach(b=>b.onclick=()=>{switchTab('support');$('supportAssignment').value=b.dataset.supportService});document.querySelectorAll('[data-campaign]').forEach(b=>b.onclick=()=>openCampaign(b.dataset.campaign));document.querySelectorAll('[data-claim]').forEach(b=>b.onclick=()=>claimReward(b.dataset.claim))}
+function switchTab(name){document.querySelectorAll('.pv4-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===name));document.querySelectorAll('.pv4-bottom button').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));window.scrollTo({top:0,behavior:'smooth'})}
+async function openCampaign(id){const c=(hub.campaigns||[]).find(x=>x.id===id);if(!c)return;const dlg=$('campaignDialog');$('campaignDialogKind').textContent=campaignKind(c);$('campaignDialogTitle').textContent=c.title;let html=`<p style="color:var(--pv-muted);line-height:1.65">${esc(c.description||c.prize_description||'')}</p>`;
+if(c.type==='announcement'){
+  html+=`<div class="pv4-task"><strong>Información para ti</strong><p>${esc(c.prize_description||'Puedes cerrar esta ventana cuando termines de leer.')}</p></div>`;
+}else if(c.type==='raffle'&&c.raffle?.status==='drawn'){
+  html+=`<div class="pv4-task"><strong>Sorteo realizado</strong><p>${c.raffle.winner_count||1} ganador${Number(c.raffle.winner_count)>1?'es':''}. Los nombres se muestran parcialmente para proteger la identidad.</p></div><div class="pv4-dialog-actions"><button class="pv4-primary" data-replay-wheel="${esc(c.id)}">Reproducir ruleta</button></div>`;
+}else if(!c.enrollment){
+  const noTasks=!(c.tasks||[]).length;const action=c.type==='offer'?'Activar oferta':c.type==='gift'?'Aceptar regalo':'Participar';
+  html+=`<div class="pv4-task"><strong>${esc(c.prize_name||'Disponible para tu cuenta')}</strong><p>${noTasks?'No requiere condiciones adicionales.':'Continúa para completar las condiciones de esta campaña.'}</p></div><div class="pv4-dialog-actions"><button class="pv4-primary" ${noTasks?'data-quick-campaign':'data-join-campaign'}="${esc(c.id)}">${action}</button></div>`;
+}else if(c.enrollment.status==='approved'||c.enrollment.status==='winner'||c.enrollment.status==='claim_requested'||c.enrollment.status==='delivered'){
+  if(c.type==='offer') html+=`<div class="pv4-task"><strong>Oferta habilitada</strong><p>${c.coupon_code?'El cupón se aplicará al continuar a la tienda.':'Tu oferta ya está habilitada.'}</p></div><div class="pv4-dialog-actions"><button class="pv4-primary" data-apply-offer="${esc(c.id)}">Usar oferta</button></div>`;
+  else html+=`<div class="pv4-task"><strong>Participación registrada</strong><p>Estado: ${esc(c.enrollment.status)}</p></div>`;
+}else if(c.enrollment.status==='submitted'){
+  html+=renderCampaignTasks(c)+`<div class="pv4-task"><strong>En revisión</strong><p>Recibimos tu participación y la estamos verificando.</p></div>`;
+}else{
+  html+=renderCampaignTasks(c)+`<div class="pv4-dialog-actions"><button class="pv4-primary" data-submit-campaign="${esc(c.enrollment.id)}">Enviar participación</button></div>`;
+}
+$('campaignDialogBody').innerHTML=html;dlg.showModal();bindCampaignDialog(c)}
+function renderCampaignTasks(c){const tasks=c.tasks||[];if(!tasks.length)return'<div class="pv4-task"><strong>Sin condiciones adicionales</strong><p>Puedes continuar directamente.</p></div>';return `<div class="pv4-task-list">${tasks.map((t,i)=>{const done=!!t.submission;return `<div class="pv4-task" data-task-box="${esc(t.id)}"><strong>${i+1}. ${esc(t.title)}</strong>${t.instruction?`<p>${esc(t.instruction)}</p>`:''}${t.action_url?`<a href="${esc(t.action_url)}" target="_blank" rel="noopener">Abrir enlace</a>`:''}${t.proof_mode==='confirm'?`<label><input type="checkbox" data-task-confirm="${esc(t.id)}" ${done&&t.submission.confirmed?'checked':''}> Ya completé esta acción</label>`:t.proof_mode==='text'?`<input type="text" data-task-text="${esc(t.id)}" value="${esc(t.submission?.text_value||'')}" placeholder="Escribe lo solicitado">`:`<input type="file" accept="image/jpeg,image/png,image/webp" data-task-file="${esc(t.id)}"><small>${done?'Evidencia ya registrada. Puedes reemplazarla.':'Adjunta una captura como evidencia.'}</small>`}<button class="pv4-secondary" data-save-task="${esc(t.id)}" type="button">Guardar condición</button></div>`}).join('')}</div>`}
+async function quickCampaign(c,btn){busy(btn,true,'Procesando');try{const jr=await rpc('portal_loyalty_join',{p_session_token:sessionToken,p_campaign_id:c.id});if(!jr?.ok)throw new Error(jr?.message||'No se pudo continuar.');const sr=await rpc('portal_loyalty_submit',{p_session_token:sessionToken,p_enrollment_id:jr.enrollment_id});if(!sr?.ok)throw new Error(sr?.message||'No se pudo completar.');await refresh();const updated=(hub.campaigns||[]).find(x=>x.id===c.id);if(c.type==='offer'&&sr.status==='approved'&&updated?.coupon_code){sessionStorage.setItem('innov_applied_coupon_v1',JSON.stringify({code:updated.coupon_code}));location.href='shop.html';return}if(sr.status==='submitted'){alert('Tu participación quedó en revisión. Te avisaremos desde Mi Cuenta.')}$('campaignDialog').close()}catch(x){alert(x.message)}finally{busy(btn,false)}}
+function bindCampaignDialog(c){const body=$('campaignDialogBody');body.querySelector('[data-join-campaign]')?.addEventListener('click',async e=>{busy(e.currentTarget,true,'Registrando');try{const r=await rpc('portal_loyalty_join',{p_session_token:sessionToken,p_campaign_id:c.id});if(!r?.ok)throw new Error(r?.message||'No se pudo participar.');await refresh();openCampaign(c.id)}catch(x){alert(x.message)}finally{busy(e.currentTarget,false)}});body.querySelector('[data-quick-campaign]')?.addEventListener('click',e=>quickCampaign(c,e.currentTarget));body.querySelectorAll('[data-save-task]').forEach(btn=>btn.onclick=()=>saveTask(c,btn.dataset.saveTask,btn));body.querySelector('[data-submit-campaign]')?.addEventListener('click',async e=>{busy(e.currentTarget,true,'Enviando');try{const r=await rpc('portal_loyalty_submit',{p_session_token:sessionToken,p_enrollment_id:c.enrollment.id});if(!r?.ok)throw new Error(r?.message||'No se pudo enviar.');await refresh();openCampaign(c.id)}catch(x){alert(x.message)}finally{busy(e.currentTarget,false)}});body.querySelector('[data-replay-wheel]')?.addEventListener('click',()=>{$('campaignDialog').close();playRoulette(c)});body.querySelector('[data-apply-offer]')?.addEventListener('click',()=>{if(c.coupon_code)sessionStorage.setItem('innov_applied_coupon_v1',JSON.stringify({code:c.coupon_code}));location.href='shop.html'});}
+async function saveTask(c,taskId,btn){const t=(c.tasks||[]).find(x=>x.id===taskId);if(!t||!c.enrollment)return;busy(btn,true,'Guardando');try{let proof=null,text=null,confirmed=false;if(t.proof_mode==='confirm')confirmed=!!document.querySelector(`[data-task-confirm="${CSS.escape(taskId)}"]`)?.checked;else if(t.proof_mode==='text')text=document.querySelector(`[data-task-text="${CSS.escape(taskId)}"]`)?.value||'';else{const file=document.querySelector(`[data-task-file="${CSS.escape(taskId)}"]`)?.files?.[0];if(!file&&t.submission?.proof_path){proof=t.submission.proof_path}else if(file){const up=await mediaFile('proof_upload',file,{enrollment_id:c.enrollment.id,task_id:taskId});proof=up.proof_path}}const r=await rpc('portal_loyalty_submit_task',{p_session_token:sessionToken,p_enrollment_id:c.enrollment.id,p_task_id:taskId,p_confirmed:confirmed,p_text_value:text,p_proof_path:proof});if(!r?.ok)throw new Error(r?.message||'No se pudo guardar.');await refresh();openCampaign(c.id)}catch(x){alert(x.message)}finally{busy(btn,false)}}
+async function claimReward(id){try{const r=await rpc('portal_loyalty_claim_reward',{p_session_token:sessionToken,p_reward_id:id});if(!r?.ok)throw new Error(r?.message||'No se pudo reclamar.');await refresh();alert('Solicitud registrada. La entrega continuará por WhatsApp.')}catch(e){alert(e.message)}}
+async function playRoulette(c){const r=c.raffle||{},participants=r.participants||[],winners=r.winners||[];if(!participants.length||!winners.length)return;const dlg=$('rouletteDialog');$('rouletteTitle').textContent=c.title;$('rouletteWinners').innerHTML='<div class="pv4-empty">La ruleta mostrará cada resultado oficial en orden.</div>';dlg.showModal();try{await window.InnovRaffleWheel.play({canvas:$('rouletteCanvas'),participants,winners,logoSrc:'assets/img/logo.png',onWinner:(w)=>{$('rouletteWinners').innerHTML=`<div class="pv4-winner">${w.position}. ${esc(w.name)}${w.isSelf?' · Tu participación':''}</div>`},onComplete:(all)=>{$('rouletteWinners').innerHTML=all.map(w=>`<div class="pv4-winner">${w.position}. ${esc(w.name)}${w.isSelf?' · Tu participación':''}</div>`).join('')}})}catch(e){$('rouletteWinners').innerHTML=`<div class="pv4-empty">${esc(e.message)}</div>`}}
+function totpBoxFor(assignmentId,preferred){if(preferred)return preferred;const boxes=Array.from(document.querySelectorAll(`[data-totp-box="${CSS.escape(String(assignmentId))}"]`));return boxes.find(x=>x.offsetParent!==null)||boxes[0]||null}
+function totpInlineMessage(box,text){const el=box?.querySelector('[data-totp-message]');if(!el)return;el.hidden=!text;el.textContent=text||''}
+function setTotpManual(box,on,message=''){if(!box)return;const manual=box.querySelector('[data-totp-manual]'),ready=box.querySelector('[data-totp-ready]');if(manual)manual.hidden=!on;if(ready)ready.hidden=on;if(message)totpInlineMessage(box,message)}
+function openTotpRequest(assignmentId){activeTotpAssignment=assignmentId;$('totpRequestReason').value='';msg($('totpRequestMsg'),'');$('totpRequestDialog').showModal()}
+async function startTotp(assignmentId,preferredBox){const box=totpBoxFor(assignmentId,preferredBox),btn=box?.querySelector('[data-totp]');window.InnovTotpWidget?.unlockAudio();activeTotpAssignment=assignmentId;totpInlineMessage(box,'');if(btn)busy(btn,true,'Verificando');try{const r=await rpc('portal_issue_totp_access',{p_session_token:sessionToken,p_assignment_id:assignmentId});if(r?.ok)return redeemPortalAccessInline(assignmentId,r.access_code,r.account_label,box);if(r?.expired_service){totpInlineMessage(box,'Este servicio ya venció. Renueva para volver a generar códigos.');return}if(r?.verification_required){setTotpManual(box,true,r?.message||'Necesitas validar el Access TOTP de este servicio.');return}throw new Error(r?.message||'No se pudo generar el acceso.')}catch(e){totpInlineMessage(box,e.message)}finally{if(btn)busy(btn,false)}}
+async function redeemPortalAccessInline(assignmentId,accessCode,label,preferredBox){const box=totpBoxFor(assignmentId,preferredBox);try{const response=await fetch(`${SUPABASE_URL}/functions/v1/redeem-totp`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'x-client-info':'innov-portal-v4.2'},body:JSON.stringify({access_code:accessCode}),cache:'no-store'});const data=await response.json().catch(()=>({}));if(!data?.ok)throw new Error(data?.message||'No se pudo generar el código.');clockNow=await window.InnovTotpWidget.syncClock(async(name,args)=>rpc(name,args));const ready=box?.querySelector('[data-totp-ready]'),manual=box?.querySelector('[data-totp-manual]'),mount=box?.querySelector('[data-totp-mount]');if(ready)ready.hidden=true;if(manual)manual.hidden=true;totpInlineMessage(box,'');if(mount){const accountHint=box?.querySelector('.pv4-totp-head small')?.textContent||label||data.account?.label||'Cuenta vinculada';mount.hidden=false;window.InnovTotpWidget.mount(mount,{code:data.otp?.code,accountLabel:accountHint,revealAtMs:Number(data.otp?.reveal_at_ms),expiresAtMs:Number(data.otp?.expires_at_ms),now:clockNow,onExpire:()=>{mount.hidden=true;const rdy=box?.querySelector('[data-totp-ready]');if(rdy)rdy.hidden=false;totpInlineMessage(box,'El ciclo terminó. Si el Access ya quedó utilizado, puedes solicitar una nueva habilitación.')}})}}catch(e){setTotpManual(box,true,e.message)}}
+async function verifyInlineAccess(assignmentId,preferredBox){const box=totpBoxFor(assignmentId,preferredBox),input=box?.querySelector('[data-totp-access-input]'),btn=box?.querySelector('[data-totp-verify-inline]'),code=String(input?.value||'').trim().toUpperCase().replace(/\s+/g,'');if(!code)return totpInlineMessage(box,'Ingresa tu código Access TOTP.');window.InnovTotpWidget?.unlockAudio();if(btn)busy(btn,true,'Verificando');totpInlineMessage(box,'');try{const v=await rpc('portal_verify_totp_access',{p_session_token:sessionToken,p_assignment_id:assignmentId,p_access_code:code});if(!v?.ok)throw new Error(v?.message||'No se pudo verificar.');if(input)input.value='';await redeemPortalAccessInline(assignmentId,v.access_code||code,v.account_label,box)}catch(e){totpInlineMessage(box,e.message)}finally{if(btn)busy(btn,false)}}
+async function submitTotpRequest(){const btn=$('totpRequestSubmit'),reason=$('totpRequestReason').value.trim();if(reason.length<5)return msg($('totpRequestMsg'),'Cuéntanos brevemente por qué necesitas un nuevo acceso.');busy(btn,true,'Enviando');try{const r=await rpc('portal_totp_request',{p_session_token:sessionToken,p_assignment_id:activeTotpAssignment,p_reason:reason});if(!r?.ok)throw new Error(r?.message||'No se pudo enviar.');msg($('totpRequestMsg'),r.already_pending?'Ya tienes una solicitud pendiente.':'Solicitud enviada. La verás también en Soporte.','ok');setTimeout(()=>{try{$('totpRequestDialog').close()}catch(_){}},650);await refresh()}catch(e){msg($('totpRequestMsg'),e.message)}finally{busy(btn,false)}}
+async function refresh(){await loadAll();renderAll()}
+function fillProfile(){const c=home?.customer||{};$('profileName').value=c.name||'';$('profileEmail').value=c.email||'';$('birthdayDay').value=c.birthday_day||'';$('birthdayMonth').value=c.birthday_month||'';document.querySelectorAll('.pv4-chips input').forEach(i=>i.checked=(c.interests||[]).includes(i.value));$('avatarPath').value=c.avatar_path||''}
+function setProfileMode(editing){profileEditing=!!editing;$('profileEyebrow').textContent=editing?'Tu perfil':'Completa tu perfil';$('profileTitle').textContent=editing?'Actualiza tu información.':'Haz que tu cuenta se sienta tuya.';$('profileDescription').textContent=editing?'Cambia tu foto, datos e intereses cuando lo necesites. Tus servicios no se modifican desde aquí.':'Elige una foto que te represente. También usaremos tu cumpleaños para felicitarte y, cuando corresponda, mostrarte beneficios especiales.';$('profileSubmitText').textContent=editing?'Guardar cambios':'Guardar y entrar';$('profileBackBtn').hidden=!editing}
+function openProfile(){setProfileMode(true);fillProfile();showView('profile');loadAvatar().then(()=>{const src=$('headerAvatar')?.src;if(src&&$('headerAvatar')&&!$('headerAvatar').hidden){$('avatarPreview').src=src;$('avatarPreview').hidden=false;$('avatarFallback').hidden=true}})}
+async function profileSubmit(e){e.preventDefault();const btn=$('profileSubmitBtn')||e.currentTarget.querySelector('button[type=submit]');msg($('profileMsg'),'');const name=$('profileName').value.trim(),day=Number($('birthdayDay').value)||null,month=Number($('birthdayMonth').value)||null,file=$('avatarFile').files?.[0];let path=$('avatarPath').value;if(!name)return msg($('profileMsg'),'Escribe tu nombre completo.');if(!day||!month)return msg($('profileMsg'),'Completa tu día y mes de cumpleaños.');if(!path&&!file)return msg($('profileMsg'),'Elige una foto de perfil para continuar.');if(file&&!['image/jpeg','image/png','image/webp'].includes(file.type))return msg($('profileMsg'),'La foto debe ser JPG, PNG o WEBP.');if(file&&file.size>5*1024*1024)return msg($('profileMsg'),'La foto debe pesar máximo 5 MB.');busy(btn,true,'Guardando');const wasEditing=profileEditing;try{if(file){msg($('profileMsg'),'Subiendo tu foto...','ok');const u=await mediaFile('avatar_upload',file);path=u.avatar_path;$('avatarPath').value=path}msg($('profileMsg'),'Guardando tu perfil...','ok');const r=await rpc('portal_update_profile_v4',{p_session_token:sessionToken,p_name:name,p_email:$('profileEmail').value.trim()||null,p_birthday_day:day,p_birthday_month:month,p_interests:Array.from(document.querySelectorAll('.pv4-chips input:checked')).map(i=>i.value),p_avatar_path:path||null});if(!r?.ok)throw new Error(r?.message||'No se pudo guardar.');$('avatarFile').value='';await loadAll();profileEditing=false;renderAll();if(wasEditing)switchTab('account')}catch(x){msg($('profileMsg'),x.message)}finally{busy(btn,false)}}
+async function loginSubmit(e){e.preventDefault();const btn=e.currentTarget.querySelector('button');busy(btn,true,'Ingresando');msg($('loginMsg'),'');try{const id=$('identifier').value.trim();const r=await rpc('portal_login',{p_identifier:id});if(r?.ok){sessionToken=r.session_token;localStorage.setItem(SESSION_KEY,sessionToken);await loadAll();if(!home.customer?.profile_complete){setProfileMode(false);fillProfile();showView('profile')}else renderAll();return}if(r?.not_found||r?.message?.toLowerCase().includes('no encontramos')){$('communityRegister').hidden=false;msg($('loginMsg'),'No encontramos compras con ese WhatsApp. Si vienes de la comunidad, puedes registrarte aquí.','ok');return}throw new Error(r?.message||'No pudimos encontrar tu cuenta.')}catch(x){msg($('loginMsg'),x.message)}finally{busy(btn,false)}}
+async function communityRegister(){const btn=$('communityRegisterBtn'),phone=$('identifier').value.trim(),name=$('communityName').value.trim();busy(btn,true,'Creando');try{const r=await rpc('portal_register_community',{p_phone:phone,p_name:name});if(!r?.ok)throw new Error(r?.message||'No se pudo registrar.');sessionToken=r.session_token;localStorage.setItem(SESSION_KEY,sessionToken);await loadAll();setProfileMode(false);fillProfile();showView('profile')}catch(x){msg($('loginMsg'),x.message)}finally{busy(btn,false)}}
+async function supportSubmit(e){e.preventDefault();const btn=e.currentTarget.querySelector('button[type=submit]'),message=$('supportMessage').value.trim();if(!message)return;busy(btn,true,'Registrando');try{const id=$('supportAssignment').value||null,cat=$('supportCategory').value;const r=await rpc('portal_support_create',{p_session_token:sessionToken,p_assignment_id:id,p_category:cat,p_message:message});if(!r?.ok)throw new Error(r?.message||'No se pudo registrar.');$('supportMessage').value='';msg($('supportMsg'),'Solicitud registrada con prioridad Portal. Puedes seguirla aquí o continuar por WhatsApp.','ok');const wa=$('supportWhatsappLink');if(wa){const text=encodeURIComponent(`Hola, registré soporte desde Mi Cuenta. Caso ${(r.case_code||r.case_id||'').toString().slice(0,8)}. ${message}`);wa.href=`https://wa.me/51991564053?text=${text}`;wa.hidden=false}await loadAll();renderSupport()}catch(x){msg($('supportMsg'),x.message)}finally{busy(btn,false)}}
+function runConfetti(){const canvas=$('confettiCanvas');if(!canvas)return;const ctx=canvas.getContext('2d');canvas.width=canvas.clientWidth*devicePixelRatio;canvas.height=canvas.clientHeight*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);const w=canvas.clientWidth,h=canvas.clientHeight,parts=Array.from({length:46},()=>({x:Math.random()*w,y:-Math.random()*h,s:3+Math.random()*5,v:1+Math.random()*2,r:Math.random()*6.28}));let frames=0;function f(){ctx.clearRect(0,0,w,h);for(const p of parts){p.y+=p.v;p.x+=Math.sin(p.y/18);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r+p.y/50);ctx.fillStyle=['#facc15','#fb923c','#c4b5fd','#67e8f9'][Math.floor(Math.random()*4)];ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*1.7);ctx.restore();if(p.y>h)p.y=-10}if(frames++<320)requestAnimationFrame(f)}f()}
+function logout(reload=true){sessionToken='';localStorage.removeItem(SESSION_KEY);localStorage.removeItem(SNAPSHOT_KEY);if(reload)location.reload();else showView('login')}
+function days(){for(let i=1;i<=31;i++)$('birthdayDay').insertAdjacentHTML('beforeend',`<option value="${i}">${i}</option>`)}
+function globalBindings(){days();$('loginForm').onsubmit=loginSubmit;$('communityRegisterBtn').onclick=communityRegister;$('profileForm').onsubmit=profileSubmit;$('profileBackBtn').onclick=()=>{profileEditing=false;renderAll();switchTab('account')};$('avatarPickBtn').onclick=$('avatarPickLink').onclick=()=>$('avatarFile').click();$('avatarFile').onchange=e=>{const f=e.target.files?.[0];if(f){$('avatarPreview').src=URL.createObjectURL(f);$('avatarPreview').hidden=false;$('avatarFallback').hidden=true}};$('portalLogout').onclick=()=>logout(true);if($('portalAccountBtn'))$('portalAccountBtn').onclick=()=>{if(home){showView('dashboard');switchTab('account')}};$('portalTheme').onclick=()=>{const n=document.documentElement.dataset.theme==='light'?'dark':'light';document.documentElement.dataset.theme=n;localStorage.setItem('innov_theme',n)};document.querySelectorAll('.pv4-bottom button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));document.querySelectorAll('[data-service-filter]').forEach(b=>b.onclick=()=>{currentServiceFilter=b.dataset.serviceFilter;document.querySelectorAll('[data-service-filter]').forEach(x=>x.classList.toggle('active',x===b));renderServices();bindDynamic()});$('supportForm').onsubmit=supportSubmit;$('editProfileBtn').onclick=openProfile;$('totpRequestSubmit').onclick=submitTotpRequest;document.querySelectorAll('[data-close-dialog]').forEach(b=>b.onclick=()=>$((b.dataset.closeDialog)).close())}
+async function init(){globalBindings();if(!sessionToken){showView('login');if(location.protocol==='file:')msg($('loginMsg'),'Modo de prueba local: para validar cargas de foto y CORS usa la URL HTTPS real del hosting.','ok');return}try{await loadAll();if(!home.customer?.profile_complete){setProfileMode(false);fillProfile();showView('profile')}else renderAll()}catch(e){logout(false);msg($('loginMsg'),e.message)}}
+document.addEventListener('DOMContentLoaded',init);
 })();

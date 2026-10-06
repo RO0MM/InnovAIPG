@@ -15,10 +15,10 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="css/admin.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"/><link href="css/admin.css" rel="stylesheet"/>
 <!-- INNOV IA Core 1.1.0: selector y autofill unificados -->
 <meta content="noindex,nofollow,noarchive" name="robots"/>
-<link href="css/admin-responsive.css" rel="stylesheet"/></head>
+<link href="css/admin-responsive.css" rel="stylesheet"/><link href="css/admin-loyalty.css" rel="stylesheet"/></head>
 <body>
 <!-- Loading -->
 <div class="hidden" id="loadingOverlay">
@@ -39,17 +39,18 @@
 <button aria-label="Cerrar menú" class="btn btn-ghost btn-icon" onclick="closeSidenav()" style="margin-left:auto">✕</button>
 </div>
 <div class="g-title">Principal</div>
-<button class="btn btn-ghost nav-btn-side" data-tab="products" type="button">🧩 Productos</button>
-<button class="btn btn-ghost nav-btn-side" data-tab="inventory" type="button">📦 Cupos y entregas</button>
-<button class="btn btn-ghost nav-btn-side" data-tab="orders" type="button">🧾 Pagos y pedidos</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="products" type="button"><i class="fa-solid fa-box-open"></i> Productos</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="inventory" type="button"><i class="fa-solid fa-layer-group"></i> Cupos y entregas</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="orders" type="button"><i class="fa-solid fa-receipt"></i> Pagos y pedidos</button>
 <div class="g-title">CRM</div>
-<button class="btn btn-ghost nav-btn-side" data-tab="reminders" type="button">🔔 Recordatorios / pagos</button>
-<button class="btn btn-ghost nav-btn-side" data-tab="totp" type="button">🛡️ Accesos TOTP</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="reminders" type="button"><i class="fa-solid fa-clock"></i> Recordatorios / pagos</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="totp" type="button"><i class="fa-solid fa-shield-halved"></i> Accesos TOTP</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="loyalty" type="button"><i class="fa-solid fa-users"></i> Clientes &amp; Portal</button>
 <div class="g-title">Configuración</div>
-<button class="btn btn-ghost nav-btn-side" data-tab="templates" type="button">📝 Plantillas</button>
-<button class="btn btn-ghost nav-btn-side" data-tab="coupons" type="button">🎟️ Cupones</button>
-<button class="btn btn-ghost nav-btn-side" data-tab="web" type="button">🌐 WEB</button>
-<button class="btn btn-ghost nav-btn-side" data-tab="settings" type="button">⚙️ Ajustes</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="templates" type="button"><i class="fa-solid fa-file-lines"></i> Plantillas</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="coupons" type="button"><i class="fa-solid fa-ticket"></i> Cupones</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="web" type="button"><i class="fa-solid fa-globe"></i> WEB</button>
+<button class="btn btn-ghost nav-btn-side" data-tab="settings" type="button"><i class="fa-solid fa-gear"></i> Ajustes</button>
 </nav>
 <!-- Auth -->
 <div class="auth-wrap" id="auth">
@@ -62,7 +63,7 @@
 <label class="subtle" style="margin-top:10px">Contraseña</label>
 <input autocomplete="current-password" class="input" id="loginPass" placeholder="••••••••" type="password"/>
 <div class="auth-actions">
-<button class="btn btn-primary" id="btnLogin" type="button">🔐 Entrar</button>
+<button class="btn btn-primary" id="btnLogin" type="button"><i class="fa-solid fa-lock"></i> Entrar</button>
 <button class="btn btn-ghost" id="btnLoginHelp" type="button">Ayuda</button>
 </div>
 <div class="auth-divider"></div>
@@ -86,23 +87,24 @@
 <span class="badge b-ok" id="connBadge" style="font-size:.73rem">
 <span class="status-dot"></span><span id="connText">Supabase</span>
 </span>
-<button aria-label="Activar notificaciones" class="btn btn-ghost btn-icon" id="btnEnableNotifications" title="Activar notificaciones con sonido" type="button">🔕</button>
-<button aria-label="Cambiar tema" class="btn btn-ghost btn-icon" id="btnTheme" type="button">🌓</button>
+<button aria-label="Activar notificaciones" class="btn btn-ghost btn-icon" id="btnEnableNotifications" title="Activar notificaciones con sonido" type="button"><i class="fa-solid fa-bell-slash"></i></button>
+<button aria-label="Cambiar tema" class="btn btn-ghost btn-icon" id="btnTheme" type="button"><i class="fa-solid fa-circle-half-stroke"></i></button>
 <button class="btn btn-ghost" id="btnLogout" type="button">Salir</button>
 </div>
 </div>
 </header>
 <!-- Desktop tabs -->
 <nav aria-label="Secciones" class="admin-tabs desktop-only" role="tablist">
-<button class="btn nav-btn" data-tab="products">🧩 Productos</button>
-<button class="btn nav-btn" data-tab="inventory">📦 Cupos</button>
-<button aria-pressed="true" class="btn nav-btn" data-tab="orders">🧾 Pagos <span class="tab-badge" id="tbOrders" style="display:none">0</span></button>
-<button class="btn nav-btn" data-tab="reminders">🔔 Recordatorios <span class="tab-badge" id="tbReminders" style="display:none">0</span></button>
-<button class="btn nav-btn" data-tab="totp">🛡️ Accesos TOTP</button>
-<button class="btn nav-btn" data-tab="templates">📝 Plantillas</button>
-<button class="btn nav-btn" data-tab="coupons">🎟️ Cupones</button>
-<button class="btn nav-btn" data-tab="web">🌐 WEB</button>
-<button class="btn nav-btn" data-tab="settings">⚙️ Ajustes</button>
+<button class="btn nav-btn" data-tab="products"><i class="fa-solid fa-box-open"></i> Productos</button>
+<button class="btn nav-btn" data-tab="inventory"> <i class="fa-solid fa-layer-group"></i> Cupos</button>
+<button aria-pressed="true" class="btn nav-btn" data-tab="orders"> <i class="fa-solid fa-receipt"></i> Pagos <span class="tab-badge" id="tbOrders" style="display:none">0</span></button>
+<button class="btn nav-btn" data-tab="reminders"> <i class="fa-solid fa-clock"></i> Recordatorios <span class="tab-badge" id="tbReminders" style="display:none">0</span></button>
+<button class="btn nav-btn" data-tab="totp"><i class="fa-solid fa-shield-halved"></i> Accesos TOTP</button>
+<button class="btn nav-btn" data-tab="loyalty"><i class="fa-solid fa-users"></i> Clientes &amp; Portal</button>
+<button class="btn nav-btn" data-tab="templates"><i class="fa-solid fa-file-lines"></i> Plantillas</button>
+<button class="btn nav-btn" data-tab="coupons"><i class="fa-solid fa-ticket"></i> Cupones</button>
+<button class="btn nav-btn" data-tab="web"><i class="fa-solid fa-globe"></i> WEB</button>
+<button class="btn nav-btn" data-tab="settings"><i class="fa-solid fa-gear"></i> Ajustes</button>
 </nav>
 <main id="main">
 <div class="container">
@@ -196,7 +198,7 @@
 <div class="card">
 <div class="totp-title">
 <div>
-<h2>🛡️ Accesos TOTP para clientes</h2>
+<h2><i class="fa-solid fa-shield-halved"></i> Accesos TOTP para clientes</h2>
 <p class="help" style="margin:4px 0 0">Administra cuentas TOTP, cuentas de acceso, usos, vencimientos y actividad del cliente.</p>
 </div>
 <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -234,6 +236,19 @@
 </div>
 <div class="totp-grid" id="totpGrid"></div>
 </section>
+<!-- Clientes & Portal V4 -->
+<section class="admin-section" id="tab-loyalty">
+  <div class="ch-hero"><div><span class="ch-kicker">Centro de clientes</span><h2>Clientes &amp; Portal</h2><p>Gestiona la relación completa con quienes usan Mi Cuenta: servicios, campañas, sorteos, premios, soporte y accesos ChatGPT.</p></div><div class="actions"><button class="btn btn-primary" id="chNewCampaign" type="button"><i class="fa-solid fa-plus"></i> Crear campaña</button><button class="btn" id="chReload" type="button"><i class="fa-solid fa-rotate"></i></button></div></div>
+  <nav class="ch-nav" aria-label="Clientes y Portal"><button class="active" data-ch-view="summary"><i class="fa-solid fa-chart-simple"></i><span>Resumen</span></button><button data-ch-view="customers"><i class="fa-solid fa-address-book"></i><span>Clientes</span></button><button data-ch-view="campaigns"><i class="fa-solid fa-bullhorn"></i><span>Campañas</span></button><button data-ch-view="raffles"><i class="fa-solid fa-circle-notch"></i><span>Sorteos</span></button><button data-ch-view="rewards"><i class="fa-solid fa-gift"></i><span>Premios</span></button><button data-ch-view="support"><i class="fa-solid fa-headset"></i><span>Soporte</span></button><button data-ch-view="access"><i class="fa-solid fa-key"></i><span>Accesos</span></button></nav>
+  <div class="ch-view active" data-ch-panel="summary"><div class="ch-kpis" id="chKpis"></div><div class="ch-summary-grid"><article class="card ch-card"><div class="ch-card-head"><div><strong>Actividad reciente</strong><span>Clientes que ya usan el Portal</span></div><button data-ch-jump="customers">Ver clientes</button></div><div id="chRecentCustomers" class="ch-compact-list"></div></article><article class="card ch-card"><div class="ch-card-head"><div><strong>Atención prioritaria</strong><span>Soporte y accesos pendientes</span></div><button data-ch-jump="support">Abrir cola</button></div><div id="chPriorityQueue" class="ch-compact-list"></div></article><article class="card ch-card ch-wide"><div class="ch-card-head"><div><strong>Campañas activas</strong><span>Regalos, sorteos, ofertas y anuncios</span></div><button data-ch-jump="campaigns">Gestionar</button></div><div id="chActiveCampaigns" class="ch-campaign-strip"></div></article></div></div>
+  <div class="ch-view" data-ch-panel="customers"><div class="ch-toolbar"><div class="ch-search"><i class="fa-solid fa-magnifying-glass"></i><input id="chCustomerSearch" placeholder="Buscar cliente, teléfono o correo"></div><select id="chCustomerFilter"><option value="all">Todos los registrados</option><option value="active">Con servicio vigente</option><option value="support">Con soporte abierto</option></select></div><div id="chCustomerList" class="ch-customer-list"></div></div>
+  <div class="ch-view" data-ch-panel="campaigns"><div class="ch-section-copy"><div><span class="ch-kicker">Publicaciones del Portal</span><h3>Campañas</h3><p>No todas las campañas hacen lo mismo. Crea el tipo correcto y configura a quién se muestra.</p></div><button class="btn btn-primary" id="chNewCampaign2"><i class="fa-solid fa-plus"></i> Crear</button></div><div id="chCampaignList" class="ch-campaign-grid"></div></div>
+  <div class="ch-view" data-ch-panel="raffles"><div class="ch-section-copy"><div><span class="ch-kicker">Resultado oficial y animación</span><h3>Sorteos programados</h3><p>La selección se realiza en servidor. La ruleta reproduce el resultado oficial y protege los nombres de los participantes.</p></div></div><div id="chRaffleList" class="ch-campaign-grid"></div></div>
+  <div class="ch-view" data-ch-panel="rewards"><div class="ch-section-copy"><div><span class="ch-kicker">Trazabilidad</span><h3>Premios y reclamos</h3><p>Registra la entrega real y, si corresponde, vincúlala a su servicio.</p></div></div><div id="chRewardList" class="ch-table-list"></div></div>
+  <div class="ch-view" data-ch-panel="support"><div class="ch-section-copy"><div><span class="ch-kicker">Prioridad Portal</span><h3>Soporte</h3><p>Las solicitudes creadas desde Mi Cuenta llegan con cliente y servicio identificados.</p></div></div><div class="ch-filter-row"><button class="active" data-support-filter="open">Pendientes</button><button data-support-filter="all">Todos</button></div><div id="chSupportList" class="ch-table-list"></div></div>
+  <div class="ch-view" data-ch-panel="access"><div class="ch-section-copy"><div><span class="ch-kicker">ChatGPT / TOTP</span><h3>Solicitudes de acceso</h3><p>Aprueba un uso adicional o crea un nuevo Access solo si el servicio sigue vigente. Nunca se muestra la contraseña.</p></div></div><div id="chTotpList" class="ch-table-list"></div></div>
+</section>
+
 <!-- Plantillas -->
 <section class="admin-section" id="tab-templates">
 <div class="admin-toolbar">
@@ -447,10 +462,10 @@
 <!-- Bottom navigation (mobile) -->
 <nav aria-label="Navegación" class="bottom-bar">
 <div class="bottom-actions">
-<button class="btn" data-tab="products" type="button"><span class="ico">🧩</span><span>Prod.</span></button>
-<button class="btn" data-tab="inventory" type="button"><span class="ico">📦</span><span>Stock</span></button>
-<button class="btn active" data-tab="orders" type="button"><span class="ico">🧾</span><span>Pedidos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
-<button class="btn" data-tab="reminders" type="button"><span class="ico">🔔</span><span>Record.</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
+<button class="btn" data-tab="products" type="button"><span class="ico"><i class="fa-solid fa-box-open"></i></span><span>Prod.</span></button>
+<button class="btn" data-tab="inventory" type="button"><span class="ico"><i class="fa-solid fa-layer-group"></i></span><span>Stock</span></button>
+<button class="btn active" data-tab="orders" type="button"><span class="ico"><i class="fa-solid fa-receipt"></i></span><span>Pedidos</span><span class="tab-badge" id="mbOrders" style="display:none">0</span></button>
+<button class="btn" data-tab="reminders" type="button"><span class="ico"><i class="fa-solid fa-clock"></i></span><span>Record.</span><span class="tab-badge" id="mbReminders" style="display:none">0</span></button>
 <button class="btn" id="btnMobileMore" onclick="openSidenav()" type="button"><span class="ico">☰</span><span>Más</span></button>
 </div>
 </nav>
@@ -1100,8 +1115,26 @@ otrocorreo@gmail.com|clave123|| |1" style="min-height:190px"></textarea>
 </div>
 </div>
 </dialog>
+
+<dialog id="dlgLoyaltyCampaign" class="ch-dialog">
+  <div class="ch-dialog-head"><div><span class="ch-kicker">Publicar en Mi Cuenta</span><strong id="loyaltyCampaignTitle">Crear campaña</strong></div><button data-close="dlgLoyaltyCampaign" type="button"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="ch-dialog-body">
+    <input id="loyaltyCampaignId" type="hidden">
+    <div id="chCampaignTypes" class="ch-type-grid"><button data-campaign-type="gift"><i class="fa-solid fa-gift"></i><strong>Regalo directo</strong><span>Entrega un beneficio sin sorteo.</span></button><button data-campaign-type="raffle"><i class="fa-solid fa-circle-notch"></i><strong>Sorteo</strong><span>Inscripción, fecha programada y ruleta.</span></button><button data-campaign-type="offer"><i class="fa-solid fa-tag"></i><strong>Oferta</strong><span>Cupón o descuento para comprar en Shop.</span></button><button data-campaign-type="announcement"><i class="fa-solid fa-bullhorn"></i><strong>Anuncio</strong><span>Comunica algo importante en el Portal.</span></button></div>
+    <div id="chCampaignForm" class="ch-form" hidden>
+      <input id="loyaltyType" type="hidden" value="gift">
+      <div class="ch-form-grid"><label>Título<input class="input" id="loyaltyTitle" placeholder="Nombre de la campaña"></label><label>Estado<select class="input" id="loyaltyStatus"><option value="draft">Borrador</option><option value="active">Activo</option><option value="closed">Cerrado</option><option value="archived">Archivado</option></select></label><label class="wide">Descripción<textarea class="input" id="loyaltyDescription" rows="3" placeholder="Qué verá el cliente"></textarea></label><label>Audiencia<select class="input" id="loyaltyAudience"><option value="all">Toda la comunidad</option><option value="customers">Clientes</option><option value="active_customers">Clientes con servicio vigente</option><option value="frequent_customers">Clientes frecuentes</option><option value="birthday">Cumpleaños de hoy</option><option value="anniversary">Aniversario como cliente</option><option value="new_registration">Nuevos registros</option><option value="renewal_due">Próximos a renovar</option></select></label><label>Presentación<select class="input" id="loyaltyPresentation"><option value="card">Tarjeta</option><option value="modal">Ventana al ingresar</option><option value="banner">Aviso superior</option><option value="wheel">Ruleta / resultado</option></select></label><label>Tema<select class="input" id="loyaltyTheme"><option value="default">Innov IA</option><option value="halloween">Halloween</option><option value="birthday">Cumpleaños</option><option value="christmas">Navidad</option><option value="launch">Lanzamiento</option></select></label><label>Inicio<input class="input" id="loyaltyStarts" type="datetime-local"></label><label>Cierre / sorteo<input class="input" id="loyaltyEnds" type="datetime-local"></label><label id="chWinnerField">Ganadores<input class="input" id="loyaltyWinnerCount" type="number" min="1" max="20" value="1"></label><label id="chPrizeField">Premio<input class="input" id="loyaltyPrize" placeholder="1 mes de ChatGPT Plus"></label><label id="chDurationField">Duración del premio<input class="input" id="loyaltyDuration" type="number" min="1" max="3650" placeholder="30"></label><label id="chCouponField">Cupón<select class="input" id="loyaltyCoupon"><option value="">Sin cupón</option></select></label><label id="chOfferField">Descuento visible (%)<input class="input" id="loyaltyOfferPercent" type="number" min="0" max="100" step=".01"></label><label id="chFrequentField">Compras/servicios mínimos<input class="input" id="loyaltyMinServices" type="number" min="1" value="2"></label><label id="chRenewalDaysField">Vence dentro de<input class="input" id="loyaltyDueDays" type="number" min="1" max="90" value="7"></label><label id="chRegistrationDaysField">Registrado hace máximo<input class="input" id="loyaltyRegistrationDays" type="number" min="1" max="90" value="7"></label><label class="wide">Descripción del premio<input class="input" id="loyaltyPrizeDescription" placeholder="Condiciones de la entrega"></label><label>Prioridad<input class="input" id="loyaltyPriority" type="number" value="100"></label><label>Retener evidencias después del cierre<select class="input" id="loyaltyRetention"><option value="0">Borrar al cerrar</option><option value="6">6 horas</option><option value="24" selected>24 horas</option><option value="72">3 días</option></select></label></div>
+      <div class="ch-switches"><label><input id="loyaltyFeatured" type="checkbox"><span>Destacar en Inicio</span></label><label><input id="loyaltyModalOnEntry" type="checkbox"><span>Mostrar al entrar</span></label><label><input id="loyaltyManualReview" type="checkbox"><span>Revisar evidencia antes de aprobar</span></label></div>
+      <div class="ch-task-builder"><div><strong>Condiciones para participar</strong><span>Solo añádelas cuando realmente sean necesarias.</span></div><button id="btnAddLoyaltyTask" class="btn" type="button"><i class="fa-solid fa-plus"></i> Condición</button></div><div id="loyaltyTaskEditor" class="ch-task-editor"></div>
+    </div>
+  </div><div class="ch-dialog-actions"><button class="btn" data-close="dlgLoyaltyCampaign">Cancelar</button><button class="btn btn-primary" id="btnSaveLoyaltyCampaign" type="button" hidden>Guardar campaña</button></div>
+</dialog>
+<dialog id="dlgCustomerHub" class="ch-dialog ch-customer-dialog"><div class="ch-dialog-head"><div><span class="ch-kicker">Ficha compacta</span><strong id="chCustomerDialogTitle">Cliente</strong></div><button data-close="dlgCustomerHub"><i class="fa-solid fa-xmark"></i></button></div><div id="chCustomerDialogBody" class="ch-dialog-body"></div></dialog>
+<dialog id="dlgRaffleHub" class="ch-dialog ch-raffle-dialog"><div class="ch-dialog-head"><div><span class="ch-kicker">Sorteo oficial</span><strong id="chRaffleTitle">Sorteo</strong></div><button data-close="dlgRaffleHub"><i class="fa-solid fa-xmark"></i></button></div><div id="chRaffleBody" class="ch-dialog-body"></div></dialog>
 <!-- ============ JAVASCRIPT ============ -->
 <script src="js/admin.js"></script>
+<script src="js/raffle-wheel.js"></script>
+<script src="js/admin-loyalty.js"></script>
 <!-- ================================================================
    ADMIN A — NÚCLEO OFICIAL
    Flujo unificado de clientes, servicios, recordatorios y cupos.
