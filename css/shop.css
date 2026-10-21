@@ -88,3 +88,12 @@ html[data-theme="dark"] #productModal{--pm-bg:#0f1d2d;--pm-surface:#13243a;--pm-
 
 /* En file:// se mantiene la imagen de respaldo si el proveedor bloquea embeds locales. */
 .product-video-shell[data-local-preview="1"]{display:none!important}
+
+
+/* V2: miniaturas estables; reproductores completos solo al abrir el detalle. */
+.product-img .product-logo-img{background:transparent}
+.product-img .product-action{z-index:25}
+@media (prefers-reduced-motion: reduce){
+  .product-item,.product-item:hover{transition:none!important;transform:none!important}
+  .product-video-shell video{animation:none!important}
+}

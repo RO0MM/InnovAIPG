@@ -1,1 +1,29 @@
-*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#15283f;font-family:Arial,Helvetica,sans-serif;line-height:1.65}a{color:#155ba6}header{background:#10233c;color:#fff;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}header a{color:#fff;text-decoration:none;font-weight:700}header nav{display:flex;gap:18px;flex-wrap:wrap}main{max-width:980px;margin:30px auto 48px;padding:0 20px}.eyebrow{font-weight:700;letter-spacing:.05em;color:#617996;text-transform:uppercase;font-size:.8rem}h1{font-size:clamp(1.7rem,4vw,2.6rem);line-height:1.2;margin:10px 0}h2{color:#173754}h3{margin:0 0 7px;color:#173754}.lead{font-size:1.14rem;color:#324b67}.card{background:#fff;border-radius:18px;padding:26px;margin:20px 0;border:1px solid #dfebf5;box-shadow:0 8px 28px rgba(0,0,0,.035)}.cta{background:#facc45;color:#142538;text-decoration:none;display:inline-block;padding:11px 19px;border-radius:12px;font-weight:800}.subtle{color:#435973;font-size:.92rem}footer{background:#10233c;color:#e3edf8;padding:25px 5%;font-size:.9rem}footer a{color:#fff}@media(max-width:620px){header{justify-content:center;text-align:center}header nav{justify-content:center}.card{padding:18px}}
+/* Páginas orgánicas del catálogo: identidad oscura coherente con la tienda. */
+:root{color-scheme:dark;--navy:#0b1425;--panel:#112139;--panel2:#162b45;--ink:#f1f6ff;--muted:#b6cadf;--gold:#ffcc2b}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 85% 4%,rgba(47,93,156,.15),transparent 37%),var(--navy);color:var(--ink);font:400 16px/1.65 'DM Sans',Arial,Helvetica,sans-serif}
+a{color:#ffdc6a;text-underline-offset:3px}
+a:hover{color:#ffedab}
+header{background:#0d1c32;border-bottom:1px solid #27425f;color:#fff;padding:16px max(5%,calc((100vw - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+header a{color:#fff;text-decoration:none;font-weight:750}
+header nav{display:flex;gap:19px;flex-wrap:wrap}
+header nav a:hover{color:var(--gold)}
+main{max-width:980px;margin:30px auto 48px;padding:0 20px}
+main>nav{color:var(--muted);font-size:.85rem}
+.eyebrow{font-weight:750;letter-spacing:.07em;color:#8fb7e7;text-transform:uppercase;font-size:.8rem}
+h1{font-size:clamp(1.7rem,4vw,2.55rem);line-height:1.2;margin:14px 0 20px;letter-spacing:-.03em}
+h2,h3{color:#e7f1ff;margin:0 0 12px}
+h2{font-size:1.28rem}
+h3{font-size:1rem}
+.lead{font-size:1.08rem;color:#e7eff9;line-height:1.72}
+.card{background:var(--panel);border-radius:17px;padding:25px;margin:18px 0;border:1px solid #345273;box-shadow:0 8px 24px rgba(0,0,0,.14)}
+.card p:last-child{margin-bottom:0}
+.card li{margin-bottom:.55rem}
+.cta{background:var(--gold);color:#0b1c35!important;text-decoration:none;display:inline-block;padding:11px 19px;border-radius:10px;font-weight:800;margin-top:8px}
+.cta:hover{background:#ffe17d}
+.subtle{color:var(--muted);font-size:.91rem}
+.product-thumb{display:block;max-height:220px;max-width:100%;object-fit:contain;margin:0 auto 18px;border-radius:12px}
+footer{background:#0d1c32;border-top:1px solid #27425f;color:#cfdded;padding:25px 5%;font-size:.9rem}
+footer a{color:#ffdc6a}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(max-width:620px){header{justify-content:center;text-align:center;padding:14px 18px}header nav{justify-content:center}main{padding:0 16px}.card{padding:19px}}

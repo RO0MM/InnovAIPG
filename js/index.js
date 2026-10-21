@@ -152,7 +152,9 @@
       const backup=posterFromMedia(meta)||(domain?`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=256`:genericArtwork());
       return `<div class="hero-fallback"><img src="${esc(primary)}" data-fallback="${esc(backup)}" alt="${esc(product.name)}" referrerpolicy="strict-origin-when-cross-origin" onerror="if(!this.dataset.f){this.dataset.f='1';this.src=this.dataset.fallback||'${esc(genericArtwork())}';}else{this.onerror=null;this.src='${esc(genericArtwork())}';}"></div>`;
     }
-    function mediaMarkup(product,kind){const meta=productMedia(product);if(!meta.url)return fallbackHtml(product);return `${fallbackHtml(product)}<div class="media-shell js-media" data-kind="${esc(kind)}" data-source="${esc(meta.url)}" data-type="${esc(meta.type)}" data-fit="${esc(productFit(product))}"></div>`;}
+    function mediaMarkup(product,kind){const meta=productMedia(product);
+      if(!meta.url || kind==='promo' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return fallbackHtml(product);
+      return `${fallbackHtml(product)}<div class="media-shell js-media" data-kind="${esc(kind)}" data-source="${esc(meta.url)}" data-type="${esc(productFit(product))}"></div>`;}
     function safePlay(video){try{const p=video&&video.play&&video.play();if(p&&typeof p.catch==='function')p.catch(()=>{});}catch(_){}}
     function safePause(video){try{if(video&&video.pause)video.pause();}catch(_){}}
     function safeYT(player,method){try{if(player&&typeof player[method]==='function')player[method]();}catch(_){}}

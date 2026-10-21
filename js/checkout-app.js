@@ -172,12 +172,12 @@ const SUPABASE_URL = "https://rfjvskrimsoqlyofhidj.supabase.co";
       return null;
     }
     function isUnsafeActivationField(req){
-      const value = [req?.key,req?.label,req?.placeholder,req?.help].join(' ').toLowerCase();
-      return /chatgpt_session_text|auth\/session|texto completo de sesi[oó]n|session token|access token|bearer token|cookie de sesi[oó]n|token de sesi[oó]n/.test(value);
+      const value = [req?.key,req?.label,req?.placeholder].join(' ').toLowerCase();
+      return /chatgpt_session_text|auth\/session|texto completo de sesi[oó]n|session token|access token|bearer token|cookie de sesi[oó]n|token de sesi[oó]n|contrase[nñ]a|password|c[oó]digo (?:de )?verificaci[oó]n|c[oó]digo (?:otp|2fa)|one.time.password|recovery code|c[oó]digo de recuperaci[oó]n/i.test(value);
     }
     function safeActivationInstructions(value){
       const txt=String(value||'');
-      if(/auth\/session|texto completo de sesi[oó]n|copia todo el texto|pega (aqu[ií] )?el texto completo de sesi[oó]n/i.test(txt)){
+      if(/auth\/session|texto completo de sesi[oó]n|copia todo el texto|pega (aqu[ií] )?el texto completo de sesi[oó]n|(?:env[ií]a|comparte|pega|ingresa)(?:.{0,30})(?:contrase[nñ]a|password|token de sesi[oó]n|c[oó]digo de verificaci[oó]n)/i.test(txt)){
         return 'Por tu seguridad, nunca compartas contraseñas, cookies, códigos de verificación ni datos de sesión autenticada. Contacta al soporte para una modalidad segura de activación.';
       }
       return txt;
@@ -627,6 +627,11 @@ const SUPABASE_URL = "https://rfjvskrimsoqlyofhidj.supabase.co";
         _couponCode:currentCoupon || ''
       };
       startOrderRealtime();
+      // Un pedido generado NO equivale a un pago confirmado.
+      window.InnovMetrics?.track('generate_lead', {
+        currency: 'PEN', value: Number(currentOrder.total) || cartSubtotalValue,
+        lead_type: 'pedido_generado'
+      });
 
       // Respaldo: guarda los correos/datos requeridos en order_customer_inputs aunque la función de creación antigua no los registre.
       // Si ya fueron guardados por create_public_order_v2, esta llamada solo actualiza el mismo registro.
@@ -700,6 +705,7 @@ async function sendPaymentReview(){
       currentOrder._paymentSent=true; persistOrder();
       broadcastCheckoutDataChanged('payment_proofs', 'RPC');
       setStep(4);
+      window.InnovMetrics?.track('payment_info_submitted', {payment_type:'yape_manual'});
       $('statusBox').innerHTML = '<div class="alert-wait">Pago enviado a revisión. Se actualizará automáticamente cuando el administrador libere la entrega.</div>';
       startOrderRealtime();
       await notifyTelegram('payment_review', { operation_code: operation, message: $('customerNote').value.trim() });
@@ -1010,3 +1016,17 @@ async function sendPaymentReview(){
   syncCart();window.addEventListener('storage',syncCart);window.addEventListener('focus',syncCart);document.addEventListener('visibilitychange',function(){if(!document.hidden)syncCart()});
   ['headerCartBadge','headerCartBadgeSm','headerCartBadge2'].forEach(function(id){var old=document.getElementById(id);if(old&&window.MutationObserver){new MutationObserver(syncCart).observe(old,{childList:true,characterData:true,subtree:true})}});
 })();
+
+// Evento de inicio de checkout (nunca incluye datos personales).
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const raw = sessionStorage.getItem('innov_cart_v1') || localStorage.getItem('innov_cart_v1') || '[]';
+    const cartItems = JSON.parse(raw);
+    if(Array.isArray(cartItems) && cartItems.length){
+      window.InnovMetrics?.track('begin_checkout', {
+        currency:'PEN',
+        value: cartItems.reduce((s,x)=>s+(Number(x.precio)||0)*(Number(x.qty)||1),0)
+      });
+    }
+  }catch(_){}
+}, {once:true});

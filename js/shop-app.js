@@ -271,25 +271,43 @@
     // Default: disponible (verde)
     // Rojo si: disponible === false o cupo <= 0
     function isDisponible(it){
+      // Evitar ventas fantasma: el checkout solo acepta plan_id real de Supabase.
+      // El catálogo de respaldo es informativo, no permite pedidos sin DB.
+      if(it?.source !== 'supabase' && !it?.dbPlanId) return false;
       if(hasPlans(it)) return getPlans(it).some(p=>isPlanDisponible(p));
       const disp = (it.disponible !== false);
       if(!disp) return false;
       if(typeof it.cupo === 'number' && it.cupo <= 0) return false;
       return true;
     }
+    // Estado comercial preciso: un plan bajo pedido NO tiene "0 cupos disponibles".
+    // No modifica la autorización real de pedidos, que reside en Supabase.
+    function planStockLabel(plan){
+      if(!isPlanDisponible(plan)) return 'Sin stock';
+      const status = String(plan.availabilityStatus || plan.availability_status || 'available').toLowerCase();
+      const mode = String(plan.stockMode || plan.stock_mode || '').toLowerCase();
+      const raw = plan.availableStock ?? plan.cupo;
+      const qty = raw == null || raw === '' ? null : Number(raw);
+      if(status === 'consult') return 'Consultar disponibilidad';
+      if(mode === 'unlimited' || qty >= 999999) return 'Disponible';
+      if(Number.isFinite(qty) && qty > 0) return `${qty} disponibles`;
+      if(mode === 'manual' || mode === 'preorder' || plan.allowPurchaseWithoutStock || plan.allow_purchase_without_stock)
+        return 'Bajo pedido';
+      return 'Disponible';
+    }
     function statusLabel(it){
-      if(!isDisponible(it)){
-        return hasPlans(it) ? 'Sin stock' : 'No disponible';
+      if(it?.source !== 'supabase' && !it?.dbPlanId) return 'Consultar con soporte';
+      if(!isDisponible(it)) return hasPlans(it) ? 'Sin stock' : 'No disponible';
+      if(hasPlans(it)){
+        const availablePlans = getPlans(it).filter(isPlanDisponible);
+        const stock = availablePlans.reduce((sum,p)=>sum+(Number(p.cupo)>0?Number(p.cupo):0),0);
+        if(stock > 0) return stock >= 999999 ? 'Disponible' : `Disponible • ${stock} cupos`;
+        if(availablePlans.some(p=>String(p.availabilityStatus||'').toLowerCase()==='consult')) return 'Consultar disponibilidad';
+        if(availablePlans.some(p=>planStockLabel(p)==='Bajo pedido')) return 'Disponible bajo pedido';
+        return `Disponible • ${availablePlans.length} planes`;
       }
       const stock = stockAmount(it);
-      if(typeof stock === 'number'){
-        return stock >= 999999 ? 'Disponible • stock ilimitado' : `Disponible • ${stock} cupos`;
-      }
-      if(hasPlans(it)){
-        const availablePlans = getPlans(it).filter(p=>isPlanDisponible(p)).length;
-        return `Disponible • ${availablePlans}/${getPlans(it).length} planes`;
-      }
-      return 'Disponible';
+      return typeof stock === 'number' && stock>0 ? `Disponible • ${stock} cupos` : 'Disponible';
     }
 
     function stockAmount(it){
@@ -1545,7 +1563,7 @@
         const firstPlan = item.plans.find(p=>p.disponible) || item.plans[0];
         if(firstPlan){
           item.benefits = firstPlan.benefits || item.benefits;
-          const stockChip = (typeof item.cupo === 'number' && item.cupo > 0) ? `${item.cupo} disponibles` : 'Disponible';
+          const stockChip = (typeof item.cupo === 'number' && item.cupo > 0) ? `${item.cupo} disponibles` : planStockLabel(firstPlan);
           item.chips = [...new Set([...(item.chips||[]), ...(firstPlan.chips||[]), stockChip])].slice(0,5);
         }
 
@@ -1596,7 +1614,7 @@
       const wasReady = DB_CATALOG.ready;
       DB_CATALOG.loading = true;
       DB_CATALOG.error = null;
-      if(!silent) updateCatalogStatus('Cargando Supabase...');
+      if(!silent) updateCatalogStatus('Actualizando catálogo...');
 
       if(!supabaseClient){
         DB_CATALOG.loading = false;
@@ -1652,7 +1670,7 @@
 
       if(DB_CATALOG.error){
         el.classList.add('is-error');
-        el.innerHTML = `<span class="source-dot local"></span> Supabase sin conexión • respaldo local activo`;
+        el.innerHTML = `<span class="source-dot local"></span> Catálogo temporalmente sin conexión • consulta al soporte`;
         return;
       }
 
@@ -1663,7 +1681,7 @@
       }
 
       el.classList.add('is-warn');
-      el.innerHTML = `<span class="source-dot local"></span> Catálogo local activo`;
+      el.innerHTML = `<span class="source-dot local"></span> Catálogo temporalmente sin conexión • consulta al soporte`;
     }
 
     function mergedRetailCatalog(){
@@ -1903,7 +1921,7 @@
       const thumb = resolveThumb(it);
       const fallback = resolveThumbFallback(it);
       const videoUrl = resolveVideoUrl(it);
-      const hasVideo = !!videoUrl;
+      const hasVideo = false; // Vista de catálogo: conservar imagen limpia; video en el detalle.
       const periodText = hasPlans(it) ? `${getPlans(it).length} planes` : (it.period || '');
       const period = periodText ? `<div class="period-note">${esc(periodText)}</div>` : '';
       const addTitle = hasPlans(it) ? 'Agregar plan recomendado' : 'Agregar al carrito';
@@ -2024,6 +2042,11 @@ ${miniBadgesHTML(it)}
     function performCartAdd(sellItem, imageUrl, options = {}){
       if(!sellItem) return false;
       Cart.add(cartPayloadFromItem(sellItem, imageUrl || ''));
+      window.InnovMetrics?.track('add_to_cart', {
+        currency: 'PEN', value: Number(sellItem.price) || 0,
+        items: [{item_id: String(sellItem.dbPlanId || sellItem.id || ''),
+          item_name: sellItem.name || '', quantity: 1, price: Number(sellItem.price) || 0}]
+      });
       syncHeaderBadges();
       flyToCart({
         originEl: options.originEl || null,
@@ -2217,7 +2240,7 @@ ${miniBadgesHTML(it)}
         const active = modalPlan && modalPlan.id === plan.id;
         const disp = isPlanDisponible(plan);
         const chips = (plan.chips || []).slice(0,3).map(c=>`<span class="plan-chip">${esc(c)}</span>`).join('');
-        const stateChip = disp ? `<span class="plan-chip plan-stock-ok">${typeof plan.cupo==='number' ? plan.cupo + ' disponibles' : 'Disponible'}</span>` : '<span class="plan-chip plan-stock-bad">Sin stock</span>';
+        const stateChip = disp ? `<span class="plan-chip plan-stock-ok">${esc(planStockLabel(plan))}</span>` : '<span class="plan-chip plan-stock-bad">Sin stock</span>';
         return `
           <button type="button" class="plan-option ${active?'active':''} ${!disp?'is-unavailable':''}" data-plan-id="${esc(plan.id)}" ${!disp?'disabled':''}>
             <div class="plan-top">
@@ -2336,6 +2359,8 @@ ${miniBadgesHTML(it)}
       if(!it) return;
       modalItem = it;
       modalPlan = hasPlans(it) ? (match.plan || getDefaultPlan(it)) : null;
+      window.InnovMetrics?.track('view_item', {item_id: String(it.id), item_name: it.name,
+        item_category: it.cat || 'otros', currency: 'PEN'});
 
       /* ✅ Actualiza link directo: shop.html#p=ID */
       setProductHash(it.id);
