@@ -142,29 +142,13 @@ const SUPABASE_URL = "https://rfjvskrimsoqlyofhidj.supabase.co";
         price >= 25
       );
 
-      // ChatGPT: SOLO para planes de cuenta personal / correo propio.
+      // Activación de ChatGPT sin pedir cookies, tokens ni sesiones autenticadas.
       if(isPersonalChatGPT){
         return make([
-          {key:'chatgpt_account_email', label:'Correo Gmail de tu cuenta ChatGPT', type:'email', required:true, domain:'gmail.com', placeholder:'tucorreo@gmail.com', help:'Coloca el Gmail donde deseas activar ChatGPT Plus.'},
-          {key:'chatgpt_session_text', label:'Texto completo de sesión de ChatGPT', type:'textarea', required:true, min_length:80, placeholder:'Pega aquí todo el texto que aparece al abrir https://chatgpt.com/api/auth/session', help:'Inicia sesión en ChatGPT desde un navegador, abre el enlace y copia todo el texto.'}
-        ], 'Activación ChatGPT Plus cuenta personal',
-        'Tiempo máximo de activación: 12 horas. Puede validarse antes.',
-        `✨ PASOS PARA ACTIVAR TU CHATGPT PLUS
-
-1️⃣ Ingresa a tu cuenta de ChatGPT e inicia sesión normalmente con tu cuenta.
-
-2️⃣ Accede al siguiente enlace:
-🔗 https://chatgpt.com/api/auth/session
-
-3️⃣ Copia todo el texto que aparece. Recuerda iniciar con tu cuenta de ChatGPT en un navegador.
-
-4️⃣ Pega ese texto en el recuadro que aparece en esta página.
-
-5️⃣ Espera mi confirmación y luego refresca tu ChatGPT ✅
-
-🚫 Nota: en el paso 2, cierra todos los espacios de trabajo ChatGPT Business, si los hay, antes de recuperar la sesión.
-
-🚀 ¡Listo! Tu plan Plus quedará activado.`);
+          {key:'chatgpt_account_email', label:'Correo de contacto para la activación', type:'email', required:true, placeholder:'tucorreo@ejemplo.com', help:'No compartas contraseña, cookies ni datos de sesión.'}
+        ], 'Consulta de activación ChatGPT',
+        'El equipo confirmará una modalidad de activación segura y compatible con las políticas del proveedor.',
+        'Por tu seguridad, nunca compartas contraseñas, cookies, códigos de verificación ni el contenido de tu sesión autenticada.');
       }
 
       if(name.includes('gemini') || name.includes('google one')){
@@ -186,6 +170,17 @@ const SUPABASE_URL = "https://rfjvskrimsoqlyofhidj.supabase.co";
         return make([gmailField('Correo Gmail de Spotify / activación')], 'Datos para Spotify', 'La confirmación llegará a tu WhatsApp.', '🎵 Ingresa el Gmail donde deseas la activación de Spotify.');
       }
       return null;
+    }
+    function isUnsafeActivationField(req){
+      const value = [req?.key,req?.label,req?.placeholder,req?.help].join(' ').toLowerCase();
+      return /chatgpt_session_text|auth\/session|texto completo de sesi[oó]n|session token|access token|bearer token|cookie de sesi[oó]n|token de sesi[oó]n/.test(value);
+    }
+    function safeActivationInstructions(value){
+      const txt=String(value||'');
+      if(/auth\/session|texto completo de sesi[oó]n|copia todo el texto|pega (aqu[ií] )?el texto completo de sesi[oó]n/i.test(txt)){
+        return 'Por tu seguridad, nunca compartas contraseñas, cookies, códigos de verificación ni datos de sesión autenticada. Contacta al soporte para una modalidad segura de activación.';
+      }
+      return txt;
     }
     async function loadSpecialRequirements(){
       cart = readCart();
@@ -217,13 +212,13 @@ const SUPABASE_URL = "https://rfjvskrimsoqlyofhidj.supabase.co";
         const productFields = Array.isArray(productMeta.requirements) ? productMeta.requirements : [];
         const planFields = Array.isArray(planMeta.requirements) ? planMeta.requirements : [];
         const configuredFields = Array.isArray(config?.fields) ? config.fields : [];
-        const requirements = configuredFields.length ? configuredFields : (planFields.length ? planFields : productFields);
+        const requirements = (configuredFields.length ? configuredFields : (planFields.length ? planFields : productFields)).filter(req => !isUnsafeActivationField(req));
         const title = config?.title || planMeta.requirement_title || productMeta.requirement_title || 'Datos de activación';
-        const notice = config?.notice || planMeta.checkout_notice || productMeta.checkout_notice || '';
-        const instructions = config?.instructions || planMeta.checkout_instructions || productMeta.checkout_instructions || '';
+        const notice = safeActivationInstructions(config?.notice || planMeta.checkout_notice || productMeta.checkout_notice || '');
+        const instructions = safeActivationInstructions(config?.instructions || planMeta.checkout_instructions || productMeta.checkout_instructions || '');
 
         planRequirementMap.set(plan.id, { plan, product, requirements, title, notice, instructions });
-        const noticeParts = [notice, instructions, planMeta.delivery_eta_text ? 'Tiempo/estado: ' + planMeta.delivery_eta_text : '', planMeta.customer_chat_message ? 'Mensaje automático: ' + planMeta.customer_chat_message : ''].filter(Boolean);
+        const noticeParts = [notice, instructions, planMeta.delivery_eta_text ? 'Tiempo/estado: ' + safeActivationInstructions(planMeta.delivery_eta_text) : '', planMeta.customer_chat_message ? 'Mensaje automático: ' + safeActivationInstructions(planMeta.customer_chat_message) : ''].filter(Boolean);
         if(noticeParts.length){
           specialNotices.push({
             plan_id: plan.id,
@@ -297,7 +292,7 @@ const SUPABASE_URL = "https://rfjvskrimsoqlyofhidj.supabase.co";
         inputs.forEach(item => summaryLines.push(`- ${item.product_name} / ${item.plan_name} / ${item.label}: ${item.value}`));
       }
 
-      if(!softMode && !ok) toast('Revisa los datos requeridos. Los servicios de activación solicitan Gmail válido y ChatGPT cuenta personal requiere el texto completo.');
+      if(!softMode && !ok) toast('Revisa los datos requeridos. Los datos de activación deben ser válidos. Nunca compartas contraseñas o sesiones.');
       return { ok, data:{ items:inputs }, summary:summaryLines.join('\n') };
     }
     function activationFieldHtml(req, saved={}){

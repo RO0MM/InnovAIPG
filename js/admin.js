@@ -1621,7 +1621,14 @@ function editProduct(id){
 
 function buildCheckoutMetadata(base={}, productName='', planName=''){
   const current = (base && typeof base === 'object' && !Array.isArray(base)) ? {...base} : {};
-  if(Array.isArray(current.requirements) && current.requirements.length) return current;
+  // No guardar solicitudes de sesiones, cookies ni tokens de acceso (plantillas antiguas).
+  if(Array.isArray(current.requirements)){
+    current.requirements=current.requirements.filter(r=>!/(chatgpt_session_text|auth\/session|texto completo de sesi[oó]n|token de sesi[oó]n|session token|cookie de sesi[oó]n)/i.test([r?.key,r?.label,r?.placeholder,r?.help].join(' ')));
+    if(current.requirements.length){
+      if(/auth\/session|texto completo de sesi[oó]n|pega el texto completo/i.test(String(current.checkout_instructions||''))) current.checkout_instructions='Por seguridad, no compartas contraseñas ni sesiones autenticadas. Contacta soporte para una activación segura.';
+      return current;
+    }
+  }
 
   const raw = `${productName||''} ${planName||''}`;
   const name = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
@@ -1640,7 +1647,7 @@ function buildCheckoutMetadata(base={}, productName='', planName=''){
     const isSharedChatGPT = /(compartid|shared|alto trafico|alta demanda|pantalla|perfil|pc solo|celular|grupo|cupos)/.test(name);
     const isPersonalChatGPT = name.includes('chatgpt') && !isSharedChatGPT && /(cuenta personal|personal|cuenta propia|correo propio|propio|activacion directa|directa a tu correo)/.test(name);
     if(isPersonalChatGPT){
-      rule = {requirement_title:'Activación ChatGPT Plus cuenta personal', checkout_notice:'Tiempo máximo de activación: 12 horas. Puede validarse antes.', checkout_instructions:'✨ Ingresa el Gmail de tu cuenta y pega el texto completo de sesión solicitado.', requirements:[{key:'chatgpt_account_email',label:'Correo Gmail de tu cuenta ChatGPT',type:'email',required:true,domain:'gmail.com',placeholder:'tucorreo@gmail.com',help:'Coloca el Gmail donde deseas activar ChatGPT Plus.'},{key:'chatgpt_session_text',label:'Texto completo de sesión de ChatGPT',type:'textarea',required:true,min_length:80,placeholder:'Pega aquí todo el texto que aparece al abrir https://chatgpt.com/api/auth/session',help:'Inicia sesión en ChatGPT desde un navegador, abre el enlace y copia todo el texto.'}]};
+      rule = {requirement_title:'Activación ChatGPT Plus cuenta personal', checkout_notice:'Tiempo máximo de activación: 12 horas. Puede validarse antes.', checkout_instructions:'Indica solo tu correo de contacto. No compartas contraseñas, cookies ni sesiones.', requirements:[{key:'chatgpt_account_email',label:'Correo de contacto para la activación',type:'email',required:true,placeholder:'tucorreo@ejemplo.com',help:'No compartas datos de autenticación.'}]};
     }
   }
 

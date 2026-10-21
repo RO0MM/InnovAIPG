@@ -1,0 +1,20 @@
+/* SEO landing content; restrained layout that inherits existing site palette */
+.seo-intro,.seo-about{max-width:1260px;margin:18px auto 24px;padding:24px 28px;border-radius:20px;background:linear-gradient(135deg,#101f35,#183856);color:#f8fafc;box-shadow:0 12px 32px rgba(5,19,34,.1)}
+.seo-intro h1{font-size:clamp(1.45rem,2.5vw,2.2rem);line-height:1.25;margin:8px 0 12px;color:#fff;font-weight:800}
+.seo-intro p{max-width:900px;color:#e0e7ef;line-height:1.6;margin-bottom:14px}
+.seo-intro-topline{color:#fcd34d;font-size:.82rem;letter-spacing:.05em;font-weight:800}
+.seo-category-links,.seo-quick-categories{display:flex;flex-wrap:wrap;gap:9px}
+.seo-category-links a,.seo-quick-categories a{display:inline-block;border-radius:99px;padding:8px 13px;background:#f9c642;color:#15233b!important;font-weight:800;font-size:.82rem;text-decoration:none}
+.seo-category-links a:hover,.seo-quick-categories a:hover{background:#fff;color:#16283b!important;text-decoration:none}
+.seo-about{background:#f5f8fc;color:#18283a;border:1px solid #dce6ef;box-shadow:none}
+.seo-about h2{font-size:clamp(1.15rem,2vw,1.55rem);color:#162d4a;font-weight:800;margin-bottom:10px}
+.seo-about h3{font-size:1rem;color:#162d4a;font-weight:800;margin-bottom:7px}
+.seo-about p{line-height:1.6;margin:0 0 12px}
+.seo-about-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:20px 0}
+.seo-about-grid>div{background:#fff;border-radius:14px;padding:15px;border:1px solid #e1e8f0}
+.seo-about .seo-disclaimer{font-size:.85rem;color:#43556e;margin:10px 0 0}
+.seo-shop-intro{max-width:1360px;margin:25px auto 10px;padding:18px 24px;background:#f6f9fc;border-radius:16px;border:1px solid #dfe7f1}
+.seo-shop-intro h1{font-size:clamp(1.3rem,2vw,1.9rem);font-weight:800;color:#162d4a;margin:0 0 8px}
+.seo-shop-intro p{color:#31445b;margin:0 0 12px;line-height:1.55}
+.seo-quick-categories a{background:#e8f0fb;color:#184275!important}
+@media(max-width:720px){.seo-intro,.seo-about{margin:12px 10px 18px;padding:19px}.seo-about-grid{grid-template-columns:1fr}.seo-shop-intro{margin:12px;padding:17px}}

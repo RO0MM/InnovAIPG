@@ -757,31 +757,6 @@
             ]
       },
       {
-            "id": "rt-tools-public-check",
-            "priority": 9,
-            "name": "DOX CEO",
-            "price": 5,
-            "cat": "otros",
-            "url": "https://innovaishop.com/shop.html",
-            "thumb": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgXdj-JxPTeKEbXY6fMhE44KYY4aVoWMULLw&s",
-            "period": "Entrega rápida",
-            "cupo": null,
-            "disponible": true,
-            "chips": [
-                  "Legal",
-                  "Fuentes públicas",
-                  "S/5"
-            ],
-            "desc": "Busqueda de informacion por DNI, numero de cel ",
-            "benefits": [
-                  "🔎 C4, arbol genealogico, dudas, ETC",
-                  "📄 Busqueda de deuda",
-                  "⚡ Precio por cada uno",
-                  "🛟 Atake con spam a N° de celulares"
-            ],
-            "why": "Por cada accion es el precio, todo confidencial bajo uso respondable del que adquiera el servicio"
-      },
-      {
             "id": "rt-tools-autodesk",
             "priority": 11,
             "name": "Autodesk Suite",
@@ -2489,6 +2464,20 @@ ${miniBadgesHTML(it)}
     /* ================== Filtros ================== */
 
     const shopSearchInput = document.getElementById('shopSearchInput');
+    // Permite aterrizar en la tienda desde buscadores y guías por categoría.
+    const initialParams = new URLSearchParams(window.location.search);
+    const initialCategory = initialParams.get('category');
+    if(['ai','streaming','musica','otros'].includes(initialCategory)){
+      state.cats = new Set([initialCategory]);
+      document.querySelectorAll('.js-cat').forEach(chk => { chk.checked = chk.value === initialCategory; });
+    }
+    const initialQuery = (initialParams.get('q') || '').trim().slice(0,120);
+    if(initialQuery){
+      state.search = initialQuery;
+      if(shopSearchInput) shopSearchInput.value = initialQuery;
+      const mobileSearch = document.getElementById('shopMobileSearch');
+      if(mobileSearch) mobileSearch.value = initialQuery;
+    }
     if(shopSearchInput){
       shopSearchInput.addEventListener('input', ()=>{
         state.search = shopSearchInput.value.trim();
