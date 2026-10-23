@@ -65,6 +65,17 @@ def render(p):
 <link rel="canonical" href="{escape(canonical)}">
 <meta property="og:type" content="product"><meta property="og:title" content="{escape(name)}">
 <meta property="og:description" content="{escape(meta)}"><meta property="og:url" content="{escape(canonical)}">
+<meta property="og:site_name" content="Innov AI Tienda">
+<meta property="og:locale" content="es_PE">
+<meta property="og:image" content="https://www.innovaishop.com/assets/og/innov-tienda-og-v2.jpg">
+<meta property="og:image:secure_url" content="https://www.innovaishop.com/assets/og/innov-tienda-og-v2.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Innov AI Tienda, robot dorado y perrito en paisaje lunar">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{escape(name)} en Perú | Innov AI Tienda">
+<meta name="twitter:description" content="{escape(meta)}">
+<meta name="twitter:image" content="https://www.innovaishop.com/assets/og/innov-tienda-og-v2.jpg">
 <link rel="icon" href="../assets/img/favicon-64.png">
 <link rel="stylesheet" href="../css/seo-pages.css">
 <script type="application/ld+json">{script}</script></head>
